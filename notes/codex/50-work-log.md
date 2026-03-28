@@ -142,3 +142,29 @@ Observed issues:
 Actions:
 
 - updated `.gitignore` to exclude `*.code-workspace`, `project/apps/*/sdkconfig`, and `project/apps/*/sdkconfig.old`
+
+## 2026-03-28 16:00 Europe/London
+
+Commands run:
+
+- `Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description`
+
+Observed issues:
+
+- serial port enumeration is blocked in the sandbox with `Access denied`, so direct port verification from the local environment requires elevated execution
+
+Actions:
+
+- using user-provided `COM3` as the candidate M5Stack Dial target for program-flow validation
+- updated `program.ps1` to fail hard on non-zero `idf.py flash` exit codes
+
+## 2026-03-28 16:03 Europe/London
+
+Commands run:
+
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM3`
+
+Validation:
+
+- `program.ps1 ... -Unit COM3` -> success; flashed bootloader, partition table, and app image to an ESP32-S3 device on `COM3`
+- esptool identified the target as `ESP32-S3 (QFN56)` with embedded `8MB` flash using `USB-Serial/JTAG`

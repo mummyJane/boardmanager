@@ -23,3 +23,4 @@ Last updated: 2026-03-28 15:49 Europe/London
 - [ ] Add concrete `esp-idf` and `stm32cube` implementations behind the generated boot stubs
 - [ ] Add automated STM32Cube local installation and a STM32 build test
 - [ ] Validate programming flow against multiple connected units
+- [x] Validate programming flow against a connected ESP32 unit on COM3

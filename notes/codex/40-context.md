@@ -38,3 +38,4 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - board profile includes key power, display, touch, RFID, encoder, I2C, SPI, expansion port mappings, and boot order
 - reusable parts capture shared metadata for ESP32-S3, ESP32-S3FN8, M5StampS3, BM8563, WS1850S, FT3267, and GC9A01
 - ESP32-family boards are currently mapped to `esp-idf`; STM32-family boards are currently mapped to `stm32cube`
+- programming flow validated against a connected ESP32-S3 device on `COM3`; esptool identified it as an ESP32-S3 with embedded 8MB flash over USB-Serial/JTAG

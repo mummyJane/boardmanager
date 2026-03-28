@@ -24,7 +24,10 @@ try {
 
         Push-Location $appRoot
         try {
-            idf.py -B $buildDir -p $Unit flash
+            & idf.py -B $buildDir -p $Unit flash
+            if ($LASTEXITCODE -ne 0) {
+                throw "idf.py flash failed with exit code $LASTEXITCODE"
+            }
         }
         finally {
             Pop-Location
