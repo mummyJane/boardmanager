@@ -27,3 +27,7 @@
 ## 2026-03-28 16:10 Europe/London
 
 - Added explicit validation requirements for part, board, and project definitions. This change is needed because the data model now has enough cross-references that generation, build, and flash should fail early on invalid wiring or override references instead of producing broken artifacts.
+
+## 2026-03-28 16:16 Europe/London
+
+- Completed the transition of sample boards to the reusable-part assembly schema. This change is needed to eliminate the mixed legacy/new board-definition paths and keep validation, generation, and future tooling focused on one consistent model.

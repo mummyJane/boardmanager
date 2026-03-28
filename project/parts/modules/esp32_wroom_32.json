@@ -1,0 +1,11 @@
+{
+  "partId": "esp32_wroom_32",
+  "partType": "module",
+  "displayName": "ESP32-WROOM-32",
+  "vendor": "Espressif",
+  "packageId": "esp32_wroom_32_package",
+  "mcuId": "esp32",
+  "notes": [
+    "Generic ESP32-WROOM-32 controller module for relay and utility boards"
+  ]
+}

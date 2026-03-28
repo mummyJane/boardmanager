@@ -1,0 +1,16 @@
+{
+  "partId": "stm32f446re_lqfp64",
+  "partType": "package",
+  "displayName": "STM32F446RE LQFP64",
+  "vendor": "STMicroelectronics",
+  "mcuId": "stm32f446",
+  "pins": {
+    "PA5": "PA5",
+    "PB4": "PB4",
+    "PC13": "PC13",
+    "PA2": "PA2",
+    "PA3": "PA3",
+    "PA13": "PA13",
+    "PA14": "PA14"
+  }
+}

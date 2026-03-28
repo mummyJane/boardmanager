@@ -32,3 +32,7 @@
 ## 2026-03-28 16:10 Europe/London
 
 - Treat metadata validation as a required pre-build and pre-program gate so broken part references, boot steps, and project overrides fail before toolchain work starts.
+
+## 2026-03-28 16:16 Europe/London
+
+- Remove the remaining legacy flat-board samples and keep all active board definitions on the reusable controller/package/module schema so validation and generation only have one primary path to maintain.

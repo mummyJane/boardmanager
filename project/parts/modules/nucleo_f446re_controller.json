@@ -1,0 +1,11 @@
+{
+  "partId": "nucleo_f446re_controller",
+  "partType": "module",
+  "displayName": "Nucleo-F446RE Controller",
+  "vendor": "STMicroelectronics",
+  "packageId": "stm32f446re_lqfp64",
+  "mcuId": "stm32f446",
+  "notes": [
+    "Generic STM32 Nucleo-F446RE controller representation for sample boards"
+  ]
+}

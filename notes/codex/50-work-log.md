@@ -186,3 +186,23 @@ Validation:
 
 - `validate.ps1` -> success; validated 7 parts, 3 boards, and 1 projects
 - `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success with validation gate enabled
+
+## 2026-03-28 16:16 Europe/London
+
+Commands run:
+
+- `validate.ps1`
+- `node project/scripts/generate-board-artifacts.mjs`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+
+Actions:
+
+- added reusable ESP32 and STM32 sample parts for the remaining generic boards
+- converted `esp32_dev_relay_v1` and `stm32_nucleo_io_v1` from legacy flat board definitions to controller-based board assemblies
+- regenerated firmware artifacts using the unified schema path for all boards
+
+Validation:
+
+- `validate.ps1` -> success; validated 13 parts, 3 boards, and 1 projects
+- `node project/scripts/generate-board-artifacts.mjs` -> success; regenerated all board artifacts using the unified model
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success after converting the sample boards

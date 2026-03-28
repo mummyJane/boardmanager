@@ -1,0 +1,24 @@
+{
+  "partId": "esp32",
+  "partType": "mcu",
+  "displayName": "ESP32",
+  "vendor": "Espressif",
+  "sdk": "esp-idf",
+  "cpu": "Xtensa LX6 dual-core",
+  "wireless": ["wifi", "bluetooth_classic", "bluetooth_le"],
+  "peripherals": {
+    "uart": ["UART0", "UART1", "UART2"],
+    "i2c": ["I2C0", "I2C1"],
+    "spi": ["SPI0", "SPI1", "HSPI", "VSPI"],
+    "i2s": ["I2S0", "I2S1"],
+    "twai": ["TWAI0"],
+    "adc": ["ADC1", "ADC2"],
+    "pwm": ["LEDC"],
+    "touch": ["TOUCH0", "TOUCH1", "TOUCH2", "TOUCH3", "TOUCH4", "TOUCH5", "TOUCH6", "TOUCH7", "TOUCH8", "TOUCH9"]
+  },
+  "signals": [
+    "GPIO0", "GPIO1", "GPIO2", "GPIO3", "GPIO4", "GPIO5", "GPIO12", "GPIO13", "GPIO14", "GPIO15",
+    "GPIO16", "GPIO17", "GPIO18", "GPIO19", "GPIO21", "GPIO22", "GPIO23", "GPIO25", "GPIO26", "GPIO27",
+    "GPIO32", "GPIO33", "GPIO34", "GPIO35", "GPIO36", "GPIO39"
+  ]
+}

@@ -2,22 +2,22 @@
   "boardId": "stm32_nucleo_io_v1",
   "displayName": "STM32 Nucleo IO V1",
   "revision": "1.0",
-  "mcu": {
-    "family": "STM32",
-    "partNumber": "STM32F446RE"
+  "vendor": "STMicroelectronics",
+  "productSku": "sample-stm32-nucleo-io-v1",
+  "controller": {
+    "moduleId": "nucleo_f446re_controller"
   },
   "capabilities": {
     "usb": true,
     "uart": true,
     "jtag": true
   },
-  "io": [
+  "signals": [
     {
       "name": "heartbeat_led",
       "kind": "digital_output",
       "logicalFunction": "status_indicator",
-      "mcuSignal": "PA5",
-      "mcuPin": "PA5",
+      "controllerSignal": "PA5",
       "peripheral": null,
       "activeLevel": "high"
     },
@@ -25,8 +25,7 @@
       "name": "fan_enable",
       "kind": "digital_output",
       "logicalFunction": "power_enable",
-      "mcuSignal": "PB4",
-      "mcuPin": "PB4",
+      "controllerSignal": "PB4",
       "peripheral": null,
       "activeLevel": "high"
     },
@@ -34,10 +33,14 @@
       "name": "fault_input",
       "kind": "digital_input",
       "logicalFunction": "fault_detect",
-      "mcuSignal": "PC13",
-      "mcuPin": "PC13",
+      "controllerSignal": "PC13",
       "peripheral": "EXTI13",
       "activeLevel": "low"
     }
+  ],
+  "bootSequence": [
+    { "name": "controller", "kind": "module" },
+    { "name": "heartbeat_led_off", "kind": "signal", "signal": "heartbeat_led", "state": false },
+    { "name": "fan_disable", "kind": "signal", "signal": "fan_enable", "state": false }
   ]
 }
