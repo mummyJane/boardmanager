@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-28 15:49 Europe/London
+Last updated: 2026-03-28 16:31 Europe/London
 
 ## Project Intent
 
@@ -41,3 +41,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - programming flow validated against a connected ESP32-S3 device on `COM3`; esptool identified it as an ESP32-S3 with embedded 8MB flash over USB-Serial/JTAG
 - definition validation now checks reusable parts, board assemblies, boot-sequence references, bus/device signal links, and project-level overrides before build or flash
 - the legacy flat sample boards have been converted to reusable-part board assemblies, so all current boards now flow through the same controller/package/module schema and boot-sequence generation path
+- generated board APIs now delegate to concrete platform hook implementations instead of leaving boot and IO control in generated TODO stubs
+- concrete platform implementations now exist under `project/platform/esp-idf` and `project/platform/stm32cube`
+- the `m5stack_dial_demo` ESP32 app now compiles with the concrete M5Stack Dial ESP-IDF platform layer linked into the generated board component
+
+

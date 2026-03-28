@@ -1,8 +1,13 @@
 #include "stm32_nucleo_io_v1.h"
 
+void stm32_nucleo_io_v1_platform_boot_controller(void);
+void stm32_nucleo_io_v1_platform_heartbeat_led_set(bool enabled);
+void stm32_nucleo_io_v1_platform_fan_enable_set(bool enabled);
+bool stm32_nucleo_io_v1_platform_fault_input_read(void);
+
 static void stm32_nucleo_io_v1_boot_controller(void)
 {
-    /* TODO: initialize controller module nucleo_f446re_controller using stm32cube. */
+    stm32_nucleo_io_v1_platform_boot_controller();
 }
 
 static const board_io_descriptor_t stm32_nucleo_io_v1_io[] = {
@@ -32,18 +37,15 @@ void stm32_nucleo_io_v1_init(void)
 
 void stm32_nucleo_io_v1_heartbeat_led_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    stm32_nucleo_io_v1_platform_heartbeat_led_set(enabled);
 }
 
 void stm32_nucleo_io_v1_fan_enable_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    stm32_nucleo_io_v1_platform_fan_enable_set(enabled);
 }
 
 bool stm32_nucleo_io_v1_fault_input_read(void)
 {
-    /* TODO: read the mapped MCU input. */
-    return false;
+    return stm32_nucleo_io_v1_platform_fault_input_read();
 }

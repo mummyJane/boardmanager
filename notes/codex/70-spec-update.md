@@ -31,3 +31,9 @@
 ## 2026-03-28 16:16 Europe/London
 
 - Completed the transition of sample boards to the reusable-part assembly schema. This change is needed to eliminate the mixed legacy/new board-definition paths and keep validation, generation, and future tooling focused on one consistent model.
+
+## 2026-03-28 16:31 Europe/London
+
+- Added an explicit generated-to-platform hook boundary for board boot and IO control. This change is needed because the project now has concrete `esp-idf` and `stm32cube` implementations, and those must survive regeneration while still matching the generated board API surface.
+
+

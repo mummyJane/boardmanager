@@ -36,3 +36,10 @@
 ## 2026-03-28 16:16 Europe/London
 
 - Remove the remaining legacy flat-board samples and keep all active board definitions on the reusable controller/package/module schema so validation and generation only have one primary path to maintain.
+
+## 2026-03-28 16:31 Europe/London
+
+- Keep generated board files as stable wrappers and move SDK-specific boot and signal logic into hand-written platform hook files under `project/platform`, so regeneration does not clobber concrete firmware work.
+- Validate the first concrete platform layer by wiring it into the real ESP-IDF app build, not just by generating files.
+
+

@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 15:49 Europe/London
+Last updated: 2026-03-28 16:31 Europe/London
 
 ## Goal
 
@@ -39,6 +39,7 @@ Requirements:
 - generated code must not contain parent-directory include paths; include resolution is owned by the build system
 - generator output must be deterministic so generated firmware artifacts can be committed and reviewed
 - generated APIs must expose initialization and one function per named output or readable input where applicable
+- generated boot and signal APIs must delegate through a stable board-level hook layer so concrete `esp-idf` and `stm32cube` implementations can live outside generated files
 - the schema must be extensible for buses, analog channels, interrupts, and board variants
 
 ### Stage 2: Board Discovery And Database
@@ -99,3 +100,5 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
+

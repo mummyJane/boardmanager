@@ -1,42 +1,54 @@
 #include "m5stack_dial_v1_1.h"
 
+void m5stack_dial_v1_1_platform_boot_controller(void);
+void m5stack_dial_v1_1_platform_boot_internal_i2c(void);
+void m5stack_dial_v1_1_platform_boot_rtc(void);
+void m5stack_dial_v1_1_platform_boot_touch(void);
+void m5stack_dial_v1_1_platform_boot_rfid(void);
+void m5stack_dial_v1_1_platform_boot_display_spi(void);
+void m5stack_dial_v1_1_platform_boot_display(void);
+void m5stack_dial_v1_1_platform_power_hold_set(bool enabled);
+void m5stack_dial_v1_1_platform_lcd_backlight_set(bool enabled);
+void m5stack_dial_v1_1_platform_buzzer_set(bool enabled);
+void m5stack_dial_v1_1_platform_rfid_reset_set(bool enabled);
+bool m5stack_dial_v1_1_platform_touch_interrupt_read(void);
+bool m5stack_dial_v1_1_platform_rfid_interrupt_read(void);
+bool m5stack_dial_v1_1_platform_encoder_phase_a_read(void);
+bool m5stack_dial_v1_1_platform_encoder_phase_b_read(void);
+
 static void m5stack_dial_v1_1_boot_controller(void)
 {
-    /* TODO: initialize controller module m5stamps3 using esp-idf. */
+    m5stack_dial_v1_1_platform_boot_controller();
 }
 
 static void m5stack_dial_v1_1_boot_internal_i2c(void)
 {
-    /* TODO: initialize i2c bus internal_i2c on I2C0 using esp-idf. */
+    m5stack_dial_v1_1_platform_boot_internal_i2c();
 }
 
 static void m5stack_dial_v1_1_boot_rtc(void)
 {
-    /* TODO: initialize device rtc (bm8563) on bus internal_i2c using esp-idf. */
-    /* Local config: {"i2cAddress":"0x51"} */
+    m5stack_dial_v1_1_platform_boot_rtc();
 }
 
 static void m5stack_dial_v1_1_boot_touch(void)
 {
-    /* TODO: initialize device touch (ft3267) on bus internal_i2c using esp-idf. */
-    /* Local config: {"i2cAddress":"0x38","interruptSignal":"touch_interrupt"} */
+    m5stack_dial_v1_1_platform_boot_touch();
 }
 
 static void m5stack_dial_v1_1_boot_rfid(void)
 {
-    /* TODO: initialize device rfid (ws1850s) on bus internal_i2c using esp-idf. */
-    /* Local config: {"i2cAddress":"0x28","interruptSignal":"rfid_interrupt","resetSignal":"rfid_reset"} */
+    m5stack_dial_v1_1_platform_boot_rfid();
 }
 
 static void m5stack_dial_v1_1_boot_display_spi(void)
 {
-    /* TODO: initialize spi bus display_spi on SPI2 using esp-idf. */
+    m5stack_dial_v1_1_platform_boot_display_spi();
 }
 
 static void m5stack_dial_v1_1_boot_display(void)
 {
-    /* TODO: initialize device display (gc9a01) on bus display_spi using esp-idf. */
-    /* Local config: {"resetSignal":"rfid_reset","backlightSignal":"lcd_backlight"} */
+    m5stack_dial_v1_1_platform_boot_display();
 }
 
 static const board_io_descriptor_t m5stack_dial_v1_1_io[] = {
@@ -77,48 +89,40 @@ void m5stack_dial_v1_1_init(void)
 
 void m5stack_dial_v1_1_power_hold_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    m5stack_dial_v1_1_platform_power_hold_set(enabled);
 }
 
 void m5stack_dial_v1_1_lcd_backlight_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    m5stack_dial_v1_1_platform_lcd_backlight_set(enabled);
 }
 
 void m5stack_dial_v1_1_buzzer_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    m5stack_dial_v1_1_platform_buzzer_set(enabled);
 }
 
 void m5stack_dial_v1_1_rfid_reset_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    m5stack_dial_v1_1_platform_rfid_reset_set(enabled);
 }
 
 bool m5stack_dial_v1_1_touch_interrupt_read(void)
 {
-    /* TODO: read the mapped MCU input. */
-    return false;
+    return m5stack_dial_v1_1_platform_touch_interrupt_read();
 }
 
 bool m5stack_dial_v1_1_rfid_interrupt_read(void)
 {
-    /* TODO: read the mapped MCU input. */
-    return false;
+    return m5stack_dial_v1_1_platform_rfid_interrupt_read();
 }
 
 bool m5stack_dial_v1_1_encoder_phase_a_read(void)
 {
-    /* TODO: read the mapped MCU input. */
-    return false;
+    return m5stack_dial_v1_1_platform_encoder_phase_a_read();
 }
 
 bool m5stack_dial_v1_1_encoder_phase_b_read(void)
 {
-    /* TODO: read the mapped MCU input. */
-    return false;
+    return m5stack_dial_v1_1_platform_encoder_phase_b_read();
 }

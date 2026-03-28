@@ -206,3 +206,44 @@ Validation:
 - `validate.ps1` -> success; validated 13 parts, 3 boards, and 1 projects
 - `node project/scripts/generate-board-artifacts.mjs` -> success; regenerated all board artifacts using the unified model
 - `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success after converting the sample boards
+
+## 2026-03-28 16:31 Europe/London
+
+Commands run:
+
+- `git status --short --branch`
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/generate-board-artifacts.mjs`
+- `Get-Content project/apps/m5stack_dial_demo/components/board_manager_generated/CMakeLists.txt`
+- `Get-ChildItem -Recurse project/platform | Select-Object FullName`
+- `Get-Content project/platform/esp-idf/m5stack_dial_v1_1_platform.c`
+- `Get-Content project/platform/esp-idf/esp32_dev_relay_v1_platform.c`
+- `Get-Content project/platform/stm32cube/stm32_nucleo_io_v1_platform.c`
+- `Get-Content project/platform/README.md`
+- `Get-Content project/boards/m5stack_dial_v1_1.json`
+- `node project/scripts/generate-board-artifacts.mjs`
+- `validate.ps1`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+- `Get-Content project/platform/esp-idf/m5stack_dial_v1_1_platform.c | Select-Object -First 40`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` after fixing the missing forward declaration
+
+Observed issues:
+
+- the new ESP-IDF platform implementation initially failed to compile because `m5stack_dial_v1_1_platform_rfid_reset_set` was called before it was declared, and the compiler treated that as an error
+- the first concrete Dial platform implementation currently shares GPIO8 as the reset/control line referenced by both the RFID and display metadata, matching the present board definition but still worth revisiting when the device-level model is refined
+
+Actions:
+
+- changed generated board source files so boot and IO functions delegate through stable platform hook symbols instead of leaving TODO bodies in generated code
+- added hand-written concrete platform implementations for `m5stack_dial_v1_1`, `esp32_dev_relay_v1`, and `stm32_nucleo_io_v1` under `project/platform/`
+- wired the `m5stack_dial_demo` ESP-IDF component to compile the concrete M5Stack Dial platform implementation alongside the generated board source
+- fixed the ESP-IDF Dial platform source by adding an explicit forward declaration for the reset helper and removing the unused conversion helper
+- added install/update milestone wrappers for the concrete-platform release and pointed `latest` at that release
+
+Validation:
+
+- `validate.ps1` -> success; validated 13 parts, 3 boards, and 1 projects
+- first `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> failed as expected on the missing forward declaration in `m5stack_dial_v1_1_platform.c`
+- second `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success; concrete ESP-IDF platform layer compiled and linked into `m5stack_dial_demo` under `project/build/esp32-m5stack_dial_demo`
+

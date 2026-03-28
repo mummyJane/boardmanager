@@ -193,7 +193,20 @@ function generateHeader(board, resolvedSignals) {
   return `${lines.join("\n")}\n`;
 }
 
+function emitBootHookPrototype(boardId, stepName) {
+  return `void ${boardId}_platform_boot_${sanitizeName(stepName)}(void);`;
+}
+
+function emitSignalHookPrototype(boardId, signal) {
+  if (signal.kind === "digital_output") {
+    return `void ${boardId}_platform_${signal.name}_set(bool enabled);`;
+  }
+
+  return `bool ${boardId}_platform_${signal.name}_read(void);`;
+}
+
 function generateBootSequence(board, controller, resolvedSignals, busIndex, deviceIndex) {
+  const hookPrototypes = [];
   const helperLines = [];
   const initLines = [];
   const outputSignals = new Set(resolvedSignals.filter((signal) => signal.kind === "digital_output").map((signal) => signal.name));
@@ -201,31 +214,12 @@ function generateBootSequence(board, controller, resolvedSignals, busIndex, devi
 
   for (const step of board.bootSequence ?? []) {
     const stepName = sanitizeName(step.name ?? step.kind);
+    const hookName = `${board.boardId}_platform_boot_${stepName}`;
 
-    if (step.kind === "module") {
-      const helperName = `${board.boardId}_boot_${stepName}`;
-      helperLines.push(`static void ${helperName}(void)`, "{", `    /* TODO: initialize controller module ${controller.module?.partId ?? board.controller?.moduleId ?? "controller"} using ${platformSdk}. */`, "}", "");
-      initLines.push(`    ${helperName}();`);
-      continue;
-    }
-
-    if (step.kind === "bus") {
-      const bus = busIndex.get(step.bus);
-      const helperName = `${board.boardId}_boot_${stepName}`;
-      helperLines.push(`static void ${helperName}(void)`, "{", `    /* TODO: initialize ${bus?.kind ?? "bus"} bus ${step.bus} on ${bus?.controllerPeripheral ?? "controller peripheral"} using ${platformSdk}. */`, "}", "");
-      initLines.push(`    ${helperName}();`);
-      continue;
-    }
-
-    if (step.kind === "device") {
-      const device = deviceIndex.get(step.instanceId);
-      const helperName = `${board.boardId}_boot_${stepName}`;
-      helperLines.push(`static void ${helperName}(void)`, "{", `    /* TODO: initialize device ${step.instanceId} (${device?.part?.partId ?? device?.partId ?? "unknown_part"}) on bus ${device?.busName ?? "unknown_bus"} using ${platformSdk}. */`);
-      if (device?.config) {
-        helperLines.push(`    /* Local config: ${JSON.stringify(device.config)} */`);
-      }
-      helperLines.push("}", "");
-      initLines.push(`    ${helperName}();`);
+    if (["module", "bus", "device"].includes(step.kind)) {
+      hookPrototypes.push(emitBootHookPrototype(board.boardId, step.name ?? step.kind));
+      helperLines.push(`static void ${board.boardId}_boot_${stepName}(void)`, "{", `    ${hookName}();`, "}", "");
+      initLines.push(`    ${board.boardId}_boot_${stepName}();`);
       continue;
     }
 
@@ -233,12 +227,17 @@ function generateBootSequence(board, controller, resolvedSignals, busIndex, devi
       if (outputSignals.has(step.signal)) {
         initLines.push(`    ${board.boardId}_${step.signal}_set(${step.state ? "true" : "false"});`);
       } else {
-        initLines.push(`    /* TODO: boot step ${stepName} references non-output signal ${step.signal}. */`);
+        initLines.push(`    /* Invalid boot signal reference retained for visibility: ${step.signal}. */`);
       }
     }
   }
 
+  for (const signal of resolvedSignals) {
+    hookPrototypes.push(emitSignalHookPrototype(board.boardId, signal));
+  }
+
   return {
+    hookPrototypes,
     helperLines,
     initLines,
     platformSdk,
@@ -252,6 +251,14 @@ function generateSource(board, controller, resolvedSignals, busIndex, deviceInde
     `#include "${board.boardId}.h"`,
     ""
   ];
+
+  for (const prototype of boot.hookPrototypes) {
+    lines.push(prototype);
+  }
+
+  if (boot.hookPrototypes.length > 0) {
+    lines.push("");
+  }
 
   if (boot.helperLines.length > 0) {
     lines.push(...boot.helperLines);
@@ -299,9 +306,9 @@ function generateSource(board, controller, resolvedSignals, busIndex, deviceInde
     lines.push("");
 
     if (signal.kind === "digital_output") {
-      lines.push(`void ${board.boardId}_${signal.name}_set(bool enabled)`, "{", "    (void)enabled;", "    /* TODO: drive the mapped MCU output. */", "}");
+      lines.push(`void ${board.boardId}_${signal.name}_set(bool enabled)`, "{", `    ${board.boardId}_platform_${signal.name}_set(enabled);`, "}");
     } else if (signal.kind === "digital_input") {
-      lines.push(`bool ${board.boardId}_${signal.name}_read(void)`, "{", "    /* TODO: read the mapped MCU input. */", "    return false;", "}");
+      lines.push(`bool ${board.boardId}_${signal.name}_read(void)`, "{", `    return ${board.boardId}_platform_${signal.name}_read();`, "}");
     }
   }
 

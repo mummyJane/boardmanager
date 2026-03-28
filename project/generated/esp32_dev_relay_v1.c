@@ -1,8 +1,13 @@
 #include "esp32_dev_relay_v1.h"
 
+void esp32_dev_relay_v1_platform_boot_controller(void);
+void esp32_dev_relay_v1_platform_status_led_set(bool enabled);
+void esp32_dev_relay_v1_platform_relay_drive_set(bool enabled);
+bool esp32_dev_relay_v1_platform_user_button_read(void);
+
 static void esp32_dev_relay_v1_boot_controller(void)
 {
-    /* TODO: initialize controller module esp32_wroom_32 using esp-idf. */
+    esp32_dev_relay_v1_platform_boot_controller();
 }
 
 static const board_io_descriptor_t esp32_dev_relay_v1_io[] = {
@@ -32,18 +37,15 @@ void esp32_dev_relay_v1_init(void)
 
 void esp32_dev_relay_v1_status_led_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    esp32_dev_relay_v1_platform_status_led_set(enabled);
 }
 
 void esp32_dev_relay_v1_relay_drive_set(bool enabled)
 {
-    (void)enabled;
-    /* TODO: drive the mapped MCU output. */
+    esp32_dev_relay_v1_platform_relay_drive_set(enabled);
 }
 
 bool esp32_dev_relay_v1_user_button_read(void)
 {
-    /* TODO: read the mapped MCU input. */
-    return false;
+    return esp32_dev_relay_v1_platform_user_button_read();
 }
