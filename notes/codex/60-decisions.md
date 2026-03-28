@@ -14,3 +14,7 @@
 - Keep generated and hand-written code free of `..` include paths; build-system include directories must handle path resolution.
 - Generate ordered board boot/setup stubs from board metadata instead of leaving board init as an undifferentiated TODO.
 - Bind ESP32-family targets to `esp-idf` and STM32-family targets to `stm32cube` in the generated metadata and boot stubs.
+
+## 2026-03-28 15:36 Europe/London
+
+- Treat locally installed SDKs, downloaded tools, cached installers, and build outputs under `project/` as machine-local artifacts and exclude them from git.

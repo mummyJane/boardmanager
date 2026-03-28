@@ -68,3 +68,18 @@ Validation:
 - `Get-ChildItem project/generated -Filter *.h | Select-String '\.\./'` -> no matches
 - `Get-Content project/generated/m5stack_dial_v1_1.c -Raw` -> board init contains ordered controller/bus/device/signal boot stubs for `esp-idf`
 - `Get-Content project/generated/stm32_nucleo_io_v1.c` -> board descriptor now includes platform SDK `stm32cube`
+
+## 2026-03-28 15:36 Europe/London
+
+Commands run:
+
+- `install-tools.ps1 -Platform esp32`
+- `git status --short --ignored`
+
+Observed issues:
+
+- local SDK and toolchain downloads under `project/toolchains` and `project/tools` should not be committed
+
+Actions:
+
+- updated `.gitignore` to exclude local toolchains, downloaded tools, downloads cache, and build output directories under `project/`

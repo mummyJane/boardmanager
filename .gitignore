@@ -5,5 +5,8 @@ coverage/
 *.log
 keys/*
 !keys/.gitkeep
-bedside_clock.code-workspace
 .history/
+project/tools/
+project/toolchains/
+project/downloads/
+project/build/
