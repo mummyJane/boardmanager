@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 *.log
+*.code-workspace
 keys/*
 !keys/.gitkeep
 .history/
@@ -10,3 +11,5 @@ project/tools/
 project/toolchains/
 project/downloads/
 project/build/
+project/apps/*/sdkconfig
+project/apps/*/sdkconfig.old

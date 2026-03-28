@@ -128,3 +128,17 @@ Validation:
 - `install-tools.ps1 -Platform stm32` -> scaffolded STM32 local tooling placeholder
 - `install-tools.ps1 -Platform esp32` -> success; local ESP-IDF and toolchain installed under `project/`
 - `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success; build outputs generated under `project/build/esp32-m5stack_dial_demo`
+
+## 2026-03-28 15:53 Europe/London
+
+Commands run:
+
+- `git status --short --ignored`
+
+Observed issues:
+
+- local workspace and generated ESP-IDF `sdkconfig` files remained untracked after the first build pass
+
+Actions:
+
+- updated `.gitignore` to exclude `*.code-workspace`, `project/apps/*/sdkconfig`, and `project/apps/*/sdkconfig.old`

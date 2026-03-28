@@ -24,3 +24,7 @@
 - Store project-managed SDKs, downloaded tools, app scaffolds, and build outputs under `project/` so the full tool/bootstrap environment can move with the workspace.
 - Use top-level PowerShell wrapper scripts that set up and tear down process-local SDK environment variables automatically instead of relying on the caller to source an environment first.
 - Use a CMake-based ESP-IDF application as the first real build target because it exercises the local-tool bootstrap on Windows immediately.
+
+## 2026-03-28 15:53 Europe/London
+
+- Treat generated ESP-IDF `sdkconfig` files and local workspace files as machine-local artifacts and exclude them from git.
