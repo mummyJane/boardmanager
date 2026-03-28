@@ -5,3 +5,5 @@ coverage/
 *.log
 keys/*
 !keys/.gitkeep
+bedside_clock.code-workspace
+.history/
