@@ -45,3 +45,8 @@
 
 - Added a non-fatal smoke-test requirement for board demos and diagnostics. This change is needed because bring-up on real hardware should report which peripherals respond and which do not, instead of aborting the whole boot path on the first missing device.
 
+## 2026-03-28 20:18 Europe/London
+
+- Clarified that reusable parts, not boards, own init/setup contracts, smoke-test meaning, and reusable high-level API shape. This change is needed because shared devices such as m8563 should behave consistently across boards, with boards only supplying binding and local configuration.
+- Added a requirement for per-part help/man pages suitable for the future web interface. This change is needed so each unit/part can expose its datasheet, website, and API usage documentation from a stable local source.
+

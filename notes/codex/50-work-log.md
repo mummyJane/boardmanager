@@ -312,3 +312,24 @@ Validation:
 - boot-time smoke-test output on `COM3` reported controller GPIO `PASS`, internal I2C setup `PASS`, display SPI `PASS`, display command path `PASS`, and `FAIL` for RTC, touch, and RFID I2C presence during this run
 - live input logs reported `touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1` repeatedly after boot on the current board state
 
+## 2026-03-28 20:18 Europe/London
+
+Commands run:
+
+- Get-Content project/parts/devices/bm8563.json`r
+- Get-Content project/parts/README.md`r
+- updated 
+otes/codex/10-spec.md, 
+otes/codex/30-tasks.md, 
+otes/codex/40-context.md, 
+otes/codex/60-decisions.md, and 
+otes/codex/70-spec-update.md`r
+- added project/help/parts/bm8563.md`r
+- updated project/parts/devices/bm8563.json and project/parts/README.md`r
+
+Actions:
+
+- documented that reusable parts own init/setup contracts, smoke-test meaning, and high-level API shape
+- added a first per-part help/man page for m8563 with datasheet, website, and API-usage guidance
+- added future task-tracker items for reusable part-level APIs/smoke tests and for per-part help/man page coverage
+

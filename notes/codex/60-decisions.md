@@ -52,3 +52,8 @@
 - Keep board smoke tests non-fatal and report peripheral presence explicitly, so bring-up can distinguish between a dead board and a partially working board.
 - Record physical-board smoke-test results in context instead of treating them as stable spec facts, because attached hardware state can vary from session to session.
 
+## 2026-03-28 20:18 Europe/London
+
+- Move init/setup smoke tests and high-level API ownership down to reusable parts such as m8563, instead of treating them as primarily board-level behaviors.
+- Add a local per-part help/man page convention now, so the later web interface has a stable source for datasheet links, vendor pages, and API usage guidance.
+

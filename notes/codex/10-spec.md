@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 20:10 Europe/London
+Last updated: 2026-03-28 20:18 Europe/London
 
 ## Goal
 
@@ -27,6 +27,7 @@ Requirements:
 
 - board definitions must include board id, display name, revision, supported transport capabilities, and references to reusable part definitions
 - reusable part definitions must capture stable metadata for MCU families, packages, modules, peripherals, and external devices so they can be shared across boards
+- reusable parts own the init/setup contract, smoke-test contract, and reusable high-level API shape for that part class; boards only bind and configure instances of those parts
 - each board control or status signal must define board-level semantic name, direction, logical function, and its mapping through module/package/MCU signals
 - definitions must be able to describe board buses such as I2C and SPI plus exposed connectors and expansion ports
 - project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target
@@ -87,7 +88,7 @@ Deliverables:
 Requirements:
 
 - UI must talk to a service layer, not directly to firmware tools
-- UI must be able to inspect board assemblies, IO definitions, bus layouts, boot order, and generated API surface
+- UI must be able to inspect board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part help/man pages including datasheet, website, and API usage references
 
 ## Non-Goals For Initial Milestone
 
@@ -102,6 +103,7 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 
 

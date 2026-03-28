@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-28 20:10 Europe/London
+Last updated: 2026-03-28 20:22 Europe/London
 
 ## Project Intent
 
@@ -48,3 +48,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - a host-side STM32 CMake build now passes for `stm32_nucleo_io_demo` without requiring connected hardware
 - the current M5Stack Dial smoke-test app performs non-fatal presence checks for the RTC, touch controller, RFID device, display command path, buzzer, backlight, and live input signals
 - the latest smoke-test run on the physical Dial over `COM3` reported `PASS` for controller GPIO, internal I2C setup, display SPI, and display command path, while RTC, touch, and RFID probes timed out on I2C and need follow-up
+- part ownership has been clarified: reusable parts should own init/setup, smoke-test behavior, and high-level API shape, while boards only bind those parts into concrete hardware
+- a per-part help/man page convention now exists under `project/help/parts`, with `bm8563` added as the first example including datasheet, website, and API usage guidance
