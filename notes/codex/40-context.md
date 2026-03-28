@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-28 15:22 Europe/London
+Last updated: 2026-03-28 15:49 Europe/London
 
 ## Project Intent
 
@@ -14,7 +14,11 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - reusable parts exist for MCU, package, module, and attached devices
 - generated C headers and source stubs are produced under `project/generated`
 - project-level config examples exist under `project/projects`
-- generated board init now emits ordered boot/setup stubs and records the platform SDK in the board descriptor
+- generated board init emits ordered boot/setup stubs and records the platform SDK in the board descriptor
+- local toolchain and SDK layout now exists under `project/`
+- local ESP-IDF is installed under `project/toolchains/esp-idf/esp-idf`
+- top-level build/clean/program/install scripts now manage environment setup internally
+- a full Windows ESP32 build test passed for the `m5stack_dial_demo` app
 
 ## Initial Architecture Direction
 
@@ -23,6 +27,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - project-specific overrides in `project/projects`
 - generation script in `project/scripts`
 - generated C artifacts in `project/generated`
+- CMake-based firmware apps in `project/apps`
+- local SDK and toolchain storage in `project/toolchains` and `project/tools`
 - shared firmware-facing types and function contracts in `project/firmware-common`
 - reserved folders for future web and device-manager services
 

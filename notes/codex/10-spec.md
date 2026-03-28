@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 15:22 Europe/London
+Last updated: 2026-03-28 15:49 Europe/London
 
 ## Goal
 
@@ -19,6 +19,8 @@ Deliverables:
 - grouped bus and connector definitions for complex boards
 - generated board headers and source stubs for firmware projects
 - generated board boot/setup sequences that initialize controller, buses, devices, and board-level signals in order
+- local project-managed SDK and toolchain layout under `project/`
+- top-level build, clean, and program scripts that self-manage environment setup
 - a shared firmware API layer that higher-level code can call without depending on raw pin numbers
 
 Requirements:
@@ -30,6 +32,10 @@ Requirements:
 - project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target
 - board definitions must be able to declare boot/setup order so the generated board init function can call controller, bus, device, and signal setup in sequence
 - ESP32-family targets use `esp-idf` as the chip-level SDK; STM32-family targets use `stm32cube`
+- all project-managed SDKs, toolchains, downloads, and build outputs must live under `project/`
+- build/clean/program entry scripts must require no pre-sourced environment and must restore any temporary environment changes when they exit
+- programming scripts must accept the specific unit or port to target because multiple units may be connected at once
+- the build system is CMake, including SDK-backed flows such as `esp-idf`
 - generated code must not contain parent-directory include paths; include resolution is owned by the build system
 - generator output must be deterministic so generated firmware artifacts can be committed and reviewed
 - generated APIs must expose initialization and one function per named output or readable input where applicable

@@ -2,5 +2,5 @@ param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot)
 )
 
-$scriptPath = Join-Path $PSScriptRoot "install_Task_bootstrap_1.ps1"
+$scriptPath = Join-Path $PSScriptRoot 'install_Task_local_tooling_1.ps1'
 & $scriptPath -ProjectRoot $ProjectRoot

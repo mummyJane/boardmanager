@@ -83,3 +83,48 @@ Observed issues:
 Actions:
 
 - updated `.gitignore` to exclude local toolchains, downloaded tools, downloads cache, and build output directories under `project/`
+
+## 2026-03-28 15:41 Europe/London
+
+Commands run:
+
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+
+Observed issues:
+
+- `idf.py` failed inside the Windows sandbox with `PermissionError: [WinError 5] Access is denied` while spawning CMake via Python asyncio subprocess handling
+- `build.ps1` reported success because it did not yet convert non-zero `idf.py` exit codes into terminating errors
+
+Actions:
+
+- updated `build.ps1` to fail hard when `idf.py` returns a non-zero exit code
+- preparing to rerun the build outside the sandbox because this failure blocks validation and appears to be sandbox-related
+
+## 2026-03-28 15:49 Europe/London
+
+Commands run:
+
+- `install-tools.ps1 -Platform stm32`
+- `install-tools.ps1 -Platform esp32`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+
+Observed issues:
+
+- first ESP32 build attempt failed in the sandbox with `PermissionError: [WinError 5] Access is denied` during `idf.py` subprocess creation
+- `build.ps1` initially treated a failing `idf.py` invocation as success and needed explicit exit-code handling
+- STM32 local tooling is scaffolded only; automated download/install is not implemented yet
+
+Actions:
+
+- added local-tooling layout under `project/` for SDKs, tools, downloads, apps, and build output
+- added top-level `install-tools.ps1`, `build.ps1`, `clean.ps1`, and `program.ps1` wrappers that self-manage environment setup
+- added `project/scripts/common.ps1` for process-local env setup and cleanup
+- added a minimal ESP-IDF app under `project/apps/m5stack_dial_demo`
+- installed ESP-IDF locally under `project/toolchains/esp-idf/esp-idf` and its downloaded tools under `project/tools/espressif`
+- reran the build outside the sandbox and completed a successful ESP32 build test
+
+Validation:
+
+- `install-tools.ps1 -Platform stm32` -> scaffolded STM32 local tooling placeholder
+- `install-tools.ps1 -Platform esp32` -> success; local ESP-IDF and toolchain installed under `project/`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success; build outputs generated under `project/build/esp32-m5stack_dial_demo`

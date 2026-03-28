@@ -19,3 +19,7 @@
 ## 2026-03-28 15:22 Europe/London
 
 - Added explicit boot/setup sequencing and SDK binding to the stage-1 model. This change is needed because higher-level code can only assume a board is usable after controller, buses, devices, and board-level signals are initialized in a defined order, and that order depends on the chip SDK family (`esp-idf` or `stm32cube`).
+
+## 2026-03-28 15:49 Europe/London
+
+- Added a local-tooling requirement that SDKs, toolchains, downloads, and build outputs live under `project/`, with top-level scripts owning env setup and teardown. This change is needed so the workspace remains self-contained on Windows now and can be moved to a Raspberry Pi later with minimal assumptions about global host setup.
