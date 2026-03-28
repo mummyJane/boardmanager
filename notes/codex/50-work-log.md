@@ -247,3 +247,39 @@ Validation:
 - first `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> failed as expected on the missing forward declaration in `m5stack_dial_v1_1_platform.c`
 - second `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success; concrete ESP-IDF platform layer compiled and linked into `m5stack_dial_demo` under `project/build/esp32-m5stack_dial_demo`
 
+## 2026-03-28 19:58 Europe/London
+
+Commands run:
+
+- `git ls-remote --tags https://github.com/STMicroelectronics/STM32CubeF4.git`
+- `install-tools.ps1 -Platform stm32`
+- `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1`
+- `clean.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1`
+- `git clone --depth 1 --branch v1.28.3 https://github.com/STMicroelectronics/STM32CubeF4.git project/toolchains/stm32cube/STM32CubeF4`
+- `git -C project/toolchains/stm32cube/STM32CubeF4 submodule update --init --depth 1 Drivers/STM32F4xx_HAL_Driver Drivers/CMSIS/Device/ST/STM32F4xx`
+- repeated `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1` after fixing the CMake toolchain path handling, HAL config macros, and generated `NULL` include
+- final `install-tools.ps1 -Platform stm32` verification after the script updates
+
+Observed issues:
+
+- the Arm GNU toolchain archive unpacked directly into `project/toolchains` instead of a versioned subfolder, and the original post-extract move step failed
+- the initial STM32CubeF4 checkout was present as an empty directory until the SDK clone was repaired manually
+- Windows antivirus likely interfered with the large archive move/extract workflow, so the STM32 install path needed to avoid aggressive rename steps
+- CMake toolchain discovery on Windows required explicit `.exe` tool paths and local auto-discovery to survive `try_compile`
+- the STM32Cube HAL integration initially failed on missing `assert_param`, timeout macros, and `NULL` in generated board sources
+
+Actions:
+
+- added a local Arm bare-metal toolchain path and STM32 SDK environment handling to `project/scripts/common.ps1`
+- extended `install-tools.ps1` to install the STM32CubeF4 SDK and local Arm GNU toolchain under `project/`, and to fetch the required STM32Cube submodules for the sample build
+- added the `project/cmake/toolchains/arm-none-eabi.cmake` toolchain file and a new `project/apps/stm32_nucleo_io_demo` CMake app
+- updated the generator to include `<stddef.h>` in generated C sources so `NULL` is defined for descriptor entries
+- updated the STM32 HAL config header with the minimum timeout, external clock, and `assert_param` definitions required by the HAL sources
+- kept the STM32 validation flow host-side only because no physical STM32 board is currently available
+
+Validation:
+
+- `install-tools.ps1 -Platform stm32` -> success after the AV-friendly install-path adjustments; confirmed the local STM32CubeF4 SDK and Arm GNU toolchain are available under `project/`
+- `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1` -> success; produced `project/build/stm32-stm32_nucleo_io_demo/stm32_nucleo_io_demo.elf` and `.bin`
+- the successful STM32 link still reports expected `nosys` warnings for `_close`, `_lseek`, `_read`, and `_write`; those do not block the host-side firmware build test
+

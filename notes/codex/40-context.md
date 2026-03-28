@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-28 16:31 Europe/London
+Last updated: 2026-03-28 19:58 Europe/London
 
 ## Project Intent
 
@@ -44,5 +44,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - generated board APIs now delegate to concrete platform hook implementations instead of leaving boot and IO control in generated TODO stubs
 - concrete platform implementations now exist under `project/platform/esp-idf` and `project/platform/stm32cube`
 - the `m5stack_dial_demo` ESP32 app now compiles with the concrete M5Stack Dial ESP-IDF platform layer linked into the generated board component
-
-
+- local STM32 tooling now uses an ST STM32CubeF4 firmware package checkout plus a project-local Arm GNU bare-metal toolchain under `project/toolchains`
+- a host-side STM32 CMake build now passes for `stm32_nucleo_io_demo` without requiring connected hardware

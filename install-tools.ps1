@@ -1,7 +1,9 @@
 param(
     [ValidateSet('esp32', 'stm32', 'all')]
     [string]$Platform = 'all',
-    [string]$EspIdfVersion = 'v5.5.2'
+    [string]$EspIdfVersion = 'v5.5.2',
+    [string]$Stm32CubeF4Version = 'v1.28.3',
+    [string]$ArmGnuVersion = '14.2.rel1'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,25 +43,47 @@ try {
     }
 
     if ($Platform -in @('stm32', 'all')) {
-        $stm32Readme = Join-Path $paths.Stm32CubeRoot 'README.md'
-        $readmeLines = @(
-            '# STM32Cube Local Tooling',
-            '',
-            'Place the STM32CubeCLT installer or extracted toolchain in this folder.',
-            '',
-            'Planned local layout:',
-            '- `project/toolchains/stm32cube/STM32CubeCLT/`',
-            '- `project/toolchains/stm32cube/STLink/`',
-            '',
-            'Current status:',
-            '- scaffolded only',
-            '- no automated STM32 download performed yet',
-            '- build/program wrappers will target this local folder when the tools are added'
-        )
-        Set-Content -Path $stm32Readme -Value $readmeLines
-        Write-Host "STM32 local toolchain scaffold ready at $($paths.Stm32CubeRoot)"
+        $sdkRoot = $paths.Stm32CubeSdkRoot
+        if (-not (Test-Path $sdkRoot)) {
+            Push-Location $paths.Stm32CubeRoot
+            try {
+                git clone --depth 1 --branch $Stm32CubeF4Version https://github.com/STMicroelectronics/STM32CubeF4.git STM32CubeF4
+            }
+            finally {
+                Pop-Location
+            }
+        }
+
+        $halDriverRoot = Join-Path $sdkRoot ''Drivers\STM32F4xx_HAL_Driver''
+        $cmsisDeviceRoot = Join-Path $sdkRoot ''Drivers\CMSIS\Device\ST\STM32F4xx''
+        if (-not (Test-Path $halDriverRoot) -or -not (Test-Path $cmsisDeviceRoot)) {
+            git -C $sdkRoot submodule update --init --depth 1 Drivers/STM32F4xx_HAL_Driver Drivers/CMSIS/Device/ST/STM32F4xx
+        }
+
+        $toolchainRoot = $paths.ArmGnuToolchainRoot
+        $fallbackToolchainRoot = $paths.ToolchainRoot
+        if (-not (Test-Path (Join-Path $toolchainRoot 'bin\arm-none-eabi-gcc.exe')) -and -not (Test-Path (Join-Path $fallbackToolchainRoot 'bin\arm-none-eabi-gcc.exe'))) {
+            $archiveName = "arm-gnu-toolchain-$ArmGnuVersion-mingw-w64-x86_64-arm-none-eabi.zip"
+            $archivePath = Join-Path $paths.DownloadsRoot $archiveName
+            $downloadUrl = "https://developer.arm.com/-/media/Files/downloads/gnu/$ArmGnuVersion/binrel/$archiveName"
+
+            if (-not (Test-Path $archivePath)) {
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath
+            }
+
+            if (-not (Test-Path $toolchainRoot)) {
+                New-Item -ItemType Directory -Force -Path $toolchainRoot | Out-Null
+            }
+
+            Expand-Archive -LiteralPath $archivePath -DestinationPath $toolchainRoot -Force
+        }
+
+        Write-Host "STM32CubeF4 SDK installed locally at $sdkRoot"
+        Write-Host "Arm GNU toolchain available locally at $($paths.ArmGnuToolchainRoot)"
     }
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot
 }
+
+

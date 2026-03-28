@@ -1,4 +1,5 @@
 #include "m5stack_dial_v1_1.h"
+#include <stddef.h>
 
 void m5stack_dial_v1_1_platform_boot_controller(void);
 void m5stack_dial_v1_1_platform_boot_internal_i2c(void);

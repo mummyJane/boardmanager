@@ -7,6 +7,8 @@ function Save-BoardManagerEnv {
         'BOARDMANAGER_PROJECT_ROOT',
         'BOARDMANAGER_TOOL_ROOT',
         'BOARDMANAGER_BUILD_ROOT',
+        'BOARDMANAGER_STM32_SDK_ROOT',
+        'BOARDMANAGER_ARM_GNU_TOOLCHAIN_ROOT',
         'PATH'
     )) {
         $snapshot[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
@@ -29,6 +31,17 @@ function Get-BoardManagerPaths {
     $toolchainRoot = Join-Path $projectRoot 'toolchains'
     $espIdfRoot = Join-Path $toolchainRoot 'esp-idf'
     $stm32CubeRoot = Join-Path $toolchainRoot 'stm32cube'
+    $stm32CubeSdkRoot = Join-Path $stm32CubeRoot 'STM32CubeF4'
+    $dedicatedArmGnuToolchainRoot = Join-Path $toolchainRoot 'arm-gnu-toolchain'
+    if (Test-Path (Join-Path $dedicatedArmGnuToolchainRoot 'bin\arm-none-eabi-gcc.exe')) {
+        $armGnuToolchainRoot = $dedicatedArmGnuToolchainRoot
+    }
+    elseif (Test-Path (Join-Path $toolchainRoot 'bin\arm-none-eabi-gcc.exe')) {
+        $armGnuToolchainRoot = $toolchainRoot
+    }
+    else {
+        $armGnuToolchainRoot = $dedicatedArmGnuToolchainRoot
+    }
     $downloadsRoot = Join-Path $projectRoot 'downloads'
     $buildRoot = Join-Path $projectRoot 'build'
 
@@ -39,6 +52,8 @@ function Get-BoardManagerPaths {
         ToolchainRoot = $toolchainRoot
         EspIdfRoot = $espIdfRoot
         Stm32CubeRoot = $stm32CubeRoot
+        Stm32CubeSdkRoot = $stm32CubeSdkRoot
+        ArmGnuToolchainRoot = $armGnuToolchainRoot
         DownloadsRoot = $downloadsRoot
         BuildRoot = $buildRoot
     }
@@ -61,6 +76,8 @@ function Initialize-BoardManagerProcessEnv {
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_PROJECT_ROOT', $Paths.ProjectRoot, 'Process')
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_TOOL_ROOT', $Paths.ToolRoot, 'Process')
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_BUILD_ROOT', $Paths.BuildRoot, 'Process')
+    [Environment]::SetEnvironmentVariable('BOARDMANAGER_STM32_SDK_ROOT', $Paths.Stm32CubeSdkRoot, 'Process')
+    [Environment]::SetEnvironmentVariable('BOARDMANAGER_ARM_GNU_TOOLCHAIN_ROOT', $Paths.ArmGnuToolchainRoot, 'Process')
 }
 
 function Assert-Command {
@@ -119,3 +136,32 @@ function Initialize-EspIdfEnv {
     [Environment]::SetEnvironmentVariable('IDF_TOOLS_PATH', (Join-Path $Paths.ToolRoot 'espressif'), 'Process')
     . $exportScript
 }
+
+function Initialize-Stm32Env {
+    param([hashtable]$Paths)
+
+    $sdkRoot = $Paths.Stm32CubeSdkRoot
+    $toolchainRoot = $Paths.ArmGnuToolchainRoot
+    $toolchainBin = Join-Path $toolchainRoot 'bin'
+
+    if (-not (Test-Path $sdkRoot)) {
+        throw "STM32Cube SDK is not installed at $sdkRoot. Run .\install-tools.ps1 -Platform stm32 first."
+    }
+
+    if (-not (Test-Path $toolchainBin)) {
+        throw "Arm GNU toolchain is not installed at $toolchainRoot. Run .\install-tools.ps1 -Platform stm32 first."
+    }
+
+    $currentPath = [Environment]::GetEnvironmentVariable('PATH', 'Process')
+    if ([string]::IsNullOrWhiteSpace($currentPath)) {
+        $newPath = $toolchainBin
+    }
+    else {
+        $newPath = "$toolchainBin;$currentPath"
+    }
+
+    [Environment]::SetEnvironmentVariable('PATH', $newPath, 'Process')
+    [Environment]::SetEnvironmentVariable('STM32CUBE_F4_ROOT', $sdkRoot, 'Process')
+}
+
+

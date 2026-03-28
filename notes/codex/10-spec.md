@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 16:31 Europe/London
+Last updated: 2026-03-28 19:45 Europe/London
 
 ## Goal
 
@@ -34,6 +34,7 @@ Requirements:
 - ESP32-family targets use `esp-idf` as the chip-level SDK; STM32-family targets use `stm32cube`
 - all project-managed SDKs, toolchains, downloads, and build outputs must live under `project/`
 - build/clean/program entry scripts must require no pre-sourced environment and must restore any temporary environment changes when they exit
+- host-side build validation must be possible without connected hardware; STM32 validation may use a local STM32Cube firmware package plus a local Arm bare-metal compiler toolchain
 - programming scripts must accept the specific unit or port to target because multiple units may be connected at once
 - the build system is CMake, including SDK-backed flows such as `esp-idf`
 - generated code must not contain parent-directory include paths; include resolution is owned by the build system
@@ -100,5 +101,6 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 

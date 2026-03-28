@@ -1,4 +1,5 @@
 #include "esp32_dev_relay_v1.h"
+#include <stddef.h>
 
 void esp32_dev_relay_v1_platform_boot_controller(void);
 void esp32_dev_relay_v1_platform_status_led_set(bool enabled);

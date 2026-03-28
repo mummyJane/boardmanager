@@ -249,6 +249,7 @@ function generateSource(board, controller, resolvedSignals, busIndex, deviceInde
   const boot = generateBootSequence(board, controller, resolvedSignals, busIndex, deviceIndex);
   const lines = [
     `#include "${board.boardId}.h"`,
+    '#include <stddef.h>',
     ""
   ];
 
@@ -339,3 +340,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

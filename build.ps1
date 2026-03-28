@@ -43,8 +43,29 @@ try {
         return
     }
 
-    $buildDir = Join-Path $paths.BuildRoot "$Platform-$Board"
-    throw "STM32 build flow is scaffolded but not implemented yet. Local tool root: $($paths.Stm32CubeRoot). Planned build dir: $buildDir"
+    Assert-Command cmake
+    Assert-Command ninja
+    Initialize-Stm32Env -Paths $paths
+
+    $appRoot = Join-Path $paths.ProjectRoot "apps\$App"
+    $buildDir = Join-Path $paths.BuildRoot "$Platform-$App"
+    $toolchainFile = Join-Path $paths.ProjectRoot 'cmake\toolchains\arm-none-eabi.cmake'
+
+    if (-not (Test-Path $appRoot)) {
+        throw "STM32 app '$App' was not found at $appRoot"
+    }
+
+    & cmake -S $appRoot -B $buildDir -G Ninja -D CMAKE_BUILD_TYPE=$BuildType -D CMAKE_TOOLCHAIN_FILE=$toolchainFile -D BOARD_MANAGER_PROJECT_ROOT=$($paths.ProjectRoot) -D BOARD_MANAGER_BOARD=$Board -D STM32CUBE_F4_ROOT=$($paths.Stm32CubeSdkRoot) -D ARM_GNU_TOOLCHAIN_ROOT=$($paths.ArmGnuToolchainRoot)
+    if ($LASTEXITCODE -ne 0) {
+        throw "STM32 CMake configure failed with exit code $LASTEXITCODE"
+    }
+
+    & cmake --build $buildDir
+    if ($LASTEXITCODE -ne 0) {
+        throw "STM32 build failed with exit code $LASTEXITCODE"
+    }
+
+    Write-Host "STM32 build completed for $Board at $buildDir"
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot

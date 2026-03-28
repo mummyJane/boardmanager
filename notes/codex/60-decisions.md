@@ -42,4 +42,8 @@
 - Keep generated board files as stable wrappers and move SDK-specific boot and signal logic into hand-written platform hook files under `project/platform`, so regeneration does not clobber concrete firmware work.
 - Validate the first concrete platform layer by wiring it into the real ESP-IDF app build, not just by generating files.
 
+## 2026-03-28 19:45 Europe/London
+
+- Use the STM32Cube firmware package plus a local Arm GNU bare-metal compiler for the Windows STM32 host-build path, because STM32CubeCLT unattended installation is not straightforward enough for a repo-owned bootstrap script.
+- Fetch only the STM32Cube submodules required by the sample board build to keep the local install smaller and reduce unnecessary churn under antivirus scanning.
 

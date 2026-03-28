@@ -36,4 +36,8 @@
 
 - Added an explicit generated-to-platform hook boundary for board boot and IO control. This change is needed because the project now has concrete `esp-idf` and `stm32cube` implementations, and those must survive regeneration while still matching the generated board API surface.
 
+## 2026-03-28 19:45 Europe/London
+
+- Added a host-side validation requirement for board builds without connected hardware. This change is needed because STM32 build verification should be possible from a Windows workstation even when no target board is physically attached.
+- Clarified that the STM32 local build path may combine a local STM32Cube firmware package with a local Arm bare-metal compiler toolchain. This change is needed because the Windows STM32CubeCLT distribution is not ideal for unattended repo-owned installation, but the project still needs a reproducible local STM32 build path under project/.
 

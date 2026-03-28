@@ -1,4 +1,5 @@
 #include "stm32_nucleo_io_v1.h"
+#include <stddef.h>
 
 void stm32_nucleo_io_v1_platform_boot_controller(void);
 void stm32_nucleo_io_v1_platform_heartbeat_led_set(bool enabled);
