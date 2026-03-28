@@ -151,6 +151,17 @@
       ]
     }
   ],
+  "bootSequence": [
+    { "name": "controller", "kind": "module" },
+    { "name": "power_hold", "kind": "signal", "signal": "power_hold", "state": true },
+    { "name": "internal_i2c", "kind": "bus", "bus": "internal_i2c" },
+    { "name": "rtc", "kind": "device", "instanceId": "rtc" },
+    { "name": "touch", "kind": "device", "instanceId": "touch" },
+    { "name": "rfid", "kind": "device", "instanceId": "rfid" },
+    { "name": "display_spi", "kind": "bus", "bus": "display_spi" },
+    { "name": "display", "kind": "device", "instanceId": "display" },
+    { "name": "lcd_backlight", "kind": "signal", "signal": "lcd_backlight", "state": true }
+  ],
   "connectors": [
     {
       "name": "port_a",

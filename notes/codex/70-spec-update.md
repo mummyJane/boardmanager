@@ -15,3 +15,7 @@
 ## 2026-03-28 15:11 Europe/London
 
 - Added a generated-code include-path rule forbidding parent-directory paths such as `..` in code files. This change is needed to match a build-system-managed include strategy and keep source layout independent from compiler include resolution.
+
+## 2026-03-28 15:22 Europe/London
+
+- Added explicit boot/setup sequencing and SDK binding to the stage-1 model. This change is needed because higher-level code can only assume a board is usable after controller, buses, devices, and board-level signals are initialized in a defined order, and that order depends on the chip SDK family (`esp-idf` or `stm32cube`).

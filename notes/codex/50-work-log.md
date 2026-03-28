@@ -27,6 +27,9 @@ Commands run:
 - `node project/scripts/generate-board-artifacts.mjs` after adding reusable part resolution
 - `node project/scripts/generate-board-artifacts.mjs` after removing parent-directory includes from generated headers
 - `Get-ChildItem project/generated -Filter *.h | Select-String '\.\./'`
+- `node project/scripts/generate-board-artifacts.mjs` after adding boot sequence generation and SDK mapping
+- `Get-Content project/generated/m5stack_dial_v1_1.c -Raw`
+- `Get-Content project/generated/stm32_nucleo_io_v1.c`
 
 Observed issues:
 
@@ -38,6 +41,7 @@ Observed issues:
 - initial generator rerun output did not show the new board on the first pass; rerunning completed cleanly and produced the expected files
 - pushing to GitHub required escalated permissions because the sandbox could not complete credential prompting
 - an initial broad `rg` search matched the generator script path logic as well as stale generated content; direct header inspection confirmed the generated include lines were corrected
+- one read of `m5stack_dial_v1_1.c` returned older content while the raw file view showed the updated generated boot sequence; subsequent verification used raw file reads for the generated source
 
 Actions:
 
@@ -54,6 +58,7 @@ Actions:
 - refactored the generator to resolve boards through reusable parts
 - added a project-level override example for the M5Stack Dial
 - removed `..` include paths from generated headers so include resolution is handled by the build system
+- added generated boot/setup stubs and platform SDK mapping for board initialization
 
 Validation:
 
@@ -61,3 +66,5 @@ Validation:
 - initial `node project/scripts/generate-board-artifacts.mjs` -> success; generated 4 files under `project/generated`
 - current `node project/scripts/generate-board-artifacts.mjs` -> success; generated artifacts for esp32 sample, M5Stack Dial V1.1, and stm32 sample boards using resolved part metadata
 - `Get-ChildItem project/generated -Filter *.h | Select-String '\.\./'` -> no matches
+- `Get-Content project/generated/m5stack_dial_v1_1.c -Raw` -> board init contains ordered controller/bus/device/signal boot stubs for `esp-idf`
+- `Get-Content project/generated/stm32_nucleo_io_v1.c` -> board descriptor now includes platform SDK `stm32cube`

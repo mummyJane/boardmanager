@@ -12,6 +12,7 @@ const board_descriptor_t esp32_dev_relay_v1_descriptor = {
     "1.0",
     "ESP32",
     "ESP32-WROOM-32",
+    "esp-idf",
     3,
     esp32_dev_relay_v1_io
 };

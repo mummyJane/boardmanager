@@ -16,6 +16,7 @@ Top-level fields:
 - `power`: board-specific power-control notes and key signals
 - `signals`: board-local semantic signals mapped onto reusable controller signals
 - `buses`: grouped internal or exposed bus definitions with attached part references
+- `bootSequence`: ordered setup steps for controller, buses, devices, and signal states
 - `connectors`: physical expansion connector definitions
 
 Each `signals` entry includes:
@@ -45,4 +46,4 @@ Typical resolution chain:
 - `project/generated/<boardId>.h`
 - `project/generated/<boardId>.c`
 
-Those generated files expose a common descriptor and board-specific init/read/write stubs using the resolved MCU family, package, and pin mappings.
+Those generated files expose a common descriptor and board-specific init/read/write stubs using the resolved MCU family, package, platform SDK, and boot sequence.

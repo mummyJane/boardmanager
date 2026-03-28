@@ -12,6 +12,7 @@ const board_descriptor_t stm32_nucleo_io_v1_descriptor = {
     "1.0",
     "STM32",
     "STM32F446RE",
+    "stm32cube",
     3,
     stm32_nucleo_io_v1_io
 };

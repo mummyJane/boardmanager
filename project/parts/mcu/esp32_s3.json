@@ -3,6 +3,7 @@
   "partType": "mcu",
   "displayName": "ESP32-S3",
   "vendor": "Espressif",
+  "sdk": "esp-idf",
   "cpu": "Xtensa LX7 dual-core",
   "wireless": ["wifi", "bluetooth_le"],
   "peripherals": {

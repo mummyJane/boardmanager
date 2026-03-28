@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 15:11 Europe/London
+Last updated: 2026-03-28 15:22 Europe/London
 
 ## Goal
 
@@ -18,6 +18,7 @@ Deliverables:
 - board assembly definitions that bind reusable parts into concrete boards
 - grouped bus and connector definitions for complex boards
 - generated board headers and source stubs for firmware projects
+- generated board boot/setup sequences that initialize controller, buses, devices, and board-level signals in order
 - a shared firmware API layer that higher-level code can call without depending on raw pin numbers
 
 Requirements:
@@ -27,6 +28,8 @@ Requirements:
 - each board control or status signal must define board-level semantic name, direction, logical function, and its mapping through module/package/MCU signals
 - definitions must be able to describe board buses such as I2C and SPI plus exposed connectors and expansion ports
 - project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target
+- board definitions must be able to declare boot/setup order so the generated board init function can call controller, bus, device, and signal setup in sequence
+- ESP32-family targets use `esp-idf` as the chip-level SDK; STM32-family targets use `stm32cube`
 - generated code must not contain parent-directory include paths; include resolution is owned by the build system
 - generator output must be deterministic so generated firmware artifacts can be committed and reviewed
 - generated APIs must expose initialization and one function per named output or readable input where applicable
@@ -75,7 +78,7 @@ Deliverables:
 Requirements:
 
 - UI must talk to a service layer, not directly to firmware tools
-- UI must be able to inspect board assemblies, IO definitions, bus layouts, and generated API surface
+- UI must be able to inspect board assemblies, IO definitions, bus layouts, boot order, and generated API surface
 
 ## Non-Goals For Initial Milestone
 

@@ -12,3 +12,5 @@
 - Model reusable parts separately from boards so MCU dies, packages, modules, and peripheral devices can be shared across multiple board definitions.
 - Make the board file an assembly-and-binding layer, not the sole source of every part's intrinsic metadata.
 - Keep generated and hand-written code free of `..` include paths; build-system include directories must handle path resolution.
+- Generate ordered board boot/setup stubs from board metadata instead of leaving board init as an undifferentiated TODO.
+- Bind ESP32-family targets to `esp-idf` and STM32-family targets to `stm32cube` in the generated metadata and boot stubs.

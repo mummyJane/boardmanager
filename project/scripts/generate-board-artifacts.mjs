@@ -68,6 +68,20 @@ async function loadPartsCatalog(rootDir) {
   return catalog;
 }
 
+function inferPlatformFromFamily(family) {
+  const normalized = String(family ?? "").toUpperCase();
+
+  if (normalized.includes("ESP32")) {
+    return "esp-idf";
+  }
+
+  if (normalized.includes("STM32")) {
+    return "stm32cube";
+  }
+
+  return "generic";
+}
+
 function resolveController(board, parts) {
   if (!board.controller?.moduleId) {
     if (!board.mcu) {
@@ -80,8 +94,10 @@ function resolveController(board, parts) {
       mcu: {
         displayName: board.mcu.family,
         partId: sanitizeName(board.mcu.family.toLowerCase()),
+        sdk: board.mcu.sdk ?? inferPlatformFromFamily(board.mcu.family),
       },
       partNumber: board.mcu.partNumber,
+      platformSdk: board.mcu.sdk ?? inferPlatformFromFamily(board.mcu.family),
       resolvePin(signalName) {
         return board.io?.find((item) => item.mcuSignal === signalName)?.mcuPin ?? signalName;
       },
@@ -105,6 +121,7 @@ function resolveController(board, parts) {
     packageDef,
     mcu: mcuDef,
     partNumber: packageDef?.displayName ?? moduleDef.displayName,
+    platformSdk: mcuDef.sdk ?? inferPlatformFromFamily(mcuDef.displayName),
     resolvePin(signalName) {
       return packageDef?.pins?.[signalName] ?? signalName;
     },
@@ -123,6 +140,32 @@ function resolveSignals(board, controller) {
     peripheral: signal.peripheral ?? null,
     activeLevel: signal.activeLevel,
   }));
+}
+
+function buildBusIndex(board) {
+  const map = new Map();
+  for (const bus of board.buses ?? []) {
+    map.set(bus.name, bus);
+  }
+  return map;
+}
+
+function buildDeviceIndex(board, parts) {
+  const map = new Map();
+
+  for (const bus of board.buses ?? []) {
+    for (const device of bus.devices ?? []) {
+      map.set(device.instanceId, {
+        ...device,
+        busName: bus.name,
+        busKind: bus.kind,
+        controllerPeripheral: bus.controllerPeripheral,
+        part: parts.get(device.partId) ?? null,
+      });
+    }
+  }
+
+  return map;
 }
 
 function generateHeader(board, resolvedSignals) {
@@ -150,13 +193,71 @@ function generateHeader(board, resolvedSignals) {
   return `${lines.join("\n")}\n`;
 }
 
-function generateSource(board, controller, resolvedSignals) {
+function generateBootSequence(board, controller, resolvedSignals, busIndex, deviceIndex) {
+  const helperLines = [];
+  const initLines = [];
+  const outputSignals = new Set(resolvedSignals.filter((signal) => signal.kind === "digital_output").map((signal) => signal.name));
+  const platformSdk = controller.platformSdk;
+
+  for (const step of board.bootSequence ?? []) {
+    const stepName = sanitizeName(step.name ?? step.kind);
+
+    if (step.kind === "module") {
+      const helperName = `${board.boardId}_boot_${stepName}`;
+      helperLines.push(`static void ${helperName}(void)`, "{", `    /* TODO: initialize controller module ${controller.module?.partId ?? board.controller?.moduleId ?? "controller"} using ${platformSdk}. */`, "}", "");
+      initLines.push(`    ${helperName}();`);
+      continue;
+    }
+
+    if (step.kind === "bus") {
+      const bus = busIndex.get(step.bus);
+      const helperName = `${board.boardId}_boot_${stepName}`;
+      helperLines.push(`static void ${helperName}(void)`, "{", `    /* TODO: initialize ${bus?.kind ?? "bus"} bus ${step.bus} on ${bus?.controllerPeripheral ?? "controller peripheral"} using ${platformSdk}. */`, "}", "");
+      initLines.push(`    ${helperName}();`);
+      continue;
+    }
+
+    if (step.kind === "device") {
+      const device = deviceIndex.get(step.instanceId);
+      const helperName = `${board.boardId}_boot_${stepName}`;
+      helperLines.push(`static void ${helperName}(void)`, "{", `    /* TODO: initialize device ${step.instanceId} (${device?.part?.partId ?? device?.partId ?? "unknown_part"}) on bus ${device?.busName ?? "unknown_bus"} using ${platformSdk}. */`);
+      if (device?.config) {
+        helperLines.push(`    /* Local config: ${JSON.stringify(device.config)} */`);
+      }
+      helperLines.push("}", "");
+      initLines.push(`    ${helperName}();`);
+      continue;
+    }
+
+    if (step.kind === "signal") {
+      if (outputSignals.has(step.signal)) {
+        initLines.push(`    ${board.boardId}_${step.signal}_set(${step.state ? "true" : "false"});`);
+      } else {
+        initLines.push(`    /* TODO: boot step ${stepName} references non-output signal ${step.signal}. */`);
+      }
+    }
+  }
+
+  return {
+    helperLines,
+    initLines,
+    platformSdk,
+  };
+}
+
+function generateSource(board, controller, resolvedSignals, busIndex, deviceIndex) {
   const arrayName = `${board.boardId}_io`;
+  const boot = generateBootSequence(board, controller, resolvedSignals, busIndex, deviceIndex);
   const lines = [
     `#include "${board.boardId}.h"`,
-    "",
-    `static const board_io_descriptor_t ${arrayName}[] = {`
+    ""
   ];
+
+  if (boot.helperLines.length > 0) {
+    lines.push(...boot.helperLines);
+  }
+
+  lines.push(`static const board_io_descriptor_t ${arrayName}[] = {`);
 
   for (const signal of resolvedSignals) {
     lines.push(
@@ -180,9 +281,19 @@ function generateSource(board, controller, resolvedSignals) {
   lines.push(`    ${cString(board.revision)},`);
   lines.push(`    ${cString(controller.mcu.displayName ?? board.mcu?.family)},`);
   lines.push(`    ${cString(controller.partNumber ?? board.mcu?.partNumber)},`);
+  lines.push(`    ${cString(boot.platformSdk)},`);
   lines.push(`    ${resolvedSignals.length},`);
   lines.push(`    ${arrayName}`);
-  lines.push("};", "", `void ${board.boardId}_init(void)`, "{", "    /* TODO: configure MCU pins and peripherals for this board. */", "}");
+  lines.push("};", "", `void ${board.boardId}_init(void)`, "{");
+
+  if (boot.initLines.length > 0) {
+    lines.push(`    /* Boot sequence generated for ${boot.platformSdk}. */`);
+    lines.push(...boot.initLines);
+  } else {
+    lines.push("    /* TODO: configure MCU pins and peripherals for this board. */");
+  }
+
+  lines.push("}");
 
   for (const signal of resolvedSignals) {
     lines.push("");
@@ -207,10 +318,12 @@ async function main() {
     const board = await loadJson(fullPath);
     const controller = resolveController(board, parts);
     const resolvedSignals = resolveSignals(board, controller);
+    const busIndex = buildBusIndex(board);
+    const deviceIndex = buildDeviceIndex(board, parts);
     const headerPath = path.join(generatedDir, `${board.boardId}.h`);
     const sourcePath = path.join(generatedDir, `${board.boardId}.c`);
     await writeFile(headerPath, generateHeader(board, resolvedSignals), "utf8");
-    await writeFile(sourcePath, generateSource(board, controller, resolvedSignals), "utf8");
+    await writeFile(sourcePath, generateSource(board, controller, resolvedSignals, busIndex, deviceIndex), "utf8");
     console.log(`Generated ${path.basename(headerPath)} and ${path.basename(sourcePath)}`);
   }
 }
@@ -219,4 +332,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-
