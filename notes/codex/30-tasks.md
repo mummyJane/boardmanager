@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-28 15:49 Europe/London
+Last updated: 2026-03-28 16:10 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -18,7 +18,7 @@ Last updated: 2026-03-28 15:49 Europe/London
 - [x] Add local toolchain/app/bootstrap layout under `project/`
 - [x] Add top-level environment-managed `install-tools`, `build`, `clean`, and `program` scripts
 - [x] Install local ESP-IDF under `project/` and complete an ESP32 build test
-- [ ] Add schema validation for board and part definitions
+- [x] Add schema validation for board, part, and project definitions
 - [ ] Expand generic sample boards into reusable-part-based assemblies
 - [ ] Add concrete `esp-idf` and `stm32cube` implementations behind the generated boot stubs
 - [ ] Add automated STM32Cube local installation and a STM32 build test

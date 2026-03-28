@@ -168,3 +168,21 @@ Validation:
 
 - `program.ps1 ... -Unit COM3` -> success; flashed bootloader, partition table, and app image to an ESP32-S3 device on `COM3`
 - esptool identified the target as `ESP32-S3 (QFN56)` with embedded `8MB` flash using `USB-Serial/JTAG`
+
+## 2026-03-28 16:10 Europe/London
+
+Commands run:
+
+- `validate.ps1`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+
+Actions:
+
+- added `project/scripts/validate-definitions.mjs` to validate parts, boards, and projects
+- added `validate.ps1` as a top-level validation entry point
+- wired validation into `build.ps1` and `program.ps1` so invalid metadata fails before build or flash
+
+Validation:
+
+- `validate.ps1` -> success; validated 7 parts, 3 boards, and 1 projects
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success with validation gate enabled

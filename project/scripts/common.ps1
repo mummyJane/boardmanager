@@ -71,12 +71,30 @@ function Assert-Command {
     }
 }
 
+function Invoke-DefinitionsValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & node project/scripts/validate-definitions.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Definition validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 function Invoke-BoardGenerator {
     param([hashtable]$Paths)
 
     Push-Location $Paths.RepoRoot
     try {
-        node project/scripts/generate-board-artifacts.mjs
+        & node project/scripts/generate-board-artifacts.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Board artifact generation failed with exit code $LASTEXITCODE"
+        }
     }
     finally {
         Pop-Location
@@ -90,7 +108,7 @@ function Initialize-EspIdfEnv {
     $exportScript = Join-Path $idfPath 'export.ps1'
 
     if (-not (Test-Path $idfPath)) {
-        throw "ESP-IDF is not installed at $idfPath. Run .\\install-tools.ps1 first."
+        throw "ESP-IDF is not installed at $idfPath. Run .\install-tools.ps1 first."
     }
 
     if (-not (Test-Path $exportScript)) {

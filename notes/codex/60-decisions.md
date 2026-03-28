@@ -28,3 +28,7 @@
 ## 2026-03-28 15:53 Europe/London
 
 - Treat generated ESP-IDF `sdkconfig` files and local workspace files as machine-local artifacts and exclude them from git.
+
+## 2026-03-28 16:10 Europe/London
+
+- Treat metadata validation as a required pre-build and pre-program gate so broken part references, boot steps, and project overrides fail before toolchain work starts.

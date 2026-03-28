@@ -16,6 +16,9 @@ Initialize-BoardManagerDirectories -Paths $paths
 Initialize-BoardManagerProcessEnv -Paths $paths
 
 try {
+    Assert-Command node
+    Invoke-DefinitionsValidator -Paths $paths
+
     if ($Platform -eq 'esp32') {
         Initialize-EspIdfEnv -Paths $paths
 

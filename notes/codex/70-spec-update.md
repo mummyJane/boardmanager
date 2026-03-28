@@ -23,3 +23,7 @@
 ## 2026-03-28 15:49 Europe/London
 
 - Added a local-tooling requirement that SDKs, toolchains, downloads, and build outputs live under `project/`, with top-level scripts owning env setup and teardown. This change is needed so the workspace remains self-contained on Windows now and can be moved to a Raspberry Pi later with minimal assumptions about global host setup.
+
+## 2026-03-28 16:10 Europe/London
+
+- Added explicit validation requirements for part, board, and project definitions. This change is needed because the data model now has enough cross-references that generation, build, and flash should fail early on invalid wiring or override references instead of producing broken artifacts.
