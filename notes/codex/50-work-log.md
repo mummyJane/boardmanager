@@ -25,6 +25,8 @@ Commands run:
 - `git push origin codex/bootstrap --follow-tags`
 - `git push origin Task_bootstrap_1 Task_m5stack_dial_1`
 - `node project/scripts/generate-board-artifacts.mjs` after adding reusable part resolution
+- `node project/scripts/generate-board-artifacts.mjs` after removing parent-directory includes from generated headers
+- `Get-ChildItem project/generated -Filter *.h | Select-String '\.\./'`
 
 Observed issues:
 
@@ -35,6 +37,7 @@ Observed issues:
 - git reported line-ending normalization warnings for newly staged files on Windows
 - initial generator rerun output did not show the new board on the first pass; rerunning completed cleanly and produced the expected files
 - pushing to GitHub required escalated permissions because the sandbox could not complete credential prompting
+- an initial broad `rg` search matched the generator script path logic as well as stale generated content; direct header inspection confirmed the generated include lines were corrected
 
 Actions:
 
@@ -50,9 +53,11 @@ Actions:
 - added reusable part definitions for MCU, package, module, and attached devices
 - refactored the generator to resolve boards through reusable parts
 - added a project-level override example for the M5Stack Dial
+- removed `..` include paths from generated headers so include resolution is handled by the build system
 
 Validation:
 
 - `node --version` -> `v23.6.0`
 - initial `node project/scripts/generate-board-artifacts.mjs` -> success; generated 4 files under `project/generated`
 - current `node project/scripts/generate-board-artifacts.mjs` -> success; generated artifacts for esp32 sample, M5Stack Dial V1.1, and stm32 sample boards using resolved part metadata
+- `Get-ChildItem project/generated -Filter *.h | Select-String '\.\./'` -> no matches

@@ -11,3 +11,7 @@
 ## 2026-03-28 15:03 Europe/London
 
 - Expanded the stage-1 data model to separate reusable part definitions from board assemblies. This change is needed because multiple boards will reuse the same MCU families, packages, modules, and peripheral parts, while each board and project still needs local configuration and bindings.
+
+## 2026-03-28 15:11 Europe/London
+
+- Added a generated-code include-path rule forbidding parent-directory paths such as `..` in code files. This change is needed to match a build-system-managed include strategy and keep source layout independent from compiler include resolution.

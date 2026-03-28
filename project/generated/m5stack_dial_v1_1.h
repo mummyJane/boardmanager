@@ -1,7 +1,7 @@
 #ifndef M5STACK_DIAL_V1_1_H
 #define M5STACK_DIAL_V1_1_H
 
-#include "../firmware-common/board_api.h"
+#include "board_api.h"
 
 extern const board_descriptor_t m5stack_dial_v1_1_descriptor;
 

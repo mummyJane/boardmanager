@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-28 15:07 Europe/London
+Last updated: 2026-03-28 15:14 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -13,5 +13,6 @@ Last updated: 2026-03-28 15:07 Europe/London
 - [x] Introduce reusable parts catalog for MCU, package, module, and attached devices
 - [x] Refactor board schema to reference reusable parts with local board bindings
 - [x] Add project-level override examples for firmware targets
+- [x] Remove parent-directory include paths from generated code
 - [ ] Add schema validation for board and part definitions
 - [ ] Expand generic sample boards into reusable-part-based assemblies

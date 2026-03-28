@@ -131,7 +131,7 @@ function generateHeader(board, resolvedSignals) {
     `#ifndef ${guard}`,
     `#define ${guard}`,
     "",
-    '#include "../firmware-common/board_api.h"',
+    '#include "board_api.h"',
     "",
     `extern const board_descriptor_t ${board.boardId}_descriptor;`,
     "",
@@ -219,3 +219,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

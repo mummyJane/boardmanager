@@ -11,3 +11,4 @@
 - Treat product pages and official pin maps as the preferred source for initial board profiles.
 - Model reusable parts separately from boards so MCU dies, packages, modules, and peripheral devices can be shared across multiple board definitions.
 - Make the board file an assembly-and-binding layer, not the sole source of every part's intrinsic metadata.
+- Keep generated and hand-written code free of `..` include paths; build-system include directories must handle path resolution.

@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 15:03 Europe/London
+Last updated: 2026-03-28 15:11 Europe/London
 
 ## Goal
 
@@ -27,6 +27,7 @@ Requirements:
 - each board control or status signal must define board-level semantic name, direction, logical function, and its mapping through module/package/MCU signals
 - definitions must be able to describe board buses such as I2C and SPI plus exposed connectors and expansion ports
 - project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target
+- generated code must not contain parent-directory include paths; include resolution is owned by the build system
 - generator output must be deterministic so generated firmware artifacts can be committed and reviewed
 - generated APIs must expose initialization and one function per named output or readable input where applicable
 - the schema must be extensible for buses, analog channels, interrupts, and board variants

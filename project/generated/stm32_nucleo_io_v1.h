@@ -1,7 +1,7 @@
 #ifndef STM32_NUCLEO_IO_V1_H
 #define STM32_NUCLEO_IO_V1_H
 
-#include "../firmware-common/board_api.h"
+#include "board_api.h"
 
 extern const board_descriptor_t stm32_nucleo_io_v1_descriptor;
 

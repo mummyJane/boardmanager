@@ -1,7 +1,7 @@
 #ifndef ESP32_DEV_RELAY_V1_H
 #define ESP32_DEV_RELAY_V1_H
 
-#include "../firmware-common/board_api.h"
+#include "board_api.h"
 
 extern const board_descriptor_t esp32_dev_relay_v1_descriptor;
 
