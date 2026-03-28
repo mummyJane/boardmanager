@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-28 14:30 Europe/London
+Last updated: 2026-03-28 14:48 Europe/London
 
 ## Goal
 
@@ -15,13 +15,15 @@ Deliverables:
 - a canonical machine-readable board definition format
 - support for ESP32 and STM32 MCU families
 - IO definitions that map board functions to MCU pins and peripherals
+- grouped bus and connector definitions for complex boards
 - generated board headers and source stubs for firmware projects
 - a shared firmware API layer that higher-level code can call without depending on raw pin numbers
 
 Requirements:
 
 - board definitions must include board id, display name, MCU family, MCU part number, revision, and supported transport capabilities
-- each IO signal must define board-level semantic name, direction, logical function, MCU signal name, MCU pin, and optional peripheral binding
+- each control or status signal must define board-level semantic name, direction, logical function, MCU signal name, MCU pin, and optional peripheral binding
+- definitions must be able to describe board buses such as I2C and SPI plus exposed connectors and expansion ports
 - generator output must be deterministic so generated firmware artifacts can be committed and reviewed
 - generated APIs must expose initialization and one function per named output or readable input where applicable
 - the schema must be extensible for buses, analog channels, interrupts, and board variants
@@ -69,7 +71,7 @@ Deliverables:
 Requirements:
 
 - UI must talk to a service layer, not directly to firmware tools
-- UI must be able to inspect board IO definitions and generated API surface
+- UI must be able to inspect board IO definitions, bus layouts, and generated API surface
 
 ## Non-Goals For Initial Milestone
 

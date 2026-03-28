@@ -1,0 +1,169 @@
+{
+  "boardId": "m5stack_dial_v1_1",
+  "displayName": "M5Stack Dial V1.1",
+  "revision": "1.1",
+  "vendor": "M5Stack",
+  "productSku": "K130",
+  "mcu": {
+    "family": "ESP32-S3",
+    "partNumber": "ESP32-S3FN8",
+    "module": "M5StampS3"
+  },
+  "capabilities": {
+    "usb": true,
+    "uart": false,
+    "jtag": false,
+    "wifi": true,
+    "touch": true,
+    "display": true,
+    "rotaryEncoder": true,
+    "rfid": true,
+    "rtc": true
+  },
+  "power": {
+    "usbInput": "USB Type-C 5V",
+    "terminalInput": "DC 6-36V",
+    "batteryInput": "3.7V",
+    "holdPin": "GPIO46",
+    "wakeButton": "WAKE"
+  },
+  "io": [
+    {
+      "name": "power_hold",
+      "kind": "digital_output",
+      "logicalFunction": "power_latch",
+      "mcuSignal": "GPIO46",
+      "mcuPin": "G46",
+      "peripheral": "POWER_HOLD",
+      "activeLevel": "high"
+    },
+    {
+      "name": "lcd_backlight",
+      "kind": "digital_output",
+      "logicalFunction": "display_backlight",
+      "mcuSignal": "GPIO9",
+      "mcuPin": "G9",
+      "peripheral": "GC9A01_BL",
+      "activeLevel": "high"
+    },
+    {
+      "name": "buzzer",
+      "kind": "digital_output",
+      "logicalFunction": "audio_alert",
+      "mcuSignal": "GPIO3",
+      "mcuPin": "G3",
+      "peripheral": "BUZZER",
+      "activeLevel": "high"
+    },
+    {
+      "name": "rfid_reset",
+      "kind": "digital_output",
+      "logicalFunction": "rfid_reset",
+      "mcuSignal": "GPIO8",
+      "mcuPin": "G8",
+      "peripheral": "WS1850S_RST",
+      "activeLevel": "low"
+    },
+    {
+      "name": "touch_interrupt",
+      "kind": "digital_input",
+      "logicalFunction": "touch_irq",
+      "mcuSignal": "GPIO14",
+      "mcuPin": "G14",
+      "peripheral": "FT3267_INT",
+      "activeLevel": "low"
+    },
+    {
+      "name": "rfid_interrupt",
+      "kind": "digital_input",
+      "logicalFunction": "rfid_irq",
+      "mcuSignal": "GPIO10",
+      "mcuPin": "G10",
+      "peripheral": "WS1850S_IRQ",
+      "activeLevel": "low"
+    },
+    {
+      "name": "encoder_phase_a",
+      "kind": "digital_input",
+      "logicalFunction": "encoder_phase_a",
+      "mcuSignal": "GPIO41",
+      "mcuPin": "G41",
+      "peripheral": "ROTARY_ENCODER_A",
+      "activeLevel": "high"
+    },
+    {
+      "name": "encoder_phase_b",
+      "kind": "digital_input",
+      "logicalFunction": "encoder_phase_b",
+      "mcuSignal": "GPIO40",
+      "mcuPin": "G40",
+      "peripheral": "ROTARY_ENCODER_B",
+      "activeLevel": "high"
+    }
+  ],
+  "buses": [
+    {
+      "name": "internal_i2c",
+      "kind": "i2c",
+      "sda": "GPIO11",
+      "scl": "GPIO12",
+      "devices": [
+        {
+          "name": "rtc",
+          "part": "BM8563",
+          "address": "0x51"
+        },
+        {
+          "name": "rfid",
+          "part": "WS1850S",
+          "address": "0x28"
+        },
+        {
+          "name": "touch",
+          "part": "FT3267",
+          "address": "0x38"
+        }
+      ]
+    },
+    {
+      "name": "display_spi",
+      "kind": "spi",
+      "mosi": "GPIO5",
+      "sck": "GPIO6",
+      "cs": "GPIO7",
+      "dc": "GPIO4",
+      "reset": "GPIO8",
+      "backlight": "GPIO9",
+      "device": {
+        "name": "display",
+        "part": "GC9A01"
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "name": "port_a",
+      "type": "HY2.0-4P",
+      "pins": [
+        { "label": "GND", "signal": "GND" },
+        { "label": "5V", "signal": "5V" },
+        { "label": "YELLOW", "signal": "GPIO13" },
+        { "label": "WHITE", "signal": "GPIO15" }
+      ]
+    },
+    {
+      "name": "port_b",
+      "type": "HY2.0-4P",
+      "pins": [
+        { "label": "GND", "signal": "GND" },
+        { "label": "5V", "signal": "5V" },
+        { "label": "YELLOW", "signal": "GPIO2" },
+        { "label": "WHITE", "signal": "GPIO1" }
+      ]
+    }
+  ],
+  "sources": [
+    "https://docs.m5stack.com/en/core/M5Dial",
+    "https://docs.m5stack.com/en/core/M5Dial%20V1.1"
+  ]
+}

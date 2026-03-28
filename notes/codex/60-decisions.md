@@ -7,3 +7,5 @@
 - Keep the first milestone dependency-light by using a plain Node.js generator script with no third-party packages.
 - Reserve `project/web` and `project/device-manager` for later milestones instead of prematurely scaffolding framework-specific stacks.
 - Commit generated firmware artifacts so schema and API-surface changes stay reviewable in git.
+- Extend the board-definition schema with `power`, `buses`, and `connectors` fields so complex boards such as M5Stack Dial can be represented without flattening everything into GPIO-only entries.
+- Treat product pages and official pin maps as the preferred source for initial board profiles.
