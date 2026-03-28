@@ -1,0 +1,11 @@
+{
+  "partId": "m5stamps3",
+  "partType": "module",
+  "displayName": "M5StampS3",
+  "vendor": "M5Stack",
+  "packageId": "esp32_s3fn8",
+  "mcuId": "esp32_s3",
+  "notes": [
+    "ESP32-S3FN8 based module used as the controller core on M5Stack Dial"
+  ]
+}

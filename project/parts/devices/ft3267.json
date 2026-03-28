@@ -1,0 +1,11 @@
+{
+  "partId": "ft3267",
+  "partType": "device",
+  "displayName": "FT3267 Touch Controller",
+  "vendor": "FocalTech",
+  "interfaces": ["i2c", "interrupt"],
+  "defaultConfig": {
+    "i2cAddress": "0x38",
+    "interruptActiveLevel": "low"
+  }
+}

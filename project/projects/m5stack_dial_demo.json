@@ -1,0 +1,38 @@
+{
+  "projectId": "m5stack_dial_demo",
+  "displayName": "M5Stack Dial Demo",
+  "boardId": "m5stack_dial_v1_1",
+  "firmwareTarget": {
+    "family": "esp-idf",
+    "entryPoint": "main/app_main.c"
+  },
+  "partOverrides": {
+    "display": {
+      "partId": "gc9a01",
+      "config": {
+        "rotation": 0,
+        "backlightDefault": true
+      }
+    },
+    "rtc": {
+      "partId": "bm8563",
+      "config": {
+        "timezone": "UTC"
+      }
+    },
+    "rfid": {
+      "partId": "ws1850s",
+      "config": {
+        "pollIntervalMs": 250
+      }
+    }
+  },
+  "signalOverrides": {
+    "buzzer": {
+      "defaultState": false
+    },
+    "lcd_backlight": {
+      "defaultState": true
+    }
+  }
+}

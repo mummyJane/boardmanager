@@ -1,0 +1,33 @@
+{
+  "partId": "esp32_s3fn8",
+  "partType": "package",
+  "displayName": "ESP32-S3FN8",
+  "vendor": "Espressif",
+  "mcuId": "esp32_s3",
+  "flash": "8MB embedded",
+  "pins": {
+    "GPIO0": "G0",
+    "GPIO1": "G1",
+    "GPIO2": "G2",
+    "GPIO3": "G3",
+    "GPIO4": "G4",
+    "GPIO5": "G5",
+    "GPIO6": "G6",
+    "GPIO7": "G7",
+    "GPIO8": "G8",
+    "GPIO9": "G9",
+    "GPIO10": "G10",
+    "GPIO11": "G11",
+    "GPIO12": "G12",
+    "GPIO13": "G13",
+    "GPIO14": "G14",
+    "GPIO15": "G15",
+    "GPIO40": "G40",
+    "GPIO41": "G41",
+    "GPIO42": "G42",
+    "GPIO43": "G43",
+    "GPIO44": "G44",
+    "GPIO45": "G45",
+    "GPIO46": "G46"
+  }
+}

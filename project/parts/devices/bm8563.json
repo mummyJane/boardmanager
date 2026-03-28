@@ -1,0 +1,10 @@
+{
+  "partId": "bm8563",
+  "partType": "device",
+  "displayName": "BM8563 RTC",
+  "vendor": "Belling",
+  "interfaces": ["i2c"],
+  "defaultConfig": {
+    "i2cAddress": "0x51"
+  }
+}

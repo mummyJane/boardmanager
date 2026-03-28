@@ -1,0 +1,12 @@
+{
+  "partId": "ws1850s",
+  "partType": "device",
+  "displayName": "WS1850S RFID",
+  "vendor": "M5Stack/third-party",
+  "interfaces": ["i2c", "interrupt", "reset"],
+  "defaultConfig": {
+    "i2cAddress": "0x28",
+    "interruptActiveLevel": "low",
+    "resetActiveLevel": "low"
+  }
+}

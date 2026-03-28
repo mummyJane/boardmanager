@@ -1,0 +1,10 @@
+{
+  "partId": "gc9a01",
+  "partType": "device",
+  "displayName": "GC9A01 Round LCD Controller",
+  "vendor": "GalaxyCore",
+  "interfaces": ["spi"],
+  "defaultConfig": {
+    "pixelFormat": "RGB565"
+  }
+}

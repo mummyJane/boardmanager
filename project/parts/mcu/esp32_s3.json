@@ -1,0 +1,25 @@
+{
+  "partId": "esp32_s3",
+  "partType": "mcu",
+  "displayName": "ESP32-S3",
+  "vendor": "Espressif",
+  "cpu": "Xtensa LX7 dual-core",
+  "wireless": ["wifi", "bluetooth_le"],
+  "peripherals": {
+    "uart": ["UART0", "UART1", "LP_UART"],
+    "i2c": ["I2C0", "I2C1"],
+    "spi": ["SPI2", "SPI3"],
+    "i2s": ["I2S0", "I2S1"],
+    "twai": ["TWAI0"],
+    "usb": ["USB_SERIAL_JTAG", "USB_OTG"],
+    "adc": ["ADC1", "ADC2"],
+    "pwm": ["LEDC"],
+    "touch": []
+  },
+  "signals": [
+    "GPIO0", "GPIO1", "GPIO2", "GPIO3", "GPIO4", "GPIO5", "GPIO6", "GPIO7", "GPIO8", "GPIO9",
+    "GPIO10", "GPIO11", "GPIO12", "GPIO13", "GPIO14", "GPIO15", "GPIO16", "GPIO17", "GPIO18", "GPIO19",
+    "GPIO20", "GPIO21", "GPIO35", "GPIO36", "GPIO37", "GPIO38", "GPIO39", "GPIO40", "GPIO41", "GPIO42",
+    "GPIO43", "GPIO44", "GPIO45", "GPIO46"
+  ]
+}

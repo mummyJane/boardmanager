@@ -22,6 +22,9 @@ Commands run:
 - `node project/scripts/generate-board-artifacts.mjs` after adding M5Stack Dial board definition
 - `Get-Content project/generated/m5stack_dial_v1_1.h`
 - `Get-Content project/generated/m5stack_dial_v1_1.c`
+- `git push origin codex/bootstrap --follow-tags`
+- `git push origin Task_bootstrap_1 Task_m5stack_dial_1`
+- `node project/scripts/generate-board-artifacts.mjs` after adding reusable part resolution
 
 Observed issues:
 
@@ -31,6 +34,7 @@ Observed issues:
 - generated artifacts were briefly excluded in `.gitignore`; this was corrected so generated outputs can be committed and reviewed
 - git reported line-ending normalization warnings for newly staged files on Windows
 - initial generator rerun output did not show the new board on the first pass; rerunning completed cleanly and produced the expected files
+- pushing to GitHub required escalated permissions because the sandbox could not complete credential prompting
 
 Actions:
 
@@ -40,12 +44,15 @@ Actions:
 - added a Node.js generator for board headers and source stubs
 - added shared firmware API header and milestone install/update scripts
 - initialized git and created branch `codex/bootstrap`
-- confirmed the GitHub remote is linked
+- confirmed the GitHub remote is linked and pushed current work
 - added a concrete M5Stack Dial V1.1 board definition based on official docs and pin map
-- extended the board schema documentation to include buses, connectors, and power metadata
+- extended the board schema documentation to include buses, connectors, reusable parts, and project-level overrides
+- added reusable part definitions for MCU, package, module, and attached devices
+- refactored the generator to resolve boards through reusable parts
+- added a project-level override example for the M5Stack Dial
 
 Validation:
 
 - `node --version` -> `v23.6.0`
 - initial `node project/scripts/generate-board-artifacts.mjs` -> success; generated 4 files under `project/generated`
-- current `node project/scripts/generate-board-artifacts.mjs` -> success; generated artifacts for esp32 sample, M5Stack Dial V1.1, and stm32 sample boards
+- current `node project/scripts/generate-board-artifacts.mjs` -> success; generated artifacts for esp32 sample, M5Stack Dial V1.1, and stm32 sample boards using resolved part metadata

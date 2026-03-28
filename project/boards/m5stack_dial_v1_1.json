@@ -4,10 +4,8 @@
   "revision": "1.1",
   "vendor": "M5Stack",
   "productSku": "K130",
-  "mcu": {
-    "family": "ESP32-S3",
-    "partNumber": "ESP32-S3FN8",
-    "module": "M5StampS3"
+  "controller": {
+    "moduleId": "m5stamps3"
   },
   "capabilities": {
     "usb": true,
@@ -24,16 +22,15 @@
     "usbInput": "USB Type-C 5V",
     "terminalInput": "DC 6-36V",
     "batteryInput": "3.7V",
-    "holdPin": "GPIO46",
+    "holdSignal": "power_hold",
     "wakeButton": "WAKE"
   },
-  "io": [
+  "signals": [
     {
       "name": "power_hold",
       "kind": "digital_output",
       "logicalFunction": "power_latch",
-      "mcuSignal": "GPIO46",
-      "mcuPin": "G46",
+      "controllerSignal": "GPIO46",
       "peripheral": "POWER_HOLD",
       "activeLevel": "high"
     },
@@ -41,8 +38,7 @@
       "name": "lcd_backlight",
       "kind": "digital_output",
       "logicalFunction": "display_backlight",
-      "mcuSignal": "GPIO9",
-      "mcuPin": "G9",
+      "controllerSignal": "GPIO9",
       "peripheral": "GC9A01_BL",
       "activeLevel": "high"
     },
@@ -50,8 +46,7 @@
       "name": "buzzer",
       "kind": "digital_output",
       "logicalFunction": "audio_alert",
-      "mcuSignal": "GPIO3",
-      "mcuPin": "G3",
+      "controllerSignal": "GPIO3",
       "peripheral": "BUZZER",
       "activeLevel": "high"
     },
@@ -59,8 +54,7 @@
       "name": "rfid_reset",
       "kind": "digital_output",
       "logicalFunction": "rfid_reset",
-      "mcuSignal": "GPIO8",
-      "mcuPin": "G8",
+      "controllerSignal": "GPIO8",
       "peripheral": "WS1850S_RST",
       "activeLevel": "low"
     },
@@ -68,8 +62,7 @@
       "name": "touch_interrupt",
       "kind": "digital_input",
       "logicalFunction": "touch_irq",
-      "mcuSignal": "GPIO14",
-      "mcuPin": "G14",
+      "controllerSignal": "GPIO14",
       "peripheral": "FT3267_INT",
       "activeLevel": "low"
     },
@@ -77,8 +70,7 @@
       "name": "rfid_interrupt",
       "kind": "digital_input",
       "logicalFunction": "rfid_irq",
-      "mcuSignal": "GPIO10",
-      "mcuPin": "G10",
+      "controllerSignal": "GPIO10",
       "peripheral": "WS1850S_IRQ",
       "activeLevel": "low"
     },
@@ -86,8 +78,7 @@
       "name": "encoder_phase_a",
       "kind": "digital_input",
       "logicalFunction": "encoder_phase_a",
-      "mcuSignal": "GPIO41",
-      "mcuPin": "G41",
+      "controllerSignal": "GPIO41",
       "peripheral": "ROTARY_ENCODER_A",
       "activeLevel": "high"
     },
@@ -95,8 +86,7 @@
       "name": "encoder_phase_b",
       "kind": "digital_input",
       "logicalFunction": "encoder_phase_b",
-      "mcuSignal": "GPIO40",
-      "mcuPin": "G40",
+      "controllerSignal": "GPIO40",
       "peripheral": "ROTARY_ENCODER_B",
       "activeLevel": "high"
     }
@@ -105,39 +95,60 @@
     {
       "name": "internal_i2c",
       "kind": "i2c",
-      "sda": "GPIO11",
-      "scl": "GPIO12",
+      "controllerPeripheral": "I2C0",
+      "lines": {
+        "sda": "GPIO11",
+        "scl": "GPIO12"
+      },
       "devices": [
         {
-          "name": "rtc",
-          "part": "BM8563",
-          "address": "0x51"
+          "instanceId": "rtc",
+          "partId": "bm8563",
+          "config": {
+            "i2cAddress": "0x51"
+          }
         },
         {
-          "name": "rfid",
-          "part": "WS1850S",
-          "address": "0x28"
+          "instanceId": "rfid",
+          "partId": "ws1850s",
+          "config": {
+            "i2cAddress": "0x28",
+            "interruptSignal": "rfid_interrupt",
+            "resetSignal": "rfid_reset"
+          }
         },
         {
-          "name": "touch",
-          "part": "FT3267",
-          "address": "0x38"
+          "instanceId": "touch",
+          "partId": "ft3267",
+          "config": {
+            "i2cAddress": "0x38",
+            "interruptSignal": "touch_interrupt"
+          }
         }
       ]
     },
     {
       "name": "display_spi",
       "kind": "spi",
-      "mosi": "GPIO5",
-      "sck": "GPIO6",
-      "cs": "GPIO7",
-      "dc": "GPIO4",
-      "reset": "GPIO8",
-      "backlight": "GPIO9",
-      "device": {
-        "name": "display",
-        "part": "GC9A01"
-      }
+      "controllerPeripheral": "SPI2",
+      "lines": {
+        "mosi": "GPIO5",
+        "sck": "GPIO6",
+        "cs": "GPIO7",
+        "dc": "GPIO4",
+        "reset": "GPIO8",
+        "backlight": "GPIO9"
+      },
+      "devices": [
+        {
+          "instanceId": "display",
+          "partId": "gc9a01",
+          "config": {
+            "resetSignal": "rfid_reset",
+            "backlightSignal": "lcd_backlight"
+          }
+        }
+      ]
     }
   ],
   "connectors": [
