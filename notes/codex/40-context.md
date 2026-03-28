@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-28 19:58 Europe/London
+Last updated: 2026-03-28 20:10 Europe/London
 
 ## Project Intent
 
@@ -46,3 +46,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the `m5stack_dial_demo` ESP32 app now compiles with the concrete M5Stack Dial ESP-IDF platform layer linked into the generated board component
 - local STM32 tooling now uses an ST STM32CubeF4 firmware package checkout plus a project-local Arm GNU bare-metal toolchain under `project/toolchains`
 - a host-side STM32 CMake build now passes for `stm32_nucleo_io_demo` without requiring connected hardware
+- the current M5Stack Dial smoke-test app performs non-fatal presence checks for the RTC, touch controller, RFID device, display command path, buzzer, backlight, and live input signals
+- the latest smoke-test run on the physical Dial over `COM3` reported `PASS` for controller GPIO, internal I2C setup, display SPI, and display command path, while RTC, touch, and RFID probes timed out on I2C and need follow-up

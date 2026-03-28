@@ -9,6 +9,7 @@ idf_component_register(
     INCLUDE_DIRS
         "${GENERATED_DIR}"
         "${FIRMWARE_COMMON_DIR}"
+        "${PLATFORM_DIR}"
     REQUIRES
         esp_driver_gpio
         esp_driver_i2c

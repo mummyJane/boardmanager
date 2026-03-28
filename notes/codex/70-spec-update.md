@@ -41,3 +41,7 @@
 - Added a host-side validation requirement for board builds without connected hardware. This change is needed because STM32 build verification should be possible from a Windows workstation even when no target board is physically attached.
 - Clarified that the STM32 local build path may combine a local STM32Cube firmware package with a local Arm bare-metal compiler toolchain. This change is needed because the Windows STM32CubeCLT distribution is not ideal for unattended repo-owned installation, but the project still needs a reproducible local STM32 build path under project/.
 
+## 2026-03-28 20:10 Europe/London
+
+- Added a non-fatal smoke-test requirement for board demos and diagnostics. This change is needed because bring-up on real hardware should report which peripherals respond and which do not, instead of aborting the whole boot path on the first missing device.
+

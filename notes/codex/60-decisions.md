@@ -47,3 +47,8 @@
 - Use the STM32Cube firmware package plus a local Arm GNU bare-metal compiler for the Windows STM32 host-build path, because STM32CubeCLT unattended installation is not straightforward enough for a repo-owned bootstrap script.
 - Fetch only the STM32Cube submodules required by the sample board build to keep the local install smaller and reduce unnecessary churn under antivirus scanning.
 
+## 2026-03-28 20:10 Europe/London
+
+- Keep board smoke tests non-fatal and report peripheral presence explicitly, so bring-up can distinguish between a dead board and a partially working board.
+- Record physical-board smoke-test results in context instead of treating them as stable spec facts, because attached hardware state can vary from session to session.
+

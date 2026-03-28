@@ -1,4 +1,5 @@
 #include "m5stack_dial_v1_1.h"
+#include "m5stack_dial_v1_1_platform.h"
 
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
@@ -20,10 +21,15 @@ static i2c_master_dev_handle_t s_rtc_handle;
 static i2c_master_dev_handle_t s_rfid_handle;
 static i2c_master_dev_handle_t s_touch_handle;
 static spi_device_handle_t s_display_handle;
-static bool s_spi_ready;
+static bool s_controller_ready;
+static bool s_internal_i2c_ready;
+static bool s_rtc_present;
+static bool s_rfid_present;
+static bool s_touch_present;
+static bool s_display_spi_ready;
+static bool s_display_command_path_ready;
 
 void m5stack_dial_v1_1_platform_rfid_reset_set(bool enabled);
-
 
 static void configure_output_gpio(gpio_num_t pin)
 {
@@ -49,6 +55,23 @@ static void configure_input_gpio(gpio_num_t pin, bool pullup)
     ESP_ERROR_CHECK(gpio_config(&config));
 }
 
+static bool probe_i2c_device(uint16_t address, const char *label)
+{
+    if (s_internal_i2c_bus == NULL) {
+        ESP_LOGW(TAG, "%s probe skipped because internal I2C is not ready", label);
+        return false;
+    }
+
+    const esp_err_t err = i2c_master_probe(s_internal_i2c_bus, address, 50);
+    if (err == ESP_OK) {
+        ESP_LOGI(TAG, "%s responded on I2C address 0x%02X", label, address);
+        return true;
+    }
+
+    ESP_LOGW(TAG, "%s probe failed on I2C address 0x%02X: %s", label, address, esp_err_to_name(err));
+    return false;
+}
+
 static void send_display_command(uint8_t command)
 {
     spi_transaction_t transaction = {
@@ -58,6 +81,7 @@ static void send_display_command(uint8_t command)
 
     ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_4, 0));
     ESP_ERROR_CHECK(spi_device_transmit(s_display_handle, &transaction));
+    ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_4, 1));
 }
 
 void m5stack_dial_v1_1_platform_boot_controller(void)
@@ -74,11 +98,13 @@ void m5stack_dial_v1_1_platform_boot_controller(void)
     configure_input_gpio(GPIO_NUM_40, true);
 
     ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_4, 1));
+    s_controller_ready = true;
 }
 
 void m5stack_dial_v1_1_platform_boot_internal_i2c(void)
 {
     if (s_internal_i2c_bus != NULL) {
+        s_internal_i2c_ready = true;
         return;
     }
 
@@ -122,20 +148,18 @@ void m5stack_dial_v1_1_platform_boot_internal_i2c(void)
         .flags.disable_ack_check = 0,
     };
     ESP_ERROR_CHECK(i2c_master_bus_add_device(s_internal_i2c_bus, &touch_config, &s_touch_handle));
+
+    s_internal_i2c_ready = true;
 }
 
 void m5stack_dial_v1_1_platform_boot_rtc(void)
 {
-    if (s_internal_i2c_bus != NULL) {
-        ESP_ERROR_CHECK(i2c_master_probe(s_internal_i2c_bus, 0x51, 50));
-    }
+    s_rtc_present = probe_i2c_device(0x51, "RTC");
 }
 
 void m5stack_dial_v1_1_platform_boot_touch(void)
 {
-    if (s_internal_i2c_bus != NULL) {
-        ESP_ERROR_CHECK(i2c_master_probe(s_internal_i2c_bus, 0x38, 50));
-    }
+    s_touch_present = probe_i2c_device(0x38, "Touch controller");
 }
 
 void m5stack_dial_v1_1_platform_boot_rfid(void)
@@ -144,14 +168,12 @@ void m5stack_dial_v1_1_platform_boot_rfid(void)
     vTaskDelay(pdMS_TO_TICKS(10));
     m5stack_dial_v1_1_platform_rfid_reset_set(true);
     vTaskDelay(pdMS_TO_TICKS(10));
-    if (s_internal_i2c_bus != NULL) {
-        ESP_ERROR_CHECK(i2c_master_probe(s_internal_i2c_bus, 0x28, 50));
-    }
+    s_rfid_present = probe_i2c_device(0x28, "RFID");
 }
 
 void m5stack_dial_v1_1_platform_boot_display_spi(void)
 {
-    if (s_spi_ready) {
+    if (s_display_spi_ready) {
         return;
     }
 
@@ -191,13 +213,14 @@ void m5stack_dial_v1_1_platform_boot_display_spi(void)
         .post_cb = NULL,
     };
     ESP_ERROR_CHECK(spi_bus_add_device(M5DIAL_SPI_HOST, &device_config, &s_display_handle));
-    s_spi_ready = true;
+    s_display_spi_ready = true;
 }
 
 void m5stack_dial_v1_1_platform_boot_display(void)
 {
-    if (!s_spi_ready || s_display_handle == NULL) {
+    if (!s_display_spi_ready || s_display_handle == NULL) {
         ESP_LOGW(TAG, "Display SPI bus not ready");
+        s_display_command_path_ready = false;
         return;
     }
 
@@ -209,6 +232,8 @@ void m5stack_dial_v1_1_platform_boot_display(void)
     send_display_command(0x11);
     vTaskDelay(pdMS_TO_TICKS(120));
     send_display_command(0x29);
+    s_display_command_path_ready = true;
+    ESP_LOGI(TAG, "Display command path initialized");
 }
 
 void m5stack_dial_v1_1_platform_power_hold_set(bool enabled)
@@ -251,4 +276,21 @@ bool m5stack_dial_v1_1_platform_encoder_phase_b_read(void)
     return gpio_get_level(GPIO_NUM_40) != 0;
 }
 
+void m5stack_dial_v1_1_platform_get_self_test(m5stack_dial_v1_1_self_test_t *result)
+{
+    if (result == NULL) {
+        return;
+    }
 
+    result->controller_ready = s_controller_ready;
+    result->internal_i2c_ready = s_internal_i2c_ready;
+    result->rtc_present = s_rtc_present;
+    result->touch_present = s_touch_present;
+    result->rfid_present = s_rfid_present;
+    result->display_spi_ready = s_display_spi_ready;
+    result->display_command_path_ready = s_display_command_path_ready;
+    result->touch_interrupt_active = m5stack_dial_v1_1_platform_touch_interrupt_read();
+    result->rfid_interrupt_active = m5stack_dial_v1_1_platform_rfid_interrupt_read();
+    result->encoder_phase_a = m5stack_dial_v1_1_platform_encoder_phase_a_read();
+    result->encoder_phase_b = m5stack_dial_v1_1_platform_encoder_phase_b_read();
+}

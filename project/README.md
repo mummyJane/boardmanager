@@ -14,7 +14,7 @@ All project-managed SDKs, toolchains, downloads, and build outputs live under `p
 
 ## Current Apps
 
-- `project/apps/m5stack_dial_demo`: ESP-IDF demo app for the M5Stack Dial
+- `project/apps/m5stack_dial_demo`: ESP-IDF smoke-test app for the M5Stack Dial
 - `project/apps/stm32_nucleo_io_demo`: STM32Cube-based demo app for the STM32 sample board
 
 ## Top-Level Scripts
@@ -25,3 +25,4 @@ All project-managed SDKs, toolchains, downloads, and build outputs live under `p
 - `clean.ps1`: remove local build outputs
 
 These scripts manage process-local environment variables internally and do not require the caller to pre-source any SDK environment.
+

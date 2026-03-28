@@ -283,3 +283,32 @@ Validation:
 - `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1` -> success; produced `project/build/stm32-stm32_nucleo_io_demo/stm32_nucleo_io_demo.elf` and `.bin`
 - the successful STM32 link still reports expected `nosys` warnings for `_close`, `_lseek`, `_read`, and `_write`; those do not block the host-side firmware build test
 
+## 2026-03-28 20:10 Europe/London
+
+Commands run:
+
+- `Get-Content project/apps/m5stack_dial_demo/main/app_main.c`
+- `Get-Content project/platform/esp-idf/m5stack_dial_v1_1_platform.c`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM3`
+- serial capture from `COM3` using the local ESP-IDF Python environment before and after a manual RTS reset
+
+Observed issues:
+
+- the first serial capture attached after boot and only showed the steady-state live input logs, so a second reset-and-capture pass was needed to collect the startup self-test summary
+- the physical Dial board responded on the controller/display paths, but the RTC, touch, and RFID devices all timed out during the current I2C smoke-test run
+
+Actions:
+
+- added a public Dial platform self-test header and diagnostic getter for app-level smoke tests
+- updated the Dial ESP-IDF platform implementation so peripheral presence is recorded and logged instead of aborting the entire board init on probe failures
+- changed the Dial demo app into a smoke-test app that prints a board summary, exercises the backlight and buzzer, and reports live input states once per second
+- flashed the updated smoke-test firmware to the Dial on `COM3`
+
+Validation:
+
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM3` -> success
+- boot-time smoke-test output on `COM3` reported controller GPIO `PASS`, internal I2C setup `PASS`, display SPI `PASS`, display command path `PASS`, and `FAIL` for RTC, touch, and RFID I2C presence during this run
+- live input logs reported `touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1` repeatedly after boot on the current board state
+
