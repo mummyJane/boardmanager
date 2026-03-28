@@ -1,0 +1,7 @@
+.codex-temp-tests/
+node_modules/
+dist/
+coverage/
+*.log
+keys/*
+!keys/.gitkeep

@@ -1,0 +1,43 @@
+{
+  "boardId": "esp32_dev_relay_v1",
+  "displayName": "ESP32 Dev Relay V1",
+  "revision": "1.0",
+  "mcu": {
+    "family": "ESP32",
+    "partNumber": "ESP32-WROOM-32"
+  },
+  "capabilities": {
+    "usb": false,
+    "uart": true,
+    "jtag": false
+  },
+  "io": [
+    {
+      "name": "status_led",
+      "kind": "digital_output",
+      "logicalFunction": "status_indicator",
+      "mcuSignal": "GPIO2",
+      "mcuPin": "IO2",
+      "peripheral": null,
+      "activeLevel": "high"
+    },
+    {
+      "name": "relay_drive",
+      "kind": "digital_output",
+      "logicalFunction": "relay_control",
+      "mcuSignal": "GPIO16",
+      "mcuPin": "IO16",
+      "peripheral": null,
+      "activeLevel": "high"
+    },
+    {
+      "name": "user_button",
+      "kind": "digital_input",
+      "logicalFunction": "manual_trigger",
+      "mcuSignal": "GPIO0",
+      "mcuPin": "IO0",
+      "peripheral": null,
+      "activeLevel": "low"
+    }
+  ]
+}

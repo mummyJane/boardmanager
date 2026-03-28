@@ -1,0 +1,43 @@
+{
+  "boardId": "stm32_nucleo_io_v1",
+  "displayName": "STM32 Nucleo IO V1",
+  "revision": "1.0",
+  "mcu": {
+    "family": "STM32",
+    "partNumber": "STM32F446RE"
+  },
+  "capabilities": {
+    "usb": true,
+    "uart": true,
+    "jtag": true
+  },
+  "io": [
+    {
+      "name": "heartbeat_led",
+      "kind": "digital_output",
+      "logicalFunction": "status_indicator",
+      "mcuSignal": "PA5",
+      "mcuPin": "PA5",
+      "peripheral": null,
+      "activeLevel": "high"
+    },
+    {
+      "name": "fan_enable",
+      "kind": "digital_output",
+      "logicalFunction": "power_enable",
+      "mcuSignal": "PB4",
+      "mcuPin": "PB4",
+      "peripheral": null,
+      "activeLevel": "high"
+    },
+    {
+      "name": "fault_input",
+      "kind": "digital_input",
+      "logicalFunction": "fault_detect",
+      "mcuSignal": "PC13",
+      "mcuPin": "PC13",
+      "peripheral": "EXTI13",
+      "activeLevel": "low"
+    }
+  ]
+}
