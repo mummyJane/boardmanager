@@ -30,7 +30,7 @@ try {
 
         Push-Location $appRoot
         try {
-            & idf.py -B $buildDir -D CMAKE_BUILD_TYPE=$BuildType build
+            & idf.py -B $buildDir -D CMAKE_BUILD_TYPE=$BuildType -D BOARD_MANAGER_BOARD=$Board build
             if ($LASTEXITCODE -ne 0) {
                 throw "idf.py build failed with exit code $LASTEXITCODE"
             }
@@ -55,7 +55,7 @@ try {
         throw "STM32 app '$App' was not found at $appRoot"
     }
 
-    & cmake -S $appRoot -B $buildDir -G Ninja -D CMAKE_BUILD_TYPE=$BuildType -D CMAKE_TOOLCHAIN_FILE=$toolchainFile -D BOARD_MANAGER_PROJECT_ROOT=$($paths.ProjectRoot) -D BOARD_MANAGER_BOARD=$Board -D STM32CUBE_F4_ROOT=$($paths.Stm32CubeSdkRoot) -D ARM_GNU_TOOLCHAIN_ROOT=$($paths.ArmGnuToolchainRoot)
+    & cmake -S $appRoot -B $buildDir -G Ninja -D CMAKE_BUILD_TYPE=$BuildType -D CMAKE_TOOLCHAIN_FILE=$toolchainFile -D BOARD_MANAGER_PROJECT_ROOT=$($paths.ProjectRoot) -D BOARD_MANAGER_BOARD=$Board -D STM32CUBE_F4_ROOT=$($paths.Stm32CubeSdkRoot) -D STM32CUBE_F0_ROOT=$($paths.Stm32CubeF0SdkRoot) -D ARM_GNU_TOOLCHAIN_ROOT=$($paths.ArmGnuToolchainRoot)
     if ($LASTEXITCODE -ne 0) {
         throw "STM32 CMake configure failed with exit code $LASTEXITCODE"
     }
@@ -70,3 +70,4 @@ try {
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot
 }
+

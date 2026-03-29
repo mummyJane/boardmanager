@@ -1,11 +1,14 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-28 15:49 Europe/London
+Last updated: 2026-03-29 11:40 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
 Objective:
-Create the initial repository structure, documentation baseline, reusable part catalog, sample board assemblies, generated firmware interface artifacts, generated boot/setup sequencing, and local-tooling bootstrap for Windows.
+Create the initial repository structure, documentation baseline, reusable part catalog, concrete board assemblies, generated firmware interface artifacts, generated boot/setup sequencing, local-tooling bootstrap for Windows, and real demo/build coverage for the currently attached ESP32 and STM32 boards.
+
+Status:
+Completed on 2026-03-29 after validating real ESP32 bring-up on the attached Dial and CoreS3 boards plus host-side STM32 builds for the sample F4 board and the attached F072 board.
 
 Success criteria:
 
@@ -16,7 +19,8 @@ Success criteria:
 - generated board init code reflects declared boot order for controller, buses, devices, and signal states
 - local SDK and toolchain layout exists under `project/`
 - top-level scripts can install tools, build, clean, and program without pre-sourced env setup
-- an ESP32 build test passes using the local SDK layout
+- ESP32 build and flash validation passes using the local SDK layout
+- STM32 host-side build validation passes for the supported sample and attached boards
 - install and update scripts exist for the milestone
 
 ## Future Milestones

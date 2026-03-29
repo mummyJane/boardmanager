@@ -6,6 +6,7 @@ All project-managed SDKs, toolchains, downloads, and build outputs live under `p
 
 - `project/toolchains/esp-idf/esp-idf`: local ESP-IDF checkout
 - `project/toolchains/stm32cube/STM32CubeF4`: local STM32CubeF4 firmware package checkout
+- `project/toolchains/stm32cube/STM32CubeF0`: local STM32CubeF0 firmware package checkout
 - `project/toolchains/arm-gnu-toolchain` or `project/toolchains`: local Arm bare-metal compiler toolchain, depending on archive layout
 - `project/tools/espressif`: local ESP-IDF downloaded tool binaries
 - `project/downloads`: cached installers and archives
@@ -15,7 +16,9 @@ All project-managed SDKs, toolchains, downloads, and build outputs live under `p
 ## Current Apps
 
 - `project/apps/m5stack_dial_demo`: ESP-IDF smoke-test app for the M5Stack Dial
+- `project/apps/m5stack_cores3_gnss_demo`: ESP-IDF bring-up app for the CoreS3 + GNSS bench assembly
 - `project/apps/stm32_nucleo_io_demo`: STM32Cube-based demo app for the STM32 sample board
+- `project/apps/p_nucleo_usb001_demo`: STM32Cube-based demo app for the attached P-NUCLEO-USB001 board
 
 ## Top-Level Scripts
 
@@ -25,4 +28,3 @@ All project-managed SDKs, toolchains, downloads, and build outputs live under `p
 - `clean.ps1`: remove local build outputs
 
 These scripts manage process-local environment variables internally and do not require the caller to pre-source any SDK environment.
-

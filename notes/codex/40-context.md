@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 09:55 Europe/London
+Last updated: 2026-03-29 11:40 Europe/London
 
 ## Project Intent
 
@@ -15,10 +15,9 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - generated C headers and source stubs are produced under `project/generated`
 - project-level config examples exist under `project/projects`
 - generated board init emits ordered boot/setup stubs and records the platform SDK in the board descriptor
-- local toolchain and SDK layout now exists under `project/`
-- local ESP-IDF is installed under `project/toolchains/esp-idf/esp-idf`
+- local toolchain and SDK layout now exists under `project/`, including local STM32CubeF4 and STM32CubeF0 firmware package checkouts
 - top-level build/clean/program/install scripts now manage environment setup internally
-- a full Windows ESP32 build test passed for the `m5stack_dial_demo` app
+- Milestone 1 is now complete
 
 ## Initial Architecture Direction
 
@@ -47,9 +46,11 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the legacy flat sample boards have been converted to reusable-part board assemblies, so all current boards now flow through the same controller/package/module schema and boot-sequence generation path
 - generated board APIs now delegate to concrete platform hook implementations instead of leaving boot and IO control in generated TODO stubs
 - concrete platform implementations now exist under `project/platform/esp-idf` and `project/platform/stm32cube`
-- the `m5stack_dial_demo` ESP32 app now compiles with the concrete M5Stack Dial ESP-IDF platform layer linked into the generated board component
-- local STM32 tooling now uses an ST STM32CubeF4 firmware package checkout plus a project-local Arm GNU bare-metal toolchain under `project/toolchains`
-- a host-side STM32 CMake build now passes for `stm32_nucleo_io_demo` without requiring connected hardware
+- the `m5stack_dial_demo` ESP32 app compiles with the concrete M5Stack Dial ESP-IDF platform layer linked into the generated board component
+- the `m5stack_cores3_gnss_demo` ESP32 app now compiles and was flashed successfully to `COM4`
+- serial output on `COM4` confirms the CoreS3 demo is running and repeatedly reporting `Live GNSS PPS state: 0`
+- local STM32 tooling now uses ST STM32CubeF4 and STM32CubeF0 firmware package checkouts plus a project-local Arm GNU bare-metal toolchain under `project/toolchains`
+- host-side STM32 CMake builds now pass for both `stm32_nucleo_io_demo` and `p_nucleo_usb001_demo`
 - the current M5Stack Dial smoke-test app performs non-fatal presence checks for the RTC, touch controller, RFID device, display command path, buzzer, backlight, and live input signals
 - the latest smoke-test run on the physical Dial over `COM3` reported `PASS` for controller GPIO, internal I2C setup, display SPI, and display command path, while RTC, touch, and RFID probes timed out on I2C and need follow-up
 - a second physical Dial on `COM5` was fingerprinted as MAC `c0:4e:30:12:b3:e0`; before reflashing it reported a factory test image named `stamp_ring_factory_test` with I2C devices visible at `0x28`, `0x38`, and `0x51`

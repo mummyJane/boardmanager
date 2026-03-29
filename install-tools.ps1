@@ -3,6 +3,7 @@ param(
     [string]$Platform = 'all',
     [string]$EspIdfVersion = 'v5.5.2',
     [string]$Stm32CubeF4Version = 'v1.28.3',
+    [string]$Stm32CubeF0Version = 'v1.11.4',
     [string]$ArmGnuVersion = '14.2.rel1'
 )
 
@@ -43,21 +44,32 @@ try {
     }
 
     if ($Platform -in @('stm32', 'all')) {
-        $sdkRoot = $paths.Stm32CubeSdkRoot
-        if (-not (Test-Path $sdkRoot)) {
-            Push-Location $paths.Stm32CubeRoot
-            try {
-                git clone --depth 1 --branch $Stm32CubeF4Version https://github.com/STMicroelectronics/STM32CubeF4.git STM32CubeF4
-            }
-            finally {
-                Pop-Location
-            }
-        }
+        $sdkDefinitions = @(
+            @{ Name = 'STM32CubeF4'; Root = $paths.Stm32CubeSdkRoot; Version = $Stm32CubeF4Version; HalPath = 'Drivers\STM32F4xx_HAL_Driver'; CmsisPath = 'Drivers\CMSIS\Device\ST\STM32F4xx'; Submodules = @('Drivers/STM32F4xx_HAL_Driver', 'Drivers/CMSIS/Device/ST/STM32F4xx') },
+            @{ Name = 'STM32CubeF0'; Root = $paths.Stm32CubeF0SdkRoot; Version = $Stm32CubeF0Version; HalPath = 'Drivers\STM32F0xx_HAL_Driver'; CmsisPath = 'Drivers\CMSIS\Device\ST\STM32F0xx'; Submodules = @('Drivers/STM32F0xx_HAL_Driver', 'Drivers/CMSIS/Device/ST/STM32F0xx') }
+        )
 
-        $halDriverRoot = Join-Path $sdkRoot ''Drivers\STM32F4xx_HAL_Driver''
-        $cmsisDeviceRoot = Join-Path $sdkRoot ''Drivers\CMSIS\Device\ST\STM32F4xx''
-        if (-not (Test-Path $halDriverRoot) -or -not (Test-Path $cmsisDeviceRoot)) {
-            git -C $sdkRoot submodule update --init --depth 1 Drivers/STM32F4xx_HAL_Driver Drivers/CMSIS/Device/ST/STM32F4xx
+        foreach ($sdk in $sdkDefinitions) {
+            if (-not (Test-Path $sdk.Root)) {
+                Push-Location $paths.Stm32CubeRoot
+                try {
+                    git clone --depth 1 --branch $sdk.Version "https://github.com/STMicroelectronics/$($sdk.Name).git" $sdk.Name
+                }
+                finally {
+                    Pop-Location
+                }
+            }
+
+            $halDriverRoot = Join-Path $sdk.Root $sdk.HalPath
+            $cmsisDeviceRoot = Join-Path $sdk.Root $sdk.CmsisPath
+            if (-not (Test-Path $halDriverRoot) -or -not (Test-Path $cmsisDeviceRoot)) {
+                & git -C $sdk.Root submodule update --init --depth 1 @($sdk.Submodules)
+                if ($LASTEXITCODE -ne 0) {
+                    throw "STM32Cube submodule update failed for $($sdk.Name)"
+                }
+            }
+
+            Write-Host "$($sdk.Name) SDK installed locally at $($sdk.Root)"
         }
 
         $toolchainRoot = $paths.ArmGnuToolchainRoot
@@ -78,12 +90,9 @@ try {
             Expand-Archive -LiteralPath $archivePath -DestinationPath $toolchainRoot -Force
         }
 
-        Write-Host "STM32CubeF4 SDK installed locally at $sdkRoot"
         Write-Host "Arm GNU toolchain available locally at $($paths.ArmGnuToolchainRoot)"
     }
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot
 }
-
-

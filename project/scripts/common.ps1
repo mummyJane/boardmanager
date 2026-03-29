@@ -8,6 +8,7 @@ function Save-BoardManagerEnv {
         'BOARDMANAGER_TOOL_ROOT',
         'BOARDMANAGER_BUILD_ROOT',
         'BOARDMANAGER_STM32_SDK_ROOT',
+        'BOARDMANAGER_STM32_F0_SDK_ROOT',
         'BOARDMANAGER_ARM_GNU_TOOLCHAIN_ROOT',
         'PATH'
     )) {
@@ -32,6 +33,7 @@ function Get-BoardManagerPaths {
     $espIdfRoot = Join-Path $toolchainRoot 'esp-idf'
     $stm32CubeRoot = Join-Path $toolchainRoot 'stm32cube'
     $stm32CubeSdkRoot = Join-Path $stm32CubeRoot 'STM32CubeF4'
+    $stm32CubeF0SdkRoot = Join-Path $stm32CubeRoot 'STM32CubeF0'
     $dedicatedArmGnuToolchainRoot = Join-Path $toolchainRoot 'arm-gnu-toolchain'
     if (Test-Path (Join-Path $dedicatedArmGnuToolchainRoot 'bin\arm-none-eabi-gcc.exe')) {
         $armGnuToolchainRoot = $dedicatedArmGnuToolchainRoot
@@ -53,6 +55,7 @@ function Get-BoardManagerPaths {
         EspIdfRoot = $espIdfRoot
         Stm32CubeRoot = $stm32CubeRoot
         Stm32CubeSdkRoot = $stm32CubeSdkRoot
+        Stm32CubeF0SdkRoot = $stm32CubeF0SdkRoot
         ArmGnuToolchainRoot = $armGnuToolchainRoot
         DownloadsRoot = $downloadsRoot
         BuildRoot = $buildRoot
@@ -77,6 +80,7 @@ function Initialize-BoardManagerProcessEnv {
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_TOOL_ROOT', $Paths.ToolRoot, 'Process')
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_BUILD_ROOT', $Paths.BuildRoot, 'Process')
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_STM32_SDK_ROOT', $Paths.Stm32CubeSdkRoot, 'Process')
+    [Environment]::SetEnvironmentVariable('BOARDMANAGER_STM32_F0_SDK_ROOT', $Paths.Stm32CubeF0SdkRoot, 'Process')
     [Environment]::SetEnvironmentVariable('BOARDMANAGER_ARM_GNU_TOOLCHAIN_ROOT', $Paths.ArmGnuToolchainRoot, 'Process')
 }
 
@@ -141,6 +145,7 @@ function Initialize-Stm32Env {
     param([hashtable]$Paths)
 
     $sdkRoot = $Paths.Stm32CubeSdkRoot
+    $sdkF0Root = $Paths.Stm32CubeF0SdkRoot
     $toolchainRoot = $Paths.ArmGnuToolchainRoot
     $toolchainBin = Join-Path $toolchainRoot 'bin'
 
@@ -162,6 +167,5 @@ function Initialize-Stm32Env {
 
     [Environment]::SetEnvironmentVariable('PATH', $newPath, 'Process')
     [Environment]::SetEnvironmentVariable('STM32CUBE_F4_ROOT', $sdkRoot, 'Process')
+    [Environment]::SetEnvironmentVariable('STM32CUBE_F0_ROOT', $sdkF0Root, 'Process')
 }
-
-

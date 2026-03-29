@@ -67,3 +67,9 @@
 - Treat the currently attached CoreS3 plus GNSS hardware as a concrete board assembly in the repo today, instead of blocking on a richer nested accessory-module schema.
 - Promote reusable part metadata to include init/setup contracts, smoke-test meaning, high-level API shape, and local help references so board-level code and the future web UI can share one source of truth.
 - Add board-level help pages alongside part help pages for the real bench hardware, because operators will need board assembly context as well as per-part detail.
+
+## 2026-03-29 11:40 Europe/London
+
+- Finish Milestone 1 by adding real demo apps for the currently attached CoreS3 and F072 boards instead of leaving them as metadata-only definitions.
+- Extend the local STM32 bootstrap to cover both STM32CubeF4 and STM32CubeF0 so the repo can host-build both the sample F4 board and the attached F072 board under one top-level tool flow.
+- Prefer small incremental edits and targeted retries on this Windows machine when antivirus or sandboxing interferes, rather than broad rewrite or download steps.

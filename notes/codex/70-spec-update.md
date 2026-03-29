@@ -59,3 +59,8 @@
 - Added a requirement that reusable parts carry init/setup contracts, smoke-test meaning, high-level API guidance, and local help/man references. This change is needed because the later web interface and the generated firmware layer should both consume the same part-level operational metadata.
 - Clarified that attached accessory stacks may be modeled as concrete board assemblies until the schema grows first-class nested subassembly support. This change is needed because the current CoreS3 + GNSS bench hardware must be represented now without inventing a second incompatible schema path.
 - Added local help/man page coverage for concrete boards, not just reusable parts. This change is needed because operators need bench-level context such as boot order, connector usage, and known attached-unit notes in addition to part datasheets.
+
+## 2026-03-29 11:40 Europe/London
+
+- Expanded the Stage 1 completion criteria to require real demo/build coverage for the currently attached concrete boards, not just schema and generated-code coverage. This change is needed because Milestone 1 should end with both metadata and basic runnable firmware entry points for the real bench hardware.
+- Clarified that the local STM32 tooling layout may include more than one STM32Cube family package under `project/toolchains/stm32cube`. This change is needed because the repo now needs both F4 and F0 support to cover the sample board and the attached Nucleo-F072RB.

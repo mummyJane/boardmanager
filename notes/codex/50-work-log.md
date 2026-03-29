@@ -426,3 +426,42 @@ Validation:
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
 - `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success after the metadata expansion and new board additions
 - `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1` -> success with the expected bare-metal `nosys` linker warnings still present
+
+## 2026-03-29 11:40 Europe/London
+
+Commands run:
+
+- small in-repo edits to `build.ps1`, `program.ps1`, `project/scripts/common.ps1`, `install-tools.ps1`, and `project/README.md`
+- added `project/apps/m5stack_cores3_gnss_demo/*`
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1`
+- `program.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit COM4`
+- serial capture from `COM4` using the local ESP-IDF Python environment after flashing the new CoreS3 app
+- added `project/apps/p_nucleo_usb001_demo/*`
+- `install-tools.ps1 -Platform stm32`
+- repaired an empty `STM32CubeF0` checkout by recloning it locally
+- repeated `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` after fixing the missing F0 CMake argument, HAL clock define, and linker script symbols
+
+Observed issues:
+
+- Windows antivirus and sandboxing continued to interfere with broad write operations and some escalated process launches, so the remaining Milestone 1 work had to be completed in small targeted steps
+- the first STM32CubeF0 install attempt failed because the initial checkout was empty and the script incorrectly assumed F0 used the same submodule layout as F4
+- the first F072 build attempt failed because `build.ps1` did not yet pass `STM32CUBE_F0_ROOT`
+- the second F072 build attempt failed because the F0 HAL config was missing `HSI48_VALUE`
+- the third F072 build attempt failed because the initial local linker script did not define `_sidata` correctly
+
+Actions:
+
+- made the ESP-IDF generated component select the board source and platform file via `BOARD_MANAGER_BOARD`
+- added a dedicated CoreS3 + GNSS ESP-IDF demo app and validated it on real hardware at `COM4`
+- added a dedicated P-NUCLEO-USB001 / F072 STM32 demo app
+- extended the local STM32 bootstrap and environment helpers to include STM32CubeF0 alongside STM32CubeF4
+- repaired the local STM32CubeF0 checkout and completed the host-side F072 build validation
+- updated milestone planning and task tracking to mark Milestone 1 complete
+
+Validation:
+
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1` -> success
+- `program.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit COM4` -> success; flashed the CoreS3 unit identified by MAC `48:27:e2:66:b0:04`
+- post-flash serial capture on `COM4` -> success; observed repeated `Live GNSS PPS state: 0`
+- `install-tools.ps1 -Platform stm32` -> success after repairing the local STM32CubeF0 checkout
+- `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` -> success; produced `project/build/stm32-p_nucleo_usb001_demo/p_nucleo_usb001_demo.elf` and `.bin`

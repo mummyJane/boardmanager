@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 09:55 Europe/London
+Last updated: 2026-03-29 11:40 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -27,3 +27,8 @@ Last updated: 2026-03-29 09:55 Europe/London
 - [x] Add reusable part-level init, smoke-test, and API contracts for shared devices such as `bm8563`, `ft3267`, `ws1850s`, and `gc9a01`
 - [x] Add per-part help/man pages with datasheet, website, and API usage references for the future web interface
 - [x] Add concrete board, project, generated-code, platform-stub, and help coverage for the attached CoreS3 + GNSS and P-NUCLEO-USB001 boards
+- [x] Add a real ESP-IDF demo app and board-selectable build/program path for `m5stack_cores3_gnss_v1`
+- [x] Build and flash the CoreS3 + GNSS demo on COM4 and capture serial bring-up output
+- [x] Add local STM32CubeF0 support and a real STM32 demo app for `p_nucleo_usb001_f072rb_v1`
+- [x] Complete a host-side F072 build validation for `p_nucleo_usb001_demo`
+- [x] Milestone 1 complete
