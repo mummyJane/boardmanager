@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 20:22 Europe/London
+Last updated: 2026-03-29 20:45 Europe/London
 
 ## Goal
 
@@ -97,6 +97,7 @@ Requirements:
 - when a unit is first seen through a transport-only identity and later yields a stronger fingerprint such as a chip MAC, discovery must reconcile that evidence into one physical-unit record and preserve the older key as alias history instead of leaving duplicate unit records
 - when multiple identity evidence sources for one observation disagree with prior history, discovery must preserve a conflict record with the competing unit identities and the chosen canonical match instead of silently overwriting history
 - operators must be able to pin a physical unit to a board id or family key through a persistent manual override, and later clear that override without mutating the underlying observed fingerprints
+- operators must be able to reconcile a draft family profile to a known board definition while preserving the original profile as merge provenance instead of silently deleting it
 
 ### Stage 3: Build, Program, And Debug
 
@@ -143,3 +144,4 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+

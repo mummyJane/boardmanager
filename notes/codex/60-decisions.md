@@ -180,3 +180,8 @@
 - 2026-03-29 20:08 Europe/London: Discovery should keep operating when identity evidence disagrees, but it must persist a conflict record with the competing stable keys and the chosen canonical match so later manual override and UI work can resolve it explicitly.
 
 - 2026-03-29 20:22 Europe/London: Manual operator overrides should affect the current effective board/family view and persisted override metadata, but they should not become permanently learned board-identification evidence after the override is cleared.
+
+## 2026-03-29 20:45 Europe/London
+
+- Add reconciliation as an explicit operator action with dry-run support instead of auto-promoting draft families from weak candidate scores. The COM7 ESP32 board has useful hints, but the exact board identity is still uncertain, so merge decisions must stay reviewable and deliberate.
+- Preserve draft family provenance after reconciliation by marking the source profile and family as merged into a known board profile rather than deleting them. This keeps the discovery history explainable when heuristics improve over time.

@@ -137,3 +137,5 @@
 - 2026-03-29 20:08 Europe/London: Add an explicit Stage 2 requirement for persisted identity-conflict records. Identity reconciliation alone was not enough once multiple evidence sources could disagree; the later UI and remote service need the disagreement preserved instead of hidden.
 
 - 2026-03-29 20:22 Europe/London: Add an explicit Stage 2 requirement for clearable manual unit overrides. Bench operators need a way to pin uncertain boards for work, but the override must remain separate from the learned fingerprint history.
+
+- 2026-03-29 20:45 Europe/London: Stage 2 spec updated to require operator-driven draft-family reconciliation with preserved merge provenance. Reason: the project now has enough unknown-family profiling to identify likely board families, but it still needs a controlled way to resolve them to known board definitions without rewriting or deleting the original discovery evidence.

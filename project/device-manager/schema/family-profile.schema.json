@@ -10,6 +10,10 @@
     "status": { "type": "string" },
     "createdAt": { "type": "string" },
     "updatedAt": { "type": "string" },
+    "resolvedBoardId": { "type": ["string", "null"] },
+    "mergedIntoProfileId": { "type": ["string", "null"] },
+    "mergedIntoFamilyKey": { "type": ["string", "null"] },
+    "reconciledAt": { "type": ["string", "null"] },
     "boardIds": { "type": "array", "items": { "type": "string" } },
     "sampleUnitIds": { "type": "array", "items": { "type": "string" } },
     "fingerprint": { "type": "object" },
@@ -18,6 +22,20 @@
       "type": "array",
       "items": { "type": "object" }
     },
-    "notes": { "type": "array", "items": { "type": "string" } }
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "reconciliationHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reconciledAt": { "type": "string" },
+          "resolvedBoardId": { "type": "string" },
+          "mergedIntoProfileId": { "type": "string" },
+          "mergedIntoFamilyKey": { "type": "string" },
+          "note": { "type": ["string", "null"] },
+          "affectedUnitIds": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
   }
 }

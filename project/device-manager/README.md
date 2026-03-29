@@ -149,3 +149,9 @@ Example:
 - `override-unit.ps1 -Unit <stableKey> -Family <familyKey>` pins a unit to a family without forcing a board id.
 - `override-unit.ps1 -Unit <stableKey> -Clear` removes the operator override.
 - Overrides live in `project/device-manager/data/unit-overrides.json` and are exposed through the normal unit query output.
+
+## Family Reconciliation
+
+- `reconcile-family.ps1 -Profile <profileId> -Board <boardId> -DryRun` shows which units and family records would move if a draft profile is resolved.
+- `reconcile-family.ps1 -Profile <profileId> -Board <boardId> -Note <text>` promotes a draft or emerging family profile into a known board profile.
+- Reconciliation updates the latest inventory view, current family history, and profile metadata while preserving provenance on the original draft profile through merge metadata.

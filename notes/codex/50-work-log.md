@@ -1021,3 +1021,34 @@ Validation:
 - Validation used a temporary override on `mac:c8:2e:18:f0:47:74` to pin it to `esp32_dev_relay_v1`, confirmed the pin through `discover.ps1` and `query.ps1 -View units -Unit ... -Format json`, then cleared the override and reran discovery.
 - Final bench state after validation returned `COM7` to unmatched / unknown-family status with no active manual override.
 - Ran `validate.ps1`; board-definition and device-manager validation passed.
+
+## 2026-03-29 20:45 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/device-manager/profiles/unknown_10c4_ea60_esp32.json`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `Get-Content project/device-manager/data/inventory.json`
+- `node project/scripts/reconcile-family-profile.mjs --profile unknown_10c4_ea60_esp32 --board esp32_dev_relay_v1 --dry-run`
+- `validate.ps1`
+
+Observed issues:
+
+- `apply_patch` continued to fail in the Windows sandbox before patch application, so this task used narrow PowerShell file writes instead.
+- The exact board identity of the COM7 ESP32 unit is still not confirmed, so live reconciliation should not be committed against that profile yet.
+
+Actions:
+
+- Added `project/scripts/reconcile-family-profile.mjs` to let an operator reconcile a draft family profile to a chosen Stage 1 board definition.
+- Added `reconcile-family.ps1` as the top-level wrapper with self-managed environment setup and optional `-DryRun`.
+- Extended `family-profile.schema.json` so draft profiles can record `resolvedBoardId`, merge targets, reconciliation timestamps, and reconciliation history.
+- Updated the device-manager docs, task tracker, latest install/update wrappers, and Stage 2 notes for the new reconciliation flow.
+- Kept the live validation non-destructive by using the current COM7 draft profile only in dry-run mode.
+
+Validation:
+
+- `node project/scripts/reconcile-family-profile.mjs --profile unknown_10c4_ea60_esp32 --board esp32_dev_relay_v1 --dry-run` -> success; reported the source profile, target board/profile/family, and affected unit `mac:c8:2e:18:f0:47:74` without mutating data.
+- `validate.ps1` -> success; board-definition and device-manager validation passed after the schema and tooling update.
