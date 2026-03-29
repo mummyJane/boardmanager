@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 09:55 Europe/London
+Last updated: 2026-03-29 14:19 Europe/London
 
 ## Goal
 
@@ -61,6 +61,7 @@ Requirements:
 - the service must identify a board through VID/PID, serial number, USB descriptors, chip MAC, bootloader signatures, observed current-firmware signatures, or a board agent running on the target
 - the system must support multiple connected units at once
 - discovery records must preserve the target port and any observed hardware or firmware fingerprints so later build and flash actions can address one unit without ambiguity
+- discovery records must persist stable per-unit identity fields such as chip MAC, USB instance path, serial number, and alias history so identical boards can be distinguished from one another across replug events
 - discovery data must link back to the board definition model from Stage 1
 
 ### Stage 3: Build, Program, And Debug
@@ -106,3 +107,4 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+

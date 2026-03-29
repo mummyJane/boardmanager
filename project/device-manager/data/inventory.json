@@ -1,12 +1,22 @@
 {
-  "generatedAt": "2026-03-29T13:06:59.222Z",
+  "generatedAt": "2026-03-29T13:19:36.418Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
   },
   "units": [
     {
-      "unitId": "COM3",
+      "unitId": "mac:c0:4e:30:13:2b:68",
+      "identity": {
+        "stableKey": "mac:c0:4e:30:13:2b:68",
+        "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+        "mac": "c0:4e:30:13:2b:68",
+        "serialNumber": "7&203F6002&0&0000",
+        "aliases": [
+          "COM3",
+          "USB Serial Device (COM3)"
+        ]
+      },
       "transport": {
         "kind": "serial",
         "port": "COM3",
@@ -17,10 +27,11 @@
       "observed": {
         "vid": "303A",
         "pid": "1001",
-        "chip": null,
-        "mac": null,
+        "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+        "mac": "c0:4e:30:13:2b:68",
+        "serialNumber": "7&203F6002&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
-        "rawSignatureLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+        "rawSignatureLine": "Board Manager dial smoke test starting"
       },
       "match": {
         "status": "matched",
@@ -29,7 +40,17 @@
       }
     },
     {
-      "unitId": "COM4",
+      "unitId": "mac:48:27:e2:66:b0:04",
+      "identity": {
+        "stableKey": "mac:48:27:e2:66:b0:04",
+        "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+        "mac": "48:27:e2:66:b0:04",
+        "serialNumber": "7&2D2626DF&0&0000",
+        "aliases": [
+          "COM4",
+          "USB Serial Device (COM4)"
+        ]
+      },
       "transport": {
         "kind": "serial",
         "port": "COM4",
@@ -40,10 +61,11 @@
       "observed": {
         "vid": "303A",
         "pid": "1001",
-        "chip": null,
-        "mac": null,
+        "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+        "mac": "48:27:e2:66:b0:04",
+        "serialNumber": "7&2D2626DF&0&0000",
         "firmwareSignature": "board_manager_cores3_gnss_demo",
-        "rawSignatureLine": "Live GNSS PPS state: 0"
+        "rawSignatureLine": "Board Manager CoreS3 GNSS bring-up starting"
       },
       "match": {
         "status": "matched",
@@ -52,7 +74,17 @@
       }
     },
     {
-      "unitId": "COM5",
+      "unitId": "mac:c0:4e:30:12:b3:e0",
+      "identity": {
+        "stableKey": "mac:c0:4e:30:12:b3:e0",
+        "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+        "mac": "c0:4e:30:12:b3:e0",
+        "serialNumber": "7&39B40148&0&0000",
+        "aliases": [
+          "COM5",
+          "USB Serial Device (COM5)"
+        ]
+      },
       "transport": {
         "kind": "serial",
         "port": "COM5",
@@ -63,10 +95,11 @@
       "observed": {
         "vid": "303A",
         "pid": "1001",
-        "chip": null,
-        "mac": null,
+        "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+        "mac": "c0:4e:30:12:b3:e0",
+        "serialNumber": "7&39B40148&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
-        "rawSignatureLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+        "rawSignatureLine": "Board Manager dial smoke test starting"
       },
       "match": {
         "status": "matched",
@@ -75,7 +108,17 @@
       }
     },
     {
-      "unitId": "COM6",
+      "unitId": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+      "identity": {
+        "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+        "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+        "mac": null,
+        "serialNumber": "8&2379FC3D&0&0002",
+        "aliases": [
+          "COM6",
+          "STMicroelectronics STLink Virtual COM Port (COM6)"
+        ]
+      },
       "transport": {
         "kind": "serial",
         "port": "COM6",
@@ -88,6 +131,7 @@
         "pid": "374B",
         "chip": null,
         "mac": null,
+        "serialNumber": "8&2379FC3D&0&0002",
         "firmwareSignature": null,
         "rawSignatureLine": null
       },

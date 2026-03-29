@@ -69,3 +69,8 @@
 
 - Clarified that Stage 2 should begin with a stable persisted discovery record format before a full service or database implementation. This change is needed because the project now has enough real bench hardware to validate the observation model directly.
 - Clarified that a simple local inventory store is acceptable for the first Stage 2 slice. This change is needed so the host-side discovery flow can be exercised immediately without blocking on full database selection and migration work.
+
+## 2026-03-29 14:19 Europe/London
+
+- Added a stable per-unit identity requirement to Stage 2 discovery, including MAC, USB instance path, serial number, and alias history. This change is needed because multiple attached boards can share the same model and USB VID/PID, so the system must track individual physical units across COM-port changes.
+

@@ -18,29 +18,44 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["unitId", "transport", "observed", "match"],
+        "required": ["unitId", "identity", "transport", "observed", "match"],
         "properties": {
           "unitId": { "type": "string" },
+          "identity": {
+            "type": "object",
+            "required": ["stableKey"],
+            "properties": {
+              "stableKey": { "type": "string" },
+              "usbInstance": { "type": ["string", "null"] },
+              "mac": { "type": ["string", "null"] },
+              "serialNumber": { "type": ["string", "null"] },
+              "aliases": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
           "transport": {
             "type": "object",
             "required": ["kind"],
             "properties": {
               "kind": { "type": "string" },
-              "port": { "type": "string" },
-              "usbInstance": { "type": "string" },
-              "description": { "type": "string" },
-              "name": { "type": "string" }
+              "port": { "type": ["string", "null"] },
+              "usbInstance": { "type": ["string", "null"] },
+              "description": { "type": ["string", "null"] },
+              "name": { "type": ["string", "null"] }
             }
           },
           "observed": {
             "type": "object",
             "properties": {
-              "vid": { "type": "string" },
-              "pid": { "type": "string" },
-              "chip": { "type": "string" },
-              "mac": { "type": "string" },
-              "firmwareSignature": { "type": "string" },
-              "rawSignatureLine": { "type": "string" }
+              "vid": { "type": ["string", "null"] },
+              "pid": { "type": ["string", "null"] },
+              "chip": { "type": ["string", "null"] },
+              "mac": { "type": ["string", "null"] },
+              "serialNumber": { "type": ["string", "null"] },
+              "firmwareSignature": { "type": ["string", "null"] },
+              "rawSignatureLine": { "type": ["string", "null"] }
             }
           },
           "match": {
@@ -48,8 +63,8 @@
             "required": ["status"],
             "properties": {
               "status": { "type": "string" },
-              "boardId": { "type": "string" },
-              "reason": { "type": "string" }
+              "boardId": { "type": ["string", "null"] },
+              "reason": { "type": ["string", "null"] }
             }
           }
         }

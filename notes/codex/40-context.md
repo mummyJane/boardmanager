@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 14:07 Europe/London
+Last updated: 2026-03-29 14:19 Europe/London
 
 ## Project Intent
 
@@ -66,5 +66,7 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the persisted inventory schema is stored at `project/device-manager/schema/device-inventory.schema.json`
 - the latest snapshot is stored at `project/device-manager/data/inventory.json`
 - the Windows discovery script is `project/scripts/discover-units.mjs` with a top-level wrapper at `discover.ps1`
-- the latest discovery run matched all four attached units: `COM3` and `COM5` as `m5stack_dial_v1_1`, `COM4` as `m5stack_cores3_gnss_v1`, and `COM6` as `p_nucleo_usb001_f072rb_v1`
+- the latest discovery run matched all four attached units: `COM3` and `COM5` as `m5stack_dial_v1_1`, `COM4` as `m5stack_cores3_gnss_v1`, and `COM6` as `p_nucleo_usb001_f072rb_v1` 
+- the persisted inventory now stores stable per-unit identity records with MAC-based keys for the two attached Dial units, allowing them to be distinguished independently from their current COM port assignments
 - the current matching logic uses port data, USB identifiers, STLink naming, and short firmware signature lines as the first heuristic set
+

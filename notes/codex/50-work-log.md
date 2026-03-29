@@ -487,3 +487,34 @@ Validation:
 
 - `discover.ps1` -> success; discovered 4 units and matched `COM3`/`COM5` to `m5stack_dial_v1_1`, `COM4` to `m5stack_cores3_gnss_v1`, and `COM6` to `p_nucleo_usb001_f072rb_v1`
 - `project/device-manager/data/inventory.json` -> updated with the latest generated discovery snapshot and current match reasons
+
+## 2026-03-29 14:19 Europe/London
+
+Commands run:
+
+- `git status --short --branch`
+- `Get-Content project/device-manager/README.md`
+- `Get-Content project/device-manager/schema/device-inventory.schema.json`
+- `discover.ps1`
+- `Get-Content project/device-manager/data/inventory.json`
+- `Get-Content project/scripts/discover-units.mjs`
+- updated `project/scripts/discover-units.mjs`, `project/device-manager/README.md`, and `project/device-manager/schema/device-inventory.schema.json`
+- repeated `discover.ps1` after tightening firmware-signature matching
+
+Observed issues:
+
+- the first stable-identity discovery pass preserved MAC-backed unit IDs, but `COM3` remained unmatched because the current boot banner was classified too generically as a Board Manager boot banner
+- identical ESP32 boards cannot be tracked safely by COM port alone because port assignment can change across replug events
+
+Actions:
+
+- extended the persisted inventory schema with an explicit `identity` object containing stable key, USB instance path, MAC, serial-like value, and aliases
+- updated the discovery README to document the stable identity priority order for identical attached boards
+- updated the discovery script to preserve prior identity evidence across runs and derive stable unit IDs from MAC, USB instance path, serial-like value, or port fallback
+- tightened firmware-signature matching so the Dial and CoreS3 boot banners map back to the correct board definitions without relying on port names
+
+Validation:
+
+- `discover.ps1` first rerun -> success; discovered 4 units and assigned MAC-backed stable keys to the ESP32 units, but left `COM3` unmatched because the current banner heuristic was too generic
+- second `discover.ps1` rerun after the heuristic fix -> success; matched `COM3` and `COM5` to `m5stack_dial_v1_1`, `COM4` to `m5stack_cores3_gnss_v1`, and `COM6` to `p_nucleo_usb001_f072rb_v1` while keeping the two Dials distinct as `mac:c0:4e:30:13:2b:68` and `mac:c0:4e:30:12:b3:e0`
+

@@ -79,3 +79,9 @@
 - Start Milestone 2 with a persisted local discovery snapshot and matching heuristics before introducing a background service or database engine.
 - Use a simple JSON inventory file for the first discovery slice so the observation format can stabilize before committing to SQLite or another storage layer.
 - Reuse the local ESP-IDF Python environment for ESP32 fingerprinting so discovery can read MACs and short serial signatures without adding new host dependencies.
+
+## 2026-03-29 14:19 Europe/London
+
+- Use a stable unit-key priority of chip MAC, then USB instance path, then serial number, then current port fallback so identical bench units remain distinguishable across reconnects.
+- Preserve alias history such as prior COM ports and Windows device names in the discovery record so operator-facing tooling can recognize a unit even when its active port changes.
+

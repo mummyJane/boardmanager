@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 14:07 Europe/London
+Last updated: 2026-03-29 14:19 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -35,3 +35,5 @@ Last updated: 2026-03-29 14:07 Europe/London
 - [x] Add a persisted device-inventory schema and local inventory store for discovery
 - [x] Add a Windows discovery script and top-level wrapper for the current bench
 - [x] Capture and persist the first matched discovery snapshot for COM3-COM6
+- [x] Persist stable per-unit identity fields so identical boards such as the two Dial units remain distinguishable across discovery runs
+

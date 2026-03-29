@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 14:07 Europe/London
+Last updated: 2026-03-29 14:19 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -36,6 +36,7 @@ Initial success criteria:
 - discovery output has a stable persisted schema
 - current connected units can be scanned from the local host
 - observations capture port, USB identity, and firmware or chip signatures where possible
+- identical board models remain distinguishable through stable unit identity keys based on MAC, USB instance, serial number, or alias history
 - discovery records match back to known board definitions
 - the latest snapshot is persisted under `project/device-manager`
 
@@ -52,3 +53,4 @@ Initial success criteria:
 - scaffold dashboard app
 - add inventory and board definition views
 - wire to service APIs
+
