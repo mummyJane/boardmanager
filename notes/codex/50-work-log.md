@@ -593,3 +593,15 @@ Validation:
 - regenerated profile files now include exact board metadata and candidate board matches for the current Dial, CoreS3+GNSS, and P-NUCLEO families
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
 
+
+## 2026-03-29 15:14 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/20-plan.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content notes/codex/40-context.md`
+
+Actions:
+
+- added a concrete Stage 2 backlog section to `notes/codex/30-tasks.md` covering the remaining discovery, history, profile, query, database, and service-layer tasks
