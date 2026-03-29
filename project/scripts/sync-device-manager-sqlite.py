@@ -122,6 +122,8 @@ def sync_database():
                 connection.execute("INSERT INTO unit_board_ids (stable_key, board_id) VALUES (?, ?)", (unit.get("stableKey"), board_id))
             for alias in identity.get("aliases", []):
                 connection.execute("INSERT INTO unit_aliases (stable_key, alias) VALUES (?, ?)", (unit.get("stableKey"), alias))
+            for prior_stable_key in identity.get("priorStableKeys", []):
+                connection.execute("INSERT INTO unit_aliases (stable_key, alias) VALUES (?, ?)", (unit.get("stableKey"), prior_stable_key))
             for entry in unit.get("metadataHistory", {}).get("entries", []):
                 connection.execute(
                     "INSERT INTO unit_metadata_entries (stable_key, updated_at, owner, location, purpose) VALUES (?, ?, ?, ?, ?)",

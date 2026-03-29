@@ -131,3 +131,5 @@
 - 2026-03-29 19:45 Europe/London: Stage 2 spec updated to require host-observed USB topology summaries when Windows exposes stable location information. Reason: the project now has multiple live units on the same bench, and later UI or operator workflows benefit from knowing where a unit is connected without relying only on COM-port names.
 
 - 2026-03-29 20:05 Europe/London: Stage 2 spec updated to require promotion of richer USB descriptor fields such as product name, revision, driver path, and related hardware identifiers when the host exposes them. Reason: multiple attached units now share transport classes, and later matching or UI flows benefit from stable descriptor evidence beyond bare VID/PID and COM-port names.
+
+- 2026-03-29 19:50 Europe/London: Add an explicit Stage 2 requirement that identity upgrades reconcile into one unit record with alias history. This was already implied by stable identity tracking, but the COM7 CP210x-to-ESP32 case showed the project needs the rule written down to avoid duplicate stale records.

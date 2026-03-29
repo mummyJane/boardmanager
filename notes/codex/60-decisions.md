@@ -174,3 +174,5 @@
 - Use host-exposed descriptor fields opportunistically rather than forcing a synthetic schema where Windows does not provide the value. Product name, revision, and driver key are useful now; parent-prefix and enumerator name should remain nullable.
 - Derive USB revision from the hardware ID `REV_####` token when present instead of trying to infer it from product names or driver metadata. That mapping is simple, deterministic, and already available in the Windows registry for the current devices.
 - Expose richer USB descriptor fields through the shared query contract, not only inside the raw `usbDescriptor` blob. The web UI and remote callers should not need to know the low-level registry shape to use this identity evidence.
+
+- 2026-03-29 19:50 Europe/London: When discovery upgrades a unit from transport-only identity to a stronger identity such as chip MAC, the stronger key becomes canonical and the older key is retained in `identity.priorStableKeys` instead of keeping two physical-unit records.

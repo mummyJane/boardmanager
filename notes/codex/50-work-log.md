@@ -994,3 +994,12 @@ Validation:
 - `discover.ps1` -> success; persisted refreshed inventory, history, profiles, discovery runs, and SQLite data with richer USB descriptor metadata
 - `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 5 profile files
 - `query.ps1 -View units -Format json` -> success; current examples include `COM3/4/5` as `USB Serial Device (COMx)` revision `0101`, `COM6` as `STMicroelectronics STLink Virtual COM Port (COM6)` revision `0100`, and `COM7` as `Silicon Labs CP210x USB to UART Bridge (COM7)` revision `0100`
+
+## 2026-03-29 19:50 Europe/London
+
+- Task: add identity-upgrade reconciliation when a transport-only unit later gains a chip MAC or richer fingerprint.
+- Updated `project/scripts/discover-units.mjs` to reconcile units by stable key, prior stable key, USB instance, and base serial when stronger identity evidence appears.
+- Added `identity.priorStableKeys` to the inventory/query model and synchronized prior keys into SQLite alias rows via `project/scripts/sync-device-manager-sqlite.py`.
+- Ran `discover.ps1`; live discovery still found 5 units and collapsed the previous `usb:USB\VID_10C4&PID_EA60\0001` history record into `mac:c8:2e:18:f0:47:74`.
+- Ran `query.ps1 -View units -Format json` to confirm the COM7 unit now carries `priorStableKeys = ["usb:USB\VID_10C4&PID_EA60\0001"]` and the stale transport-only unit no longer appears as a separate record.
+- Ran `validate.ps1`; board-definition and device-manager schema validation passed.

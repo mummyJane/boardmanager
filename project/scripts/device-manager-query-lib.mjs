@@ -90,6 +90,7 @@ function pickPreferredUsbTopologyPath(values) {
 function mapUnit(unit) {
   return {
     stableKey: unit.stableKey,
+    priorStableKeys: Array.isArray(unit.identity?.priorStableKeys) ? unit.identity.priorStableKeys : [],
     boardId: unit.boardIds?.[unit.boardIds.length - 1] ?? null,
     familyKey: unit.familyKey,
     present: unit.present !== false,

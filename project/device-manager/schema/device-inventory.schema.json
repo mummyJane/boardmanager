@@ -32,6 +32,10 @@
               "aliases": {
                 "type": "array",
                 "items": { "type": "string" }
+              },
+              "priorStableKeys": {
+                "type": "array",
+                "items": { "type": "string" }
               }
             }
           },

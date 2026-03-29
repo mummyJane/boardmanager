@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 20:05 Europe/London
+Last updated: 2026-03-29 19:50 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -59,7 +59,7 @@ Last updated: 2026-03-29 20:05 Europe/London
 - [x] Add stronger STM32-family fingerprinting beyond ST-LINK transport naming
 - [x] Add USB hub or topology metadata when it can be observed reliably
 - [x] Add serial-number and descriptor probing for devices that expose richer USB identity
-- [ ] Add identity-upgrade reconciliation when a transport-only unit later gains a chip MAC or richer fingerprint
+- [x] Add identity-upgrade reconciliation when a transport-only unit later gains a chip MAC or richer fingerprint
 - [ ] Add conflict handling when observed identity evidence disagrees with prior history
 - [ ] Add manual override support when an operator wants to pin a unit to a board or family
 - [ ] Add merge/reconcile tooling for draft family profiles after a board type is understood

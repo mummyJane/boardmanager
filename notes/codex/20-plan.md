@@ -76,3 +76,5 @@ Initial success criteria:
 
 
 
+
+- 2026-03-29 19:50 Europe/London: Completed identity-upgrade reconciliation so transport-only unit history collapses into stronger MAC-backed identity records instead of leaving split history.

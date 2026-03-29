@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 20:05 Europe/London
+Last updated: 2026-03-29 19:50 Europe/London
 
 ## Goal
 
@@ -94,6 +94,7 @@ Requirements:
 - discovery should preserve boot ROM, bootloader, and module-identification banners for unresolved units when those can be observed safely over the target serial link
 - discovery should preserve host-observed USB topology summaries when Windows exposes stable port or path information, so later UI and operator tooling can distinguish where a unit is physically connected
 - discovery should promote richer USB descriptor fields such as product name, revision, driver path, and related hardware identifiers when the host exposes them, so board matching and operator workflows can use more than VID/PID alone
+- when a unit is first seen through a transport-only identity and later yields a stronger fingerprint such as a chip MAC, discovery must reconcile that evidence into one physical-unit record and preserve the older key as alias history instead of leaving duplicate unit records
 
 ### Stage 3: Build, Program, And Debug
 

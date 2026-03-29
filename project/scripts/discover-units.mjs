@@ -208,6 +208,40 @@ function uniqueSorted(values) {
   return Array.from(new Set((values ?? []).filter(Boolean))).sort();
 }
 
+function pickEarlierTimestamp(left, right) {
+  if (!left) return right ?? null;
+  if (!right) return left ?? null;
+  return String(left).localeCompare(String(right)) <= 0 ? left : right;
+}
+
+function pickLaterTimestamp(left, right) {
+  if (!left) return right ?? null;
+  if (!right) return left ?? null;
+  return String(left).localeCompare(String(right)) >= 0 ? left : right;
+}
+
+function pickEarlierTransition(left, right) {
+  if (!left?.at) return right ?? null;
+  if (!right?.at) return left ?? null;
+  return String(left.at).localeCompare(String(right.at)) <= 0 ? left : right;
+}
+
+function pickLaterTransition(left, right) {
+  if (!left?.at) return right ?? null;
+  if (!right?.at) return left ?? null;
+  return String(left.at).localeCompare(String(right.at)) >= 0 ? left : right;
+}
+
+function hasAnnotationContent(annotation) {
+  return Boolean(
+    annotation?.label
+    || annotation?.owner
+    || annotation?.location
+    || annotation?.purpose
+    || (Array.isArray(annotation?.notes) && annotation.notes.length > 0)
+  );
+}
+
 function normalizeAnnotation(entry) {
   if (!entry) {
     return {
@@ -493,6 +527,9 @@ function buildIdentityIndex(units) {
     const identity = unit.identity ?? unit;
     const stableKey = unit.stableKey ?? identity.stableKey;
     if (stableKey) byStableKey.set(stableKey, unit);
+    for (const priorStableKey of identity.priorStableKeys ?? []) {
+      if (priorStableKey) byStableKey.set(priorStableKey, unit);
+    }
     if (identity.mac) byMac.set(identity.mac, unit);
     if (identity.usbInstance) byUsbInstance.set(identity.usbInstance, unit);
     if (identity.serialNumber) bySerial.set(identity.serialNumber, unit);
@@ -617,16 +654,21 @@ function deriveStableKey(observed, transport, previousMatch) {
 
 function mergeIdentity(observed, transport, previousMatch) {
   const prior = previousMatch?.identity ?? previousMatch ?? {};
+  const stableKey = deriveStableKey(observed, transport, previousMatch);
   const aliases = new Set(Array.isArray(prior.aliases) ? prior.aliases : []);
+  const priorStableKeys = new Set(Array.isArray(prior.priorStableKeys) ? prior.priorStableKeys : []);
   if (transport.port) aliases.add(transport.port);
   if (transport.name) aliases.add(transport.name);
+  if (previousMatch?.stableKey && previousMatch.stableKey !== stableKey) priorStableKeys.add(previousMatch.stableKey);
+  if (prior.stableKey && prior.stableKey !== stableKey) priorStableKeys.add(prior.stableKey);
 
   return {
-    stableKey: deriveStableKey(observed, transport, previousMatch),
+    stableKey,
     usbInstance: observed.usbInstance ?? prior.usbInstance ?? transport.usbInstance ?? null,
     mac: observed.mac ?? prior.mac ?? null,
     serialNumber: observed.serialNumber ?? prior.serialNumber ?? null,
     aliases: Array.from(aliases).sort(),
+    priorStableKeys: Array.from(priorStableKeys).sort(),
   };
 }
 
@@ -888,7 +930,8 @@ function buildHistoryStatus(previousUnit, existingFamily) {
 }
 
 function attachAnnotation(unit, annotationIndex) {
-  const entry = annotationIndex.byStableKey.get(unit.identity.stableKey);
+  const candidateKeys = [unit.identity.stableKey, ...(unit.identity.priorStableKeys ?? [])].filter(Boolean);
+  const entry = candidateKeys.map((key) => annotationIndex.byStableKey.get(key)).find(Boolean) ?? null;
   unit.annotation = normalizeAnnotation(entry);
 }
 
@@ -993,7 +1036,7 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     reason: historyStatus.reason,
   };
 
-  return { unit, familyFingerprint: resolvedFamilyFingerprint };
+  return { unit, familyFingerprint: resolvedFamilyFingerprint, previousUnit };
 }
 
 function mergeObservedHistory(existing, unit) {
@@ -1073,13 +1116,138 @@ async function ensureProfileFile(familyRecord, timestamp, isNewProfile, boardCat
   await writeFile(profilePath, `${JSON.stringify(profile, null, 2)}\n`, "utf8");
 }
 
-async function updateHistory(state, unit, familyFingerprint, timestamp, boardCatalog) {
+
+function mergeObservedSnapshots(primary, secondary) {
+  const result = {};
+  const keys = new Set([
+    ...Object.keys(primary ?? {}),
+    ...Object.keys(secondary ?? {}),
+  ]);
+
+  for (const key of keys) {
+    const left = primary?.[key];
+    const right = secondary?.[key];
+    if (Array.isArray(left) || Array.isArray(right)) {
+      result[key] = uniqueSorted([...(Array.isArray(left) ? left : []), ...(Array.isArray(right) ? right : [])]);
+    } else {
+      result[key] = left ?? right ?? null;
+    }
+  }
+
+  return result;
+}
+
+function mergeMetadataHistorySnapshots(primary, secondary) {
+  const primaryEntries = Array.isArray(primary?.entries) ? primary.entries : [];
+  const secondaryEntries = Array.isArray(secondary?.entries) ? secondary.entries : [];
+  const mergedEntries = Array.from(
+    new Map(
+      [...primaryEntries, ...secondaryEntries].map((entry) => [JSON.stringify(entry), entry])
+    ).values()
+  ).sort((left, right) => String(left.updatedAt ?? "").localeCompare(String(right.updatedAt ?? "")));
+
+  return {
+    owners: uniqueSorted([...(primary?.owners ?? []), ...(secondary?.owners ?? [])]),
+    locations: uniqueSorted([...(primary?.locations ?? []), ...(secondary?.locations ?? [])]),
+    purposes: uniqueSorted([...(primary?.purposes ?? []), ...(secondary?.purposes ?? [])]),
+    firstUpdatedAt: pickEarlierTimestamp(primary?.firstUpdatedAt ?? null, secondary?.firstUpdatedAt ?? null),
+    lastUpdatedAt: pickLaterTimestamp(primary?.lastUpdatedAt ?? null, secondary?.lastUpdatedAt ?? null),
+    entries: mergedEntries,
+  };
+}
+
+function mergeIdentitySnapshots(primary, secondary, stableKey) {
+  const aliases = uniqueSorted([...(primary?.aliases ?? []), ...(secondary?.aliases ?? [])]);
+  const priorStableKeys = uniqueSorted([
+    ...(primary?.priorStableKeys ?? []),
+    ...(secondary?.priorStableKeys ?? []),
+    primary?.stableKey,
+    secondary?.stableKey,
+  ].filter((entry) => entry && entry !== stableKey));
+
+  return {
+    stableKey,
+    usbInstance: primary?.usbInstance ?? secondary?.usbInstance ?? null,
+    mac: primary?.mac ?? secondary?.mac ?? null,
+    serialNumber: primary?.serialNumber ?? secondary?.serialNumber ?? null,
+    aliases,
+    priorStableKeys,
+  };
+}
+
+function mergeExistingUnits(primary, secondary, stableKey) {
+  const primaryLastSeen = primary?.lastSeenAt ?? null;
+  const secondaryLastSeen = secondary?.lastSeenAt ?? null;
+  const latestTransport = pickLaterTimestamp(primaryLastSeen, secondaryLastSeen) === secondaryLastSeen
+    ? (secondary?.lastTransport ?? primary?.lastTransport ?? null)
+    : (primary?.lastTransport ?? secondary?.lastTransport ?? null);
+
+  return {
+    stableKey,
+    firstSeenAt: pickEarlierTimestamp(primary?.firstSeenAt ?? null, secondary?.firstSeenAt ?? null),
+    lastSeenAt: pickLaterTimestamp(primaryLastSeen, secondaryLastSeen),
+    lastPresentAt: pickLaterTimestamp(primary?.lastPresentAt ?? null, secondary?.lastPresentAt ?? null),
+    lastMissingAt: pickLaterTimestamp(primary?.lastMissingAt ?? null, secondary?.lastMissingAt ?? null),
+    present: (primary?.present !== false) || (secondary?.present !== false),
+    missingCount: (primary?.missingCount ?? 0) + (secondary?.missingCount ?? 0),
+    seenCount: (primary?.seenCount ?? 0) + (secondary?.seenCount ?? 0),
+    familyKey: primary?.familyKey ?? secondary?.familyKey ?? null,
+    profileId: primary?.profileId ?? secondary?.profileId ?? null,
+    boardIds: uniqueSorted([...(primary?.boardIds ?? []), ...(secondary?.boardIds ?? [])]),
+    identity: mergeIdentitySnapshots(primary?.identity, secondary?.identity, stableKey),
+    annotation: hasAnnotationContent(primary?.annotation) ? primary.annotation : (secondary?.annotation ?? normalizeAnnotation(null)),
+    metadataHistory: mergeMetadataHistorySnapshots(primary?.metadataHistory, secondary?.metadataHistory),
+    transitions: {
+      firstSeen: pickEarlierTransition(primary?.transitions?.firstSeen ?? null, secondary?.transitions?.firstSeen ?? null),
+      lastSeen: pickLaterTransition(primary?.transitions?.lastSeen ?? null, secondary?.transitions?.lastSeen ?? null),
+      lastPresent: pickLaterTransition(primary?.transitions?.lastPresent ?? null, secondary?.transitions?.lastPresent ?? null),
+      lastMissing: pickLaterTransition(primary?.transitions?.lastMissing ?? null, secondary?.transitions?.lastMissing ?? null),
+    },
+    lastTransport: latestTransport,
+    observed: mergeObservedSnapshots(primary?.observed, secondary?.observed),
+  };
+}
+
+function buildReconciledExistingUnit(units, identity, previousUnit) {
+  const stableKey = identity.stableKey;
+  const candidateIndices = [];
+
+  for (let index = 0; index < units.length; index += 1) {
+    const entry = units[index];
+    const entryIdentity = entry.identity ?? {};
+    const matchesStableKey = entry.stableKey === stableKey;
+    const matchesPreviousStableKey = Boolean(previousUnit?.stableKey) && entry.stableKey === previousUnit.stableKey;
+    const matchesPriorStableKey = (previousUnit?.identity?.priorStableKeys ?? []).includes(entry.stableKey);
+    const matchesUsbInstance = Boolean(identity.usbInstance) && entryIdentity.usbInstance === identity.usbInstance;
+    const matchesSerialNumber = Boolean(identity.serialNumber) && entryIdentity.serialNumber === identity.serialNumber;
+    const strongerIdentityUpgrade = (matchesUsbInstance || matchesSerialNumber)
+      && entry.stableKey !== stableKey
+      && Boolean(identity.mac || identity.serialNumber);
+
+    if (matchesStableKey || matchesPreviousStableKey || matchesPriorStableKey || strongerIdentityUpgrade) {
+      candidateIndices.push(index);
+    }
+  }
+
+  const uniqueCandidateIndices = Array.from(new Set(candidateIndices)).sort((left, right) => left - right);
+  if (uniqueCandidateIndices.length === 0) {
+    return { existingUnit: null, candidateIndices: uniqueCandidateIndices };
+  }
+
+  let existingUnit = units[uniqueCandidateIndices[0]];
+  for (let index = 1; index < uniqueCandidateIndices.length; index += 1) {
+    existingUnit = mergeExistingUnits(existingUnit, units[uniqueCandidateIndices[index]], stableKey);
+  }
+
+  return { existingUnit, candidateIndices: uniqueCandidateIndices };
+}
+
+async function updateHistory(state, unit, familyFingerprint, timestamp, boardCatalog, previousUnit = null) {
   const units = Array.isArray(state.units) ? state.units : [];
   const families = Array.isArray(state.families) ? state.families : [];
-  const unitIndex = units.findIndex((entry) => entry.stableKey === unit.identity.stableKey);
   const familyIndex = families.findIndex((entry) => entry.familyKey === familyFingerprint.familyKey);
+  const { existingUnit, candidateIndices } = buildReconciledExistingUnit(units, unit.identity, previousUnit);
 
-  const existingUnit = unitIndex >= 0 ? units[unitIndex] : null;
   const existingFamily = familyIndex >= 0 ? families[familyIndex] : null;
 
   const nextUnit = {
@@ -1094,8 +1262,8 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     familyKey: familyFingerprint.familyKey,
     profileId: familyFingerprint.profileId,
     boardIds: uniqueSorted([...(existingUnit?.boardIds ?? []), unit.match.boardId]),
-    identity: unit.identity,
-    annotation: unit.annotation,
+    identity: mergeIdentitySnapshots(unit.identity, existingUnit?.identity, unit.identity.stableKey),
+    annotation: hasAnnotationContent(unit.annotation) ? unit.annotation : normalizeAnnotation(existingUnit?.annotation),
     metadataHistory: mergeMetadataHistory(existingUnit?.metadataHistory, unit.annotation, timestamp),
     transitions: mergeTransitionSummary(existingUnit?.transitions, {
       firstSeen: existingUnit?.transitions?.firstSeen ?? { at: existingUnit?.firstSeenAt ?? timestamp, state: "discovered" },
@@ -1107,8 +1275,10 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     observed: mergeObservedHistory(existingUnit?.observed, unit),
   };
 
-  if (unitIndex >= 0) units[unitIndex] = nextUnit;
-  else units.push(nextUnit);
+  for (const index of [...candidateIndices].sort((left, right) => right - left)) {
+    units.splice(index, 1);
+  }
+  units.push(nextUnit);
 
   const nextFamily = {
     familyKey: familyFingerprint.familyKey,
@@ -1208,6 +1378,7 @@ function refreshFamilyTransitions(state, timestamp, observedStableKeys) {
     family.present = isPresent;
     family.presentUnitCount = presentUnits.length;
     family.missingUnitCount = missingUnits.length;
+    family.sampleUnitIds = uniqueSorted(familyUnits.map((unit) => unit.stableKey)).slice(0, 16);
     if (observedFamilies.has(family.familyKey)) family.lastSeenAt = timestamp;
     family.lastPresentAt = isPresent ? latestPresentAt : (family.lastPresentAt ?? latestPresentAt ?? null);
     family.lastMissingAt = !isPresent && familyUnits.length > 0 && wasPresent
@@ -1246,9 +1417,9 @@ async function main() {
   for (const portInfo of ports) {
     const unitIndex = buildIdentityIndex(historyState.units ?? []);
     const familyIndex = buildFamilyIndex(historyState.families ?? []);
-    const { unit, familyFingerprint } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
+    const { unit, familyFingerprint, previousUnit } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
     observedStableKeys.add(unit.identity.stableKey);
-    await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog);
+    await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog, previousUnit);
     units.push(unit);
   }
 

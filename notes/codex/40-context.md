@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 19:05 Europe/London
+Last updated: 2026-03-29 19:50 Europe/London
 
 ## Project Intent
 
@@ -135,3 +135,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 20:05 Europe/London: Discovery now promotes richer USB descriptor fields into persisted history and query output, including USB product name, hardware-id-derived revision, driver key, and the base USB serial token where available.
 - 2026-03-29 20:05 Europe/London: Current bench examples now include `COM3/4/5` as `USB Serial Device (COMx)` revision `0101`, `COM6` as `STMicroelectronics STLink Virtual COM Port (COM6)` revision `0100`, and `COM7` as `Silicon Labs CP210x USB to UART Bridge (COM7)` revision `0100`.
 - 2026-03-29 20:05 Europe/London: Query output for units now exposes `usbProductName`, `usbRevision`, `usbDriver`, `usbBaseSerialNumber`, and the existing topology path so later web or remote consumers can distinguish boards with more than VID/PID and COM port alone.
+
+- 2026-03-29 19:50 Europe/London: Discovery now reconciles transport-only unit history into stronger identities when later scans recover better evidence such as a chip MAC. The COM7 ESP32 board now persists as `mac:c8:2e:18:f0:47:74` with `usb:USB\VID_10C4&PID_EA60\0001` preserved in `priorStableKeys` instead of as a second stale missing unit.
