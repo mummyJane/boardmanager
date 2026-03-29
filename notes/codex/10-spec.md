@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 17:55 Europe/London
+Last updated: 2026-03-29 18:00 Europe/London
 
 ## Goal
 
@@ -57,7 +57,7 @@ Deliverables:
 - initial APIs for querying connected boards and known inventory
 - a host-side query layer that can be reused by the future web interface and by remote callers from another system
 - a first local or remote service endpoint that exposes the shared query contract over HTTP
-- a persisted discovery-run ledger and a diff view over the latest two runs
+- a persisted discovery-run ledger and a diff view over the latest two runs`n- exportable JSON reports for the current bench inventory and cumulative unit history
 
 Requirements:
 
@@ -79,7 +79,7 @@ Requirements:
 - the Stage 2 history layer must preserve cumulative owner, location, and purpose changes per physical unit rather than only the latest annotation snapshot
 - each physical unit must be able to reference a per-unit AES key and an asymmetric key pair, with secret material stored under `keys/` and linked back to the stable unit identity
 - discovery must persist a compact run-by-run observation ledger so later tools can compare the latest two scans without replaying the full cumulative history model
-- the first diff view must report added or removed units, family population changes, and per-unit port or firmware changes between the latest two discovery runs
+- the first diff view must report added or removed units, family population changes, and per-unit port or firmware changes between the latest two discovery runs`n- Stage 2 must be able to export stable JSON report files for the current bench state and the cumulative unit history so operators and remote systems can archive or hand off snapshots without querying the service live
 
 ### Stage 3: Build, Program, And Debug
 
@@ -126,3 +126,4 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+

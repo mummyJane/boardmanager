@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-03-29T16:29:21.386Z",
+  "outputRoot": "D:\\boardmanager\\project\\device-manager\\reports",
+  "files": [
+    {
+      "name": "current-bench-report.json",
+      "reportType": "current-bench"
+    },
+    {
+      "name": "unit-history-report.json",
+      "reportType": "unit-history"
+    }
+  ]
+}

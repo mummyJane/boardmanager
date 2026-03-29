@@ -136,3 +136,5 @@
 
 - 2026-03-29 17:55 Europe/London: Added a compact discovery-runs ledger separate from unit-history so latest-two-run diffs can be computed cheaply without replaying the full cumulative history model.
 - 2026-03-29 17:55 Europe/London: Kept the diff model focused on operator-relevant changes first: unit add/remove, port change, firmware change, family add/remove, and family population change.
+
+- 2026-03-29 18:00 Europe/London: Report export reuses the persisted Stage 2 data and shared query layer rather than maintaining a separate reporting-only model, so exported JSON stays aligned with CLI and service views.

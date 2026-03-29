@@ -819,3 +819,8 @@ Validation:
 - Note: the initial diff validation intentionally used a controlled missing COM6 run; after the restore pass, the latest two normal scans returned an empty diff as expected.
 
 - Validation: service check via node project/scripts/device-manager-service.mjs on 127.0.0.1:8788 with Invoke-WebRequest to /api/query?view=diff returned the expected JSON payload.
+
+## 2026-03-29 18:00 Europe/London
+- Added report export script project/scripts/export-device-manager-reports.mjs and top-level wrapper .\\export-reports.ps1.
+- Exported reports to project/device-manager/reports/current-bench-report.json, project/device-manager/reports/unit-history-report.json, and project/device-manager/reports/report-manifest.json.
+- Validation: .\\export-reports.ps1 plus direct inspection of the generated report files to confirm host, unit, family, diff, and history content were populated from the persisted Stage 2 data model.

@@ -1,0 +1,940 @@
+{
+  "reportType": "unit-history",
+  "generatedAt": "2026-03-29T16:29:21.375Z",
+  "sourceGeneratedAt": "2026-03-29T16:15:25.285Z",
+  "host": {
+    "platform": "windows",
+    "hostname": "MSI"
+  },
+  "summary": {
+    "unitCount": 4,
+    "familyCount": 3,
+    "discoveryRunCount": 4,
+    "annotatedUnitCount": 0
+  },
+  "history": {
+    "generatedAt": "2026-03-29T16:15:25.285Z",
+    "host": {
+      "platform": "windows",
+      "hostname": "MSI"
+    },
+    "units": [
+      {
+        "stableKey": "mac:48:27:e2:66:b0:04",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": null,
+        "present": true,
+        "missingCount": 0,
+        "seenCount": 14,
+        "familyKey": "board:m5stack_cores3_gnss_v1",
+        "profileId": "board_m5stack_cores3_gnss_v1",
+        "boardIds": [
+          "m5stack_cores3_gnss_v1"
+        ],
+        "identity": {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "mac": "48:27:e2:66:b0:04",
+          "serialNumber": "7&2D2626DF&0&0000",
+          "aliases": [
+            "COM4",
+            "USB Serial Device (COM4)"
+          ]
+        },
+        "annotation": {
+          "label": null,
+          "notes": [],
+          "owner": null,
+          "location": null,
+          "purpose": null,
+          "updatedAt": null
+        },
+        "metadataHistory": {
+          "owners": [],
+          "locations": [],
+          "purposes": [],
+          "firstUpdatedAt": null,
+          "lastUpdatedAt": null,
+          "entries": []
+        },
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": null
+        },
+        "lastTransport": {
+          "kind": "serial",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "description": "USB Serial Device",
+          "name": "USB Serial Device (COM4)"
+        },
+        "observed": {
+          "vid": "303A",
+          "pid": "1001",
+          "chips": [
+            "ESP32-S3 (QFN56) (revision v0.2)"
+          ],
+          "firmwareSignatures": [
+            "board_manager_cores3_gnss_demo"
+          ],
+          "firmwareApps": [
+            "m5stack_cores3_gnss_demo"
+          ],
+          "firmwareVersions": [
+            "0.1.0-dev"
+          ],
+          "firmwareBuildIds": [
+            "Mar 29 2026 15:44:03"
+          ],
+          "firmwareBoards": [
+            "m5stack_cores3_gnss_v1"
+          ],
+          "firmwareLines": [
+            "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_cores3_gnss_v1"
+          ],
+          "rawSignatureLines": [
+            "Board Manager CoreS3 GNSS bring-up starting"
+          ]
+        }
+      },
+      {
+        "stableKey": "mac:c0:4e:30:12:b3:e0",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": null,
+        "present": true,
+        "missingCount": 0,
+        "seenCount": 14,
+        "familyKey": "board:m5stack_dial_v1_1",
+        "profileId": "board_m5stack_dial_v1_1",
+        "boardIds": [
+          "m5stack_dial_v1_1"
+        ],
+        "identity": {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "mac": "c0:4e:30:12:b3:e0",
+          "serialNumber": "7&39B40148&0&0000",
+          "aliases": [
+            "COM5",
+            "USB Serial Device (COM5)"
+          ]
+        },
+        "annotation": {
+          "label": null,
+          "notes": [],
+          "owner": null,
+          "location": null,
+          "purpose": null,
+          "updatedAt": null
+        },
+        "metadataHistory": {
+          "owners": [],
+          "locations": [],
+          "purposes": [],
+          "firstUpdatedAt": null,
+          "lastUpdatedAt": null,
+          "entries": []
+        },
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": null
+        },
+        "lastTransport": {
+          "kind": "serial",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "description": "USB Serial Device",
+          "name": "USB Serial Device (COM5)"
+        },
+        "observed": {
+          "vid": "303A",
+          "pid": "1001",
+          "chips": [
+            "ESP32-S3 (QFN56) (revision v0.2)"
+          ],
+          "firmwareSignatures": [
+            "board_manager_dial_smoketest"
+          ],
+          "firmwareApps": [
+            "m5stack_dial_demo"
+          ],
+          "firmwareVersions": [
+            "0.1.0-dev"
+          ],
+          "firmwareBuildIds": [
+            "Mar 29 2026 15:44:03"
+          ],
+          "firmwareBoards": [
+            "m5stack_dial_v1_1"
+          ],
+          "firmwareLines": [
+            "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1"
+          ],
+          "rawSignatureLines": [
+            "Board Manager dial smoke test starting"
+          ]
+        }
+      },
+      {
+        "stableKey": "mac:c0:4e:30:13:2b:68",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": null,
+        "present": true,
+        "missingCount": 0,
+        "seenCount": 14,
+        "familyKey": "board:m5stack_dial_v1_1",
+        "profileId": "board_m5stack_dial_v1_1",
+        "boardIds": [
+          "m5stack_dial_v1_1"
+        ],
+        "identity": {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "mac": "c0:4e:30:13:2b:68",
+          "serialNumber": "7&203F6002&0&0000",
+          "aliases": [
+            "COM3",
+            "USB Serial Device (COM3)"
+          ]
+        },
+        "annotation": {
+          "label": null,
+          "notes": [],
+          "owner": null,
+          "location": null,
+          "purpose": null,
+          "updatedAt": null
+        },
+        "metadataHistory": {
+          "owners": [],
+          "locations": [],
+          "purposes": [],
+          "firstUpdatedAt": null,
+          "lastUpdatedAt": null,
+          "entries": []
+        },
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": null
+        },
+        "lastTransport": {
+          "kind": "serial",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "description": "USB Serial Device",
+          "name": "USB Serial Device (COM3)"
+        },
+        "observed": {
+          "vid": "303A",
+          "pid": "1001",
+          "chips": [
+            "ESP32-S3 (QFN56) (revision v0.2)"
+          ],
+          "firmwareSignatures": [
+            "board_manager_dial_smoketest"
+          ],
+          "firmwareApps": [
+            "m5stack_dial_demo"
+          ],
+          "firmwareVersions": [
+            "0.1.0-dev"
+          ],
+          "firmwareBuildIds": [
+            "Mar 29 2026 15:44:03"
+          ],
+          "firmwareBoards": [
+            "m5stack_dial_v1_1"
+          ],
+          "firmwareLines": [
+            "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1"
+          ],
+          "rawSignatureLines": [
+            "Board Manager dial smoke test starting"
+          ]
+        }
+      },
+      {
+        "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": "2026-03-29T16:14:34.394Z",
+        "present": true,
+        "missingCount": 3,
+        "seenCount": 11,
+        "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+        "profileId": "board_p_nucleo_usb001_f072rb_v1",
+        "boardIds": [
+          "p_nucleo_usb001_f072rb_v1"
+        ],
+        "identity": {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "mac": null,
+          "serialNumber": "8&2379FC3D&0&0002",
+          "aliases": [
+            "COM6",
+            "STMicroelectronics STLink Virtual COM Port (COM6)"
+          ]
+        },
+        "annotation": {
+          "label": null,
+          "notes": [],
+          "owner": null,
+          "location": null,
+          "purpose": null,
+          "updatedAt": null
+        },
+        "metadataHistory": {
+          "owners": [],
+          "locations": [],
+          "purposes": [],
+          "firstUpdatedAt": null,
+          "lastUpdatedAt": null,
+          "entries": []
+        },
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": {
+            "at": "2026-03-29T16:14:34.394Z",
+            "state": "missing"
+          }
+        },
+        "lastTransport": {
+          "kind": "serial",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "description": "STMicroelectronics STLink Virtual COM Port",
+          "name": "STMicroelectronics STLink Virtual COM Port (COM6)"
+        },
+        "observed": {
+          "vid": "0483",
+          "pid": "374B",
+          "chips": [],
+          "firmwareSignatures": [],
+          "firmwareApps": [],
+          "firmwareVersions": [],
+          "firmwareBuildIds": [],
+          "firmwareBoards": [],
+          "firmwareLines": [],
+          "rawSignatureLines": []
+        }
+      }
+    ],
+    "families": [
+      {
+        "familyKey": "board:m5stack_cores3_gnss_v1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": null,
+        "present": true,
+        "presentUnitCount": 1,
+        "missingUnitCount": 0,
+        "seenCount": 14,
+        "status": "known-board",
+        "profileId": "board_m5stack_cores3_gnss_v1",
+        "boardIds": [
+          "m5stack_cores3_gnss_v1"
+        ],
+        "sampleUnitIds": [
+          "mac:48:27:e2:66:b0:04"
+        ],
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": null
+        },
+        "fingerprint": {
+          "fingerprintKey": "board:m5stack_cores3_gnss_v1",
+          "vid": "303A",
+          "pid": "1001",
+          "chipFamily": "esp32-s3",
+          "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+          "description": "USB Serial Device",
+          "name": "USB Serial Device (COM4)",
+          "firmwareSignature": "board_manager_cores3_gnss_demo"
+        }
+      },
+      {
+        "familyKey": "board:m5stack_dial_v1_1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": null,
+        "present": true,
+        "presentUnitCount": 2,
+        "missingUnitCount": 0,
+        "seenCount": 28,
+        "status": "known-board",
+        "profileId": "board_m5stack_dial_v1_1",
+        "boardIds": [
+          "m5stack_dial_v1_1"
+        ],
+        "sampleUnitIds": [
+          "mac:c0:4e:30:12:b3:e0",
+          "mac:c0:4e:30:13:2b:68"
+        ],
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": null
+        },
+        "fingerprint": {
+          "fingerprintKey": "board:m5stack_dial_v1_1",
+          "vid": "303A",
+          "pid": "1001",
+          "chipFamily": "esp32-s3",
+          "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+          "description": "USB Serial Device",
+          "name": "USB Serial Device (COM5)",
+          "firmwareSignature": "board_manager_dial_smoketest"
+        }
+      },
+      {
+        "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T16:15:25.285Z",
+        "lastPresentAt": "2026-03-29T16:15:25.285Z",
+        "lastMissingAt": "2026-03-29T16:14:34.394Z",
+        "present": true,
+        "presentUnitCount": 1,
+        "missingUnitCount": 0,
+        "seenCount": 11,
+        "status": "known-board",
+        "profileId": "board_p_nucleo_usb001_f072rb_v1",
+        "boardIds": [
+          "p_nucleo_usb001_f072rb_v1"
+        ],
+        "sampleUnitIds": [
+          "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+        ],
+        "transitions": {
+          "firstSeen": {
+            "at": "2026-03-29T13:41:50.532Z",
+            "state": "discovered"
+          },
+          "lastSeen": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "observed"
+          },
+          "lastPresent": {
+            "at": "2026-03-29T16:15:25.285Z",
+            "state": "present"
+          },
+          "lastMissing": {
+            "at": "2026-03-29T16:14:34.394Z",
+            "state": "missing"
+          }
+        },
+        "fingerprint": {
+          "fingerprintKey": "board:p_nucleo_usb001_f072rb_v1",
+          "vid": "0483",
+          "pid": "374B",
+          "chipFamily": null,
+          "chip": null,
+          "description": "STMicroelectronics STLink Virtual COM Port",
+          "name": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "firmwareSignature": null
+        }
+      }
+    ]
+  },
+  "annotations": {
+    "updatedAt": null,
+    "units": []
+  },
+  "recentChanges": [
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "mac:48:27:e2:66:b0:04",
+      "type": "observed",
+      "summary": "mac:48:27:e2:66:b0:04 observed on COM4"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "mac:48:27:e2:66:b0:04",
+      "type": "present",
+      "summary": "mac:48:27:e2:66:b0:04 present on COM4"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "mac:c0:4e:30:12:b3:e0",
+      "type": "observed",
+      "summary": "mac:c0:4e:30:12:b3:e0 observed on COM5"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "mac:c0:4e:30:12:b3:e0",
+      "type": "present",
+      "summary": "mac:c0:4e:30:12:b3:e0 present on COM5"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "mac:c0:4e:30:13:2b:68",
+      "type": "observed",
+      "summary": "mac:c0:4e:30:13:2b:68 observed on COM3"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "mac:c0:4e:30:13:2b:68",
+      "type": "present",
+      "summary": "mac:c0:4e:30:13:2b:68 present on COM3"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+      "type": "observed",
+      "summary": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002 observed on COM6"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "unit",
+      "target": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+      "type": "present",
+      "summary": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002 present on COM6"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "family",
+      "target": "board:m5stack_cores3_gnss_v1",
+      "type": "present",
+      "summary": "board:m5stack_cores3_gnss_v1 family present with 1 unit(s)"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "family",
+      "target": "board:m5stack_dial_v1_1",
+      "type": "present",
+      "summary": "board:m5stack_dial_v1_1 family present with 2 unit(s)"
+    },
+    {
+      "at": "2026-03-29T16:15:25.285Z",
+      "scope": "family",
+      "target": "board:p_nucleo_usb001_f072rb_v1",
+      "type": "present",
+      "summary": "board:p_nucleo_usb001_f072rb_v1 family present with 1 unit(s)"
+    },
+    {
+      "at": "2026-03-29T16:14:34.394Z",
+      "scope": "unit",
+      "target": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+      "type": "missing",
+      "summary": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002 marked missing"
+    },
+    {
+      "at": "2026-03-29T16:14:34.394Z",
+      "scope": "family",
+      "target": "board:p_nucleo_usb001_f072rb_v1",
+      "type": "missing",
+      "summary": "board:p_nucleo_usb001_f072rb_v1 family missing"
+    }
+  ],
+  "latestRuns": [
+    {
+      "runId": "run:2026-03-29T16:13:54.525Z",
+      "generatedAt": "2026-03-29T16:13:54.525Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 4,
+      "familyCount": 3,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ]
+    },
+    {
+      "runId": "run:2026-03-29T16:14:34.394Z",
+      "generatedAt": "2026-03-29T16:14:34.394Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 3,
+      "familyCount": 2,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        }
+      ]
+    },
+    {
+      "runId": "run:2026-03-29T16:14:59.204Z",
+      "generatedAt": "2026-03-29T16:14:59.204Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 4,
+      "familyCount": 3,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ]
+    },
+    {
+      "runId": "run:2026-03-29T16:15:25.285Z",
+      "generatedAt": "2026-03-29T16:15:25.285Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 4,
+      "familyCount": 3,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ]
+    }
+  ]
+}

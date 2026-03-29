@@ -104,3 +104,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 
 
 - 2026-03-29 17:55 Europe/London: Stage 2 now persists compact discovery-run snapshots in project/device-manager/data/discovery-runs.json and exposes a latest-two-run diff through query.ps1 and the HTTP query service.
+
+- 2026-03-29 18:00 Europe/London: Added export-reports.ps1 and project/scripts/export-device-manager-reports.mjs to emit stable JSON handoff files under project/device-manager/reports for the current bench snapshot and cumulative unit history.

@@ -16,7 +16,7 @@ This folder now contains the first Milestone 2 discovery slice.
 - allow operator-assigned labels and notes per physical unit
 - track ownership, location, and purpose changes in the unit history layer
 - persist the current discovery snapshot in simple local data files
-- persist a compact discovery-run ledger so the latest two scans can be diffed quickly
+- persist a compact discovery-run ledger so the latest two scans can be diffed quickly`n- export stable JSON reports for the current bench and cumulative history
 
 ## Current Files
 
@@ -29,7 +29,7 @@ This folder now contains the first Milestone 2 discovery slice.
 - `data/unit-history.json`: cumulative unit and family history
 - `data/unit-annotations.json`: operator-assigned labels, notes, and ownership metadata keyed by stable unit id
 - `data/discovery-runs.json`: compact per-run snapshots used for the latest-two-run diff view
-- `profiles/*.json`: draft or known family profile files enriched with likely Stage 1 board candidates
+- `profiles/*.json`: draft or known family profile files enriched with likely Stage 1 board candidates`n- `reports/current-bench-report.json`: exportable snapshot of the current bench state`n- `reports/unit-history-report.json`: exportable cumulative history report`n- `reports/report-manifest.json`: manifest for the generated report set
 
 The first pass is intentionally local and Windows-focused. It is designed to give the future service and database layers a stable observation format before introducing a daemon or web API.
 
@@ -95,7 +95,7 @@ Current diff coverage:
 
 Use a controlled discovery pass, such as temporarily ignoring a known port, when you want the diff to capture a removal or restore event on demand.
 
-## Service Access
+## Report Export`r`n`r`nUse `export-reports.ps1` to write stable JSON report files under `project/device-manager/reports`.`r`n`r`nFiles currently exported:`r`n`r`n- `current-bench-report.json``r`n- `unit-history-report.json``r`n- `report-manifest.json``r`n`r`n## Service Access
 
 Use `serve-device-manager.ps1` to expose the same shared query contract over HTTP for the future web UI and remote callers.
 
@@ -110,3 +110,4 @@ Endpoints:
 Example:
 
 - `./serve-device-manager.ps1 -BindHost 127.0.0.1 -Port 8787`
+
