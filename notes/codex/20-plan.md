@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 11:40 Europe/London
+Last updated: 2026-03-29 14:07 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -23,13 +23,23 @@ Success criteria:
 - STM32 host-side build validation passes for the supported sample and attached boards
 - install and update scripts exist for the milestone
 
+## Milestone 2: USB Discovery And Inventory Model
+
+Objective:
+Add a local host-side discovery flow that fingerprints connected units, matches them back to Stage 1 board definitions, and persists an inventory snapshot for later service and database work.
+
+Status:
+Started on 2026-03-29 with a Windows discovery script, persisted inventory schema, and a first matched scan of the current four-unit bench.
+
+Initial success criteria:
+
+- discovery output has a stable persisted schema
+- current connected units can be scanned from the local host
+- observations capture port, USB identity, and firmware or chip signatures where possible
+- discovery records match back to known board definitions
+- the latest snapshot is persisted under `project/device-manager`
+
 ## Future Milestones
-
-### Milestone 2: USB Discovery And Inventory Model
-
-- define host-side service boundaries
-- create initial database schema
-- add USB probing abstraction
 
 ### Milestone 3: Build/Flash/Debug Orchestration
 

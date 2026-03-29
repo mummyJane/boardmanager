@@ -465,3 +465,25 @@ Validation:
 - post-flash serial capture on `COM4` -> success; observed repeated `Live GNSS PPS state: 0`
 - `install-tools.ps1 -Platform stm32` -> success after repairing the local STM32CubeF0 checkout
 - `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` -> success; produced `project/build/stm32-p_nucleo_usb001_demo/p_nucleo_usb001_demo.elf` and `.bin`
+
+## 2026-03-29 14:07 Europe/London
+
+Commands run:
+
+- added `project/device-manager/schema/device-inventory.schema.json`
+- added `project/device-manager/data/inventory.json`
+- updated `project/device-manager/README.md`
+- added `project/scripts/discover-units.mjs`
+- added top-level `discover.ps1`
+- `discover.ps1`
+
+Actions:
+
+- created the first persisted discovery schema and local inventory store under `project/device-manager`
+- implemented a Windows-focused discovery script that enumerates serial ports, captures USB identity, reads short ESP32 firmware signatures, and applies initial board-matching heuristics
+- captured and persisted the first matched discovery snapshot for the current four-unit bench
+
+Validation:
+
+- `discover.ps1` -> success; discovered 4 units and matched `COM3`/`COM5` to `m5stack_dial_v1_1`, `COM4` to `m5stack_cores3_gnss_v1`, and `COM6` to `p_nucleo_usb001_f072rb_v1`
+- `project/device-manager/data/inventory.json` -> updated with the latest generated discovery snapshot and current match reasons

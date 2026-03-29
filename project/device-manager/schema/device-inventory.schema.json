@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "board-manager-device-inventory.schema.json",
+  "title": "Board Manager Device Inventory",
+  "type": "object",
+  "required": ["generatedAt", "host", "units"],
+  "properties": {
+    "generatedAt": { "type": "string" },
+    "host": {
+      "type": "object",
+      "required": ["platform"],
+      "properties": {
+        "platform": { "type": "string" },
+        "hostname": { "type": "string" }
+      }
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["unitId", "transport", "observed", "match"],
+        "properties": {
+          "unitId": { "type": "string" },
+          "transport": {
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "type": "string" },
+              "port": { "type": "string" },
+              "usbInstance": { "type": "string" },
+              "description": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          },
+          "observed": {
+            "type": "object",
+            "properties": {
+              "vid": { "type": "string" },
+              "pid": { "type": "string" },
+              "chip": { "type": "string" },
+              "mac": { "type": "string" },
+              "firmwareSignature": { "type": "string" },
+              "rawSignatureLine": { "type": "string" }
+            }
+          },
+          "match": {
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "status": { "type": "string" },
+              "boardId": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

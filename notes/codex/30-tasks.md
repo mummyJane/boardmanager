@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 11:40 Europe/London
+Last updated: 2026-03-29 14:07 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -32,3 +32,6 @@ Last updated: 2026-03-29 11:40 Europe/London
 - [x] Add local STM32CubeF0 support and a real STM32 demo app for `p_nucleo_usb001_f072rb_v1`
 - [x] Complete a host-side F072 build validation for `p_nucleo_usb001_demo`
 - [x] Milestone 1 complete
+- [x] Add a persisted device-inventory schema and local inventory store for discovery
+- [x] Add a Windows discovery script and top-level wrapper for the current bench
+- [x] Capture and persist the first matched discovery snapshot for COM3-COM6

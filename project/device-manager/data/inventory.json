@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-03-29T13:06:59.222Z",
+  "host": {
+    "platform": "windows",
+    "hostname": "MSI"
+  },
+  "units": [
+    {
+      "unitId": "COM3",
+      "transport": {
+        "kind": "serial",
+        "port": "COM3",
+        "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+        "description": "USB Serial Device",
+        "name": "USB Serial Device (COM3)"
+      },
+      "observed": {
+        "vid": "303A",
+        "pid": "1001",
+        "chip": null,
+        "mac": null,
+        "firmwareSignature": "board_manager_dial_smoketest",
+        "rawSignatureLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      "match": {
+        "status": "matched",
+        "boardId": "m5stack_dial_v1_1",
+        "reason": "Current firmware signature matches a Dial smoke test or factory test image"
+      }
+    },
+    {
+      "unitId": "COM4",
+      "transport": {
+        "kind": "serial",
+        "port": "COM4",
+        "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+        "description": "USB Serial Device",
+        "name": "USB Serial Device (COM4)"
+      },
+      "observed": {
+        "vid": "303A",
+        "pid": "1001",
+        "chip": null,
+        "mac": null,
+        "firmwareSignature": "board_manager_cores3_gnss_demo",
+        "rawSignatureLine": "Live GNSS PPS state: 0"
+      },
+      "match": {
+        "status": "matched",
+        "boardId": "m5stack_cores3_gnss_v1",
+        "reason": "Current firmware signature matches the CoreS3 GNSS demo"
+      }
+    },
+    {
+      "unitId": "COM5",
+      "transport": {
+        "kind": "serial",
+        "port": "COM5",
+        "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+        "description": "USB Serial Device",
+        "name": "USB Serial Device (COM5)"
+      },
+      "observed": {
+        "vid": "303A",
+        "pid": "1001",
+        "chip": null,
+        "mac": null,
+        "firmwareSignature": "board_manager_dial_smoketest",
+        "rawSignatureLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      "match": {
+        "status": "matched",
+        "boardId": "m5stack_dial_v1_1",
+        "reason": "Current firmware signature matches a Dial smoke test or factory test image"
+      }
+    },
+    {
+      "unitId": "COM6",
+      "transport": {
+        "kind": "serial",
+        "port": "COM6",
+        "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+        "description": "STMicroelectronics STLink Virtual COM Port",
+        "name": "STMicroelectronics STLink Virtual COM Port (COM6)"
+      },
+      "observed": {
+        "vid": "0483",
+        "pid": "374B",
+        "chip": null,
+        "mac": null,
+        "firmwareSignature": null,
+        "rawSignatureLine": null
+      },
+      "match": {
+        "status": "matched",
+        "boardId": "p_nucleo_usb001_f072rb_v1",
+        "reason": "STLink virtual COM port matches the attached P-NUCLEO-USB001 / Nucleo-F072RB"
+      }
+    }
+  ]
+}

@@ -64,3 +64,8 @@
 
 - Expanded the Stage 1 completion criteria to require real demo/build coverage for the currently attached concrete boards, not just schema and generated-code coverage. This change is needed because Milestone 1 should end with both metadata and basic runnable firmware entry points for the real bench hardware.
 - Clarified that the local STM32 tooling layout may include more than one STM32Cube family package under `project/toolchains/stm32cube`. This change is needed because the repo now needs both F4 and F0 support to cover the sample board and the attached Nucleo-F072RB.
+
+## 2026-03-29 14:07 Europe/London
+
+- Clarified that Stage 2 should begin with a stable persisted discovery record format before a full service or database implementation. This change is needed because the project now has enough real bench hardware to validate the observation model directly.
+- Clarified that a simple local inventory store is acceptable for the first Stage 2 slice. This change is needed so the host-side discovery flow can be exercised immediately without blocking on full database selection and migration work.

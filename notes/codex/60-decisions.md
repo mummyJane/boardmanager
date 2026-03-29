@@ -73,3 +73,9 @@
 - Finish Milestone 1 by adding real demo apps for the currently attached CoreS3 and F072 boards instead of leaving them as metadata-only definitions.
 - Extend the local STM32 bootstrap to cover both STM32CubeF4 and STM32CubeF0 so the repo can host-build both the sample F4 board and the attached F072 board under one top-level tool flow.
 - Prefer small incremental edits and targeted retries on this Windows machine when antivirus or sandboxing interferes, rather than broad rewrite or download steps.
+
+## 2026-03-29 14:07 Europe/London
+
+- Start Milestone 2 with a persisted local discovery snapshot and matching heuristics before introducing a background service or database engine.
+- Use a simple JSON inventory file for the first discovery slice so the observation format can stabilize before committing to SQLite or another storage layer.
+- Reuse the local ESP-IDF Python environment for ESP32 fingerprinting so discovery can read MACs and short serial signatures without adding new host dependencies.

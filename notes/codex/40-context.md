@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 11:40 Europe/London
+Last updated: 2026-03-29 14:07 Europe/London
 
 ## Project Intent
 
@@ -59,3 +59,12 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the current attached bench inventory is `COM3` = M5Stack Dial, `COM4` = M5Stack CoreS3 with battery and GNSS, `COM5` = M5Stack Dial, and `COM6` = P-NUCLEO-USB001 based on Nucleo-F072RB
 - per-part help/man pages now exist for the shared Dial parts plus newly added PMU, GNSS, and USB PD parts, and board help pages exist for the current real boards
 - the current schema still treats stacked accessory modules as concrete board assemblies rather than true nested subassemblies; this is now explicitly documented as an accepted interim model
+
+## Discovery Baseline
+
+- a first local discovery slice now exists under `project/device-manager`
+- the persisted inventory schema is stored at `project/device-manager/schema/device-inventory.schema.json`
+- the latest snapshot is stored at `project/device-manager/data/inventory.json`
+- the Windows discovery script is `project/scripts/discover-units.mjs` with a top-level wrapper at `discover.ps1`
+- the latest discovery run matched all four attached units: `COM3` and `COM5` as `m5stack_dial_v1_1`, `COM4` as `m5stack_cores3_gnss_v1`, and `COM6` as `p_nucleo_usb001_f072rb_v1`
+- the current matching logic uses port data, USB identifiers, STLink naming, and short firmware signature lines as the first heuristic set
