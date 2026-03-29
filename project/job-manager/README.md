@@ -44,3 +44,16 @@ Current resolution behavior:
 - `-Board <boardId>` resolves to a unit only when exactly one present unit currently matches that board; otherwise job creation fails and the operator must choose the stable unit id explicitly
 
 The first pass is intentionally local and dependency-free. Later Milestone 3 tasks will add report payloads, build logs, run logs, debug metadata, and service APIs on top of this store.
+
+## Validation Contracts
+
+Use `generate-validation-contracts.ps1` to regenerate the current board-validation contracts from Stage 1 board and part metadata.
+
+Each generated contract currently defines:
+
+- ordered validation phases driven by `board.bootSequence`
+- controller checks first
+- bus checks before dependent devices
+- signal checks for board-local drive or read access
+- device checks derived from reusable part smoke-test contracts
+- explicit check metadata, pass criteria, failure notes, and config payloads for later runtime validation and reporting

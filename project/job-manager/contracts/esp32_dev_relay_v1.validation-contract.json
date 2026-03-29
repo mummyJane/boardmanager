@@ -1,0 +1,241 @@
+{
+  "contractId": "esp32_dev_relay_v1.validation-contract",
+  "boardId": "esp32_dev_relay_v1",
+  "displayName": "ESP32 Dev Relay V1",
+  "revision": "1.0",
+  "platformSdk": "esp-idf",
+  "generatedAt": "2026-03-29T20:44:23.651Z",
+  "strategy": {
+    "order": [
+      "controller",
+      "bus",
+      "signal",
+      "device"
+    ],
+    "dependencySource": "board.bootSequence",
+    "notes": [
+      "Controller checks run before dependent bus, signal, and device checks.",
+      "Bus checks establish transport readiness before attached-device probes.",
+      "Part smoke-test metadata is reused for device-level validation checks."
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "controller",
+      "order": 1,
+      "level": "controller",
+      "target": "esp32_wroom_32",
+      "dependsOn": [],
+      "notes": [
+        "Generic ESP32-WROOM-32 controller module for relay and utility boards"
+      ],
+      "checks": [
+        {
+          "checkId": "controller_identity",
+          "kind": "controller-identity",
+          "description": "Confirm the connected unit reports or probes as the configured controller module and MCU family.",
+          "source": "board.controller",
+          "passCriteria": "The matched unit identity agrees with the configured module or MCU family.",
+          "failureNotes": [],
+          "config": {
+            "moduleId": "esp32_wroom_32",
+            "moduleName": "ESP32-WROOM-32",
+            "mcuId": "esp32",
+            "mcuName": "ESP32",
+            "sdk": "esp-idf"
+          }
+        },
+        {
+          "checkId": "controller_transport",
+          "kind": "transport-ready",
+          "description": "Confirm the controller transport required for validation is present and usable.",
+          "source": "discovery.transport",
+          "passCriteria": "A transport such as serial, USB-serial/JTAG, or STLink VCP is available for the selected unit.",
+          "failureNotes": [],
+          "config": {}
+        },
+        {
+          "checkId": "controller_peripheral_uart",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared UART capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "uart",
+            "declared": [
+              "UART0",
+              "UART1",
+              "UART2"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_i2c",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared I2C capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "i2c",
+            "declared": [
+              "I2C0",
+              "I2C1"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_spi",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared SPI capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "spi",
+            "declared": [
+              "SPI0",
+              "SPI1",
+              "HSPI",
+              "VSPI"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_i2s",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared I2S capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "i2s",
+            "declared": [
+              "I2S0",
+              "I2S1"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_twai",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared TWAI capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "twai",
+            "declared": [
+              "TWAI0"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_adc",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared ADC capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "adc",
+            "declared": [
+              "ADC1",
+              "ADC2"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_pwm",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared PWM capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "pwm",
+            "declared": [
+              "LEDC"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_touch",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared TOUCH capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "touch",
+            "declared": [
+              "TOUCH0",
+              "TOUCH1",
+              "TOUCH2",
+              "TOUCH3",
+              "TOUCH4",
+              "TOUCH5",
+              "TOUCH6",
+              "TOUCH7",
+              "TOUCH8",
+              "TOUCH9"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "phaseId": "signal:status_led",
+      "order": 2,
+      "level": "signal",
+      "target": "status_led",
+      "dependsOn": [
+        "controller"
+      ],
+      "notes": [],
+      "checks": [
+        {
+          "checkId": "status_led_access",
+          "kind": "signal-drive",
+          "description": "Confirm signal status_led can be driven to the configured state for board bring-up.",
+          "source": "board.signals",
+          "passCriteria": "The signal can be driven to the requested board-level state.",
+          "failureNotes": [],
+          "config": {
+            "signal": "status_led",
+            "controllerSignal": "GPIO2",
+            "activeLevel": "high",
+            "requestedState": false
+          }
+        }
+      ]
+    },
+    {
+      "phaseId": "signal:relay_drive",
+      "order": 3,
+      "level": "signal",
+      "target": "relay_drive",
+      "dependsOn": [
+        "controller"
+      ],
+      "notes": [],
+      "checks": [
+        {
+          "checkId": "relay_drive_access",
+          "kind": "signal-drive",
+          "description": "Confirm signal relay_drive can be driven to the configured state for board bring-up.",
+          "source": "board.signals",
+          "passCriteria": "The signal can be driven to the requested board-level state.",
+          "failureNotes": [],
+          "config": {
+            "signal": "relay_drive",
+            "controllerSignal": "GPIO16",
+            "activeLevel": "high",
+            "requestedState": false
+          }
+        }
+      ]
+    }
+  ]
+}

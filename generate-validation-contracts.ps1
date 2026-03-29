@@ -10,10 +10,16 @@ Initialize-BoardManagerProcessEnv -Paths $paths
 
 try {
     Assert-Command node
-    Invoke-DefinitionsValidator -Paths $paths
-    Invoke-DeviceManagerValidator -Paths $paths
-    Invoke-JobManagerValidator -Paths $paths
-    Invoke-ValidationContractsValidator -Paths $paths
+    Push-Location $paths.RepoRoot
+    try {
+        & node project/scripts/generate-validation-contracts.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Validation-contract generation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot

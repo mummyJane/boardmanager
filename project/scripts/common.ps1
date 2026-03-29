@@ -199,3 +199,18 @@ function Invoke-JobManagerValidator {
         Pop-Location
     }
 }
+
+function Invoke-ValidationContractsValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & node project/scripts/validate-validation-contracts.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Validation-contract validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}

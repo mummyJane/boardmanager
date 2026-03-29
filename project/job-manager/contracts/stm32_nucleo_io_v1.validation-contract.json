@@ -1,0 +1,229 @@
+{
+  "contractId": "stm32_nucleo_io_v1.validation-contract",
+  "boardId": "stm32_nucleo_io_v1",
+  "displayName": "STM32 Nucleo IO V1",
+  "revision": "1.0",
+  "platformSdk": "stm32cube",
+  "generatedAt": "2026-03-29T20:44:23.726Z",
+  "strategy": {
+    "order": [
+      "controller",
+      "bus",
+      "signal",
+      "device"
+    ],
+    "dependencySource": "board.bootSequence",
+    "notes": [
+      "Controller checks run before dependent bus, signal, and device checks.",
+      "Bus checks establish transport readiness before attached-device probes.",
+      "Part smoke-test metadata is reused for device-level validation checks."
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "controller",
+      "order": 1,
+      "level": "controller",
+      "target": "nucleo_f446re_controller",
+      "dependsOn": [],
+      "notes": [
+        "Generic STM32 Nucleo-F446RE controller representation for sample boards"
+      ],
+      "checks": [
+        {
+          "checkId": "controller_identity",
+          "kind": "controller-identity",
+          "description": "Confirm the connected unit reports or probes as the configured controller module and MCU family.",
+          "source": "board.controller",
+          "passCriteria": "The matched unit identity agrees with the configured module or MCU family.",
+          "failureNotes": [],
+          "config": {
+            "moduleId": "nucleo_f446re_controller",
+            "moduleName": "Nucleo-F446RE Controller",
+            "mcuId": "stm32f446",
+            "mcuName": "STM32F446",
+            "sdk": "stm32cube"
+          }
+        },
+        {
+          "checkId": "controller_transport",
+          "kind": "transport-ready",
+          "description": "Confirm the controller transport required for validation is present and usable.",
+          "source": "discovery.transport",
+          "passCriteria": "A transport such as serial, USB-serial/JTAG, or STLink VCP is available for the selected unit.",
+          "failureNotes": [],
+          "config": {}
+        },
+        {
+          "checkId": "controller_peripheral_uart",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared UART capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "uart",
+            "declared": [
+              "USART1",
+              "USART2",
+              "USART3",
+              "UART4",
+              "UART5",
+              "USART6"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_i2c",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared I2C capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "i2c",
+            "declared": [
+              "I2C1",
+              "I2C2",
+              "I2C3"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_spi",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared SPI capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "spi",
+            "declared": [
+              "SPI1",
+              "SPI2",
+              "SPI3",
+              "SPI4",
+              "SPI5"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_adc",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared ADC capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "adc",
+            "declared": [
+              "ADC1",
+              "ADC2",
+              "ADC3"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_pwm",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared PWM capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "pwm",
+            "declared": [
+              "TIM1",
+              "TIM2",
+              "TIM3",
+              "TIM4",
+              "TIM5",
+              "TIM8"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_usb",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared USB capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "usb",
+            "declared": [
+              "USB_OTG_FS"
+            ]
+          }
+        },
+        {
+          "checkId": "controller_peripheral_can",
+          "kind": "controller-peripheral-declared",
+          "description": "Confirm the controller exposes the declared CAN capability needed by the board config.",
+          "source": "mcu.peripherals",
+          "passCriteria": null,
+          "failureNotes": [],
+          "config": {
+            "family": "can",
+            "declared": [
+              "CAN1",
+              "CAN2"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "phaseId": "signal:heartbeat_led",
+      "order": 2,
+      "level": "signal",
+      "target": "heartbeat_led",
+      "dependsOn": [
+        "controller"
+      ],
+      "notes": [],
+      "checks": [
+        {
+          "checkId": "heartbeat_led_access",
+          "kind": "signal-drive",
+          "description": "Confirm signal heartbeat_led can be driven to the configured state for board bring-up.",
+          "source": "board.signals",
+          "passCriteria": "The signal can be driven to the requested board-level state.",
+          "failureNotes": [],
+          "config": {
+            "signal": "heartbeat_led",
+            "controllerSignal": "PA5",
+            "activeLevel": "high",
+            "requestedState": false
+          }
+        }
+      ]
+    },
+    {
+      "phaseId": "signal:fan_enable",
+      "order": 3,
+      "level": "signal",
+      "target": "fan_enable",
+      "dependsOn": [
+        "controller"
+      ],
+      "notes": [],
+      "checks": [
+        {
+          "checkId": "fan_enable_access",
+          "kind": "signal-drive",
+          "description": "Confirm signal fan_enable can be driven to the configured state for board bring-up.",
+          "source": "board.signals",
+          "passCriteria": "The signal can be driven to the requested board-level state.",
+          "failureNotes": [],
+          "config": {
+            "signal": "fan_enable",
+            "controllerSignal": "PB4",
+            "activeLevel": "high",
+            "requestedState": false
+          }
+        }
+      ]
+    }
+  ]
+}

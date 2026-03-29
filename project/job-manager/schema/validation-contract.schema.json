@@ -1,0 +1,71 @@
+{
+  "type": "object",
+  "required": ["contractId", "boardId", "displayName", "revision", "platformSdk", "generatedAt", "strategy", "phases"],
+  "additionalProperties": false,
+  "properties": {
+    "contractId": { "type": "string" },
+    "boardId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "revision": { "type": ["string", "null"] },
+    "platformSdk": { "type": ["string", "null"] },
+    "generatedAt": { "type": "string" },
+    "strategy": {
+      "type": "object",
+      "required": ["order", "dependencySource", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "order": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dependencySource": { "type": "string" },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["phaseId", "order", "level", "target", "dependsOn", "notes", "checks"],
+        "additionalProperties": false,
+        "properties": {
+          "phaseId": { "type": "string" },
+          "order": { "type": "integer", "minimum": 1 },
+          "level": { "type": "string" },
+          "target": { "type": ["string", "null"] },
+          "dependsOn": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "notes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["checkId", "kind", "description", "source", "passCriteria", "failureNotes", "config"],
+              "additionalProperties": false,
+              "properties": {
+                "checkId": { "type": "string" },
+                "kind": { "type": "string" },
+                "description": { "type": "string" },
+                "source": { "type": "string" },
+                "passCriteria": { "type": ["string", "null"] },
+                "failureNotes": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "config": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

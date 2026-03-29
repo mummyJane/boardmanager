@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 22:40 Europe/London
+Last updated: 2026-03-29 22:55 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -69,7 +69,7 @@ Turn the Stage 1 board definitions and Stage 2 unit inventory into operator-faci
 Initial success criteria:
 
 - a selected physical unit can be matched to a board profile and used as the input to Stage 3 jobs
-- board validation walks controller, buses or IP blocks, and attached devices in dependency order
+- board validation walks controller, buses or IP blocks, and attached devices in dependency order`r`n- generated machine-readable validation contracts exist per board and drive the ordered validation phases and checks
 - validation compares observed hardware against configured board expectations and records missing or unexpected items
 - validation reports identity and health facts such as MAC, serial, firmware id, firmware version, build id, voltages, and temperatures where available
 - validation produces a machine-readable report plus a human-readable summary with pass and fail results
@@ -105,6 +105,7 @@ Initial success criteria:
 
 
 - 2026-03-29 21:40 Europe/London: Completed Stage 2 test coverage with a local dependency-free Node assertion runner for discovery matching, history transitions, board-candidate enrichment, and service-data filtering.
+
 
 
 
