@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T16:15:25.285Z",
+  "generatedAt": "2026-03-29T16:36:49.488Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -249,6 +249,93 @@
     {
       "runId": "run:2026-03-29T16:15:25.285Z",
       "generatedAt": "2026-03-29T16:15:25.285Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 4,
+      "familyCount": 3,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 15:44:03",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ]
+    },
+    {
+      "runId": "run:2026-03-29T16:36:49.488Z",
+      "generatedAt": "2026-03-29T16:36:49.488Z",
       "host": {
         "platform": "windows",
         "hostname": "MSI"

@@ -18,6 +18,7 @@ Initialize-BoardManagerProcessEnv -Paths $paths
 
 try {
     Assert-Command node
+    Assert-Command python
     Push-Location $paths.RepoRoot
     try {
         $arguments = @('project/scripts/set-unit-annotation.mjs', '--unit', $Unit)
@@ -31,6 +32,11 @@ try {
         & node @arguments
         if ($LASTEXITCODE -ne 0) {
             throw "Unit annotation update failed with exit code $LASTEXITCODE"
+        }
+
+        & python project/scripts/sync-device-manager-sqlite.py
+        if ($LASTEXITCODE -ne 0) {
+            throw "Device-manager SQLite sync failed with exit code $LASTEXITCODE"
         }
     }
     finally {

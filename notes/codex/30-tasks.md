@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 18:00 Europe/London
+Last updated: 2026-03-29 18:20 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -51,7 +51,7 @@ Last updated: 2026-03-29 18:00 Europe/London
 - [x] Add a simple query CLI for listing units, families, and recent discovery changes
 - [x] Add a diff view between the latest two discovery runs
 - [x] Add exportable JSON reports for the current bench inventory and unit history
-- [ ] Normalize the history store into a simple SQLite database behind the same discovery model
+- [x] Normalize the history store into a simple SQLite database behind the same discovery model
 - [ ] Add schema validation for the new history and profile data files
 - [ ] Add per-unit key manifests linking each stable unit id to an AES key record and an asymmetric keypair record
 - [ ] Add key-generation and rotation tooling under keys/ for per-unit AES keys and asymmetric keypairs
@@ -66,3 +66,4 @@ Last updated: 2026-03-29 18:00 Europe/London
 - [x] Add a first local or remote service endpoint that exposes the shared query contract for web and external systems
 - [ ] Add basic service-layer APIs for querying inventory, history, and profiles
 - [ ] Add tests for discovery matching, history updates, and profile enrichment logic
+

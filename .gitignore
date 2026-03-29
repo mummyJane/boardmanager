@@ -15,3 +15,7 @@ project/build/
 project/apps/*/sdkconfig
 project/apps/*/sdkconfig.old
 
+
+project/device-manager/data/*.sqlite-shm
+project/device-manager/data/*.sqlite-wal
+project/device-manager/data/*.sqlite-journal

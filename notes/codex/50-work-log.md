@@ -824,3 +824,9 @@ Validation:
 - Added report export script project/scripts/export-device-manager-reports.mjs and top-level wrapper .\\export-reports.ps1.
 - Exported reports to project/device-manager/reports/current-bench-report.json, project/device-manager/reports/unit-history-report.json, and project/device-manager/reports/report-manifest.json.
 - Validation: .\\export-reports.ps1 plus direct inspection of the generated report files to confirm host, unit, family, diff, and history content were populated from the persisted Stage 2 data model.
+
+## 2026-03-29 18:20 Europe/London
+- Added normalized SQLite schema at project/device-manager/schema/device-manager.sqlite.sql and sync script at project/scripts/sync-device-manager-sqlite.py.
+- Added top-level sync wrapper .\\sync-device-manager-db.ps1 and automatic SQLite sync hooks in .\\discover.ps1 and .\\annotate-unit.ps1.
+- Persisted normalized SQLite database at project/device-manager/data/device-manager.sqlite from the current Stage 2 JSON sources.
+- Validation: .\\discover.ps1, .\\sync-device-manager-db.ps1, and direct sqlite3 queries through Python confirmed 4 units, 3 families, 5 discovery runs, and current firmware/port rows for the attached bench units.

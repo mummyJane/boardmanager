@@ -9,15 +9,9 @@ Initialize-BoardManagerDirectories -Paths $paths
 Initialize-BoardManagerProcessEnv -Paths $paths
 
 try {
-    Assert-Command node
     Assert-Command python
     Push-Location $paths.RepoRoot
     try {
-        & node project/scripts/discover-units.mjs
-        if ($LASTEXITCODE -ne 0) {
-            throw "Device discovery failed with exit code $LASTEXITCODE"
-        }
-
         & python project/scripts/sync-device-manager-sqlite.py
         if ($LASTEXITCODE -ne 0) {
             throw "Device-manager SQLite sync failed with exit code $LASTEXITCODE"

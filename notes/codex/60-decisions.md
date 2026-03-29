@@ -138,3 +138,6 @@
 - 2026-03-29 17:55 Europe/London: Kept the diff model focused on operator-relevant changes first: unit add/remove, port change, firmware change, family add/remove, and family population change.
 
 - 2026-03-29 18:00 Europe/London: Report export reuses the persisted Stage 2 data and shared query layer rather than maintaining a separate reporting-only model, so exported JSON stays aligned with CLI and service views.
+
+- 2026-03-29 18:20 Europe/London: Kept JSON as the readable persisted discovery contract and synchronized it into SQLite, rather than making SQLite the only write target, so the existing CLI, service, and report paths remain stable while normalized tables become available for later service work.
+- 2026-03-29 18:20 Europe/London: SQLite sync is triggered automatically by discovery and annotation flows so the DB does not drift behind the Stage 2 JSON state.

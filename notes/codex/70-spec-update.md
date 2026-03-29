@@ -116,3 +116,5 @@
 - 2026-03-29 17:55 Europe/London: Stage 2 spec clarified to require a compact discovery-run ledger and a latest-two-run diff view. Reason: the shared query/service layer now needs a stable way for operators, the future web UI, and remote systems to answer 'what changed since the last scan?' without reconstructing it from cumulative history only.
 
 - 2026-03-29 18:00 Europe/London: Stage 2 spec updated to require exportable JSON report files for current bench state and cumulative unit history. Reason: operators and remote systems need a stable handoff artifact even when they are not calling the live service endpoint directly.
+
+- 2026-03-29 18:20 Europe/London: Stage 2 spec updated to require synchronized SQLite persistence behind the existing discovery model. Reason: later service and UI work need normalized table access, but the current JSON contract should remain stable for operators and existing scripts.
