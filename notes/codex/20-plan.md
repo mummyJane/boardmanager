@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 22:25 Europe/London
+Last updated: 2026-03-29 22:40 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -77,7 +77,7 @@ Initial success criteria:
 - run orchestration can capture and return console output from the selected unit
 - programming is tied to the selected physical unit so identical boards can be targeted safely
 - debug orchestration emits reproducible GDB and IDE session metadata
-- job records are exposed in a service-friendly form for later Milestone 4 UI work`r`n- an initial local job store exists for queued or completed validate, build, program, run, and debug actions
+- job records are exposed in a service-friendly form for later Milestone 4 UI work`r`n- an initial local job store exists for queued or completed validate, build, program, run, and debug actions`r`n- job creation resolves board-only, unit-only, and board-plus-unit requests against the current bench inventory instead of storing unresolved operator intent only
 
 ### Milestone 4: Web UI Skeleton
 
@@ -105,6 +105,7 @@ Initial success criteria:
 
 
 - 2026-03-29 21:40 Europe/London: Completed Stage 2 test coverage with a local dependency-free Node assertion runner for discovery matching, history transitions, board-candidate enrichment, and service-data filtering.
+
 
 
 

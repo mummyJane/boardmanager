@@ -21,7 +21,7 @@ Each job currently records:
 - `action`: one of `validate`, `build`, `program`, `run`, or `debug`
 - `status`: one of `queued`, `running`, `succeeded`, `failed`, or `canceled`
 - `request`: requested board id, unit id, target, firmware target, app id, platform, transport, and free-text reason
-- `resolution`: the resolved board, unit, and family when the request is tied back to Stage 1 and Stage 2 data
+- `resolution`: the resolved board, unit, family, profile id, transport details, resolution source, presence state, and candidate boards when the request is tied back to Stage 1 and Stage 2 data
 - `logs`: paths for captured machine or operator logs
 - `artifacts`: paths for output artifacts such as reports, binaries, or debug launch files
 - `result`: final summary, optional report path, exit code, and pass result
@@ -36,5 +36,11 @@ Examples:
 - `./job.ps1 -Command list`
 - `./job.ps1 -Command list -Status queued -Format json`
 - `./job.ps1 -Command update -Job job-000001 -Status running`
+
+Current resolution behavior:
+
+- `-Unit <stableKey>` resolves the selected current unit to its matched board and family when possible
+- `-Board <boardId> -Unit <stableKey>` verifies the unit and board agree before creating the job
+- `-Board <boardId>` resolves to a unit only when exactly one present unit currently matches that board; otherwise job creation fails and the operator must choose the stable unit id explicitly
 
 The first pass is intentionally local and dependency-free. Later Milestone 3 tasks will add report payloads, build logs, run logs, debug metadata, and service APIs on top of this store.

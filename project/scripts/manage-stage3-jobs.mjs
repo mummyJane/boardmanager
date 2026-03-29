@@ -8,6 +8,9 @@ const projectRoot = path.resolve(__dirname, "..");
 const jobManagerRoot = path.join(projectRoot, "job-manager");
 const dataRoot = path.join(jobManagerRoot, "data");
 const storePath = path.join(dataRoot, "jobs.json");
+const deviceManagerRoot = path.join(projectRoot, "device-manager");
+const inventoryPath = path.join(deviceManagerRoot, "data", "inventory.json");
+const historyPath = path.join(deviceManagerRoot, "data", "unit-history.json");
 
 const VALID_ACTIONS = new Set(["validate", "build", "program", "run", "debug"]);
 const VALID_STATUSES = new Set(["queued", "running", "succeeded", "failed", "canceled"]);
@@ -40,6 +43,15 @@ function parseArguments(argv) {
   return { command, options };
 }
 
+async function readJson(filePath, fallback) {
+  try {
+    const raw = await readFile(filePath, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
 async function ensureStore() {
   await mkdir(dataRoot, { recursive: true });
   try {
@@ -59,12 +71,137 @@ async function saveStore(store) {
   await writeFile(storePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
 }
 
-function createJobRecord(store, options) {
+async function loadResolutionSources() {
+  const [inventory, history] = await Promise.all([
+    readJson(inventoryPath, { units: [] }),
+    readJson(historyPath, { units: [] }),
+  ]);
+
+  const inventoryUnits = Array.isArray(inventory.units) ? inventory.units : [];
+  const historyUnits = Array.isArray(history.units) ? history.units : [];
+  return { inventoryUnits, historyUnits };
+}
+
+function findInventoryUnit(inventoryUnits, stableKey) {
+  return inventoryUnits.find((unit) => unit.unitId === stableKey || unit.identity?.stableKey === stableKey) ?? null;
+}
+
+function findHistoryUnit(historyUnits, stableKey) {
+  return historyUnits.find((unit) => unit.stableKey === stableKey || unit.identity?.stableKey === stableKey) ?? null;
+}
+
+function collectBoardIds(inventoryUnit, historyUnit) {
+  const boardIds = new Set();
+  if (inventoryUnit?.match?.boardId) boardIds.add(inventoryUnit.match.boardId);
+  if (inventoryUnit?.manualOverride?.boardId) boardIds.add(inventoryUnit.manualOverride.boardId);
+  for (const boardId of historyUnit?.boardIds ?? []) {
+    if (boardId) boardIds.add(boardId);
+  }
+  return Array.from(boardIds);
+}
+
+function resolveFromUnit(inventoryUnits, historyUnits, unitId, requestedBoardId) {
+  const inventoryUnit = findInventoryUnit(inventoryUnits, unitId);
+  if (!inventoryUnit) {
+    throw new Error(`Unit '${unitId}' was not found in the current inventory.`);
+  }
+
+  const historyUnit = findHistoryUnit(historyUnits, inventoryUnit.identity?.stableKey ?? inventoryUnit.unitId);
+  const candidateBoardIds = collectBoardIds(inventoryUnit, historyUnit);
+  const matchedBoardId = requestedBoardId ?? inventoryUnit.manualOverride?.boardId ?? inventoryUnit.match?.boardId ?? historyUnit?.boardIds?.[0] ?? null;
+
+  if (requestedBoardId && matchedBoardId !== requestedBoardId) {
+    throw new Error(`Unit '${unitId}' does not currently resolve to board '${requestedBoardId}'.`);
+  }
+
+  if (requestedBoardId && candidateBoardIds.length > 0 && !candidateBoardIds.includes(requestedBoardId)) {
+    throw new Error(`Requested board '${requestedBoardId}' conflicts with observed history for unit '${unitId}'. Known boards: ${candidateBoardIds.join(", ")}`);
+  }
+
+  return {
+    matchedBoardId,
+    matchedUnitId: inventoryUnit.identity?.stableKey ?? inventoryUnit.unitId,
+    matchedFamilyKey: historyUnit?.familyKey ?? inventoryUnit.history?.familyKey ?? null,
+    matchedProfileId: historyUnit?.profileId ?? inventoryUnit.history?.profileId ?? null,
+    resolvedTransportKind: inventoryUnit.transport?.kind ?? null,
+    resolvedTransportPort: inventoryUnit.transport?.port ?? null,
+    source: requestedBoardId ? "board+unit" : "unit",
+    present: true,
+    boardCandidates: candidateBoardIds,
+  };
+}
+
+function resolveFromBoardOnly(inventoryUnits, historyUnits, boardId) {
+  const matchingUnits = inventoryUnits.filter((unit) => unit.match?.boardId === boardId || unit.manualOverride?.boardId === boardId);
+
+  if (matchingUnits.length === 0) {
+    return {
+      matchedBoardId: boardId,
+      matchedUnitId: null,
+      matchedFamilyKey: `board:${boardId}`,
+      matchedProfileId: null,
+      resolvedTransportKind: null,
+      resolvedTransportPort: null,
+      source: "board-only",
+      present: false,
+      boardCandidates: [boardId],
+    };
+  }
+
+  if (matchingUnits.length > 1) {
+    const unitIds = matchingUnits.map((unit) => unit.identity?.stableKey ?? unit.unitId);
+    throw new Error(`Board '${boardId}' matches multiple present units: ${unitIds.join(", ")}. Select a stable unit id explicitly.`);
+  }
+
+  const chosenUnit = matchingUnits[0];
+  const stableKey = chosenUnit.identity?.stableKey ?? chosenUnit.unitId;
+  const historyUnit = findHistoryUnit(historyUnits, stableKey);
+  return {
+    matchedBoardId: boardId,
+    matchedUnitId: stableKey,
+    matchedFamilyKey: historyUnit?.familyKey ?? chosenUnit.history?.familyKey ?? `board:${boardId}`,
+    matchedProfileId: historyUnit?.profileId ?? chosenUnit.history?.profileId ?? null,
+    resolvedTransportKind: chosenUnit.transport?.kind ?? null,
+    resolvedTransportPort: chosenUnit.transport?.port ?? null,
+    source: "board-only-single-present-unit",
+    present: true,
+    boardCandidates: [boardId],
+  };
+}
+
+async function resolveRequest(options) {
+  const requestedBoardId = options.board ?? null;
+  const requestedUnitId = options.unit ?? null;
+  const { inventoryUnits, historyUnits } = await loadResolutionSources();
+
+  if (requestedUnitId) {
+    return resolveFromUnit(inventoryUnits, historyUnits, requestedUnitId, requestedBoardId);
+  }
+
+  if (requestedBoardId) {
+    return resolveFromBoardOnly(inventoryUnits, historyUnits, requestedBoardId);
+  }
+
+  return {
+    matchedBoardId: null,
+    matchedUnitId: null,
+    matchedFamilyKey: null,
+    matchedProfileId: null,
+    resolvedTransportKind: null,
+    resolvedTransportPort: null,
+    source: "request-only",
+    present: false,
+    boardCandidates: [],
+  };
+}
+
+async function createJobRecord(store, options) {
   const action = String(options.action ?? "").trim();
   if (!VALID_ACTIONS.has(action)) {
     throw new Error(`Invalid or missing --action. Expected one of: ${Array.from(VALID_ACTIONS).join(", ")}`);
   }
 
+  const resolution = await resolveRequest(options);
   const jobSequence = Number(store.nextJobSequence ?? 1);
   const jobId = `job-${String(jobSequence).padStart(6, "0")}`;
   const createdAt = new Date().toISOString();
@@ -87,11 +224,7 @@ function createJobRecord(store, options) {
       transport: options.transport ?? null,
       reason: options.reason ?? null,
     },
-    resolution: {
-      matchedBoardId: options.board ?? null,
-      matchedUnitId: options.unit ?? null,
-      matchedFamilyKey: null,
-    },
+    resolution,
     logs: [],
     artifacts: [],
     result: {
@@ -136,7 +269,7 @@ function formatTextJobs(jobs) {
   }
 
   return jobs.map((job) => {
-    const target = job.request.unitId ?? job.request.boardId ?? job.request.target ?? "unresolved-target";
+    const target = job.resolution?.matchedUnitId ?? job.resolution?.matchedBoardId ?? job.request.target ?? "unresolved-target";
     return `${job.jobId} ${job.action} ${job.status} ${target}`;
   }).join("\n");
 }
@@ -152,7 +285,7 @@ async function main() {
   const store = await ensureStore();
 
   if (command === "create") {
-    const job = createJobRecord(store, options);
+    const job = await createJobRecord(store, options);
     store.jobs.unshift(job);
     store.nextJobSequence = Number(store.nextJobSequence ?? 1) + 1;
     await saveStore(store);

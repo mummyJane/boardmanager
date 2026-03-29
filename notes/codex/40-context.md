@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 22:25 Europe/London
+Last updated: 2026-03-29 22:40 Europe/London
 
 ## Project Intent
 
@@ -163,3 +163,4 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - Stage 3 should define a protected user-code area and stable board API boundary so generated support code and user firmware can coexist cleanly
 - 2026-03-29 22:25 Europe/London: Stage 3 now has an initial local persisted job store under project/job-manager, with jobs.json, a JSON schema, and a small CLI wrapper at job.ps1 for alidate, uild, program, un, and debug records.
 - 2026-03-29 22:25 Europe/London: Standard validation now includes Stage 3 job-store validation through project/scripts/validate-job-manager-data.mjs.
+- 2026-03-29 22:40 Europe/London: Stage 3 job creation now resolves requests against the current Stage 2 inventory. Unit-only requests inherit the matched board and family, board-plus-unit requests verify agreement, and board-only requests only resolve automatically when exactly one present unit currently matches the board.
