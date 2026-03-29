@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 20:45 Europe/London
+Last updated: 2026-03-29 21:05 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -84,4 +84,7 @@ Initial success criteria:
 - 2026-03-29 20:22 Europe/London: Completed manual override support for pinning units to board or family identities, with clearable persistent overrides merged into discovery and query output.
 
 - 2026-03-29 20:45 Europe/London: Completed draft family reconciliation tooling with a dry-run-first operator flow that can promote a draft profile into a known board profile while preserving merge provenance on the source profile.
+
+
+- 2026-03-29 21:05 Europe/London: Completed retention rules for Stage 2 by capping discovery-run history and rolling observed arrays, with the retention pass wired into discover.ps1 before SQLite sync.
 

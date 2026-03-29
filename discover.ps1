@@ -18,6 +18,11 @@ try {
             throw "Device discovery failed with exit code $LASTEXITCODE"
         }
 
+        & node project/scripts/prune-device-manager-history.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Device-manager retention failed with exit code $LASTEXITCODE"
+        }
+
         & python project/scripts/sync-device-manager-sqlite.py
         if ($LASTEXITCODE -ne 0) {
             throw "Device-manager SQLite sync failed with exit code $LASTEXITCODE"

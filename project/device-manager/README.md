@@ -155,3 +155,10 @@ Example:
 - `reconcile-family.ps1 -Profile <profileId> -Board <boardId> -DryRun` shows which units and family records would move if a draft profile is resolved.
 - `reconcile-family.ps1 -Profile <profileId> -Board <boardId> -Note <text>` promotes a draft or emerging family profile into a known board profile.
 - Reconciliation updates the latest inventory view, current family history, and profile metadata while preserving provenance on the original draft profile through merge metadata.
+
+## Retention
+
+- `retain-history.ps1` applies bounded retention to the Stage 2 history model and then resyncs SQLite.
+- Default caps keep the latest 50 discovery runs, the latest 12 values in rolling observed arrays, the latest 20 raw signature lines, the latest 50 metadata-history entries, and the latest 100 resolved conflicts.
+- `discover.ps1` now runs this retention pass automatically after each discovery update.
+- Use `retain-history.ps1 -DryRun -MaxRuns 5` to preview what would be pruned without mutating the persisted data.

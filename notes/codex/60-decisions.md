@@ -185,3 +185,7 @@
 
 - Add reconciliation as an explicit operator action with dry-run support instead of auto-promoting draft families from weak candidate scores. The COM7 ESP32 board has useful hints, but the exact board identity is still uncertain, so merge decisions must stay reviewable and deliberate.
 - Preserve draft family provenance after reconciliation by marking the source profile and family as merged into a known board profile rather than deleting them. This keeps the discovery history explainable when heuristics improve over time.
+## 2026-03-29 21:05 Europe/London
+
+- Keep retention bounded and local to the Stage 2 history model rather than introducing archival storage yet. The immediate goal is to stop JSON and SQLite growth from becoming unbounded on a long-lived bench, not to design the final archive system.
+- Retention should prune rolling observation arrays and the run ledger, but it should not delete current unit/family records. Current bench identity must remain stable even when older low-level observations are trimmed.

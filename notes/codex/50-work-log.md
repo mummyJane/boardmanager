@@ -1052,3 +1052,33 @@ Validation:
 
 - `node project/scripts/reconcile-family-profile.mjs --profile unknown_10c4_ea60_esp32 --board esp32_dev_relay_v1 --dry-run` -> success; reported the source profile, target board/profile/family, and affected unit `mac:c8:2e:18:f0:47:74` without mutating data.
 - `validate.ps1` -> success; board-definition and device-manager validation passed after the schema and tooling update.
+
+## 2026-03-29 21:05 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/device-manager/data/discovery-runs.json`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `Get-Content project/scripts/sync-device-manager-sqlite.py`
+- `node project/scripts/prune-device-manager-history.mjs --max-runs 5 --dry-run`
+- `discover.ps1`
+- `validate.ps1`
+
+Observed issues:
+
+- The first automatic-hook edit for `discover.ps1` failed because the inline PowerShell replacement string was too escape-heavy; the wrapper was rewritten cleanly instead.
+- The first full `discover.ps1` validation pass exceeded the default command timeout even though the script itself was healthy, so it was rerun with a longer timeout.
+
+Actions:
+
+- Added `project/scripts/prune-device-manager-history.mjs` to enforce bounded retention for the discovery-run ledger, rolling observed arrays, metadata-history entries, and resolved conflicts.
+- Added `retain-history.ps1` as the top-level retention wrapper with adjustable caps and `-DryRun` support.
+- Wired retention into `discover.ps1` so pruning happens automatically after discovery updates the JSON model and before SQLite sync runs.
+- Updated the Stage 2 docs, task tracker, and latest install/update wrappers for the retention release.
+
+Validation:
+
+- `node project/scripts/prune-device-manager-history.mjs --max-runs 5 --dry-run` -> success; reported `prunedRuns: 22` without mutating the persisted data.
+- `discover.ps1` -> success; discovered 5 units, ran the retention pass with default caps, and resynced SQLite.
+- `validate.ps1` -> success; board-definition and device-manager validation passed after the retention changes.

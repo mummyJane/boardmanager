@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T19:19:44.444Z",
+  "generatedAt": "2026-03-29T19:40:21.501Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -126,8 +126,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:19:44.444Z",
-        "seenCount": 37,
+        "lastSeenAt": "2026-03-29T19:40:21.501Z",
+        "seenCount": 38,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -263,8 +263,8 @@
         "familyKey": "board:m5stack_cores3_gnss_v1",
         "profileId": "board_m5stack_cores3_gnss_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:19:44.444Z",
-        "seenCount": 37,
+        "lastSeenAt": "2026-03-29T19:40:21.501Z",
+        "seenCount": 38,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -395,8 +395,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:19:44.444Z",
-        "seenCount": 37,
+        "lastSeenAt": "2026-03-29T19:40:21.501Z",
+        "seenCount": 38,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -519,8 +519,8 @@
         "familyKey": "board:p_nucleo_usb001_f072rb_v1",
         "profileId": "board_p_nucleo_usb001_f072rb_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:19:44.444Z",
-        "seenCount": 34,
+        "lastSeenAt": "2026-03-29T19:40:21.501Z",
+        "seenCount": 35,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -559,7 +559,7 @@
         "mac": "c8:2e:18:f0:47:74",
         "serialNumber": "0001",
         "firmwareSignature": null,
-        "rawSignatureLine": "0 00020000 000e0000\u001b[0m",
+        "rawSignatureLine": "addr=3f400020 size=295d8h (169432) map\u001b[0�ets Jul 29 2019 12:21:46",
         "firmwareLine": null,
         "agentLine": null,
         "firmwareApp": null,
@@ -626,8 +626,8 @@
         "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
         "profileId": "unknown_10c4_ea60_esp32",
         "firstSeenAt": "2026-03-29T17:23:22.319Z",
-        "lastSeenAt": "2026-03-29T19:19:44.444Z",
-        "seenCount": 22,
+        "lastSeenAt": "2026-03-29T19:40:21.501Z",
+        "seenCount": 23,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {

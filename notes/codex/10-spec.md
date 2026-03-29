@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 20:45 Europe/London
+Last updated: 2026-03-29 21:05 Europe/London
 
 ## Goal
 
@@ -98,6 +98,7 @@ Requirements:
 - when multiple identity evidence sources for one observation disagree with prior history, discovery must preserve a conflict record with the competing unit identities and the chosen canonical match instead of silently overwriting history
 - operators must be able to pin a physical unit to a board id or family key through a persistent manual override, and later clear that override without mutating the underlying observed fingerprints
 - operators must be able to reconcile a draft family profile to a known board definition while preserving the original profile as merge provenance instead of silently deleting it
+- Stage 2 must enforce retention caps for run-ledger history and long per-unit observation arrays so the persisted JSON and SQLite stores stay manageable on long-lived benches
 
 ### Stage 3: Build, Program, And Debug
 
@@ -144,4 +145,5 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 

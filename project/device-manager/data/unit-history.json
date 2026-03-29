@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T19:19:44.444Z",
+  "generatedAt": "2026-03-29T19:40:21.501Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -8,12 +8,12 @@
     {
       "stableKey": "mac:48:27:e2:66:b0:04",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 37,
+      "seenCount": 38,
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -58,11 +58,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": null
@@ -153,12 +153,12 @@
     {
       "stableKey": "mac:c0:4e:30:12:b3:e0",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 37,
+      "seenCount": 38,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -203,11 +203,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": null
@@ -298,12 +298,12 @@
     {
       "stableKey": "mac:c0:4e:30:13:2b:68",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 37,
+      "seenCount": 38,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -348,11 +348,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": null
@@ -443,12 +443,12 @@
     {
       "stableKey": "mac:c8:2e:18:f0:47:74",
       "firstSeenAt": "2026-03-29T17:23:22.319Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": "2026-03-29T18:00:14.234Z",
       "present": true,
       "missingCount": 1,
-      "seenCount": 22,
+      "seenCount": 23,
       "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
       "profileId": "unknown_10c4_ea60_esp32",
       "boardIds": [],
@@ -493,11 +493,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": {
@@ -573,6 +573,7 @@
           "OTA app          00 11 002800�ets Jul 29 2019 12:21:46",
           "a_0            OTA app          00 10 ets Jul 29 2019 12:21:46",
           "a_1            OTA ap�ets Jul 29 2019 12:21:46",
+          "addr=3f400020 size=295d8h (169432) map\u001b[0�ets Jul 29 2019 12:21:46",
           "mI (91) boot:  3 at_customize     �ets Jul 29 2019 12:21:46",
           "unknown          40 00 00020000 000e00�ets Jul 29 2019 12:21:46",
           "unknown          40 00 00020000�ets Jul 29 2019 12:21:46",
@@ -583,12 +584,12 @@
     {
       "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": "2026-03-29T16:14:34.394Z",
       "present": true,
       "missingCount": 3,
-      "seenCount": 34,
+      "seenCount": 35,
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -633,11 +634,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": {
@@ -711,13 +712,13 @@
     {
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 37,
+      "seenCount": 38,
       "status": "known-board",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -732,11 +733,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": null
@@ -776,13 +777,13 @@
     {
       "familyKey": "board:m5stack_dial_v1_1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 2,
       "missingUnitCount": 0,
-      "seenCount": 74,
+      "seenCount": 76,
       "status": "known-board",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -798,11 +799,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": null
@@ -837,13 +838,13 @@
     {
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": "2026-03-29T16:14:34.394Z",
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 34,
+      "seenCount": 35,
       "status": "known-board",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -858,11 +859,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": {
@@ -892,13 +893,13 @@
     {
       "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
       "firstSeenAt": "2026-03-29T18:00:14.234Z",
-      "lastSeenAt": "2026-03-29T19:19:44.444Z",
-      "lastPresentAt": "2026-03-29T19:19:44.444Z",
+      "lastSeenAt": "2026-03-29T19:40:21.501Z",
+      "lastPresentAt": "2026-03-29T19:40:21.501Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 9,
+      "seenCount": 10,
       "status": "emerging",
       "profileId": "unknown_10c4_ea60_esp32",
       "boardIds": [],
@@ -911,11 +912,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T19:19:44.444Z",
+          "at": "2026-03-29T19:40:21.501Z",
           "state": "present"
         },
         "lastMissing": null
