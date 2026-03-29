@@ -73,6 +73,7 @@ Initial success criteria:
 - validation compares observed hardware against configured board expectations and records missing or unexpected items
 - validation reports identity and health facts such as MAC, serial, firmware id, firmware version, build id, voltages, and temperatures where available
 - validation produces a machine-readable report plus a human-readable summary with pass and fail results`r`n- the first structured validation report schema now captures identity, summary, health, ordered phases, per-check evidence, and raw capture lines
+- generated validation contracts now reuse machine-readable part validation hooks where shared devices define them, instead of duplicating board-local device probe wording
 - build orchestration is tied to a board profile and firmware target and emits artifacts plus captured build logs
 - run orchestration can capture and return console output from the selected unit
 - programming is tied to the selected physical unit so identical boards can be targeted safely

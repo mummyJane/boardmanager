@@ -4,7 +4,7 @@
   "displayName": "P-NUCLEO-USB001 (Nucleo-F072RB)",
   "revision": "1.0",
   "platformSdk": "stm32cube",
-  "generatedAt": "2026-03-29T20:44:23.676Z",
+  "generatedAt": "2026-03-29T21:20:46.768Z",
   "strategy": {
     "order": [
       "controller",
@@ -16,8 +16,9 @@
     "notes": [
       "Controller checks run before dependent bus, signal, and device checks.",
       "Bus checks establish transport readiness before attached-device probes.",
-      "Part smoke-test metadata is reused for device-level validation checks."
-    ]
+      "Part validation hooks are reused for device-level validation checks when available."
+    ],
+    "reusableValidationParts": []
   },
   "phases": [
     {
@@ -270,6 +271,7 @@
             "instanceId": "usb_pd_controller",
             "partId": "stusb4761",
             "bus": "usbpd_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x28"
             }
@@ -289,6 +291,7 @@
             "instanceId": "usb_pd_controller",
             "partId": "stusb4761",
             "bus": "usbpd_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x28"
             }

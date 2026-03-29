@@ -55,8 +55,8 @@ Each generated contract currently defines:
 - controller checks first
 - bus checks before dependent devices
 - signal checks for board-local drive or read access
-- device checks derived from reusable part smoke-test contracts
-- explicit check metadata, pass criteria, failure notes, and config payloads for later runtime validation and reporting
+- device checks derived from reusable part validation hooks first, then part smoke-test contracts as fallback
+- explicit check metadata, pass criteria, failure notes, hook metadata, and config payloads for later runtime validation and reporting
 
 ## Validation Runs
 

@@ -18,6 +18,26 @@
       "Apply any project-local timezone or wake-alarm defaults after probe success."
     ]
   },
+  "validationHooks": [
+    {
+      "hookId": "i2c_ack",
+      "kind": "device-i2c-ack",
+      "description": "Probe the configured I2C address and confirm an ACK is received.",
+      "passCriteria": "The device acknowledges on the configured I2C address.",
+      "failureNotes": [
+        "A missing ACK usually indicates the bus is not powered or the address is wrong."
+      ]
+    },
+    {
+      "hookId": "rtc_register_read",
+      "kind": "device-register-read",
+      "description": "Read a known RTC register to verify bus-level communication.",
+      "passCriteria": "The RTC returns readable register data over I2C.",
+      "failureNotes": [
+        "Readable but invalid time data should be treated as present but unconfigured."
+      ]
+    }
+  ],
   "smokeTest": {
     "checks": [
       "Probe the configured I2C address and confirm an ACK is received.",

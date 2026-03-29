@@ -4,7 +4,7 @@
   "displayName": "ESP32 Dev Relay V1",
   "revision": "1.0",
   "platformSdk": "esp-idf",
-  "generatedAt": "2026-03-29T20:44:23.651Z",
+  "generatedAt": "2026-03-29T21:20:46.741Z",
   "strategy": {
     "order": [
       "controller",
@@ -16,8 +16,9 @@
     "notes": [
       "Controller checks run before dependent bus, signal, and device checks.",
       "Bus checks establish transport readiness before attached-device probes.",
-      "Part smoke-test metadata is reused for device-level validation checks."
-    ]
+      "Part validation hooks are reused for device-level validation checks when available."
+    ],
+    "reusableValidationParts": []
   },
   "phases": [
     {

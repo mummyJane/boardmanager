@@ -104,7 +104,6 @@ function generateControllerStage(board, modulePart, mcuPart) {
 }
 
 function generateBusStage(bus, order, deviceMap) {
-  const dependencyIds = ["controller"];
   const config = {
     bus: bus.name,
     kind: bus.kind,
@@ -176,7 +175,7 @@ function generateBusStage(bus, order, deviceMap) {
     order,
     level: "bus",
     target: bus.name,
-    dependsOn: dependencyIds,
+    dependsOn: ["controller"],
     notes: (bus.devices ?? []).map((device) => {
       const part = deviceMap.get(device.partId);
       return `${device.instanceId}: ${part?.displayName ?? device.partId}`;
@@ -235,6 +234,52 @@ function findDeviceConfig(board, instanceId) {
   return device ? { bus, device } : null;
 }
 
+function generateValidationHookChecks(step, bus, device, part) {
+  const hooks = Array.isArray(part?.validationHooks) ? part.validationHooks : [];
+  if (hooks.length === 0) {
+    const smokeTest = part?.smokeTest ?? {};
+    return Array.isArray(smokeTest.checks)
+      ? smokeTest.checks.map((text, index) => makeCheck(
+        `${step.instanceId}_smoke_${index + 1}`,
+        "device-smoke-check",
+        text,
+        "part.smokeTest",
+        {
+          passCriteria: smokeTest.passCriteria ?? null,
+          failureNotes: smokeTest.failureNotes ?? [],
+          config: {
+            instanceId: step.instanceId,
+            partId: device.partId,
+            bus: bus.name,
+            busKind: bus.kind,
+            deviceConfig: device.config ?? {},
+          },
+        }
+      ))
+      : [];
+  }
+
+  return hooks.map((hook, index) => makeCheck(
+    `${step.instanceId}_hook_${hook.hookId ?? index + 1}`,
+    hook.kind ?? "device-validation-hook",
+    hook.description ?? `Run validation hook ${hook.hookId ?? index + 1}.`,
+    "part.validationHooks",
+    {
+      passCriteria: hook.passCriteria ?? part?.smokeTest?.passCriteria ?? null,
+      failureNotes: hook.failureNotes ?? part?.smokeTest?.failureNotes ?? [],
+      config: {
+        hookId: hook.hookId ?? null,
+        instanceId: step.instanceId,
+        partId: device.partId,
+        bus: bus.name,
+        busKind: bus.kind,
+        deviceConfig: device.config ?? {},
+        hookConfig: hook.config ?? {},
+      },
+    }
+  ));
+}
+
 function generateDeviceStage(board, step, order, deviceMap) {
   const found = findDeviceConfig(board, step.instanceId);
   if (!found) {
@@ -270,22 +315,7 @@ function generateDeviceStage(board, step, order, deviceMap) {
         },
       }
     ),
-    ...(Array.isArray(smokeTest.checks) ? smokeTest.checks.map((text, index) => makeCheck(
-      `${step.instanceId}_smoke_${index + 1}`,
-      "device-smoke-check",
-      text,
-      "part.smokeTest",
-      {
-        passCriteria: smokeTest.passCriteria ?? null,
-        failureNotes: smokeTest.failureNotes ?? [],
-        config: {
-          instanceId: step.instanceId,
-          partId: device.partId,
-          bus: bus.name,
-          deviceConfig: device.config ?? {},
-        },
-      }
-    )) : []),
+    ...generateValidationHookChecks(step, bus, device, part),
   ];
 
   return {
@@ -306,24 +336,24 @@ async function loadBoards() {
 function generateBoardContract(board, parts) {
   const modulePart = parts.get(board.controller?.moduleId);
   const mcuPart = parts.get(modulePart?.mcuId);
-  const deviceMap = parts;
-
   const phases = [];
-  phases.push(generateControllerStage(board, modulePart, mcuPart));
+  const hookStrategy = Array.from(new Set((board.buses ?? [])
+    .flatMap((bus) => bus.devices ?? [])
+    .map((device) => parts.get(device.partId)?.validationHooks ? device.partId : null)
+    .filter(Boolean)));
 
+  phases.push(generateControllerStage(board, modulePart, mcuPart));
   const orderMap = new Map();
   let nextOrder = 2;
 
   for (const step of board.bootSequence ?? []) {
-    if (step.kind === "module") {
-      continue;
-    }
+    if (step.kind === "module") continue;
 
     if (step.kind === "bus") {
       if (orderMap.has(`bus:${step.bus}`)) continue;
       const bus = (board.buses ?? []).find((entry) => entry.name === step.bus);
       if (!bus) continue;
-      phases.push(generateBusStage(bus, nextOrder, deviceMap));
+      phases.push(generateBusStage(bus, nextOrder, parts));
       orderMap.set(`bus:${step.bus}`, nextOrder);
       nextOrder += 1;
       continue;
@@ -338,7 +368,7 @@ function generateBoardContract(board, parts) {
     }
 
     if (step.kind === "device") {
-      phases.push(generateDeviceStage(board, step, nextOrder, deviceMap));
+      phases.push(generateDeviceStage(board, step, nextOrder, parts));
       nextOrder += 1;
     }
   }
@@ -356,8 +386,9 @@ function generateBoardContract(board, parts) {
       notes: [
         "Controller checks run before dependent bus, signal, and device checks.",
         "Bus checks establish transport readiness before attached-device probes.",
-        "Part smoke-test metadata is reused for device-level validation checks.",
+        "Part validation hooks are reused for device-level validation checks when available.",
       ],
+      reusableValidationParts: hookStrategy,
     },
     phases,
   };

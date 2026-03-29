@@ -19,6 +19,26 @@
       "Configure any board-local interrupt GPIO after successful probe."
     ]
   },
+  "validationHooks": [
+    {
+      "hookId": "i2c_ack",
+      "kind": "device-i2c-ack",
+      "description": "Confirm the controller acknowledges on I2C.",
+      "passCriteria": "The touch controller acknowledges on the configured I2C address.",
+      "failureNotes": [
+        "No I2C response usually indicates a power, reset, or address mismatch."
+      ]
+    },
+    {
+      "hookId": "interrupt_idle_sample",
+      "kind": "device-interrupt-sample",
+      "description": "Sample the interrupt line state without requiring a touch event.",
+      "passCriteria": "The interrupt line can be sampled through the board mapping.",
+      "failureNotes": [
+        "A quiet interrupt line is not a fault by itself."
+      ]
+    }
+  ],
   "smokeTest": {
     "checks": [
       "Confirm the controller acknowledges on I2C.",

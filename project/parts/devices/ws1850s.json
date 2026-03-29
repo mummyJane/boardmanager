@@ -20,6 +20,35 @@
       "Enable board-local interrupt handling only after the device responds."
     ]
   },
+  "validationHooks": [
+    {
+      "hookId": "reset_cycle",
+      "kind": "device-reset-cycle",
+      "description": "Assert and release reset if wired.",
+      "passCriteria": "The reset path can be exercised using the configured board signal.",
+      "failureNotes": [
+        "A bad reset polarity can keep the device permanently offline."
+      ]
+    },
+    {
+      "hookId": "i2c_ack",
+      "kind": "device-i2c-ack",
+      "description": "Probe the configured I2C address.",
+      "passCriteria": "The part responds on its configured I2C address after reset handling.",
+      "failureNotes": [
+        "A bad reset polarity can keep the device permanently offline."
+      ]
+    },
+    {
+      "hookId": "interrupt_idle_sample",
+      "kind": "device-interrupt-sample",
+      "description": "Read the board-mapped interrupt input for a stable idle state.",
+      "passCriteria": "The interrupt signal can be sampled through the board mapping.",
+      "failureNotes": [
+        "Interrupt inactivity alone is not a failure if I2C probe succeeds."
+      ]
+    }
+  ],
   "smokeTest": {
     "checks": [
       "Assert and release reset if wired.",

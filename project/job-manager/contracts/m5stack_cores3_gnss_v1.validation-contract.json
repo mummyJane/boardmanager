@@ -4,7 +4,7 @@
   "displayName": "M5Stack CoreS3 + GNSS Module",
   "revision": "1.0",
   "platformSdk": "esp-idf",
-  "generatedAt": "2026-03-29T20:44:23.658Z",
+  "generatedAt": "2026-03-29T21:20:46.750Z",
   "strategy": {
     "order": [
       "controller",
@@ -16,7 +16,10 @@
     "notes": [
       "Controller checks run before dependent bus, signal, and device checks.",
       "Bus checks establish transport readiness before attached-device probes.",
-      "Part smoke-test metadata is reused for device-level validation checks."
+      "Part validation hooks are reused for device-level validation checks when available."
+    ],
+    "reusableValidationParts": [
+      "bm8563"
     ]
   },
   "phases": [
@@ -272,41 +275,45 @@
           }
         },
         {
-          "checkId": "rtc_smoke_1",
-          "kind": "device-smoke-check",
+          "checkId": "rtc_hook_i2c_ack",
+          "kind": "device-i2c-ack",
           "description": "Probe the configured I2C address and confirm an ACK is received.",
-          "source": "part.smokeTest",
-          "passCriteria": "The device acknowledges on I2C and returns readable register data.",
+          "source": "part.validationHooks",
+          "passCriteria": "The device acknowledges on the configured I2C address.",
           "failureNotes": [
-            "A missing ACK usually indicates the bus is not powered or the address is wrong.",
-            "Readable but invalid time data should be treated as present but unconfigured."
+            "A missing ACK usually indicates the bus is not powered or the address is wrong."
           ],
           "config": {
+            "hookId": "i2c_ack",
             "instanceId": "rtc",
             "partId": "bm8563",
             "bus": "internal_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x51"
-            }
+            },
+            "hookConfig": {}
           }
         },
         {
-          "checkId": "rtc_smoke_2",
-          "kind": "device-smoke-check",
+          "checkId": "rtc_hook_rtc_register_read",
+          "kind": "device-register-read",
           "description": "Read a known RTC register to verify bus-level communication.",
-          "source": "part.smokeTest",
-          "passCriteria": "The device acknowledges on I2C and returns readable register data.",
+          "source": "part.validationHooks",
+          "passCriteria": "The RTC returns readable register data over I2C.",
           "failureNotes": [
-            "A missing ACK usually indicates the bus is not powered or the address is wrong.",
             "Readable but invalid time data should be treated as present but unconfigured."
           ],
           "config": {
+            "hookId": "rtc_register_read",
             "instanceId": "rtc",
             "partId": "bm8563",
             "bus": "internal_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x51"
-            }
+            },
+            "hookConfig": {}
           }
         }
       ]
@@ -358,6 +365,7 @@
             "instanceId": "pmu",
             "partId": "axp2101",
             "bus": "internal_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x34"
             }
@@ -377,6 +385,7 @@
             "instanceId": "pmu",
             "partId": "axp2101",
             "bus": "internal_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x34"
             }
@@ -396,6 +405,7 @@
             "instanceId": "pmu",
             "partId": "axp2101",
             "bus": "internal_i2c",
+            "busKind": "i2c",
             "deviceConfig": {
               "i2cAddress": "0x34"
             }
@@ -491,6 +501,7 @@
             "instanceId": "gnss_module",
             "partId": "m5_module_gnss",
             "bus": "gnss_uart",
+            "busKind": "uart",
             "deviceConfig": {
               "uartBaudRate": 38400,
               "ppsSignal": "gnss_pps",
@@ -512,6 +523,7 @@
             "instanceId": "gnss_module",
             "partId": "m5_module_gnss",
             "bus": "gnss_uart",
+            "busKind": "uart",
             "deviceConfig": {
               "uartBaudRate": 38400,
               "ppsSignal": "gnss_pps",
@@ -533,6 +545,7 @@
             "instanceId": "gnss_module",
             "partId": "m5_module_gnss",
             "bus": "gnss_uart",
+            "busKind": "uart",
             "deviceConfig": {
               "uartBaudRate": 38400,
               "ppsSignal": "gnss_pps",

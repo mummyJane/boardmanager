@@ -1157,4 +1157,23 @@ Validation:
 - 2026-03-29 23:05 Europe/London: Build and validation commands needed escalated execution on Windows because ESP-IDF subprocess spawning and serial capture hit sandbox permission limits. A concurrent build plus program attempt also showed a transient archive-write race, so subsequent hardware validation used sequential build and flash steps.
 - 2026-03-29 23:20 Europe/London: Added `project/job-manager/schema/validation-report.schema.json` and `project/scripts/validate-validation-reports.mjs` for structured Stage 3 report validation.
 - 2026-03-29 23:20 Europe/London: Upgraded `project/scripts/run-stage3-validation.mjs` so validation reports now include identity, summary, health, phases, per-check evidence, and raw capture lines.
-- 2026-03-29 23:20 Europe/London: Regenerated the current Dial validation report in the new format; it still fails the live I2C check, but the richer report now preserves explicit per-check evidence and raw serial capture for follow-up.
+- 2026-03-29 23:20 Europe/London: Regenerated the current Dial validation report in the new format; it still fails the live I2C check, but the richer report now preserves explicit per-check evidence and raw serial capture for follow-up.`r`n`r`n## 2026-03-29 22:19 Europe/London
+Commands run:
+- Get-Content project/job-manager/schema/validation-contract.schema.json
+- Get-Content project/scripts/generate-validation-contracts.mjs
+- Get-Content project/parts/devices/bm8563.json
+- Get-Content project/parts/devices/ft3267.json
+- Get-Content project/parts/devices/ws1850s.json
+- Get-Content project/parts/devices/gc9a01.json
+- generate-validation-contracts.ps1
+- alidate.ps1
+Observed issues:
+- The first reusable-hook pass regenerated all validation-contract files, but schema validation failed because alidation-contract.schema.json did not yet allow the new strategy.reusableValidationParts field.
+Actions:
+- Added reusable alidationHooks metadata to the shared m8563, t3267, ws1850s, and gc9a01 part definitions.
+- Updated project/scripts/generate-validation-contracts.mjs so device-level checks prefer part.validationHooks and only fall back to part.smokeTest.checks when no hooks are defined.
+- Extended project/job-manager/schema/validation-contract.schema.json to accept the generated strategy.reusableValidationParts summary.
+- Updated the parts and job-manager documentation plus the Stage 3 plan, task tracker, context, decisions, and spec-update notes for reusable part-level validation hooks.
+Validation:
+- generate-validation-contracts.ps1 -> success; regenerated 5 board validation-contract files with reusable part-hook-derived device checks.
+- alidate.ps1 -> success; validated board definitions, device-manager data, Stage 3 job data, 5 validation contracts, and 1 validation report.

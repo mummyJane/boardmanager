@@ -120,6 +120,7 @@ Requirements:
 - debug support must capture enough metadata to reproduce the session
 - Stage 3 validation must start from a selected physical unit and its matched board profile from Stage 2
 - board validation must verify the controller first, then controller-owned buses or IP blocks, then configured attached devices in dependency order`r`n- the validation contract should be generated into a machine-readable board-specific plan so later validation runners and reports consume a stable phase and check structure
+- reusable part definitions should be able to contribute machine-readable validation hooks so Stage 3 device checks reuse shared part knowledge before falling back to free-text smoke-test contracts
 - validation must compare observed hardware against the Stage 1 board config and report both missing configured items and unexpected observed items
 - for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config`r`n- validation runners may consume structured serial or board-agent scan output such as `BoardManagerI2CScan:` lines as the first transport for bus-level scan evidence
 - validation should gather self-reported or probed unit facts where available, including chip type, MAC address, serial number, firmware id, firmware version, build id, voltages, temperatures, and similar health or identity data
