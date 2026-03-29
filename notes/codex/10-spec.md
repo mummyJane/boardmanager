@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 19:30 Europe/London
+Last updated: 2026-03-29 19:45 Europe/London
 
 ## Goal
 
@@ -92,6 +92,7 @@ Requirements:
 - STM32-family discovery must use registry-backed USB identity fields such as VID/PID, manufacturer, service, and stable USB-instance or base-serial evidence instead of relying only on STLink transport naming
 - discovery should probe known USB-to-UART bridge families for non-destructive MCU identity where possible so unresolved ESP-class boards can be promoted from generic bridge records to chip-aware draft profiles
 - discovery should preserve boot ROM, bootloader, and module-identification banners for unresolved units when those can be observed safely over the target serial link
+- discovery should preserve host-observed USB topology summaries when Windows exposes stable port or path information, so later UI and operator tooling can distinguish where a unit is physically connected
 
 ### Stage 3: Build, Program, And Debug
 

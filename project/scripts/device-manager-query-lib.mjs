@@ -82,6 +82,11 @@ function parseCapabilitySet(value) {
 
   return String(value).split(",").map((entry) => entry.trim()).filter(Boolean);
 }
+
+function pickPreferredUsbTopologyPath(values) {
+  const items = Array.isArray(values) ? values.filter(Boolean) : [];
+  return items.find((entry) => String(entry).includes('/')) ?? latestArrayValue(items);
+}
 function mapUnit(unit) {
   return {
     stableKey: unit.stableKey,
@@ -101,6 +106,7 @@ function mapUnit(unit) {
     usbManufacturer: latestArrayValue(unit.observed?.usbManufacturers) ?? null,
     usbServices: Array.isArray(unit.observed?.usbServices) ? unit.observed.usbServices : [],
     usbBaseSerialNumber: latestArrayValue(unit.observed?.usbBaseSerialNumbers) ?? null,
+    usbTopologyPath: pickPreferredUsbTopologyPath(unit.observed?.usbTopologyPaths) ?? null,
     usbLocationInformation: latestArrayValue(unit.observed?.usbLocationInformation) ?? null,
     usbFunctionNames: Array.isArray(unit.observed?.usbFunctionNames) ? unit.observed.usbFunctionNames : [],
     owner: unit.annotation?.owner ?? null,

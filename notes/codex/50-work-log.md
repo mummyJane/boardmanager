@@ -936,3 +936,32 @@ Validation:
 - passive serial capture on `COM7` at `115200` -> success; captured ESP32 ROM and bootloader output including `ESP-IDF qa-test-v4.3.3-20220423`, `module_name:WROOM-32`, and a 4MB OTA partition table
 - `esptool.py --chip auto -p COM7 read_mac` -> success; confirmed `ESP32-D0WD-V3 (revision v3.1)` and MAC `c8:2e:18:f0:47:74`
 - `esptool.py --chip auto -p COM7 flash_id` -> success; confirmed detected flash size `4MB`, 40MHz crystal, and ESP32 feature set `WiFi, BT, Dual Core, 240MHz`
+
+## 2026-03-29 19:45 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `query.ps1 -View units -Format json`
+- `discover.ps1`
+- `validate.ps1`
+
+Observed issues:
+
+- the first topology regex only accepted four-digit path segments, but Windows location strings on this host mix three-digit and four-digit segments such as `005` and `0014`
+- the first query exposure for topology was reading an older discovery snapshot because query was run in parallel with discovery
+- the first topology-path selection in the query layer preferred the lexicographically last stored path, which returned older raw strings instead of the parsed slash-separated summaries
+
+Actions:
+
+- added `parseUsbTopology()` in `project/scripts/discover-units.mjs` to turn Windows USB location information into structured `path-segments`, `hub-port`, or `raw` topology summaries
+- persisted topology summaries under each observed USB descriptor and rolled compact topology-path arrays into cumulative unit history
+- exposed `usbTopologyPath` in `project/scripts/device-manager-query-lib.mjs` for operators, later service consumers, and the future web UI
+- relaxed the Windows path parser to accept three-digit or four-digit segments and updated query selection to prefer parsed slash-separated topology paths
+
+Validation:
+
+- `discover.ps1` -> success; persisted refreshed inventory, history, discovery runs, and SQLite with topology summaries for the five present units
+- `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 5 profile files
+- `query.ps1 -View units -Format json` -> success; current topology summaries show `COM3 -> 0014/005/001/000/000/000/000`, `COM4 -> 0014/005/003/000/000/000/000`, `COM5 -> 0014/005/002/000/000/000/000`, `COM6 -> 0014/005/004/002/000/000/000`, and `COM7 -> hub-8/port-3`

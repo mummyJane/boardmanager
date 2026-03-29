@@ -64,6 +64,45 @@ function normalizeStringList(values) {
   return values.map((entry) => String(entry)).filter(Boolean);
 }
 
+function parseUsbTopology(locationInformation) {
+  const raw = String(locationInformation ?? '').trim();
+  if (!raw) {
+    return null;
+  }
+
+  const hubMatch = raw.match(/^Port_#(\d+)\.Hub_#(\d+)$/i);
+  if (hubMatch) {
+    const port = Number.parseInt(hubMatch[1], 10);
+    const hub = Number.parseInt(hubMatch[2], 10);
+    return {
+      kind: 'hub-port',
+      raw,
+      hub,
+      port,
+      path: `hub-${hub}/port-${port}`,
+    };
+  }
+
+  if (/^\d{3,4}(?:\.\d{3,4})+$/.test(raw)) {
+    const segments = raw.split('.');
+    const nonZeroSegments = segments.filter((segment) => segment !== '0000');
+    return {
+      kind: 'path-segments',
+      raw,
+      segments,
+      nonZeroSegments,
+      depth: segments.length,
+      path: nonZeroSegments.length > 0 ? nonZeroSegments.join('/') : raw,
+    };
+  }
+
+  return {
+    kind: 'raw',
+    raw,
+    path: raw,
+  };
+}
+
 function parseFirmwareIdentity(rawLine) {
   const text = String(rawLine ?? "");
   const match = text.match(/BoardManagerFirmware:\s+app=(\S+)\s+version=(\S+)\s+build=(.+?)\s+board=(\S+)$/);
@@ -234,6 +273,7 @@ function summarizeRunUnit(unit) {
     usbManufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
     usbService: unit.observed.usbDescriptor?.service ?? null,
     usbBaseSerialNumber: unit.observed.usbDescriptor?.baseSerialNumber ?? null,
+    usbTopologyPath: unit.observed.usbDescriptor?.topology?.path ?? null,
     agentLine: unit.observed.agentLine ?? null,
     label: unit.annotation.label ?? null,
   };
@@ -356,6 +396,7 @@ async function readUsbRegistryDescriptor(pnpDeviceId) {
       manufacturer: parseRegistryLabel(entry.manufacturer),
       service: entry.service ?? null,
       locationInformation: entry.locationInformation ?? null,
+      topology: parseUsbTopology(entry.locationInformation),
       hardwareIds: normalizeStringList(entry.hardwareIds),
       compatibleIds: normalizeStringList(entry.compatibleIds),
     }));
@@ -367,6 +408,7 @@ async function readUsbRegistryDescriptor(pnpDeviceId) {
       manufacturer: parseRegistryLabel(parsed.manufacturer),
       service: parsed.service ?? null,
       locationInformation: parsed.locationInformation ?? null,
+      topology: parseUsbTopology(parsed.locationInformation),
       containerId: parsed.containerId ?? null,
       hardwareIds: normalizeStringList(parsed.hardwareIds),
       compatibleIds: normalizeStringList(parsed.compatibleIds),
@@ -920,6 +962,8 @@ function mergeObservedHistory(existing, unit) {
     usbLocationInformation: uniqueSorted([...(existing?.usbLocationInformation ?? []), unit.observed.usbDescriptor?.locationInformation]),
     usbBaseIdentities: uniqueSorted([...(existing?.usbBaseIdentities ?? []), unit.observed.usbDescriptor?.basePnpDeviceId]),
     usbBaseSerialNumbers: uniqueSorted([...(existing?.usbBaseSerialNumbers ?? []), unit.observed.usbDescriptor?.baseSerialNumber]),
+    usbTopologyPaths: uniqueSorted([...(existing?.usbTopologyPaths ?? []), unit.observed.usbDescriptor?.topology?.path]),
+    usbTopologyKinds: uniqueSorted([...(existing?.usbTopologyKinds ?? []), unit.observed.usbDescriptor?.topology?.kind]),
     usbFunctionNames: uniqueSorted([...(existing?.usbFunctionNames ?? []), ...(unit.observed.usbDescriptor?.relatedFunctionNames ?? [])]),
     rawSignatureLines: uniqueSorted([...(existing?.rawSignatureLines ?? []), unit.observed.rawSignatureLine]),
   };

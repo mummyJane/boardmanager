@@ -127,3 +127,5 @@
 
 - 2026-03-29 19:30 Europe/London: Stage 2 spec updated to require registry-backed STM32-family identification fields such as USB VID/PID, manufacturer, service, and stable USB-instance evidence instead of transport-name-only matching. Reason: the attached Nucleo board is now better identified by its USB identity than by its friendly name alone.
 - 2026-03-29 19:30 Europe/London: Stage 2 spec updated to allow non-destructive probing of known USB-to-UART bridges for MCU identity and boot banners. Reason: the newly attached COM7 board would otherwise remain a generic CP210x bridge, but safe probing exposed that it is an ESP32/WROOM-32-class board with a stable MAC and useful boot metadata.
+
+- 2026-03-29 19:45 Europe/London: Stage 2 spec updated to require host-observed USB topology summaries when Windows exposes stable location information. Reason: the project now has multiple live units on the same bench, and later UI or operator workflows benefit from knowing where a unit is connected without relying only on COM-port names.

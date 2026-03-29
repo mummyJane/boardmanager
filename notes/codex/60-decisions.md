@@ -162,3 +162,9 @@
 - Treat registry-backed USB identity as the first stronger STM32-family match layer, even before the composite sibling-function walk is perfect. For the attached Nucleo, `VID_0483`, `PID_374B`, `manufacturer=STMicroelectronics`, and `service=usbser` are already materially stronger than transport-name-only matching.
 - Probe known USB-to-UART bridge families non-destructively for MCU identity when the bench hardware suggests an ESP-class target. For now the discovery path promotes CP210x-backed units through esptool and passive serial capture instead of leaving them as anonymous bridge-only cards.
 - Prefer promoting an unresolved unit to a MAC-based identity as soon as chip evidence is available, even if that temporarily leaves an older transport-only record in history. Keeping the stronger identity now is better than holding the weaker one; a later reconciliation task can merge superseded records cleanly.
+
+## 2026-03-29 19:45 Europe/London
+
+- Keep USB topology metadata host-derived and descriptive rather than pretending it is a portable physical truth. Windows location strings are still useful for bench workflows even if they are platform-specific.
+- Parse Windows USB location information into a small normalized summary with `kind`, `raw`, and `path` fields. This is enough for operators and later UI work without locking the project into a more detailed topology model than the host can prove.
+- Prefer parsed slash-separated topology summaries over raw location strings in operator-facing query output. The raw string still belongs in history, but the parsed path is easier to compare across units on the bench.

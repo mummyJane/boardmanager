@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 19:30 Europe/London
+Last updated: 2026-03-29 19:45 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -56,6 +56,7 @@ Initial success criteria:
 - STM32-family matching uses registry-backed USB identity fields instead of only STLink transport naming
 - known USB-to-UART bridges can be probed non-destructively for MCU identity so unknown ESP-class boards can be promoted to MAC-based units and richer draft profiles
 - the current unknown COM7 board is promoted from a generic CP210x bridge record to an ESP32-based draft family with captured MAC, chip, flash size, and boot-banner evidence
+- discovery now records parsed USB topology summaries from Windows location information, including path-style summaries for the native USB boards and hub/port summaries for bridged boards such as COM7
 
 ## Future Milestones
 
