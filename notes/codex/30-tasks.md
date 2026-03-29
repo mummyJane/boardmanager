@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-28 20:22 Europe/London
+Last updated: 2026-03-29 09:19 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -22,7 +22,7 @@ Last updated: 2026-03-28 20:22 Europe/London
 - [x] Expand generic sample boards into reusable-part-based assemblies
 - [x] Add concrete `esp-idf` and `stm32cube` implementations behind the generated boot stubs
 - [x] Add automated STM32Cube local installation and a STM32 build test
-- [ ] Validate programming flow against multiple connected units
+- [x] Validate programming flow against multiple connected units
 - [x] Validate programming flow against a connected ESP32 unit on COM3
 - [ ] Add reusable part-level init, smoke-test, and API contracts for shared devices such as `bm8563`, `ft3267`, `ws1850s`, and `gc9a01`
 - [ ] Add per-part help/man pages with datasheet, website, and API usage references for the future web interface

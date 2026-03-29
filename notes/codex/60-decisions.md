@@ -54,6 +54,10 @@
 
 ## 2026-03-28 20:18 Europe/London
 
-- Move init/setup smoke tests and high-level API ownership down to reusable parts such as m8563, instead of treating them as primarily board-level behaviors.
+- Move init/setup smoke tests and high-level API ownership down to reusable parts such as `bm8563`, instead of treating them as primarily board-level behaviors.
 - Add a local per-part help/man page convention now, so the later web interface has a stable source for datasheet links, vendor pages, and API usage guidance.
 
+## 2026-03-29 09:19 Europe/London
+
+- Use the target port plus hardware fingerprint data such as USB instance path, chip MAC, and observed boot log signature as the first Stage 2 identity record for connected ESP32-family units.
+- Treat a successful targeted flash followed by unit-specific serial output on the same port as the minimum validation for multi-unit programming correctness.

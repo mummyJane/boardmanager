@@ -47,6 +47,9 @@
 
 ## 2026-03-28 20:18 Europe/London
 
-- Clarified that reusable parts, not boards, own init/setup contracts, smoke-test meaning, and reusable high-level API shape. This change is needed because shared devices such as m8563 should behave consistently across boards, with boards only supplying binding and local configuration.
+- Clarified that reusable parts, not boards, own init/setup contracts, smoke-test meaning, and reusable high-level API shape. This change is needed because shared devices such as `bm8563` should behave consistently across boards, with boards only supplying binding and local configuration.
 - Added a requirement for per-part help/man pages suitable for the future web interface. This change is needed so each unit/part can expose its datasheet, website, and API usage documentation from a stable local source.
 
+## 2026-03-29 09:19 Europe/London
+
+- Clarified that Stage 2 USB discovery should preserve port target, chip MAC, USB instance identity, and any observed current-firmware signature for each connected unit. This change is needed because multiple ESP32-family units can share the same vendor and product IDs, so reliable selection and history need stronger identity evidence than VID/PID alone.

@@ -333,3 +333,39 @@ Actions:
 - added a first per-part help/man page for m8563 with datasheet, website, and API-usage guidance
 - added future task-tracker items for reusable part-level APIs/smoke tests and for per-part help/man page coverage
 
+
+## 2026-03-29 09:19 Europe/London
+
+Commands run:
+
+- `git status --short --branch`
+- `Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID`
+- local ESP-IDF Python `esptool.py --chip esp32s3 -p COM4 read_mac`
+- local ESP-IDF Python `esptool.py --chip esp32s3 -p COM5 read_mac`
+- serial capture from `COM5` before reflashing using the local ESP-IDF Python environment
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM5`
+- serial reset-and-capture from `COM5` after reflashing using the local ESP-IDF Python environment
+
+Observed issues:
+
+- all connected ESP32-S3 units currently enumerate under the same Espressif USB VID/PID, so port selection cannot rely on VID/PID alone
+- `COM4` has only been fingerprinted by MAC and ROM boot output so far; no app-level self-identification has been captured yet
+- the pre-flash `COM5` factory image and the existing `COM3` smoke-test image show different peripheral behavior, which will matter when the reusable part-level smoke-test work starts
+
+Actions:
+
+- enumerated `COM3`, `COM4`, and `COM5` together to establish the current multi-unit USB state
+- captured MAC `48:27:e2:66:b0:04` from `COM4` and MAC `c0:4e:30:12:b3:e0` from `COM5`
+- captured a factory-test boot log from `COM5` showing project `stamp_ring_factory_test`, encoder init, and live I2C addresses `0x28`, `0x38`, and `0x51`
+- flashed only `COM5` with the Board Manager `m5stack_dial_demo` image while other units remained connected
+- captured post-flash serial output from `COM5` showing the Board Manager live input stream on the same port
+- updated task, context, decision, and release-wrapper docs for the multi-unit programming milestone
+
+Validation:
+
+- `Get-CimInstance Win32_SerialPort ...` -> success; `COM3`, `COM4`, and `COM5` all present concurrently with distinct USB instance paths
+- `esptool.py --chip esp32s3 -p COM4 read_mac` -> success; MAC `48:27:e2:66:b0:04`
+- `esptool.py --chip esp32s3 -p COM5 read_mac` -> success; MAC `c0:4e:30:12:b3:e0`
+- pre-flash serial capture on `COM5` -> success; observed factory image `stamp_ring_factory_test` plus I2C activity at `0x28`, `0x38`, and `0x51`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM5` -> success; targeted flash completed with `COM3`, `COM4`, and `COM5` connected
+- post-flash serial capture on `COM5` -> success; observed repeated `Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1` from the Board Manager app on the same port

@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-28 20:22 Europe/London
+Last updated: 2026-03-29 09:19 Europe/London
 
 ## Project Intent
 
@@ -39,6 +39,7 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - reusable parts capture shared metadata for ESP32-S3, ESP32-S3FN8, M5StampS3, BM8563, WS1850S, FT3267, and GC9A01
 - ESP32-family boards are currently mapped to `esp-idf`; STM32-family boards are currently mapped to `stm32cube`
 - programming flow validated against a connected ESP32-S3 device on `COM3`; esptool identified it as an ESP32-S3 with embedded 8MB flash over USB-Serial/JTAG
+- programming flow is now also validated with multiple connected units present by targeting only `COM5` while `COM3`, `COM4`, and `COM5` were all enumerated at once
 - definition validation now checks reusable parts, board assemblies, boot-sequence references, bus/device signal links, and project-level overrides before build or flash
 - the legacy flat sample boards have been converted to reusable-part board assemblies, so all current boards now flow through the same controller/package/module schema and boot-sequence generation path
 - generated board APIs now delegate to concrete platform hook implementations instead of leaving boot and IO control in generated TODO stubs
@@ -48,5 +49,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - a host-side STM32 CMake build now passes for `stm32_nucleo_io_demo` without requiring connected hardware
 - the current M5Stack Dial smoke-test app performs non-fatal presence checks for the RTC, touch controller, RFID device, display command path, buzzer, backlight, and live input signals
 - the latest smoke-test run on the physical Dial over `COM3` reported `PASS` for controller GPIO, internal I2C setup, display SPI, and display command path, while RTC, touch, and RFID probes timed out on I2C and need follow-up
+- a second physical Dial on `COM5` was fingerprinted as MAC `c0:4e:30:12:b3:e0`; before reflashing it reported a factory test image named `stamp_ring_factory_test` with I2C devices visible at `0x28`, `0x38`, and `0x51`
+- a second ESP32-S3 unit on `COM4` was fingerprinted as MAC `48:27:e2:66:b0:04`; the user identifies it as an M5Stack CoreS3 with battery and GNSS module, but only ROM boot output has been captured so far from software
+- after a targeted flash to `COM5`, the same port reported the Board Manager smoke-test live input stream, confirming the flash path can select one unit without disturbing the others
 - part ownership has been clarified: reusable parts should own init/setup, smoke-test behavior, and high-level API shape, while boards only bind those parts into concrete hardware
 - a per-part help/man page convention now exists under `project/help/parts`, with `bm8563` added as the first example including datasheet, website, and API usage guidance
