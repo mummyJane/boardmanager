@@ -1,9 +1,10 @@
-import { mkdir, readFile, writeFile, access } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
+import { loadBoardCatalog, deriveBoardCandidates, buildExactBoard } from "./discovery-board-catalog.mjs";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -474,7 +475,7 @@ function mergeObservedHistory(existing, unit) {
   };
 }
 
-async function ensureProfileFile(familyRecord, timestamp, isNewProfile) {
+async function ensureProfileFile(familyRecord, timestamp, isNewProfile, boardCatalog) {
   await mkdir(profilesRoot, { recursive: true });
   const profilePath = path.join(profilesRoot, `${familyRecord.profileId}.json`);
   let profile = null;
@@ -500,10 +501,15 @@ async function ensureProfileFile(familyRecord, timestamp, isNewProfile) {
     };
   }
 
+  const exactBoard = familyRecord.boardIds.length === 1 ? buildExactBoard(familyRecord.boardIds[0], boardCatalog) : null;
+  const candidateBoards = deriveBoardCandidates(familyRecord.fingerprint, familyRecord.boardIds, boardCatalog);
+
   profile.updatedAt = timestamp;
   profile.boardIds = uniqueSorted([...(profile.boardIds ?? []), ...(familyRecord.boardIds ?? [])]);
   profile.sampleUnitIds = uniqueSorted([...(profile.sampleUnitIds ?? []), ...(familyRecord.sampleUnitIds ?? [])]);
   profile.fingerprint = familyRecord.fingerprint;
+  profile.exactBoard = exactBoard;
+  profile.candidateBoards = candidateBoards;
   if (isNewProfile && !(profile.notes ?? []).includes("Review this profile and replace generic fingerprint data with a proper board definition match when known.")) {
     profile.notes = [
       ...(profile.notes ?? []),
@@ -514,7 +520,7 @@ async function ensureProfileFile(familyRecord, timestamp, isNewProfile) {
   await writeFile(profilePath, `${JSON.stringify(profile, null, 2)}\n`, "utf8");
 }
 
-async function updateHistory(state, unit, familyFingerprint, timestamp) {
+async function updateHistory(state, unit, familyFingerprint, timestamp, boardCatalog) {
   const units = Array.isArray(state.units) ? state.units : [];
   const families = Array.isArray(state.families) ? state.families : [];
   const unitIndex = units.findIndex((entry) => entry.stableKey === unit.identity.stableKey);
@@ -566,7 +572,7 @@ async function updateHistory(state, unit, familyFingerprint, timestamp) {
   state.units = units.sort((left, right) => String(left.stableKey).localeCompare(String(right.stableKey)));
   state.families = families.sort((left, right) => String(left.familyKey).localeCompare(String(right.familyKey)));
 
-  await ensureProfileFile(nextFamily, timestamp, !existingFamily);
+  await ensureProfileFile(nextFamily, timestamp, !existingFamily, boardCatalog);
 
   unit.history = {
     status: unit.history.status,
@@ -581,6 +587,7 @@ async function updateHistory(state, unit, familyFingerprint, timestamp) {
 
 async function main() {
   const ports = await readPorts();
+  const boardCatalog = await loadBoardCatalog(projectRoot);
   const historyState = await readJsonOrDefault(unitHistoryPath, {
     generatedAt: null,
     host: { platform: "windows", hostname: null },
@@ -595,7 +602,7 @@ async function main() {
     const unitIndex = buildIdentityIndex(historyState.units ?? []);
     const familyIndex = buildFamilyIndex(historyState.families ?? []);
     const { unit, familyFingerprint } = await observePort(portInfo, unitIndex, familyIndex);
-    await updateHistory(historyState, unit, familyFingerprint, timestamp);
+    await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog);
     units.push(unit);
   }
 
@@ -631,3 +638,5 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+

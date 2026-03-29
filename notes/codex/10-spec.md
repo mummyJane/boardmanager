@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 14:45 Europe/London
+Last updated: 2026-03-29 15:05 Europe/London
 
 ## Goal
 
@@ -66,6 +66,7 @@ Requirements:
 - discovery must preserve cumulative per-unit history with first-seen, last-seen, seen-count, prior aliases, and observed firmware or hardware fingerprints
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
+- family profiles should be enriched from the Stage 1 board catalog with exact board metadata where known and likely board candidates where the family is still being resolved
 
 ### Stage 3: Build, Program, And Debug
 

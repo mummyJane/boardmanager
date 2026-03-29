@@ -92,3 +92,9 @@
 - Prefer a board-family key such as `board:<boardId>` when a heuristic match exists, and only fall back to generic hardware fingerprints for unknown families. This keeps profile growth aligned with the Stage 1 board model instead of fragmenting known boards into too many profiles.
 - Treat the first history-building pass as valid even when it labels the first members of a family as `new-family`; the next pass is the expected proof that stable known-unit recognition works.
 
+
+## 2026-03-29 15:05 Europe/London
+
+- Keep board-catalog enrichment in a small helper module instead of embedding more board-definition logic directly into the discovery script. This keeps the discovery flow readable while still letting profiles reuse Stage 1 metadata.
+- Enrich family profiles with both an exact board summary and scored candidate boards. Exact metadata helps when the family is already known, while candidate ranking gives the operator a practical starting point for genuinely new or unresolved card families.
+

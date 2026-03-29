@@ -79,3 +79,8 @@
 
 - Expanded Stage 2 to require cumulative unit history, family-level fallback matching, and draft-profile creation for genuinely new card families. This change is needed because the system must distinguish between the same physical board, another board of a known type, and an entirely new card appearing on the bench.
 
+
+## 2026-03-29 15:05 Europe/London
+
+- Extended Stage 2 family profiles to include exact board metadata and likely board candidates from the Stage 1 catalog. This change is needed because a raw hardware fingerprint alone is not enough to help the operator decide which known board definition best fits a newly observed card family.
+

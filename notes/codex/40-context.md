@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 14:45 Europe/London
+Last updated: 2026-03-29 15:05 Europe/London
 
 ## Project Intent
 
@@ -76,4 +76,9 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the first history-populating discovery pass classified COM3, COM4, and COM6 as new-family and COM5 as known-family because the Dial family had already been seen earlier in the same run
 - the second discovery pass classified all four currently attached units as known-unit using stable identity keys from history
 - the history layer now records first seen, last seen, seen count, family key, aliases, and accumulated observed signatures per physical unit
+
+
+
+- family profiles are now enriched from the Stage 1 board catalog with exact board metadata for known families and scored candidate boards for unresolved families
+- the current Dial, CoreS3+GNSS, and P-NUCLEO profile files now include vendor, revision, product SKU, chip family, SDK, capabilities, source links, and ranked candidate board matches
 

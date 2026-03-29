@@ -554,3 +554,42 @@ Validation:
 - second `discover.ps1` rerun -> success; classified `COM3`, `COM4`, `COM5`, and `COM6` as `known-unit` from stable identity history
 - generated profile files exist for the currently observed families: `board_m5stack_dial_v1_1.json`, `board_m5stack_cores3_gnss_v1.json`, and `board_p_nucleo_usb001_f072rb_v1.json`
 
+
+## 2026-03-29 15:05 Europe/London
+
+Commands run:
+
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-ChildItem project/boards | Select-Object Name`
+- `Get-Content project/boards/m5stack_dial_v1_1.json`
+- `Get-Content project/boards/m5stack_cores3_gnss_v1.json`
+- `Get-Content project/boards/p_nucleo_usb001_f072rb_v1.json`
+- added `project/scripts/discovery-board-catalog.mjs`
+- updated `project/scripts/discover-units.mjs`, `project/device-manager/schema/family-profile.schema.json`, and `project/device-manager/README.md`
+- `discover.ps1`
+- fixed a literal escape-sequence formatting mistake in `project/scripts/discover-units.mjs`
+- repeated `discover.ps1` after the fix
+- `Get-Content project/device-manager/profiles/board_m5stack_dial_v1_1.json`
+- `Get-Content project/device-manager/profiles/board_m5stack_cores3_gnss_v1.json`
+- `Get-Content project/device-manager/profiles/board_p_nucleo_usb001_f072rb_v1.json`
+- `validate.ps1`
+
+Observed issues:
+
+- the first attempt to rerun discovery failed because a PowerShell text replacement inserted a literal `` `r`n `` into the import section of `project/scripts/discover-units.mjs`
+- the existing family profile format only stored raw fingerprints, which was not enough to help an operator decide which known board definition a new family most likely belongs to
+
+Actions:
+
+- added a small board-catalog helper that loads Stage 1 board, module, and MCU metadata and derives board summaries
+- enriched family profiles with exact board details when discovery already knows the board id
+- added scored candidate board matches so unresolved or future new-family profiles can point to likely existing board definitions
+- updated the family-profile schema and device-manager README to document the richer profile structure
+
+Validation:
+
+- first `discover.ps1` rerun -> failed as expected on a literal escape-sequence artifact in the generated import line
+- second `discover.ps1` rerun after the fix -> success; all four attached units still resolved as `known-unit`
+- regenerated profile files now include exact board metadata and candidate board matches for the current Dial, CoreS3+GNSS, and P-NUCLEO families
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+

@@ -21,7 +21,7 @@ This folder now contains the first Milestone 2 discovery slice.
 - `schema/family-profile.schema.json`: JSON schema for generated family profile stubs
 - `data/inventory.json`: latest local discovery snapshot
 - `data/unit-history.json`: cumulative unit and family history
-- `profiles/*.json`: draft or known family profile files
+- `profiles/*.json`: draft or known family profile files enriched with likely Stage 1 board candidates
 
 The first pass is intentionally local and Windows-focused. It is designed to give the future service and database layers a stable observation format before introducing a daemon or web API.
 
@@ -47,3 +47,4 @@ When a unit is discovered, the manager should classify it in this order:
 3. new family: neither the unit nor its card family has been seen before, so the system starts a draft family profile
 
 This lets discovery distinguish between "the same board again", "another board of a known type", and "something genuinely new on the bench".
+

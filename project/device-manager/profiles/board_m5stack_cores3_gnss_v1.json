@@ -3,7 +3,7 @@
   "familyKey": "board:m5stack_cores3_gnss_v1",
   "status": "known-family",
   "createdAt": "2026-03-29T13:41:50.532Z",
-  "updatedAt": "2026-03-29T13:42:27.289Z",
+  "updatedAt": "2026-03-29T14:01:43.006Z",
   "boardIds": [
     "m5stack_cores3_gnss_v1"
   ],
@@ -23,5 +23,117 @@
   "notes": [
     "Discovery created this family profile from known board observations.",
     "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+  ],
+  "exactBoard": {
+    "boardId": "m5stack_cores3_gnss_v1",
+    "displayName": "M5Stack CoreS3 + GNSS Module",
+    "revision": "1.0",
+    "vendor": "M5Stack",
+    "productSku": "K128+M135",
+    "controllerModuleId": "m5stack_cores3_controller",
+    "chipFamily": "esp32-s3",
+    "platformSdk": "esp-idf",
+    "capabilities": [
+      "audio",
+      "battery",
+      "bluetooth_le",
+      "display",
+      "gnss",
+      "imu",
+      "jtag",
+      "rtc",
+      "touch",
+      "uart",
+      "usb",
+      "wifi"
+    ],
+    "sources": [
+      "https://docs.m5stack.com/en/core/CoreS3",
+      "https://docs.m5stack.com/en/products/sku/M135",
+      "https://docs.m5stack.com/en/guide/dip_switch/module_gnss/pins_change"
+    ]
+  },
+  "candidateBoards": [
+    {
+      "boardId": "m5stack_cores3_gnss_v1",
+      "displayName": "M5Stack CoreS3 + GNSS Module",
+      "revision": "1.0",
+      "vendor": "M5Stack",
+      "productSku": "K128+M135",
+      "controllerModuleId": "m5stack_cores3_controller",
+      "chipFamily": "esp32-s3",
+      "platformSdk": "esp-idf",
+      "capabilities": [
+        "audio",
+        "battery",
+        "bluetooth_le",
+        "display",
+        "gnss",
+        "imu",
+        "jtag",
+        "rtc",
+        "touch",
+        "uart",
+        "usb",
+        "wifi"
+      ],
+      "sources": [
+        "https://docs.m5stack.com/en/core/CoreS3",
+        "https://docs.m5stack.com/en/products/sku/M135",
+        "https://docs.m5stack.com/en/guide/dip_switch/module_gnss/pins_change"
+      ],
+      "score": 100,
+      "reasons": [
+        "Exact board definition match from discovery history"
+      ]
+    },
+    {
+      "boardId": "m5stack_dial_v1_1",
+      "displayName": "M5Stack Dial V1.1",
+      "revision": "1.1",
+      "vendor": "M5Stack",
+      "productSku": "K130",
+      "controllerModuleId": "m5stamps3",
+      "chipFamily": "esp32-s3",
+      "platformSdk": "esp-idf",
+      "capabilities": [
+        "display",
+        "rfid",
+        "rotaryEncoder",
+        "rtc",
+        "touch",
+        "usb",
+        "wifi"
+      ],
+      "sources": [
+        "https://docs.m5stack.com/en/core/M5Dial",
+        "https://docs.m5stack.com/en/core/M5Dial%20V1.1"
+      ],
+      "score": 9,
+      "reasons": [
+        "Chip family matches esp32-s3",
+        "Espressif USB fingerprint fits an ESP32 board"
+      ]
+    },
+    {
+      "boardId": "esp32_dev_relay_v1",
+      "displayName": "ESP32 Dev Relay V1",
+      "revision": "1.0",
+      "vendor": "Generic",
+      "productSku": "sample-esp32-relay-v1",
+      "controllerModuleId": "esp32_wroom_32",
+      "chipFamily": "esp32",
+      "platformSdk": "esp-idf",
+      "capabilities": [
+        "bluetooth",
+        "uart",
+        "wifi"
+      ],
+      "sources": [],
+      "score": 3,
+      "reasons": [
+        "Espressif USB fingerprint fits an ESP32 board"
+      ]
+    }
   ]
 }

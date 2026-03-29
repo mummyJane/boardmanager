@@ -3,7 +3,7 @@
   "familyKey": "board:p_nucleo_usb001_f072rb_v1",
   "status": "known-family",
   "createdAt": "2026-03-29T13:41:50.532Z",
-  "updatedAt": "2026-03-29T13:42:27.289Z",
+  "updatedAt": "2026-03-29T14:01:43.006Z",
   "boardIds": [
     "p_nucleo_usb001_f072rb_v1"
   ],
@@ -23,5 +23,75 @@
   "notes": [
     "Discovery created this family profile from known board observations.",
     "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+  ],
+  "exactBoard": {
+    "boardId": "p_nucleo_usb001_f072rb_v1",
+    "displayName": "P-NUCLEO-USB001 (Nucleo-F072RB)",
+    "revision": "1.0",
+    "vendor": "STMicroelectronics",
+    "productSku": "P-NUCLEO-USB001",
+    "controllerModuleId": "nucleo_f072rb_controller",
+    "chipFamily": "stm32f0",
+    "platformSdk": "stm32cube",
+    "capabilities": [
+      "jtag",
+      "powerDelivery",
+      "uart",
+      "usb"
+    ],
+    "sources": [
+      "https://www.st.com/en/evaluation-tools/p-nucleo-usb001.html",
+      "https://estore.st.com/en/nucleo-f072rb-cpn.html",
+      "https://www.st.com/resource/en/product_presentation/stswstusb006quickstartv1.pdf"
+    ]
+  },
+  "candidateBoards": [
+    {
+      "boardId": "p_nucleo_usb001_f072rb_v1",
+      "displayName": "P-NUCLEO-USB001 (Nucleo-F072RB)",
+      "revision": "1.0",
+      "vendor": "STMicroelectronics",
+      "productSku": "P-NUCLEO-USB001",
+      "controllerModuleId": "nucleo_f072rb_controller",
+      "chipFamily": "stm32f0",
+      "platformSdk": "stm32cube",
+      "capabilities": [
+        "jtag",
+        "powerDelivery",
+        "uart",
+        "usb"
+      ],
+      "sources": [
+        "https://www.st.com/en/evaluation-tools/p-nucleo-usb001.html",
+        "https://estore.st.com/en/nucleo-f072rb-cpn.html",
+        "https://www.st.com/resource/en/product_presentation/stswstusb006quickstartv1.pdf"
+      ],
+      "score": 100,
+      "reasons": [
+        "Exact board definition match from discovery history"
+      ]
+    },
+    {
+      "boardId": "stm32_nucleo_io_v1",
+      "displayName": "STM32 Nucleo IO V1",
+      "revision": "1.0",
+      "vendor": "STMicroelectronics",
+      "productSku": "sample-stm32-nucleo-io-v1",
+      "controllerModuleId": "nucleo_f446re_controller",
+      "chipFamily": "stm32f4",
+      "platformSdk": "stm32cube",
+      "capabilities": [
+        "jtag",
+        "uart",
+        "usb"
+      ],
+      "sources": [],
+      "score": 7,
+      "reasons": [
+        "ST-LINK USB fingerprint fits an STMicroelectronics board",
+        "Transport name matches ST-LINK based board family",
+        "Board name and transport both resemble a Nucleo board"
+      ]
+    }
   ]
 }

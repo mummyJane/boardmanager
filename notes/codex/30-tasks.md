@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 14:45 Europe/London
+Last updated: 2026-03-29 15:05 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -42,4 +42,8 @@ Last updated: 2026-03-29 14:45 Europe/London
 - [x] Add a cumulative unit-history layer for discovery runs
 - [x] Match new physical units against previously seen board families before treating them as brand-new cards
 - [x] Start draft family profiles for newly observed card families
+
+
+
+- [x] Enrich family profiles with Stage 1 board metadata and likely board candidates
 
