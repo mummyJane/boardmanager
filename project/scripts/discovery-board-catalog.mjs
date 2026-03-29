@@ -71,6 +71,7 @@ function scoreBoardCandidate(fingerprint, board) {
   const pid = fingerprint?.pid ?? null;
   const description = `${fingerprint?.description ?? ""} ${fingerprint?.name ?? ""}`.toLowerCase();
   const signature = String(fingerprint?.firmwareSignature ?? "").toLowerCase();
+  const observedCapabilities = Array.isArray(fingerprint?.capabilities) ? fingerprint.capabilities : [];
   const boardText = `${board.boardId} ${board.displayName}`.toLowerCase();
 
   if (chipFamily && board.chipFamily === chipFamily) {
@@ -106,6 +107,12 @@ function scoreBoardCandidate(fingerprint, board) {
   if (boardText.includes("nucleo") && description.includes("stlink")) {
     score += 2;
     reasons.push("Board name and transport both resemble a Nucleo board");
+  }
+
+  const capabilityOverlap = observedCapabilities.filter((capability) => board.capabilities.includes(capability));
+  if (capabilityOverlap.length > 0) {
+    score += capabilityOverlap.length;
+    reasons.push(`Capabilities overlap: ${capabilityOverlap.join(", ")}`);
   }
 
   return { score, reasons };

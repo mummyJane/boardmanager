@@ -5,6 +5,8 @@ MEMORY
 }
 
 _estack = ORIGIN(RAM) + LENGTH(RAM);
+_Min_Heap_Size = 0x200;
+_Min_Stack_Size = 0x400;
 
 SECTIONS
 {
@@ -40,5 +42,15 @@ SECTIONS
     *(.bss*)
     *(COMMON)
     _ebss = .;
+  } > RAM
+
+  ._user_heap_stack :
+  {
+    . = ALIGN(8);
+    PROVIDE(end = .);
+    PROVIDE(_end = .);
+    . = . + _Min_Heap_Size;
+    . = . + _Min_Stack_Size;
+    . = ALIGN(8);
   } > RAM
 }

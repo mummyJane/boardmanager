@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 17:13 Europe/London
+Last updated: 2026-03-29 19:05 Europe/London
 
 ## Project Intent
 
@@ -112,3 +112,14 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 18:32 Europe/London: Added project/scripts/validate-device-manager-data.mjs and hooked it into validate.ps1 so Stage 2 data files and family profiles are schema-checked alongside board definitions.
 
 - 2026-03-29 18:48 Europe/London: Added local key-management tooling with a root signing keypair plus per-unit AES and Ed25519 identity keys under keys/. For now Board Manager generates these locally; later board setup may replace the unit identity keypair with a board-generated keypair.
+
+- 2026-03-29 19:05 Europe/London: Generated board descriptors now expose capability lists through `board_descriptor_t`, and firmware-common now includes `board_agent.h` with a stable `BoardManagerAgent:` handshake emitter.
+- 2026-03-29 19:05 Europe/London: The Dial and CoreS3 demo apps now emit both the older `BoardManagerFirmware:` line and the new `BoardManagerAgent:` line. The F072 demo also emits the board-agent line in its host-buildable path.
+- 2026-03-29 19:05 Europe/London: Discovery now captures `agentLine` and `agentCapabilities`, merges board-agent identity into the existing firmware identity fields, stores capability sets in unit history, includes capability data in discovery-run summaries, and syncs the new data into SQLite.
+- 2026-03-29 19:05 Europe/London: Query JSON for `query.ps1 -View units -Format json` now exposes `firmwareBoard` and `firmwareCapabilities` so later web and remote callers can consume the self-reported capability set without re-parsing raw history.
+- 2026-03-29 19:05 Europe/London: Live validation after flashing updated firmware to `COM3`, `COM4`, and `COM5` captured these board-agent handshakes:
+  - `COM3` Dial -> capabilities `display,rfid,rotaryEncoder,rtc,touch,usb,wifi`
+  - `COM4` CoreS3 + GNSS -> capabilities `audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi`
+  - `COM5` Dial -> capabilities `display,rfid,rotaryEncoder,rtc,touch,usb,wifi`
+- 2026-03-29 19:05 Europe/London: The F072 linker script now includes heap/stack reservation plus `end` and `_end` symbols, which restored a clean host-side build for `p_nucleo_usb001_demo`.
+- 2026-03-29 19:05 Europe/London: Discovery also observed an additional `COM7` unit during validation: `USB\\VID_10C4&PID_EA60\\0001`, presented by Windows as `Silicon Labs CP210x USB to UART Bridge (COM7)`. This created a draft family profile at `project/device-manager/profiles/unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge.json`.

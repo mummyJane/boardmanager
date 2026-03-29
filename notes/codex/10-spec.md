@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 18:48 Europe/London
+Last updated: 2026-03-29 19:05 Europe/London
 
 ## Goal
 
@@ -74,6 +74,7 @@ Requirements:
 - Stage 2 should expose a stable query contract over the persisted inventory and history so later Milestone 4 UI work and remote systems can consume the same data model
 - the first service endpoint should expose that query contract over HTTP using JSON responses suitable for local and remote callers
 - discovery must preserve per-unit firmware identity across runs, including the observed firmware app id, firmware version, build identifier, and self-reported board id when firmware exposes it
+- firmware should expose a stable board-agent handshake line so discovery can capture self-reported board id, firmware version, build identifier, and capability set directly without relying only on heuristic banners
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
 - family profiles should be enriched from the Stage 1 board catalog with exact board metadata where known and likely board candidates where the family is still being resolved

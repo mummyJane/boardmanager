@@ -67,6 +67,21 @@ function pickLabel(unit) {
   return unit.annotation?.label ?? unit.identity?.stableKey ?? unit.stableKey ?? null;
 }
 
+function latestArrayValue(values) {
+  if (Array.isArray(values) && values.length > 0) {
+    return values[values.length - 1];
+  }
+
+  return null;
+}
+
+function parseCapabilitySet(value) {
+  if (!value) {
+    return [];
+  }
+
+  return String(value).split(",").map((entry) => entry.trim()).filter(Boolean);
+}
 function mapUnit(unit) {
   return {
     stableKey: unit.stableKey,
@@ -79,8 +94,10 @@ function mapUnit(unit) {
     lastMissingAt: unit.lastMissingAt ?? null,
     seenCount: unit.seenCount ?? 0,
     missingCount: unit.missingCount ?? 0,
-    firmwareApp: unit.observed?.firmwareApps?.[unit.observed.firmwareApps.length - 1] ?? null,
-    firmwareVersion: unit.observed?.firmwareVersions?.[unit.observed.firmwareVersions.length - 1] ?? null,
+    firmwareApp: latestArrayValue(unit.observed?.firmwareApps) ?? null,
+    firmwareVersion: latestArrayValue(unit.observed?.firmwareVersions) ?? null,
+    firmwareBoard: latestArrayValue(unit.observed?.firmwareBoards) ?? null,
+    firmwareCapabilities: parseCapabilitySet(latestArrayValue(unit.observed?.agentCapabilitySets)),
     owner: unit.annotation?.owner ?? null,
     location: unit.annotation?.location ?? null,
     purpose: unit.annotation?.purpose ?? null,

@@ -11,6 +11,12 @@ static void esp32_dev_relay_v1_boot_controller(void)
     esp32_dev_relay_v1_platform_boot_controller();
 }
 
+static const char *const esp32_dev_relay_v1_capabilities[] = {
+    "bluetooth",
+    "uart",
+    "wifi",
+};
+
 static const board_io_descriptor_t esp32_dev_relay_v1_io[] = {
     { "status_led", BOARD_IO_DIGITAL_OUTPUT, "status_indicator", "GPIO2", "IO2", NULL, true },
     { "relay_drive", BOARD_IO_DIGITAL_OUTPUT, "relay_control", "GPIO16", "IO16", NULL, true },
@@ -24,6 +30,8 @@ const board_descriptor_t esp32_dev_relay_v1_descriptor = {
     "ESP32",
     "ESP32-WROOM-32 Package",
     "esp-idf",
+    3,
+    esp32_dev_relay_v1_capabilities,
     3,
     esp32_dev_relay_v1_io
 };

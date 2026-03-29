@@ -146,3 +146,12 @@
 
 - 2026-03-29 18:48 Europe/London: Used a local root RSA-3072 signing keypair and per-unit Ed25519 identity keypairs with AES-256 symmetric keys. The root signs a per-unit payload that binds the stable unit id, AES key record, and unit public key record together.
 - 2026-03-29 18:48 Europe/London: Kept all generated key material and local manifests under keys/ and out of git; only tooling, docs, and schemas are tracked in the repo.
+
+## 2026-03-29 19:05 Europe/London
+
+- Extend the generated board descriptor once to carry sorted capability lists, rather than duplicating per-board capability strings inside each firmware app. This keeps the board-agent handshake tied to the same Stage 1 source-of-truth metadata as the rest of the generated firmware surface.
+- Keep the new board-agent handshake additive: firmware still emits the older `BoardManagerFirmware:` line, while the new `BoardManagerAgent:` line becomes the preferred source for self-reported board id and capability data.
+- Fold board-agent identity back into the existing `firmwareApp`, `firmwareVersion`, `firmwareBuildId`, and `firmwareBoard` fields in discovery, instead of creating a second parallel identity model. This preserves compatibility for current query, report, and service consumers.
+- Persist the capability set in history as a normalized comma-joined `agentCapabilitySets` list and expose it back out to callers as an array. This keeps history deduplicated while keeping service output convenient for later web and remote consumers.
+- Treat the unexpected CP210x serial bridge on `COM7` as a legitimate new-family discovery event and keep the resulting draft profile. The system should learn from surprising bench hardware rather than silently filtering it out.
+- Fix the F072 host-build failure in the linker script rather than hiding `printf` or the board-agent helper. The missing `end` symbol was a real bare-metal build gap that should be corrected at the memory-layout layer.

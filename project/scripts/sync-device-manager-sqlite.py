@@ -85,8 +85,9 @@ def sync_database():
                   stable_key, family_key, profile_id, board_id, present, first_seen_at, last_seen_at,
                   last_present_at, last_missing_at, seen_count, missing_count, label, owner, location,
                   purpose, usb_instance, mac, serial_number, present_port, firmware_app,
-                  firmware_version, firmware_build_id, firmware_board, raw_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                  firmware_version, firmware_build_id, firmware_board, firmware_capabilities,
+                  agent_line, raw_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     unit.get("stableKey"),
@@ -112,6 +113,8 @@ def sync_database():
                     latest(observed.get("firmwareVersions")),
                     latest(observed.get("firmwareBuildIds")),
                     latest(observed.get("firmwareBoards")),
+                    latest(observed.get("agentCapabilitySets")),
+                    latest(observed.get("agentLines")),
                     json.dumps(unit, indent=2),
                 ),
             )
@@ -205,7 +208,7 @@ def sync_database():
             )
             for unit in run.get("units", []):
                 connection.execute(
-                    "INSERT INTO discovery_run_units (run_id, stable_key, board_id, family_key, port, usb_instance, firmware_app, firmware_version, firmware_build_id, firmware_board, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO discovery_run_units (run_id, stable_key, board_id, family_key, port, usb_instance, firmware_app, firmware_version, firmware_build_id, firmware_board, firmware_capabilities, agent_line, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         run.get("runId"),
                         unit.get("stableKey"),
@@ -217,6 +220,8 @@ def sync_database():
                         unit.get("firmwareVersion"),
                         unit.get("firmwareBuildId"),
                         unit.get("firmwareBoard"),
+                        ",".join(unit.get("agentCapabilities", [])) if isinstance(unit.get("agentCapabilities"), list) else unit.get("agentCapabilities"),
+                        unit.get("agentLine"),
                         unit.get("label"),
                     ),
                 )

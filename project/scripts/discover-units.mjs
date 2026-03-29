@@ -70,10 +70,37 @@ function parseFirmwareIdentity(rawLine) {
   };
 }
 
+function parseAgentHandshake(rawLine) {
+  const text = String(rawLine ?? "");
+  const match = text.match(/BoardManagerAgent:\s+board=(\S+)\s+app=(\S+)\s+version=(\S+)\s+capabilities=(\S+)\s+build=(.+)$/);
+  if (!match) {
+    return {
+      firmwareBoard: null,
+      firmwareApp: null,
+      firmwareVersion: null,
+      firmwareBuildId: null,
+      agentCapabilities: [],
+    };
+  }
+
+  const capabilities = match[4] === "none"
+    ? []
+    : match[4].split(",").map((entry) => entry.trim()).filter(Boolean).sort();
+
+  return {
+    firmwareBoard: match[1],
+    firmwareApp: match[2],
+    firmwareVersion: match[3],
+    firmwareBuildId: match[5],
+    agentCapabilities: capabilities,
+  };
+}
+
 function pickSignatureLine(lines) {
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
+    if (trimmed.includes("BoardManagerAgent:")) return trimmed;
     if (trimmed.includes("BoardManagerFirmware:")) return trimmed;
     if (trimmed.includes("Board Manager dial smoke test starting")) return trimmed;
     if (trimmed.includes("Board Manager CoreS3 GNSS bring-up starting")) return trimmed;
@@ -189,6 +216,8 @@ function summarizeRunUnit(unit) {
     firmwareVersion: unit.observed.firmwareVersion ?? null,
     firmwareBuildId: unit.observed.firmwareBuildId ?? null,
     firmwareBoard: unit.observed.firmwareBoard ?? null,
+    agentCapabilities: unit.observed.agentCapabilities ?? [],
+    agentLine: unit.observed.agentLine ?? null,
     label: unit.annotation.label ?? null,
   };
 }
@@ -325,7 +354,16 @@ async function captureSignature(port) {
     const lines = String(stdout).split(/\r?\n/).filter(Boolean);
     const rawSignatureLine = pickSignatureLine(lines);
     const firmwareLine = lines.map((line) => line.trim()).find((line) => line.includes("BoardManagerFirmware:")) ?? null;
-    const identity = parseFirmwareIdentity(firmwareLine);
+    const agentLine = lines.map((line) => line.trim()).find((line) => line.includes("BoardManagerAgent:")) ?? null;
+    const firmwareIdentity = parseFirmwareIdentity(firmwareLine);
+    const agentIdentity = parseAgentHandshake(agentLine);
+    const identity = {
+      firmwareApp: firmwareIdentity.firmwareApp ?? agentIdentity.firmwareApp,
+      firmwareVersion: firmwareIdentity.firmwareVersion ?? agentIdentity.firmwareVersion,
+      firmwareBuildId: firmwareIdentity.firmwareBuildId ?? agentIdentity.firmwareBuildId,
+      firmwareBoard: firmwareIdentity.firmwareBoard ?? agentIdentity.firmwareBoard,
+      agentCapabilities: agentIdentity.agentCapabilities,
+    };
     let firmwareSignature = null;
     if (identity.firmwareApp === "m5stack_dial_demo") firmwareSignature = "board_manager_dial_smoketest";
     else if (identity.firmwareApp === "m5stack_cores3_gnss_demo") firmwareSignature = "board_manager_cores3_gnss_demo";
@@ -341,16 +379,19 @@ async function captureSignature(port) {
       firmwareSignature,
       rawSignatureLine,
       firmwareLine,
+      agentLine,
       firmwareApp: identity.firmwareApp,
       firmwareVersion: identity.firmwareVersion,
       firmwareBuildId: identity.firmwareBuildId,
       firmwareBoard: identity.firmwareBoard,
+      agentCapabilities: identity.agentCapabilities,
     };
   } catch {
     return {
       firmwareSignature: null,
       rawSignatureLine: null,
       firmwareLine: null,
+      agentLine: null,
       firmwareApp: null,
       firmwareVersion: null,
       firmwareBuildId: null,
@@ -499,6 +540,7 @@ function deriveFamilyFingerprint(unit) {
       description: unit.transport.description ?? null,
       name: unit.transport.name ?? null,
       firmwareSignature: unit.observed.firmwareSignature ?? null,
+      capabilities: unit.observed.agentCapabilities ?? [],
     };
   }
 
@@ -515,6 +557,7 @@ function deriveFamilyFingerprint(unit) {
       description: unit.transport.description ?? null,
       name: unit.transport.name ?? null,
       firmwareSignature: unit.observed.firmwareSignature ?? null,
+      capabilities: unit.observed.agentCapabilities ?? [],
     };
   }
 
@@ -536,6 +579,7 @@ function deriveFamilyFingerprint(unit) {
     description: unit.transport.description ?? null,
     name: unit.transport.name ?? null,
     firmwareSignature: unit.observed.firmwareSignature ?? null,
+    capabilities: unit.observed.agentCapabilities ?? [],
   };
 }
 
@@ -611,10 +655,12 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     firmwareSignature: null,
     rawSignatureLine: null,
     firmwareLine: null,
+    agentLine: null,
     firmwareApp: null,
     firmwareVersion: null,
     firmwareBuildId: null,
     firmwareBoard: null,
+    agentCapabilities: [],
   };
 
   if ((vidPid.vid === "303A" && vidPid.pid === "1001") || (transport.name ?? "").includes("USB Serial Device")) {
@@ -625,10 +671,12 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     observed.firmwareSignature = signature.firmwareSignature;
     observed.rawSignatureLine = signature.rawSignatureLine;
     observed.firmwareLine = signature.firmwareLine;
+    observed.agentLine = signature.agentLine;
     observed.firmwareApp = signature.firmwareApp;
     observed.firmwareVersion = signature.firmwareVersion;
     observed.firmwareBuildId = signature.firmwareBuildId;
     observed.firmwareBoard = signature.firmwareBoard;
+    observed.agentCapabilities = signature.agentCapabilities;
   }
 
   const previousUnit = findPreviousUnit(observed, transport, unitIndex);
@@ -647,10 +695,12 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
       firmwareSignature: observed.firmwareSignature,
       rawSignatureLine: observed.rawSignatureLine,
       firmwareLine: observed.firmwareLine,
+      agentLine: observed.agentLine,
       firmwareApp: observed.firmwareApp,
       firmwareVersion: observed.firmwareVersion,
       firmwareBuildId: observed.firmwareBuildId,
       firmwareBoard: observed.firmwareBoard,
+      agentCapabilities: observed.agentCapabilities,
     },
     annotation: normalizeAnnotation(null),
     match: { status: "unknown", boardId: null, reason: null, source: null },
@@ -693,6 +743,8 @@ function mergeObservedHistory(existing, unit) {
     firmwareBuildIds: uniqueSorted([...(existing?.firmwareBuildIds ?? []), unit.observed.firmwareBuildId]),
     firmwareBoards: uniqueSorted([...(existing?.firmwareBoards ?? []), unit.observed.firmwareBoard]),
     firmwareLines: uniqueSorted([...(existing?.firmwareLines ?? []), unit.observed.firmwareLine]),
+    agentLines: uniqueSorted([...(existing?.agentLines ?? []), unit.observed.agentLine]),
+    agentCapabilitySets: uniqueSorted([...(existing?.agentCapabilitySets ?? []), (unit.observed.agentCapabilities ?? []).join(",")]),
     rawSignatureLines: uniqueSorted([...(existing?.rawSignatureLines ?? []), unit.observed.rawSignatureLine]),
   };
 }
@@ -808,6 +860,7 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
       description: familyFingerprint.description,
       name: familyFingerprint.name,
       firmwareSignature: familyFingerprint.firmwareSignature,
+      capabilities: familyFingerprint.capabilities ?? [],
     }
   };
 

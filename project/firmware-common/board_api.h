@@ -25,6 +25,8 @@ typedef struct board_descriptor {
     const char *mcu_family;
     const char *mcu_part_number;
     const char *platform_sdk;
+    unsigned int capability_count;
+    const char *const *capabilities;
     unsigned int io_count;
     const board_io_descriptor_t *io;
 } board_descriptor_t;

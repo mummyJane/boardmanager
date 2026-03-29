@@ -52,6 +52,16 @@ static void m5stack_dial_v1_1_boot_display(void)
     m5stack_dial_v1_1_platform_boot_display();
 }
 
+static const char *const m5stack_dial_v1_1_capabilities[] = {
+    "display",
+    "rfid",
+    "rotaryEncoder",
+    "rtc",
+    "touch",
+    "usb",
+    "wifi",
+};
+
 static const board_io_descriptor_t m5stack_dial_v1_1_io[] = {
     { "power_hold", BOARD_IO_DIGITAL_OUTPUT, "power_latch", "GPIO46", "G46", "POWER_HOLD", true },
     { "lcd_backlight", BOARD_IO_DIGITAL_OUTPUT, "display_backlight", "GPIO9", "G9", "GC9A01_BL", true },
@@ -70,6 +80,8 @@ const board_descriptor_t m5stack_dial_v1_1_descriptor = {
     "ESP32-S3",
     "ESP32-S3FN8",
     "esp-idf",
+    7,
+    m5stack_dial_v1_1_capabilities,
     8,
     m5stack_dial_v1_1_io
 };

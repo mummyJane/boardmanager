@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T16:36:49.488Z",
+  "generatedAt": "2026-03-29T17:23:22.319Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -8,12 +8,12 @@
     {
       "stableKey": "mac:48:27:e2:66:b0:04",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 15,
+      "seenCount": 16,
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -51,11 +51,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": null
@@ -83,13 +83,21 @@
           "0.1.0-dev"
         ],
         "firmwareBuildIds": [
-          "Mar 29 2026 15:44:03"
+          "Mar 29 2026 15:44:03",
+          "Mar 29 2026 18:22:38"
         ],
         "firmwareBoards": [
           "m5stack_cores3_gnss_v1"
         ],
         "firmwareLines": [
-          "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_cores3_gnss_v1"
+          "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_cores3_gnss_v1",
+          "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 18:22:38 board=m5stack_cores3_gnss_v1"
+        ],
+        "agentLines": [
+          "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38"
+        ],
+        "agentCapabilitySets": [
+          "audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi"
         ],
         "rawSignatureLines": [
           "Board Manager CoreS3 GNSS bring-up starting"
@@ -99,12 +107,12 @@
     {
       "stableKey": "mac:c0:4e:30:12:b3:e0",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 15,
+      "seenCount": 16,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -142,11 +150,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": null
@@ -174,13 +182,21 @@
           "0.1.0-dev"
         ],
         "firmwareBuildIds": [
-          "Mar 29 2026 15:44:03"
+          "Mar 29 2026 15:44:03",
+          "Mar 29 2026 18:22:10"
         ],
         "firmwareBoards": [
           "m5stack_dial_v1_1"
         ],
         "firmwareLines": [
-          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1"
+          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1",
+          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1"
+        ],
+        "agentLines": [
+          "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10"
+        ],
+        "agentCapabilitySets": [
+          "display,rfid,rotaryEncoder,rtc,touch,usb,wifi"
         ],
         "rawSignatureLines": [
           "Board Manager dial smoke test starting"
@@ -190,12 +206,12 @@
     {
       "stableKey": "mac:c0:4e:30:13:2b:68",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 15,
+      "seenCount": 16,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -233,11 +249,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": null
@@ -265,13 +281,21 @@
           "0.1.0-dev"
         ],
         "firmwareBuildIds": [
-          "Mar 29 2026 15:44:03"
+          "Mar 29 2026 15:44:03",
+          "Mar 29 2026 18:22:10"
         ],
         "firmwareBoards": [
           "m5stack_dial_v1_1"
         ],
         "firmwareLines": [
-          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1"
+          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1",
+          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1"
+        ],
+        "agentLines": [
+          "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10"
+        ],
+        "agentCapabilitySets": [
+          "display,rfid,rotaryEncoder,rtc,touch,usb,wifi"
         ],
         "rawSignatureLines": [
           "Board Manager dial smoke test starting"
@@ -281,12 +305,12 @@
     {
       "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": "2026-03-29T16:14:34.394Z",
       "present": true,
       "missingCount": 3,
-      "seenCount": 12,
+      "seenCount": 13,
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -324,11 +348,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": {
@@ -353,6 +377,83 @@
         "firmwareBuildIds": [],
         "firmwareBoards": [],
         "firmwareLines": [],
+        "agentLines": [],
+        "agentCapabilitySets": [],
+        "rawSignatureLines": []
+      }
+    },
+    {
+      "stableKey": "usb:USB\\VID_10C4&PID_EA60\\0001",
+      "firstSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
+      "lastMissingAt": null,
+      "present": true,
+      "missingCount": 0,
+      "seenCount": 1,
+      "familyKey": "unknown:vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+      "profileId": "unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge",
+      "boardIds": [],
+      "identity": {
+        "stableKey": "usb:USB\\VID_10C4&PID_EA60\\0001",
+        "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+        "mac": null,
+        "serialNumber": "0001",
+        "aliases": [
+          "COM7",
+          "Silicon Labs CP210x USB to UART Bridge (COM7)"
+        ]
+      },
+      "annotation": {
+        "label": null,
+        "notes": [],
+        "owner": null,
+        "location": null,
+        "purpose": null,
+        "updatedAt": null
+      },
+      "metadataHistory": {
+        "owners": [],
+        "locations": [],
+        "purposes": [],
+        "firstUpdatedAt": null,
+        "lastUpdatedAt": null,
+        "entries": []
+      },
+      "transitions": {
+        "firstSeen": {
+          "at": "2026-03-29T17:23:22.319Z",
+          "state": "discovered"
+        },
+        "lastSeen": {
+          "at": "2026-03-29T17:23:22.319Z",
+          "state": "observed"
+        },
+        "lastPresent": {
+          "at": "2026-03-29T17:23:22.319Z",
+          "state": "present"
+        },
+        "lastMissing": null
+      },
+      "lastTransport": {
+        "kind": "serial",
+        "port": "COM7",
+        "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+        "description": "Silicon Labs CP210x USB to UART Bridge",
+        "name": "Silicon Labs CP210x USB to UART Bridge (COM7)"
+      },
+      "observed": {
+        "vid": "10C4",
+        "pid": "EA60",
+        "chips": [],
+        "firmwareSignatures": [],
+        "firmwareApps": [],
+        "firmwareVersions": [],
+        "firmwareBuildIds": [],
+        "firmwareBoards": [],
+        "firmwareLines": [],
+        "agentLines": [],
+        "agentCapabilitySets": [],
         "rawSignatureLines": []
       }
     }
@@ -361,13 +462,13 @@
     {
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 15,
+      "seenCount": 16,
       "status": "known-board",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -382,11 +483,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": null
@@ -399,19 +500,33 @@
         "chip": "ESP32-S3 (QFN56) (revision v0.2)",
         "description": "USB Serial Device",
         "name": "USB Serial Device (COM4)",
-        "firmwareSignature": "board_manager_cores3_gnss_demo"
+        "firmwareSignature": "board_manager_cores3_gnss_demo",
+        "capabilities": [
+          "audio",
+          "battery",
+          "bluetooth_le",
+          "display",
+          "gnss",
+          "imu",
+          "jtag",
+          "rtc",
+          "touch",
+          "uart",
+          "usb",
+          "wifi"
+        ]
       }
     },
     {
       "familyKey": "board:m5stack_dial_v1_1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 2,
       "missingUnitCount": 0,
-      "seenCount": 30,
+      "seenCount": 32,
       "status": "known-board",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -427,11 +542,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": null
@@ -444,19 +559,28 @@
         "chip": "ESP32-S3 (QFN56) (revision v0.2)",
         "description": "USB Serial Device",
         "name": "USB Serial Device (COM5)",
-        "firmwareSignature": "board_manager_dial_smoketest"
+        "firmwareSignature": "board_manager_dial_smoketest",
+        "capabilities": [
+          "display",
+          "rfid",
+          "rotaryEncoder",
+          "rtc",
+          "touch",
+          "usb",
+          "wifi"
+        ]
       }
     },
     {
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T16:36:49.488Z",
-      "lastPresentAt": "2026-03-29T16:36:49.488Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
       "lastMissingAt": "2026-03-29T16:14:34.394Z",
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 12,
+      "seenCount": 13,
       "status": "known-board",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -471,11 +595,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T16:36:49.488Z",
+          "at": "2026-03-29T17:23:22.319Z",
           "state": "present"
         },
         "lastMissing": {
@@ -491,7 +615,51 @@
         "chip": null,
         "description": "STMicroelectronics STLink Virtual COM Port",
         "name": "STMicroelectronics STLink Virtual COM Port (COM6)",
-        "firmwareSignature": null
+        "firmwareSignature": null,
+        "capabilities": []
+      }
+    },
+    {
+      "familyKey": "unknown:vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+      "firstSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastSeenAt": "2026-03-29T17:23:22.319Z",
+      "lastPresentAt": "2026-03-29T17:23:22.319Z",
+      "lastMissingAt": null,
+      "present": true,
+      "presentUnitCount": 1,
+      "missingUnitCount": 0,
+      "seenCount": 1,
+      "status": "emerging",
+      "profileId": "unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge",
+      "boardIds": [],
+      "sampleUnitIds": [
+        "usb:USB\\VID_10C4&PID_EA60\\0001"
+      ],
+      "transitions": {
+        "firstSeen": {
+          "at": "2026-03-29T17:23:22.319Z",
+          "state": "discovered"
+        },
+        "lastSeen": {
+          "at": "2026-03-29T17:23:22.319Z",
+          "state": "observed"
+        },
+        "lastPresent": {
+          "at": "2026-03-29T17:23:22.319Z",
+          "state": "present"
+        },
+        "lastMissing": null
+      },
+      "fingerprint": {
+        "fingerprintKey": "vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+        "vid": "10C4",
+        "pid": "EA60",
+        "chipFamily": null,
+        "chip": null,
+        "description": "Silicon Labs CP210x USB to UART Bridge",
+        "name": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+        "firmwareSignature": null,
+        "capabilities": []
       }
     }
   ]

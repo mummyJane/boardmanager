@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "m5stack_dial_v1_1.h"
 #include "m5stack_dial_v1_1_platform.h"
+#include "board_agent.h"
 
 #define BOARD_MANAGER_FW_APP "m5stack_dial_demo"
 #define BOARD_MANAGER_FW_VERSION "0.1.0-dev"
@@ -51,6 +52,11 @@ void app_main(void)
         BOARD_MANAGER_FW_VERSION,
         BOARD_MANAGER_FW_BUILD_ID,
         "m5stack_dial_v1_1");
+    board_manager_emit_agent_handshake(
+        &m5stack_dial_v1_1_descriptor,
+        BOARD_MANAGER_FW_APP,
+        BOARD_MANAGER_FW_VERSION,
+        BOARD_MANAGER_FW_BUILD_ID);
     m5stack_dial_v1_1_init();
     m5stack_dial_v1_1_platform_get_self_test(&result);
     printf("Board init complete for %s using %s\n",

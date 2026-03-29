@@ -168,6 +168,13 @@ function buildDeviceIndex(board, parts) {
   return map;
 }
 
+function resolveCapabilities(board) {
+  return Object.entries(board.capabilities ?? {})
+    .filter(([, enabled]) => Boolean(enabled))
+    .map(([name]) => name)
+    .sort();
+}
+
 function generateHeader(board, resolvedSignals) {
   const guard = `${upperName(board.boardId)}_H`;
   const lines = [
@@ -246,7 +253,9 @@ function generateBootSequence(board, controller, resolvedSignals, busIndex, devi
 
 function generateSource(board, controller, resolvedSignals, busIndex, deviceIndex) {
   const arrayName = `${board.boardId}_io`;
+  const capabilityArrayName = `${board.boardId}_capabilities`;
   const boot = generateBootSequence(board, controller, resolvedSignals, busIndex, deviceIndex);
+  const capabilities = resolveCapabilities(board);
   const lines = [
     `#include "${board.boardId}.h"`,
     '#include <stddef.h>',
@@ -263,6 +272,14 @@ function generateSource(board, controller, resolvedSignals, busIndex, deviceInde
 
   if (boot.helperLines.length > 0) {
     lines.push(...boot.helperLines);
+  }
+
+  if (capabilities.length > 0) {
+    lines.push(`static const char *const ${capabilityArrayName}[] = {`);
+    for (const capability of capabilities) {
+      lines.push(`    ${cString(capability)},`);
+    }
+    lines.push("};", "");
   }
 
   lines.push(`static const board_io_descriptor_t ${arrayName}[] = {`);
@@ -290,6 +307,8 @@ function generateSource(board, controller, resolvedSignals, busIndex, deviceInde
   lines.push(`    ${cString(controller.mcu.displayName ?? board.mcu?.family)},`);
   lines.push(`    ${cString(controller.partNumber ?? board.mcu?.partNumber)},`);
   lines.push(`    ${cString(boot.platformSdk)},`);
+  lines.push(`    ${capabilities.length},`);
+  lines.push(`    ${capabilities.length > 0 ? capabilityArrayName : "NULL"},`);
   lines.push(`    ${resolvedSignals.length},`);
   lines.push(`    ${arrayName}`);
   lines.push("};", "", `void ${board.boardId}_init(void)`, "{");

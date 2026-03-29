@@ -61,6 +61,8 @@ CREATE TABLE units (
   firmware_version TEXT,
   firmware_build_id TEXT,
   firmware_board TEXT,
+  firmware_capabilities TEXT,
+  agent_line TEXT,
   raw_json TEXT NOT NULL
 );
 
@@ -165,6 +167,8 @@ CREATE TABLE discovery_run_units (
   firmware_version TEXT,
   firmware_build_id TEXT,
   firmware_board TEXT,
+  firmware_capabilities TEXT,
+  agent_line TEXT,
   label TEXT,
   PRIMARY KEY (run_id, stable_key),
   FOREIGN KEY (run_id) REFERENCES discovery_run_snapshots(run_id) ON DELETE CASCADE

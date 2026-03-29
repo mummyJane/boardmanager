@@ -39,6 +39,21 @@ static void m5stack_cores3_gnss_v1_boot_gnss_module(void)
     m5stack_cores3_gnss_v1_platform_boot_gnss_module();
 }
 
+static const char *const m5stack_cores3_gnss_v1_capabilities[] = {
+    "audio",
+    "battery",
+    "bluetooth_le",
+    "display",
+    "gnss",
+    "imu",
+    "jtag",
+    "rtc",
+    "touch",
+    "uart",
+    "usb",
+    "wifi",
+};
+
 static const board_io_descriptor_t m5stack_cores3_gnss_v1_io[] = {
     { "gnss_pps", BOARD_IO_DIGITAL_INPUT, "gnss_pulse_per_second", "GPIO8", "G8", "GNSS_PPS", true },
 };
@@ -50,6 +65,8 @@ const board_descriptor_t m5stack_cores3_gnss_v1_descriptor = {
     "ESP32-S3",
     "ESP32-S3FN16",
     "esp-idf",
+    12,
+    m5stack_cores3_gnss_v1_capabilities,
     1,
     m5stack_cores3_gnss_v1_io
 };

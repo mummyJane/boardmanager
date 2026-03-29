@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 18:48 Europe/London
+Last updated: 2026-03-29 19:05 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -45,6 +45,7 @@ Initial success criteria:
 - family profiles are enriched with exact board metadata or likely board candidates from the Stage 1 board catalog
 - operators can assign stable labels and notes to physical units without depending on the current COM port
 - discovery persists firmware app id, version, build id, and self-reported board id per unit where firmware exposes it
+- firmware board-agent handshakes expose self-reported capability sets that flow into discovery, history, query, and SQLite persistence
 - unit history preserves cumulative owner, location, and purpose changes for each stable unit id
 - discovery preserves known units that are missing from the latest scan and records their missing state
 - the unit and family model preserve transition summaries for first-seen, last-seen, last-present, and last-missing state changes

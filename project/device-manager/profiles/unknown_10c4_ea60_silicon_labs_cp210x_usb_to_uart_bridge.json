@@ -1,0 +1,28 @@
+{
+  "profileId": "unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge",
+  "familyKey": "unknown:vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+  "status": "draft",
+  "createdAt": "2026-03-29T17:23:22.319Z",
+  "updatedAt": "2026-03-29T17:23:22.319Z",
+  "boardIds": [],
+  "sampleUnitIds": [
+    "usb:USB\\VID_10C4&PID_EA60\\0001"
+  ],
+  "fingerprint": {
+    "fingerprintKey": "vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+    "vid": "10C4",
+    "pid": "EA60",
+    "chipFamily": null,
+    "chip": null,
+    "description": "Silicon Labs CP210x USB to UART Bridge",
+    "name": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+    "firmwareSignature": null,
+    "capabilities": []
+  },
+  "notes": [
+    "Discovery created this draft profile because a previously unseen board family was observed.",
+    "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+  ],
+  "exactBoard": null,
+  "candidateBoards": []
+}

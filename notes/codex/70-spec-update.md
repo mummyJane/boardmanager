@@ -122,3 +122,5 @@
 - 2026-03-29 18:32 Europe/London: Stage 2 spec updated to require schema validation for persisted device-manager data and family profiles as part of normal validation. Reason: later service and UI layers depend on these files being structurally valid, not just present.
 
 - 2026-03-29 18:48 Europe/London: Stage 2 spec updated to require a local root signing keypair and Board Manager-generated per-unit keys until boards generate their own during setup. Reason: the immediate security model needs signed per-unit manifests now, while later setup flows can migrate identity-key generation onto the boards themselves.
+
+- 2026-03-29 19:05 Europe/London: Stage 2 spec updated to require a stable firmware board-agent handshake carrying board id, firmware version/build identity, and capability data. Reason: the discovery stack now has real multiple-unit validation on identical boards, and direct self-reporting is more reliable than heuristic banner matching alone for later web and remote consumers.

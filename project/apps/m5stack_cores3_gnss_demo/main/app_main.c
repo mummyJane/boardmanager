@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "m5stack_cores3_gnss_v1.h"
+#include "board_agent.h"
 
 #define BOARD_MANAGER_FW_APP "m5stack_cores3_gnss_demo"
 #define BOARD_MANAGER_FW_VERSION "0.1.0-dev"
@@ -16,6 +17,11 @@ void app_main(void)
         BOARD_MANAGER_FW_VERSION,
         BOARD_MANAGER_FW_BUILD_ID,
         "m5stack_cores3_gnss_v1");
+    board_manager_emit_agent_handshake(
+        &m5stack_cores3_gnss_v1_descriptor,
+        BOARD_MANAGER_FW_APP,
+        BOARD_MANAGER_FW_VERSION,
+        BOARD_MANAGER_FW_BUILD_ID);
     m5stack_cores3_gnss_v1_init();
     printf("Board init complete for %s using %s\n",
         m5stack_cores3_gnss_v1_descriptor.display_name,

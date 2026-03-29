@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T16:36:49.488Z",
+  "generatedAt": "2026-03-29T17:23:22.319Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -32,11 +32,21 @@
         "serialNumber": "7&203F6002&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
         "rawSignatureLine": "Board Manager dial smoke test starting",
-        "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1",
+        "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1",
+        "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
         "firmwareApp": "m5stack_dial_demo",
         "firmwareVersion": "0.1.0-dev",
-        "firmwareBuildId": "Mar 29 2026 15:44:03",
-        "firmwareBoard": "m5stack_dial_v1_1"
+        "firmwareBuildId": "Mar 29 2026 18:22:10",
+        "firmwareBoard": "m5stack_dial_v1_1",
+        "agentCapabilities": [
+          "display",
+          "rfid",
+          "rotaryEncoder",
+          "rtc",
+          "touch",
+          "usb",
+          "wifi"
+        ]
       },
       "annotation": {
         "label": null,
@@ -57,8 +67,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T16:36:49.488Z",
-        "seenCount": 15,
+        "lastSeenAt": "2026-03-29T17:23:22.319Z",
+        "seenCount": 16,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -89,11 +99,26 @@
         "serialNumber": "7&2D2626DF&0&0000",
         "firmwareSignature": "board_manager_cores3_gnss_demo",
         "rawSignatureLine": "Board Manager CoreS3 GNSS bring-up starting",
-        "firmwareLine": "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_cores3_gnss_v1",
+        "firmwareLine": "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 18:22:38 board=m5stack_cores3_gnss_v1",
+        "agentLine": "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38",
         "firmwareApp": "m5stack_cores3_gnss_demo",
         "firmwareVersion": "0.1.0-dev",
-        "firmwareBuildId": "Mar 29 2026 15:44:03",
-        "firmwareBoard": "m5stack_cores3_gnss_v1"
+        "firmwareBuildId": "Mar 29 2026 18:22:38",
+        "firmwareBoard": "m5stack_cores3_gnss_v1",
+        "agentCapabilities": [
+          "audio",
+          "battery",
+          "bluetooth_le",
+          "display",
+          "gnss",
+          "imu",
+          "jtag",
+          "rtc",
+          "touch",
+          "uart",
+          "usb",
+          "wifi"
+        ]
       },
       "annotation": {
         "label": null,
@@ -114,8 +139,8 @@
         "familyKey": "board:m5stack_cores3_gnss_v1",
         "profileId": "board_m5stack_cores3_gnss_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T16:36:49.488Z",
-        "seenCount": 15,
+        "lastSeenAt": "2026-03-29T17:23:22.319Z",
+        "seenCount": 16,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -146,11 +171,21 @@
         "serialNumber": "7&39B40148&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
         "rawSignatureLine": "Board Manager dial smoke test starting",
-        "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1",
+        "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1",
+        "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
         "firmwareApp": "m5stack_dial_demo",
         "firmwareVersion": "0.1.0-dev",
-        "firmwareBuildId": "Mar 29 2026 15:44:03",
-        "firmwareBoard": "m5stack_dial_v1_1"
+        "firmwareBuildId": "Mar 29 2026 18:22:10",
+        "firmwareBoard": "m5stack_dial_v1_1",
+        "agentCapabilities": [
+          "display",
+          "rfid",
+          "rotaryEncoder",
+          "rtc",
+          "touch",
+          "usb",
+          "wifi"
+        ]
       },
       "annotation": {
         "label": null,
@@ -171,8 +206,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T16:36:49.488Z",
-        "seenCount": 15,
+        "lastSeenAt": "2026-03-29T17:23:22.319Z",
+        "seenCount": 16,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -204,10 +239,12 @@
         "firmwareSignature": null,
         "rawSignatureLine": null,
         "firmwareLine": null,
+        "agentLine": null,
         "firmwareApp": null,
         "firmwareVersion": null,
         "firmwareBuildId": null,
-        "firmwareBoard": null
+        "firmwareBoard": null,
+        "agentCapabilities": []
       },
       "annotation": {
         "label": null,
@@ -228,9 +265,68 @@
         "familyKey": "board:p_nucleo_usb001_f072rb_v1",
         "profileId": "board_p_nucleo_usb001_f072rb_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T16:36:49.488Z",
-        "seenCount": 12,
+        "lastSeenAt": "2026-03-29T17:23:22.319Z",
+        "seenCount": 13,
         "reason": "Stable identity matches a previously seen physical unit"
+      }
+    },
+    {
+      "unitId": "usb:USB\\VID_10C4&PID_EA60\\0001",
+      "identity": {
+        "stableKey": "usb:USB\\VID_10C4&PID_EA60\\0001",
+        "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+        "mac": null,
+        "serialNumber": "0001",
+        "aliases": [
+          "COM7",
+          "Silicon Labs CP210x USB to UART Bridge (COM7)"
+        ]
+      },
+      "transport": {
+        "kind": "serial",
+        "port": "COM7",
+        "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+        "description": "Silicon Labs CP210x USB to UART Bridge",
+        "name": "Silicon Labs CP210x USB to UART Bridge (COM7)"
+      },
+      "observed": {
+        "vid": "10C4",
+        "pid": "EA60",
+        "chip": null,
+        "mac": null,
+        "serialNumber": "0001",
+        "firmwareSignature": null,
+        "rawSignatureLine": null,
+        "firmwareLine": null,
+        "agentLine": null,
+        "firmwareApp": null,
+        "firmwareVersion": null,
+        "firmwareBuildId": null,
+        "firmwareBoard": null,
+        "agentCapabilities": []
+      },
+      "annotation": {
+        "label": null,
+        "notes": [],
+        "owner": null,
+        "location": null,
+        "purpose": null,
+        "updatedAt": null
+      },
+      "match": {
+        "status": "unmatched",
+        "boardId": null,
+        "reason": "No current heuristic matched this unit to a known board definition",
+        "source": null
+      },
+      "history": {
+        "status": "new-family",
+        "familyKey": "unknown:vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+        "profileId": "unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge",
+        "firstSeenAt": "2026-03-29T17:23:22.319Z",
+        "lastSeenAt": "2026-03-29T17:23:22.319Z",
+        "seenCount": 1,
+        "reason": "Neither this physical unit nor its card family has been seen before"
       }
     }
   ]

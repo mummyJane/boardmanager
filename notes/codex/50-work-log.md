@@ -840,3 +840,59 @@ Validation:
 - Added tracked schemas for local key manifests at project/device-manager/schema/unit-key-manifest.schema.json and project/device-manager/schema/key-manifest-index.schema.json.
 - Generated a local root signing keypair plus per-unit AES and Ed25519 identity keys under keys/ for the four current stable units.
 - Validation: .\manage-unit-keys.ps1 -AllUnits, .\manage-unit-keys.ps1 -Unit "mac:c0:4e:30:13:2b:68" -Rotate, and inspection of keys/key-manifest-index.json, keys/root/root-manifest.json, and unit manifest files. Note: generated secrets and local manifests remain gitignored and were not committed.
+
+## 2026-03-29 19:05 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/apps/m5stack_dial_demo/main/app_main.c`
+- `Get-Content project/apps/m5stack_cores3_gnss_demo/main/app_main.c`
+- `Get-Content project/apps/p_nucleo_usb001_demo/main/main.c`
+- `Get-Content project/scripts/generate-board-artifacts.mjs`
+- `node project/scripts/generate-board-artifacts.mjs`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1`
+- `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM3`
+- `program.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit COM4`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM5`
+- `discover.ps1`
+- `validate.ps1`
+- `query.ps1 -View units -Format json`
+- `sync-device-manager-db.ps1`
+- `python -c "...sqlite query..."`
+
+Observed issues:
+
+- `apply_patch` continued to fail in the Windows sandbox before patch application, so this task used small file-by-file PowerShell edits instead.
+- the first `p_nucleo_usb001_demo` host build failed at link time because `stm32f072rbtx_flash.ld` did not provide the `end` symbol expected by the bare-metal `_sbrk` path.
+- discovery observed an extra `COM7` unit during validation, reported by Windows as `Silicon Labs CP210x USB to UART Bridge (COM7)`.
+
+Actions:
+
+- widened `board_descriptor_t` to carry generated capability lists and added `project/firmware-common/board_agent.h` as the shared board-agent handshake emitter.
+- updated the artifact generator so each generated board descriptor now exports a deterministic sorted capability array from Stage 1 board metadata.
+- updated the Dial, CoreS3+GNSS, and P-NUCLEO demo apps to emit a stable `BoardManagerAgent:` line alongside the existing `BoardManagerFirmware:` line.
+- extended discovery to parse the board-agent handshake, merge its board/app/version/build identity into the existing firmware identity path, and persist `agentLine` plus capability sets in inventory, unit history, discovery runs, profiles, query output, and SQLite.
+- extended candidate-board scoring to consider observed capability overlap when draft family profiles are ranked.
+- widened the SQLite schema and sync flow to persist firmware capability sets and raw agent lines for units and discovery runs.
+- fixed the F072 linker script by adding `_Min_Heap_Size`, `_Min_Stack_Size`, and `end` / `_end` symbols in the RAM heap-stack section.
+- reran discovery after flashing the updated ESP32 units, which also created a new draft profile for the unexpected `COM7` CP210x bridge.
+
+Validation:
+
+- `node project/scripts/generate-board-artifacts.mjs` -> success; regenerated all five board sources with capability arrays in their descriptors.
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success.
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1` -> success.
+- first `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` -> failed on undefined reference to `end`.
+- second `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` -> success after linker-script fix.
+- `program.ps1 ... COM3` -> success; flashed updated Dial firmware and confirmed MAC `c0:4e:30:13:2b:68`.
+- `program.ps1 ... COM4` -> success; flashed updated CoreS3+GNSS firmware and confirmed MAC `48:27:e2:66:b0:04`.
+- `program.ps1 ... COM5` -> success; flashed updated Dial firmware and confirmed MAC `c0:4e:30:12:b3:e0`.
+- `discover.ps1` -> success; persisted board-agent handshake data for COM3, COM4, and COM5, retained COM6, and created a draft profile for the unexpected COM7 CP210x bridge.
+- `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 4 profile files.
+- `query.ps1 -View units -Format json` -> success; JSON output now includes `firmwareBoard` and `firmwareCapabilities`.
+- `sync-device-manager-db.ps1` and direct SQLite query -> success; unit rows now include firmware capability strings and truncated board-agent lines.

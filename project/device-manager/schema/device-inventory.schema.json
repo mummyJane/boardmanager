@@ -57,10 +57,12 @@
               "firmwareSignature": { "type": ["string", "null"] },
               "rawSignatureLine": { "type": ["string", "null"] },
               "firmwareLine": { "type": ["string", "null"] },
+              "agentLine": { "type": ["string", "null"] },
               "firmwareApp": { "type": ["string", "null"] },
               "firmwareVersion": { "type": ["string", "null"] },
               "firmwareBuildId": { "type": ["string", "null"] },
-              "firmwareBoard": { "type": ["string", "null"] }
+              "firmwareBoard": { "type": ["string", "null"] },
+              "agentCapabilities": { "type": "array", "items": { "type": "string" } }
             }
           },
           "annotation": {

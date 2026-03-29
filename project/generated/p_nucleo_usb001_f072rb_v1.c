@@ -25,6 +25,13 @@ static void p_nucleo_usb001_f072rb_v1_boot_usb_pd_controller(void)
     p_nucleo_usb001_f072rb_v1_platform_boot_usb_pd_controller();
 }
 
+static const char *const p_nucleo_usb001_f072rb_v1_capabilities[] = {
+    "jtag",
+    "powerDelivery",
+    "uart",
+    "usb",
+};
+
 static const board_io_descriptor_t p_nucleo_usb001_f072rb_v1_io[] = {
     { "heartbeat_led", BOARD_IO_DIGITAL_OUTPUT, "status_indicator", "PA5", "PA5", "LD2", true },
     { "vconn_enable", BOARD_IO_DIGITAL_OUTPUT, "usb_pd_vconn_enable", "PA6", "PA6", "VCONN_SWITCH", true },
@@ -40,6 +47,8 @@ const board_descriptor_t p_nucleo_usb001_f072rb_v1_descriptor = {
     "STM32F072",
     "STM32F072RBT6 LQFP64",
     "stm32cube",
+    4,
+    p_nucleo_usb001_f072rb_v1_capabilities,
     5,
     p_nucleo_usb001_f072rb_v1_io
 };
