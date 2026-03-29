@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "board-manager-family-profile.schema.json",
+  "title": "Board Manager Family Profile",
+  "type": "object",
+  "required": ["profileId", "familyKey", "status", "createdAt", "fingerprint"],
+  "properties": {
+    "profileId": { "type": "string" },
+    "familyKey": { "type": "string" },
+    "status": { "type": "string" },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" },
+    "boardIds": { "type": "array", "items": { "type": "string" } },
+    "sampleUnitIds": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "object" },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  }
+}

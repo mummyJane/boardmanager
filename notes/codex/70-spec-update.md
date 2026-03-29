@@ -74,3 +74,8 @@
 
 - Added a stable per-unit identity requirement to Stage 2 discovery, including MAC, USB instance path, serial number, and alias history. This change is needed because multiple attached boards can share the same model and USB VID/PID, so the system must track individual physical units across COM-port changes.
 
+
+## 2026-03-29 14:45 Europe/London
+
+- Expanded Stage 2 to require cumulative unit history, family-level fallback matching, and draft-profile creation for genuinely new card families. This change is needed because the system must distinguish between the same physical board, another board of a known type, and an entirely new card appearing on the bench.
+

@@ -18,7 +18,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["unitId", "identity", "transport", "observed", "match"],
+        "required": ["unitId", "identity", "transport", "observed", "match", "history"],
         "properties": {
           "unitId": { "type": "string" },
           "identity": {
@@ -64,6 +64,20 @@
             "properties": {
               "status": { "type": "string" },
               "boardId": { "type": ["string", "null"] },
+              "reason": { "type": ["string", "null"] },
+              "source": { "type": ["string", "null"] }
+            }
+          },
+          "history": {
+            "type": "object",
+            "required": ["status", "familyKey"],
+            "properties": {
+              "status": { "type": "string" },
+              "familyKey": { "type": "string" },
+              "profileId": { "type": ["string", "null"] },
+              "firstSeenAt": { "type": ["string", "null"] },
+              "lastSeenAt": { "type": ["string", "null"] },
+              "seenCount": { "type": ["integer", "null"] },
               "reason": { "type": ["string", "null"] }
             }
           }

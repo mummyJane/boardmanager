@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, access } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
@@ -10,7 +10,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(projectRoot, "..");
-const inventoryPath = path.join(projectRoot, "device-manager", "data", "inventory.json");
+const deviceManagerRoot = path.join(projectRoot, "device-manager");
+const inventoryPath = path.join(deviceManagerRoot, "data", "inventory.json");
+const unitHistoryPath = path.join(deviceManagerRoot, "data", "unit-history.json");
+const profilesRoot = path.join(deviceManagerRoot, "profiles");
 const espPython = path.join(projectRoot, "tools", "espressif", "python_env", "idf5.5_py3.13_env", "Scripts", "python.exe");
 const esptoolPy = path.join(projectRoot, "toolchains", "esp-idf", "esp-idf", "components", "esptool_py", "esptool", "esptool.py");
 
@@ -52,6 +55,27 @@ function pickSignatureLine(lines) {
   return lines.map((line) => line.trim()).find(Boolean) ?? null;
 }
 
+function simplifyChip(chip) {
+  const text = String(chip ?? "").toLowerCase();
+  if (text.includes("esp32-s3")) return "esp32-s3";
+  if (text.includes("esp32")) return "esp32";
+  if (text.includes("stm32f0")) return "stm32f0";
+  if (text.includes("stm32f4")) return "stm32f4";
+  return chip ?? null;
+}
+
+function sanitizeSegment(text) {
+  return String(text ?? "unknown")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 64) || "unknown";
+}
+
+function uniqueSorted(values) {
+  return Array.from(new Set((values ?? []).filter(Boolean))).sort();
+}
+
 async function readPorts() {
   const command = "Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3";
   const { stdout } = await execFileAsync("powershell", ["-NoProfile", "-Command", command], {
@@ -64,29 +88,42 @@ async function readPorts() {
   return Array.isArray(parsed) ? parsed : [parsed];
 }
 
-async function loadPreviousInventory() {
+async function readJsonOrDefault(filePath, fallback) {
   try {
-    const text = await readFile(inventoryPath, "utf8");
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed.units) ? parsed.units : [];
+    const text = await readFile(filePath, "utf8");
+    return JSON.parse(text);
   } catch {
-    return [];
+    return fallback;
   }
 }
 
-function buildPreviousIdentityIndex(previousUnits) {
+function buildIdentityIndex(units) {
+  const byStableKey = new Map();
   const byMac = new Map();
   const byUsbInstance = new Map();
   const bySerial = new Map();
 
-  for (const unit of previousUnits) {
-    const identity = unit.identity ?? {};
+  for (const unit of units) {
+    const identity = unit.identity ?? unit;
+    const stableKey = unit.stableKey ?? identity.stableKey;
+    if (stableKey) byStableKey.set(stableKey, unit);
     if (identity.mac) byMac.set(identity.mac, unit);
     if (identity.usbInstance) byUsbInstance.set(identity.usbInstance, unit);
     if (identity.serialNumber) bySerial.set(identity.serialNumber, unit);
   }
 
-  return { byMac, byUsbInstance, bySerial };
+  return { byStableKey, byMac, byUsbInstance, bySerial };
+}
+
+function buildFamilyIndex(families) {
+  const byFamilyKey = new Map();
+  const byFingerprintKey = new Map();
+  for (const family of families) {
+    byFamilyKey.set(family.familyKey, family);
+    const fingerprintKey = family.fingerprint?.fingerprintKey;
+    if (fingerprintKey) byFingerprintKey.set(fingerprintKey, family);
+  }
+  return { byFamilyKey, byFingerprintKey };
 }
 
 async function runEspTool(port) {
@@ -153,7 +190,7 @@ function deriveStableKey(observed, transport, previousMatch) {
 }
 
 function mergeIdentity(observed, transport, previousMatch) {
-  const prior = previousMatch?.identity ?? {};
+  const prior = previousMatch?.identity ?? previousMatch ?? {};
   const aliases = new Set(Array.isArray(prior.aliases) ? prior.aliases : []);
   if (transport.port) aliases.add(transport.port);
   if (transport.name) aliases.add(transport.name);
@@ -167,14 +204,14 @@ function mergeIdentity(observed, transport, previousMatch) {
   };
 }
 
-function findPreviousMatch(observed, transport, indices) {
+function findPreviousUnit(observed, transport, indices) {
   if (observed.mac && indices.byMac.has(observed.mac)) return indices.byMac.get(observed.mac);
   if (transport.usbInstance && indices.byUsbInstance.has(transport.usbInstance)) return indices.byUsbInstance.get(transport.usbInstance);
   if (observed.serialNumber && indices.bySerial.has(observed.serialNumber)) return indices.bySerial.get(observed.serialNumber);
   return null;
 }
 
-function matchUnit(unit) {
+function basicHeuristicMatch(unit) {
   const { description, name } = unit.transport;
   const { mac, firmwareSignature, rawSignatureLine } = unit.observed;
 
@@ -182,7 +219,8 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "p_nucleo_usb001_f072rb_v1",
-      reason: "STLink virtual COM port matches the attached P-NUCLEO-USB001 / Nucleo-F072RB"
+      reason: "STLink virtual COM port matches the attached P-NUCLEO-USB001 / Nucleo-F072RB",
+      source: "heuristic"
     };
   }
 
@@ -190,7 +228,8 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "m5stack_cores3_gnss_v1",
-      reason: "Current firmware signature matches the CoreS3 GNSS demo"
+      reason: "Current firmware signature matches the CoreS3 GNSS demo",
+      source: "heuristic"
     };
   }
 
@@ -198,7 +237,8 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "m5stack_dial_v1_1",
-      reason: "Current firmware signature matches a Dial smoke test or factory test image"
+      reason: "Current firmware signature matches a Dial smoke test or factory test image",
+      source: "heuristic"
     };
   }
 
@@ -206,7 +246,8 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "m5stack_dial_v1_1",
-      reason: "Boot banner identifies the board as the Dial smoke test image"
+      reason: "Boot banner identifies the board as the Dial smoke test image",
+      source: "heuristic"
     };
   }
 
@@ -214,7 +255,8 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "m5stack_cores3_gnss_v1",
-      reason: "Boot banner identifies the board as the CoreS3 GNSS bring-up image"
+      reason: "Boot banner identifies the board as the CoreS3 GNSS bring-up image",
+      source: "heuristic"
     };
   }
 
@@ -222,7 +264,8 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "m5stack_cores3_gnss_v1",
-      reason: "Observed MAC matches the previously fingerprinted CoreS3 GNSS bench unit"
+      reason: "Observed MAC matches the previously fingerprinted CoreS3 GNSS bench unit",
+      source: "heuristic"
     };
   }
 
@@ -230,18 +273,124 @@ function matchUnit(unit) {
     return {
       status: "matched",
       boardId: "m5stack_dial_v1_1",
-      reason: "Observed MAC matches the previously fingerprinted second Dial unit"
+      reason: "Observed MAC matches the previously fingerprinted second Dial unit",
+      source: "heuristic"
     };
   }
 
   return {
     status: "unmatched",
     boardId: null,
-    reason: "No current heuristic matched this unit to a known board definition"
+    reason: "No current heuristic matched this unit to a known board definition",
+    source: null
   };
 }
 
-async function observePort(portInfo, previousIndices) {
+function deriveFamilyFingerprint(unit) {
+  const nameText = `${unit.transport.description ?? ""} ${unit.transport.name ?? ""}`.toLowerCase();
+  const chipFamily = simplifyChip(unit.observed.chip);
+
+  if (unit.match.boardId) {
+    return {
+      familyKey: `board:${unit.match.boardId}`,
+      profileId: `board_${sanitizeSegment(unit.match.boardId)}`,
+      status: "known-board",
+      fingerprintKey: `board:${unit.match.boardId}`,
+      vid: unit.observed.vid,
+      pid: unit.observed.pid,
+      chipFamily,
+      chip: unit.observed.chip,
+      description: unit.transport.description ?? null,
+      name: unit.transport.name ?? null,
+      firmwareSignature: unit.observed.firmwareSignature ?? null,
+    };
+  }
+
+  if (nameText.includes("stlink")) {
+    return {
+      familyKey: `transport:stlink:${unit.observed.vid ?? "unknown"}:${unit.observed.pid ?? "unknown"}`,
+      profileId: `transport_stlink_${sanitizeSegment(unit.observed.vid)}_${sanitizeSegment(unit.observed.pid)}`,
+      status: "known-transport-family",
+      fingerprintKey: `transport:stlink:${unit.observed.vid ?? "unknown"}:${unit.observed.pid ?? "unknown"}`,
+      vid: unit.observed.vid,
+      pid: unit.observed.pid,
+      chipFamily,
+      chip: unit.observed.chip,
+      description: unit.transport.description ?? null,
+      name: unit.transport.name ?? null,
+      firmwareSignature: unit.observed.firmwareSignature ?? null,
+    };
+  }
+
+  const fingerprintParts = [
+    `vidpid:${unit.observed.vid ?? "unknown"}:${unit.observed.pid ?? "unknown"}`,
+    `chip:${sanitizeSegment(chipFamily ?? unit.observed.chip ?? "unknown")}`,
+    `desc:${sanitizeSegment(unit.transport.description ?? unit.transport.name ?? "unknown")}`,
+  ];
+
+  return {
+    familyKey: `unknown:${fingerprintParts.join("|")}`,
+    profileId: `unknown_${sanitizeSegment(unit.observed.vid)}_${sanitizeSegment(unit.observed.pid)}_${sanitizeSegment(chipFamily ?? unit.observed.chip ?? unit.transport.description ?? "unit")}`,
+    status: "emerging",
+    fingerprintKey: fingerprintParts.join("|"),
+    vid: unit.observed.vid,
+    pid: unit.observed.pid,
+    chipFamily,
+    chip: unit.observed.chip,
+    description: unit.transport.description ?? null,
+    name: unit.transport.name ?? null,
+    firmwareSignature: unit.observed.firmwareSignature ?? null,
+  };
+}
+
+function resolveMatch(unit, previousUnit, existingFamily) {
+  if (unit.match.status === "matched") {
+    return unit.match;
+  }
+
+  if (previousUnit?.boardIds?.length) {
+    return {
+      status: "matched",
+      boardId: previousUnit.boardIds[previousUnit.boardIds.length - 1],
+      reason: "Stable unit identity matches a previously seen unit with a recorded board type",
+      source: "history-unit"
+    };
+  }
+
+  if (existingFamily?.boardIds?.length === 1) {
+    return {
+      status: "matched",
+      boardId: existingFamily.boardIds[0],
+      reason: "New physical unit matches a previously seen board family",
+      source: "history-family"
+    };
+  }
+
+  return unit.match;
+}
+
+function buildHistoryStatus(previousUnit, existingFamily) {
+  if (previousUnit) {
+    return {
+      status: "known-unit",
+      reason: "Stable identity matches a previously seen physical unit"
+    };
+  }
+
+  if (existingFamily) {
+    return {
+      status: "known-family",
+      reason: "This physical unit is new, but its board family was seen before"
+    };
+  }
+
+  return {
+    status: "new-family",
+    reason: "Neither this physical unit nor its card family has been seen before"
+  };
+}
+
+async function observePort(portInfo, unitIndex, familyIndex) {
   const transport = {
     kind: "serial",
     port: portInfo.DeviceID,
@@ -271,8 +420,8 @@ async function observePort(portInfo, previousIndices) {
     observed.rawSignatureLine = signature.rawSignatureLine;
   }
 
-  const previousMatch = findPreviousMatch(observed, transport, previousIndices);
-  const identity = mergeIdentity(observed, transport, previousMatch);
+  const previousUnit = findPreviousUnit(observed, transport, unitIndex);
+  const identity = mergeIdentity(observed, transport, previousUnit);
 
   const unit = {
     unitId: identity.stableKey,
@@ -287,27 +436,173 @@ async function observePort(portInfo, previousIndices) {
       firmwareSignature: observed.firmwareSignature,
       rawSignatureLine: observed.rawSignatureLine,
     },
-    match: { status: "unknown", boardId: null, reason: null }
+    match: { status: "unknown", boardId: null, reason: null, source: null },
+    history: { status: "unknown", familyKey: "unknown", profileId: null, firstSeenAt: null, lastSeenAt: null, seenCount: null, reason: null }
   };
 
-  unit.match = matchUnit(unit);
-  return unit;
+  unit.match = basicHeuristicMatch(unit);
+  const familyFingerprint = deriveFamilyFingerprint(unit);
+  const existingFamily = familyIndex.byFamilyKey.get(familyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(familyFingerprint.fingerprintKey) ?? null;
+  unit.match = resolveMatch(unit, previousUnit, existingFamily);
+
+  const resolvedFamilyFingerprint = unit.match.boardId
+    ? deriveFamilyFingerprint({ ...unit, match: { ...unit.match } })
+    : familyFingerprint;
+  const resolvedFamily = familyIndex.byFamilyKey.get(resolvedFamilyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(resolvedFamilyFingerprint.fingerprintKey) ?? null;
+  const historyStatus = buildHistoryStatus(previousUnit, resolvedFamily);
+
+  unit.history = {
+    status: historyStatus.status,
+    familyKey: resolvedFamilyFingerprint.familyKey,
+    profileId: resolvedFamilyFingerprint.profileId,
+    firstSeenAt: previousUnit?.firstSeenAt ?? resolvedFamily?.firstSeenAt ?? null,
+    lastSeenAt: previousUnit?.lastSeenAt ?? resolvedFamily?.lastSeenAt ?? null,
+    seenCount: previousUnit?.seenCount ?? null,
+    reason: historyStatus.reason,
+  };
+
+  return { unit, previousUnit, familyFingerprint: resolvedFamilyFingerprint, existingFamily: resolvedFamily };
+}
+
+function mergeObservedHistory(existing, unit) {
+  return {
+    vid: unit.observed.vid ?? existing?.vid ?? null,
+    pid: unit.observed.pid ?? existing?.pid ?? null,
+    chips: uniqueSorted([...(existing?.chips ?? []), unit.observed.chip]),
+    firmwareSignatures: uniqueSorted([...(existing?.firmwareSignatures ?? []), unit.observed.firmwareSignature]),
+    rawSignatureLines: uniqueSorted([...(existing?.rawSignatureLines ?? []), unit.observed.rawSignatureLine]),
+  };
+}
+
+async function ensureProfileFile(familyRecord, timestamp, isNewProfile) {
+  await mkdir(profilesRoot, { recursive: true });
+  const profilePath = path.join(profilesRoot, `${familyRecord.profileId}.json`);
+  let profile = null;
+
+  try {
+    const text = await readFile(profilePath, "utf8");
+    profile = JSON.parse(text);
+  } catch {
+    profile = {
+      profileId: familyRecord.profileId,
+      familyKey: familyRecord.familyKey,
+      status: familyRecord.status === "emerging" ? "draft" : "known-family",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      boardIds: familyRecord.boardIds,
+      sampleUnitIds: familyRecord.sampleUnitIds,
+      fingerprint: familyRecord.fingerprint,
+      notes: [
+        familyRecord.status === "emerging"
+          ? "Discovery created this draft profile because a previously unseen board family was observed."
+          : "Discovery created this family profile from known board observations."
+      ]
+    };
+  }
+
+  profile.updatedAt = timestamp;
+  profile.boardIds = uniqueSorted([...(profile.boardIds ?? []), ...(familyRecord.boardIds ?? [])]);
+  profile.sampleUnitIds = uniqueSorted([...(profile.sampleUnitIds ?? []), ...(familyRecord.sampleUnitIds ?? [])]);
+  profile.fingerprint = familyRecord.fingerprint;
+  if (isNewProfile && !(profile.notes ?? []).includes("Review this profile and replace generic fingerprint data with a proper board definition match when known.")) {
+    profile.notes = [
+      ...(profile.notes ?? []),
+      "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+    ];
+  }
+
+  await writeFile(profilePath, `${JSON.stringify(profile, null, 2)}\n`, "utf8");
+}
+
+async function updateHistory(state, unit, familyFingerprint, timestamp) {
+  const units = Array.isArray(state.units) ? state.units : [];
+  const families = Array.isArray(state.families) ? state.families : [];
+  const unitIndex = units.findIndex((entry) => entry.stableKey === unit.identity.stableKey);
+  const familyIndex = families.findIndex((entry) => entry.familyKey === familyFingerprint.familyKey);
+
+  const existingUnit = unitIndex >= 0 ? units[unitIndex] : null;
+  const existingFamily = familyIndex >= 0 ? families[familyIndex] : null;
+
+  const nextUnit = {
+    stableKey: unit.identity.stableKey,
+    firstSeenAt: existingUnit?.firstSeenAt ?? timestamp,
+    lastSeenAt: timestamp,
+    seenCount: (existingUnit?.seenCount ?? 0) + 1,
+    familyKey: familyFingerprint.familyKey,
+    profileId: familyFingerprint.profileId,
+    boardIds: uniqueSorted([...(existingUnit?.boardIds ?? []), unit.match.boardId]),
+    identity: unit.identity,
+    lastTransport: unit.transport,
+    observed: mergeObservedHistory(existingUnit?.observed, unit),
+  };
+
+  if (unitIndex >= 0) units[unitIndex] = nextUnit;
+  else units.push(nextUnit);
+
+  const nextFamily = {
+    familyKey: familyFingerprint.familyKey,
+    firstSeenAt: existingFamily?.firstSeenAt ?? timestamp,
+    lastSeenAt: timestamp,
+    seenCount: (existingFamily?.seenCount ?? 0) + 1,
+    status: familyFingerprint.status,
+    profileId: familyFingerprint.profileId,
+    boardIds: uniqueSorted([...(existingFamily?.boardIds ?? []), unit.match.boardId]),
+    sampleUnitIds: uniqueSorted([...(existingFamily?.sampleUnitIds ?? []), unit.identity.stableKey]).slice(0, 16),
+    fingerprint: {
+      fingerprintKey: familyFingerprint.fingerprintKey,
+      vid: familyFingerprint.vid,
+      pid: familyFingerprint.pid,
+      chipFamily: familyFingerprint.chipFamily,
+      chip: familyFingerprint.chip,
+      description: familyFingerprint.description,
+      name: familyFingerprint.name,
+      firmwareSignature: familyFingerprint.firmwareSignature,
+    }
+  };
+
+  if (familyIndex >= 0) families[familyIndex] = nextFamily;
+  else families.push(nextFamily);
+
+  state.units = units.sort((left, right) => String(left.stableKey).localeCompare(String(right.stableKey)));
+  state.families = families.sort((left, right) => String(left.familyKey).localeCompare(String(right.familyKey)));
+
+  await ensureProfileFile(nextFamily, timestamp, !existingFamily);
+
+  unit.history = {
+    status: unit.history.status,
+    familyKey: nextFamily.familyKey,
+    profileId: nextFamily.profileId,
+    firstSeenAt: nextUnit.firstSeenAt,
+    lastSeenAt: nextUnit.lastSeenAt,
+    seenCount: nextUnit.seenCount,
+    reason: unit.history.reason,
+  };
 }
 
 async function main() {
   const ports = await readPorts();
-  const previousUnits = await loadPreviousInventory();
-  const previousIndices = buildPreviousIdentityIndex(previousUnits);
+  const historyState = await readJsonOrDefault(unitHistoryPath, {
+    generatedAt: null,
+    host: { platform: "windows", hostname: null },
+    units: [],
+    families: [],
+  });
+
   const units = [];
+  const timestamp = new Date().toISOString();
 
   for (const portInfo of ports) {
-    units.push(await observePort(portInfo, previousIndices));
+    const unitIndex = buildIdentityIndex(historyState.units ?? []);
+    const familyIndex = buildFamilyIndex(historyState.families ?? []);
+    const { unit, familyFingerprint } = await observePort(portInfo, unitIndex, familyIndex);
+    await updateHistory(historyState, unit, familyFingerprint, timestamp);
+    units.push(unit);
   }
 
   units.sort((left, right) => String(left.transport.port).localeCompare(String(right.transport.port)));
 
-  const payload = {
-    generatedAt: new Date().toISOString(),
+  const inventoryPayload = {
+    generatedAt: timestamp,
     host: {
       platform: "windows",
       hostname: os.hostname(),
@@ -315,12 +610,20 @@ async function main() {
     units,
   };
 
+  historyState.generatedAt = timestamp;
+  historyState.host = {
+    platform: "windows",
+    hostname: os.hostname(),
+  };
+
   await mkdir(path.dirname(inventoryPath), { recursive: true });
-  await writeFile(inventoryPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  await mkdir(path.dirname(unitHistoryPath), { recursive: true });
+  await writeFile(inventoryPath, `${JSON.stringify(inventoryPayload, null, 2)}\n`, "utf8");
+  await writeFile(unitHistoryPath, `${JSON.stringify(historyState, null, 2)}\n`, "utf8");
 
   console.log(`Discovered ${units.length} units.`);
   for (const unit of units) {
-    console.log(`${unit.transport.port}: ${unit.match.boardId ?? "unmatched"} [${unit.identity.stableKey}] (${unit.match.reason})`);
+    console.log(`${unit.transport.port}: ${unit.match.boardId ?? "unmatched"} [${unit.identity.stableKey}] (${unit.history.status}; ${unit.history.reason})`);
   }
 }
 

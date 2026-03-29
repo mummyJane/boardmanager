@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T13:19:36.418Z",
+  "generatedAt": "2026-03-29T13:42:27.289Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -36,7 +36,17 @@
       "match": {
         "status": "matched",
         "boardId": "m5stack_dial_v1_1",
-        "reason": "Current firmware signature matches a Dial smoke test or factory test image"
+        "reason": "Current firmware signature matches a Dial smoke test or factory test image",
+        "source": "heuristic"
+      },
+      "history": {
+        "status": "known-unit",
+        "familyKey": "board:m5stack_dial_v1_1",
+        "profileId": "board_m5stack_dial_v1_1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T13:42:27.289Z",
+        "seenCount": 2,
+        "reason": "Stable identity matches a previously seen physical unit"
       }
     },
     {
@@ -70,7 +80,17 @@
       "match": {
         "status": "matched",
         "boardId": "m5stack_cores3_gnss_v1",
-        "reason": "Current firmware signature matches the CoreS3 GNSS demo"
+        "reason": "Current firmware signature matches the CoreS3 GNSS demo",
+        "source": "heuristic"
+      },
+      "history": {
+        "status": "known-unit",
+        "familyKey": "board:m5stack_cores3_gnss_v1",
+        "profileId": "board_m5stack_cores3_gnss_v1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T13:42:27.289Z",
+        "seenCount": 2,
+        "reason": "Stable identity matches a previously seen physical unit"
       }
     },
     {
@@ -104,7 +124,17 @@
       "match": {
         "status": "matched",
         "boardId": "m5stack_dial_v1_1",
-        "reason": "Current firmware signature matches a Dial smoke test or factory test image"
+        "reason": "Current firmware signature matches a Dial smoke test or factory test image",
+        "source": "heuristic"
+      },
+      "history": {
+        "status": "known-unit",
+        "familyKey": "board:m5stack_dial_v1_1",
+        "profileId": "board_m5stack_dial_v1_1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T13:42:27.289Z",
+        "seenCount": 2,
+        "reason": "Stable identity matches a previously seen physical unit"
       }
     },
     {
@@ -138,7 +168,17 @@
       "match": {
         "status": "matched",
         "boardId": "p_nucleo_usb001_f072rb_v1",
-        "reason": "STLink virtual COM port matches the attached P-NUCLEO-USB001 / Nucleo-F072RB"
+        "reason": "STLink virtual COM port matches the attached P-NUCLEO-USB001 / Nucleo-F072RB",
+        "source": "heuristic"
+      },
+      "history": {
+        "status": "known-unit",
+        "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+        "profileId": "board_p_nucleo_usb001_f072rb_v1",
+        "firstSeenAt": "2026-03-29T13:41:50.532Z",
+        "lastSeenAt": "2026-03-29T13:42:27.289Z",
+        "seenCount": 2,
+        "reason": "Stable identity matches a previously seen physical unit"
       }
     }
   ]

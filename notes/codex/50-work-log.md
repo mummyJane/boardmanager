@@ -518,3 +518,39 @@ Validation:
 - `discover.ps1` first rerun -> success; discovered 4 units and assigned MAC-backed stable keys to the ESP32 units, but left `COM3` unmatched because the current banner heuristic was too generic
 - second `discover.ps1` rerun after the heuristic fix -> success; matched `COM3` and `COM5` to `m5stack_dial_v1_1`, `COM4` to `m5stack_cores3_gnss_v1`, and `COM6` to `p_nucleo_usb001_f072rb_v1` while keeping the two Dials distinct as `mac:c0:4e:30:13:2b:68` and `mac:c0:4e:30:12:b3:e0`
 
+
+## 2026-03-29 14:45 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/20-plan.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/device-manager/README.md`
+- `Get-Content project/device-manager/data/inventory.json`
+- `Get-Content project/scripts/discover-units.mjs`
+- updated `project/device-manager/README.md`, `project/device-manager/schema/device-inventory.schema.json`, `project/device-manager/schema/unit-history.schema.json`, `project/device-manager/schema/family-profile.schema.json`, `project/device-manager/data/unit-history.json`, and `project/scripts/discover-units.mjs`
+- `discover.ps1`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `Get-ChildItem project/device-manager/profiles | Select-Object Name`
+- repeated `discover.ps1` to validate known-unit matching
+
+Observed issues:
+
+- the previous discovery slice only preserved the latest snapshot, so there was no durable distinction between a known physical unit and a newly attached unit of a known board type
+- the first history-populating pass necessarily reports the first members of each family as `new-family`, because no persisted family history exists yet before that run
+
+Actions:
+
+- added persisted history and profile schemas under `project/device-manager/schema`
+- added `project/device-manager/data/unit-history.json` as the cumulative Stage 2 store for physical units and board families
+- extended the discovery script to maintain per-unit history, per-family history, and generated family profile files
+- added classification logic for `known-unit`, `known-family`, and `new-family` outcomes
+- made discovery create or update draft family profile files under `project/device-manager/profiles` when a family is first observed
+
+Validation:
+
+- first `discover.ps1` rerun -> success; populated cumulative history and classified `COM3`, `COM4`, and `COM6` as `new-family`, with `COM5` as `known-family` because the Dial family had already been seen earlier in the same run
+- second `discover.ps1` rerun -> success; classified `COM3`, `COM4`, `COM5`, and `COM6` as `known-unit` from stable identity history
+- generated profile files exist for the currently observed families: `board_m5stack_dial_v1_1.json`, `board_m5stack_cores3_gnss_v1.json`, and `board_p_nucleo_usb001_f072rb_v1.json`
+

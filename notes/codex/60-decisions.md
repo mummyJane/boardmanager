@@ -85,3 +85,10 @@
 - Use a stable unit-key priority of chip MAC, then USB instance path, then serial number, then current port fallback so identical bench units remain distinguishable across reconnects.
 - Preserve alias history such as prior COM ports and Windows device names in the discovery record so operator-facing tooling can recognize a unit even when its active port changes.
 
+
+## 2026-03-29 14:45 Europe/London
+
+- Separate the Stage 2 persistence into three layers: latest inventory snapshot, cumulative unit history, and family profile stubs. This keeps the operator view simple while preserving enough historical data to recognize both known units and known card types.
+- Prefer a board-family key such as `board:<boardId>` when a heuristic match exists, and only fall back to generic hardware fingerprints for unknown families. This keeps profile growth aligned with the Stage 1 board model instead of fragmenting known boards into too many profiles.
+- Treat the first history-building pass as valid even when it labels the first members of a family as `new-family`; the next pass is the expected proof that stable known-unit recognition works.
+

@@ -1,0 +1,28 @@
+{
+  "profileId": "board_m5stack_dial_v1_1",
+  "familyKey": "board:m5stack_dial_v1_1",
+  "status": "known-family",
+  "createdAt": "2026-03-29T13:41:50.532Z",
+  "updatedAt": "2026-03-29T13:42:27.289Z",
+  "boardIds": [
+    "m5stack_dial_v1_1"
+  ],
+  "sampleUnitIds": [
+    "mac:c0:4e:30:12:b3:e0",
+    "mac:c0:4e:30:13:2b:68"
+  ],
+  "fingerprint": {
+    "fingerprintKey": "board:m5stack_dial_v1_1",
+    "vid": "303A",
+    "pid": "1001",
+    "chipFamily": "esp32-s3",
+    "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+    "description": "USB Serial Device",
+    "name": "USB Serial Device (COM5)",
+    "firmwareSignature": "board_manager_dial_smoketest"
+  },
+  "notes": [
+    "Discovery created this family profile from known board observations.",
+    "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+  ]
+}

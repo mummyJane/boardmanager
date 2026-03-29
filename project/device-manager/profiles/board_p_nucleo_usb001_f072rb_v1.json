@@ -1,0 +1,27 @@
+{
+  "profileId": "board_p_nucleo_usb001_f072rb_v1",
+  "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+  "status": "known-family",
+  "createdAt": "2026-03-29T13:41:50.532Z",
+  "updatedAt": "2026-03-29T13:42:27.289Z",
+  "boardIds": [
+    "p_nucleo_usb001_f072rb_v1"
+  ],
+  "sampleUnitIds": [
+    "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+  ],
+  "fingerprint": {
+    "fingerprintKey": "board:p_nucleo_usb001_f072rb_v1",
+    "vid": "0483",
+    "pid": "374B",
+    "chipFamily": null,
+    "chip": null,
+    "description": "STMicroelectronics STLink Virtual COM Port",
+    "name": "STMicroelectronics STLink Virtual COM Port (COM6)",
+    "firmwareSignature": null
+  },
+  "notes": [
+    "Discovery created this family profile from known board observations.",
+    "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+  ]
+}
