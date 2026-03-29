@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 18:20 Europe/London
+Last updated: 2026-03-29 18:32 Europe/London
 
 ## Goal
 
@@ -84,7 +84,7 @@ Requirements:
 - the first diff view must report added or removed units, family population changes, and per-unit port or firmware changes between the latest two discovery runs
 - Stage 2 must be able to export stable JSON report files for the current bench state and the cumulative unit history so operators and remote systems can archive or hand off snapshots without querying the service live
 - the persisted Stage 2 JSON model must be synchronized into a simple SQLite database so later service and UI work can query normalized tables without replacing the existing discovery contract
-- the SQLite store should update automatically when discovery or unit-annotation flows change the persisted Stage 2 JSON state
+- the SQLite store should update automatically when discovery or unit-annotation flows change the persisted Stage 2 JSON state`r`n- Stage 2 persisted data files and family profiles must be validated against their schemas as part of the standard validation flow
 
 ### Stage 3: Build, Program, And Debug
 
@@ -131,3 +131,4 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+

@@ -118,3 +118,5 @@
 - 2026-03-29 18:00 Europe/London: Stage 2 spec updated to require exportable JSON report files for current bench state and cumulative unit history. Reason: operators and remote systems need a stable handoff artifact even when they are not calling the live service endpoint directly.
 
 - 2026-03-29 18:20 Europe/London: Stage 2 spec updated to require synchronized SQLite persistence behind the existing discovery model. Reason: later service and UI work need normalized table access, but the current JSON contract should remain stable for operators and existing scripts.
+
+- 2026-03-29 18:32 Europe/London: Stage 2 spec updated to require schema validation for persisted device-manager data and family profiles as part of normal validation. Reason: later service and UI layers depend on these files being structurally valid, not just present.

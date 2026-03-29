@@ -141,3 +141,5 @@
 
 - 2026-03-29 18:20 Europe/London: Kept JSON as the readable persisted discovery contract and synchronized it into SQLite, rather than making SQLite the only write target, so the existing CLI, service, and report paths remain stable while normalized tables become available for later service work.
 - 2026-03-29 18:20 Europe/London: SQLite sync is triggered automatically by discovery and annotation flows so the DB does not drift behind the Stage 2 JSON state.
+
+- 2026-03-29 18:32 Europe/London: Implemented a small in-repo JSON Schema subset validator for device-manager data instead of adding a third-party dependency, because the current schemas only need type, required, properties, items, minimum, and additionalProperties=false checks.

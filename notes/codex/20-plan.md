@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 18:20 Europe/London
+Last updated: 2026-03-29 18:32 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -51,7 +51,7 @@ Initial success criteria:
 - the model reserves a per-unit security binding for an AES key and an asymmetric keypair stored under `keys/`
 - the first query layer is reusable by operators now and by the future web UI and remote systems later
 - the first HTTP service endpoint exposes that same query contract for local and remote consumers
-- discovery persists a compact run ledger and can diff the latest two runs for added, removed, or changed units and families`n- operators can export the current bench snapshot and cumulative history as stable JSON report files under project/device-manager/reports`r`n- discovery and annotation flows synchronize the persisted Stage 2 model into project/device-manager/data/device-manager.sqlite for normalized table access
+- discovery persists a compact run ledger and can diff the latest two runs for added, removed, or changed units and families`n- operators can export the current bench snapshot and cumulative history as stable JSON report files under project/device-manager/reports`r`n- discovery and annotation flows synchronize the persisted Stage 2 model into project/device-manager/data/device-manager.sqlite for normalized table access`r`n- the standard validation flow also checks device-manager data files and family profiles against their schemas
 
 ## Future Milestones
 
@@ -66,5 +66,6 @@ Initial success criteria:
 - scaffold dashboard app
 - add inventory and board definition views
 - wire to service APIs
+
 
 

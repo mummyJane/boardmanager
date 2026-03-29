@@ -106,7 +106,7 @@ Use a controlled discovery pass, such as temporarily ignoring a known port, when
 
 Use `sync-device-manager-db.ps1` to rebuild the normalized SQLite database at `project/device-manager/data/device-manager.sqlite` from the persisted JSON sources.
 
-This sync is also run automatically by `discover.ps1` and `annotate-unit.ps1` so the database stays aligned with the current discovery model.
+This sync is also run automatically by `discover.ps1` and `annotate-unit.ps1` so the database stays aligned with the current discovery model.`r`n`r`n## Validation`r`n`r`nUse `validate.ps1` to validate both the board-definition model and the persisted device-manager data files.`r`n`r`nCurrent device-manager validation covers:`r`n`r`n- `data/inventory.json``r`n- `data/unit-history.json``r`n- `data/unit-annotations.json``r`n- `data/discovery-runs.json``r`n- `profiles/*.json`
 
 ## Report Export
 
@@ -133,3 +133,4 @@ Endpoints:
 Example:
 
 - `./serve-device-manager.ps1 -BindHost 127.0.0.1 -Port 8787`
+

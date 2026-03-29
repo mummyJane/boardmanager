@@ -122,6 +122,20 @@ function Invoke-BoardGenerator {
     }
 }
 
+function Invoke-DeviceManagerValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & node project/scripts/validate-device-manager-data.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Device-manager validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
 function Initialize-EspIdfEnv {
     param([hashtable]$Paths)
 
@@ -169,3 +183,4 @@ function Initialize-Stm32Env {
     [Environment]::SetEnvironmentVariable('STM32CUBE_F4_ROOT', $sdkRoot, 'Process')
     [Environment]::SetEnvironmentVariable('STM32CUBE_F0_ROOT', $sdkF0Root, 'Process')
 }
+

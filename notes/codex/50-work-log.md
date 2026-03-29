@@ -830,3 +830,8 @@ Validation:
 - Added top-level sync wrapper .\\sync-device-manager-db.ps1 and automatic SQLite sync hooks in .\\discover.ps1 and .\\annotate-unit.ps1.
 - Persisted normalized SQLite database at project/device-manager/data/device-manager.sqlite from the current Stage 2 JSON sources.
 - Validation: .\\discover.ps1, .\\sync-device-manager-db.ps1, and direct sqlite3 queries through Python confirmed 4 units, 3 families, 5 discovery runs, and current firmware/port rows for the attached bench units.
+
+## 2026-03-29 18:32 Europe/London
+- Added project/scripts/validate-device-manager-data.mjs to validate persisted Stage 2 data files and family profiles against their schemas.
+- Hooked device-manager schema validation into validate.ps1 via common.ps1 so standard validation now checks both board definitions and persisted device-manager state.
+- Validation: .\\validate.ps1 and direct run of node project/scripts/validate-device-manager-data.mjs both passed on the current repo state.
