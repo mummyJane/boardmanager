@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 21:05 Europe/London
+Last updated: 2026-03-29 21:20 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -87,4 +87,7 @@ Initial success criteria:
 
 
 - 2026-03-29 21:05 Europe/London: Completed retention rules for Stage 2 by capping discovery-run history and rolling observed arrays, with the retention pass wired into discover.ps1 before SQLite sync.
+
+
+- 2026-03-29 21:20 Europe/London: Completed basic service-layer APIs with direct JSON endpoints for inventory, history, and profiles on top of the existing query service.
 

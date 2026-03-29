@@ -129,6 +129,9 @@ Endpoints:
 - `GET /api/query?view=families`
 - `GET /api/query?view=changes&limit=10`
 - `GET /api/query?view=diff`
+- `GET /api/inventory`
+- `GET /api/history`
+- `GET /api/profiles`
 
 Example:
 
@@ -162,3 +165,5 @@ Example:
 - Default caps keep the latest 50 discovery runs, the latest 12 values in rolling observed arrays, the latest 20 raw signature lines, the latest 50 metadata-history entries, and the latest 100 resolved conflicts.
 - `discover.ps1` now runs this retention pass automatically after each discovery update.
 - Use `retain-history.ps1 -DryRun -MaxRuns 5` to preview what would be pruned without mutating the persisted data.
+
+

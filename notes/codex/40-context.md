@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 21:05 Europe/London
+Last updated: 2026-03-29 21:20 Europe/London
 
 ## Project Intent
 
@@ -147,4 +147,6 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 20:45 Europe/London: Added `reconcile-family.ps1` and `project/scripts/reconcile-family-profile.mjs` so draft family profiles can be dry-run reviewed and later reconciled into known board profiles without losing the original draft evidence. Validation for this task stayed dry-run against `unknown_10c4_ea60_esp32` because the exact COM7 board identity is still not confirmed.
 
 - 2026-03-29 21:05 Europe/London: Added `project/scripts/prune-device-manager-history.mjs` and `retain-history.ps1` to apply bounded retention to the Stage 2 model. Discovery now runs retention automatically after updating JSON state and before SQLite sync.
+
+- 2026-03-29 21:20 Europe/London: The HTTP service now exposes direct JSON endpoints for `/api/inventory`, `/api/history`, and `/api/profiles` in addition to the earlier shared `/api/query` contract. Live validation confirmed filtered inventory lookup for COM7, filtered history lookup for the Dial family, and draft-profile listing for the unresolved CP210x-backed ESP32 board.
 

@@ -140,3 +140,4 @@
 
 - 2026-03-29 20:45 Europe/London: Stage 2 spec updated to require operator-driven draft-family reconciliation with preserved merge provenance. Reason: the project now has enough unknown-family profiling to identify likely board families, but it still needs a controlled way to resolve them to known board definitions without rewriting or deleting the original discovery evidence.
 - 2026-03-29 21:05 Europe/London: Stage 2 spec updated to require bounded retention for the run ledger and rolling observation arrays. Reason: discovery now has enough repeated scans that unmanaged JSON and SQLite growth would become a bench-maintenance problem on long-lived systems.
+- 2026-03-29 21:20 Europe/London: Stage 2 spec updated to require direct read-only JSON service APIs for inventory, history, and profiles in addition to the query-view endpoint. Reason: later web and remote consumers need stable resource-style APIs for detailed object data, not only summary list views.

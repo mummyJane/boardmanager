@@ -189,3 +189,7 @@
 
 - Keep retention bounded and local to the Stage 2 history model rather than introducing archival storage yet. The immediate goal is to stop JSON and SQLite growth from becoming unbounded on a long-lived bench, not to design the final archive system.
 - Retention should prune rolling observation arrays and the run ledger, but it should not delete current unit/family records. Current bench identity must remain stable even when older low-level observations are trimmed.
+## 2026-03-29 21:20 Europe/London
+
+- Keep the shared `/api/query` contract for list-style views, but add direct resource endpoints for raw inventory, history, and profiles. The web UI and remote callers will need both summary queries and direct object models.
+- Make the first service-layer APIs read-only JSON endpoints over the persisted Stage 2 files instead of introducing write semantics or job control yet. This keeps the service stable while later milestones add programming and setup actions.

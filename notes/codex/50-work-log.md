@@ -1082,3 +1082,30 @@ Validation:
 - `node project/scripts/prune-device-manager-history.mjs --max-runs 5 --dry-run` -> success; reported `prunedRuns: 22` without mutating the persisted data.
 - `discover.ps1` -> success; discovered 5 units, ran the retention pass with default caps, and resynced SQLite.
 - `validate.ps1` -> success; board-definition and device-manager validation passed after the retention changes.
+
+## 2026-03-29 21:20 Europe/London
+
+Commands run:
+
+- `Get-Content project/scripts/device-manager-service.mjs`
+- `Get-Content project/scripts/query-device-manager.mjs`
+- `node project/scripts/device-manager-service.mjs --host 127.0.0.1 --port 8791`
+- `Invoke-RestMethod http://127.0.0.1:8791/health`
+- `Invoke-RestMethod http://127.0.0.1:8791/api/inventory?unit=mac:c8:2e:18:f0:47:74`
+- `Invoke-RestMethod http://127.0.0.1:8791/api/history?family=board:m5stack_dial_v1_1&includeMissing=false`
+- `Invoke-RestMethod http://127.0.0.1:8791/api/profiles?status=draft`
+- `validate.ps1`
+
+Actions:
+
+- Added `project/scripts/device-manager-service-data.mjs` as the read-only data access layer for service endpoints.
+- Extended `project/scripts/device-manager-service.mjs` with direct JSON endpoints for `/api/inventory`, `/api/history`, and `/api/profiles` while keeping the existing `/api/query` path.
+- Updated the device-manager docs, task tracker, and Stage 2 notes for the new service-layer APIs.
+
+Validation:
+
+- `GET /health` -> success.
+- `GET /api/inventory?unit=mac:c8:2e:18:f0:47:74` -> success; returned the current COM7 inventory record.
+- `GET /api/history?family=board:m5stack_dial_v1_1&includeMissing=false` -> success; returned the two present Dial units and the Dial family history.
+- `GET /api/profiles?status=draft` -> success; returned the two unresolved COM7-related draft profiles.
+- `validate.ps1` -> success; board-definition and device-manager validation passed after the service-layer API changes.

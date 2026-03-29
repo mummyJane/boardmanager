@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 21:05 Europe/London
+Last updated: 2026-03-29 21:20 Europe/London
 
 ## Goal
 
@@ -99,6 +99,7 @@ Requirements:
 - operators must be able to pin a physical unit to a board id or family key through a persistent manual override, and later clear that override without mutating the underlying observed fingerprints
 - operators must be able to reconcile a draft family profile to a known board definition while preserving the original profile as merge provenance instead of silently deleting it
 - Stage 2 must enforce retention caps for run-ledger history and long per-unit observation arrays so the persisted JSON and SQLite stores stay manageable on long-lived benches
+- the service layer must expose direct JSON APIs for raw inventory, cumulative history, and family-profile data in addition to the shared query views
 
 ### Stage 3: Build, Program, And Debug
 
@@ -145,5 +146,6 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 

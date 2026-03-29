@@ -1,6 +1,7 @@
 import http from "node:http";
 import { URL } from "node:url";
 import { parseQueryArgs, runQuery } from "./device-manager-query-lib.mjs";
+import { getHistoryPayload, getInventoryPayload, getProfilesPayload } from "./device-manager-service-data.mjs";
 
 function parseServiceArgs(argv) {
   const result = {
@@ -41,6 +42,18 @@ async function handleQuery(requestUrl, response) {
   sendJson(response, 200, payload);
 }
 
+async function handleInventory(requestUrl, response) {
+  sendJson(response, 200, await getInventoryPayload(requestUrl.searchParams));
+}
+
+async function handleHistory(requestUrl, response) {
+  sendJson(response, 200, await getHistoryPayload(requestUrl.searchParams));
+}
+
+async function handleProfiles(requestUrl, response) {
+  sendJson(response, 200, await getProfilesPayload(requestUrl.searchParams));
+}
+
 async function main() {
   const args = parseServiceArgs(process.argv.slice(2));
 
@@ -62,9 +75,34 @@ async function main() {
         return;
       }
 
+      if (requestUrl.pathname === "/api/inventory") {
+        await handleInventory(requestUrl, response);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/history") {
+        await handleHistory(requestUrl, response);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/profiles") {
+        await handleProfiles(requestUrl, response);
+        return;
+      }
+
       sendJson(response, 404, {
         error: "not_found",
-        endpoints: ["/health", "/api/query?view=units", "/api/query?view=families", "/api/query?view=changes", "/api/query?view=diff", "/api/query?view=conflicts"],
+        endpoints: [
+          "/health",
+          "/api/query?view=units",
+          "/api/query?view=families",
+          "/api/query?view=changes",
+          "/api/query?view=diff",
+          "/api/query?view=conflicts",
+          "/api/inventory",
+          "/api/history",
+          "/api/profiles"
+        ],
       });
     } catch (error) {
       sendJson(response, 500, { error: "internal_error", message: error.message || String(error) });
@@ -80,4 +118,3 @@ main().catch((error) => {
   console.error(error.message || error);
   process.exitCode = 1;
 });
-
