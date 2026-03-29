@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 22:05 Europe/London
+Last updated: 2026-03-29 22:25 Europe/London
 
 ## Project Intent
 
@@ -161,3 +161,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the first validation flow should check controller identity first, then buses or IP blocks, then configured attached devices, and should report both expected and unexpected findings
 - Stage 3 reports are expected to capture pass or fail outcomes plus identity and health data such as MAC, serial number, firmware id, firmware version, voltages, and temperatures where the board can expose them
 - Stage 3 should define a protected user-code area and stable board API boundary so generated support code and user firmware can coexist cleanly
+- 2026-03-29 22:25 Europe/London: Stage 3 now has an initial local persisted job store under project/job-manager, with jobs.json, a JSON schema, and a small CLI wrapper at job.ps1 for alidate, uild, program, un, and debug records.
+- 2026-03-29 22:25 Europe/London: Standard validation now includes Stage 3 job-store validation through project/scripts/validate-job-manager-data.mjs.

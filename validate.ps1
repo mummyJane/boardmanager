@@ -12,6 +12,7 @@ try {
     Assert-Command node
     Invoke-DefinitionsValidator -Paths $paths
     Invoke-DeviceManagerValidator -Paths $paths
+    Invoke-JobManagerValidator -Paths $paths
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot

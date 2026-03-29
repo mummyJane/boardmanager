@@ -184,3 +184,18 @@ function Initialize-Stm32Env {
     [Environment]::SetEnvironmentVariable('STM32CUBE_F0_ROOT', $sdkF0Root, 'Process')
 }
 
+
+function Invoke-JobManagerValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & node project/scripts/validate-job-manager-data.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Job-manager validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}

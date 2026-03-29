@@ -1,0 +1,99 @@
+{
+  "type": "object",
+  "required": ["generatedAt", "nextJobSequence", "jobs"],
+  "additionalProperties": false,
+  "properties": {
+    "generatedAt": { "type": ["string", "null"] },
+    "nextJobSequence": { "type": "integer", "minimum": 1 },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "jobId",
+          "action",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "startedAt",
+          "completedAt",
+          "request",
+          "resolution",
+          "logs",
+          "artifacts",
+          "result"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "jobId": { "type": "string" },
+          "action": { "type": "string" },
+          "status": { "type": "string" },
+          "createdAt": { "type": "string" },
+          "updatedAt": { "type": "string" },
+          "startedAt": { "type": ["string", "null"] },
+          "completedAt": { "type": ["string", "null"] },
+          "request": {
+            "type": "object",
+            "required": ["boardId", "unitId", "target", "firmwareTarget", "appId", "platform", "transport", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "boardId": { "type": ["string", "null"] },
+              "unitId": { "type": ["string", "null"] },
+              "target": { "type": ["string", "null"] },
+              "firmwareTarget": { "type": ["string", "null"] },
+              "appId": { "type": ["string", "null"] },
+              "platform": { "type": ["string", "null"] },
+              "transport": { "type": ["string", "null"] },
+              "reason": { "type": ["string", "null"] }
+            }
+          },
+          "resolution": {
+            "type": "object",
+            "required": ["matchedBoardId", "matchedUnitId", "matchedFamilyKey"],
+            "additionalProperties": false,
+            "properties": {
+              "matchedBoardId": { "type": ["string", "null"] },
+              "matchedUnitId": { "type": ["string", "null"] },
+              "matchedFamilyKey": { "type": ["string", "null"] }
+            }
+          },
+          "logs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["kind", "path"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": { "type": "string" },
+                "path": { "type": "string" }
+              }
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["kind", "path"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": { "type": "string" },
+                "path": { "type": "string" }
+              }
+            }
+          },
+          "result": {
+            "type": "object",
+            "required": ["summary", "reportPath", "exitCode", "pass"],
+            "additionalProperties": false,
+            "properties": {
+              "summary": { "type": ["string", "null"] },
+              "reportPath": { "type": ["string", "null"] },
+              "exitCode": { "type": ["integer", "null"] },
+              "pass": { "type": ["boolean", "null"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

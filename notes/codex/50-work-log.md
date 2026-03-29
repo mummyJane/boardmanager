@@ -1138,3 +1138,8 @@ Validation:
 - 2026-03-29 22:05 Europe/London: Reviewed the current Stage 1 and Stage 2 spec, plan, tasks, and context to start Milestone 3 planning.
 - 2026-03-29 22:05 Europe/London: Reworked the Milestone 3 scope from a short build/flash/debug note into a fuller validate/build/program/run/debug workflow definition driven from Stage 2 stable unit identity and Stage 1 board metadata.
 - 2026-03-29 22:05 Europe/London: Added a Stage 3 task backlog covering the job model, persisted job state, board validation reports, I2C scan checks, user-code boundary, build/program/run/debug orchestration, service APIs, and tests.
+- 2026-03-29 22:25 Europe/London: Added the first Milestone 3 code slice at project/job-manager with a persisted jobs.json store, job-store.schema.json, job.ps1, and project/scripts/manage-stage3-jobs.mjs.
+- 2026-03-29 22:25 Europe/London: Wired Stage 3 job-store validation into alidate.ps1 via project/scripts/validate-job-manager-data.mjs and project/scripts/common.ps1.
+- 2026-03-29 22:25 Europe/London: Marked the first two Stage 3 tasks complete: define the job model and add the persisted job store and schemas.
+- 2026-03-29 22:25 Europe/London: Validation commands for the Stage 3 job-store slice were ./job.ps1 -Command create ..., ./job.ps1 -Command list -Format json, ./job.ps1 -Command update ..., then a reset of project/job-manager/data/jobs.json back to an empty store, followed by ./validate.ps1.
+- 2026-03-29 22:25 Europe/London: Validation result: definitions passed, device-manager data passed, and Stage 3 job-store validation passed with   jobs in the clean persisted store.
