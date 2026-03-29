@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const inventoryPath = path.join(projectRoot, "device-manager", "data", "inventory.json");
 const historyPath = path.join(projectRoot, "device-manager", "data", "unit-history.json");
+const discoveryRunsPath = path.join(projectRoot, "device-manager", "data", "discovery-runs.json");
 
 export function parseQueryArgs(argv) {
   const result = {
@@ -180,6 +181,124 @@ function filterFamilies(families, args) {
   });
 }
 
+function mapByKey(items, key) {
+  const result = new Map();
+  for (const item of items ?? []) result.set(item[key], item);
+  return result;
+}
+
+function buildDiffEntries(previousRun, currentRun) {
+  if (!previousRun || !currentRun) return [];
+
+  const entries = [];
+  const previousUnits = mapByKey(previousRun.units, "stableKey");
+  const currentUnits = mapByKey(currentRun.units, "stableKey");
+  const allUnitKeys = Array.from(new Set([...previousUnits.keys(), ...currentUnits.keys()])).sort();
+
+  for (const stableKey of allUnitKeys) {
+    const previousUnit = previousUnits.get(stableKey) ?? null;
+    const currentUnit = currentUnits.get(stableKey) ?? null;
+
+    if (!previousUnit && currentUnit) {
+      entries.push({
+        scope: "unit",
+        target: stableKey,
+        type: "added",
+        previous: null,
+        current: currentUnit.port ?? null,
+        summary: `${stableKey} added${currentUnit.port ? ` on ${currentUnit.port}` : ""}`,
+      });
+      continue;
+    }
+
+    if (previousUnit && !currentUnit) {
+      entries.push({
+        scope: "unit",
+        target: stableKey,
+        type: "removed",
+        previous: previousUnit.port ?? null,
+        current: null,
+        summary: `${stableKey} removed${previousUnit.port ? ` from ${previousUnit.port}` : ""}`,
+      });
+      continue;
+    }
+
+    if (previousUnit.port !== currentUnit.port) {
+      entries.push({
+        scope: "unit",
+        target: stableKey,
+        type: "port-changed",
+        previous: previousUnit.port ?? null,
+        current: currentUnit.port ?? null,
+        summary: `${stableKey} moved from ${previousUnit.port ?? "-"} to ${currentUnit.port ?? "-"}`,
+      });
+    }
+
+    const previousFirmware = previousUnit.firmwareApp && previousUnit.firmwareVersion
+      ? `${previousUnit.firmwareApp}@${previousUnit.firmwareVersion}`
+      : previousUnit.firmwareApp ?? previousUnit.firmwareVersion ?? null;
+    const currentFirmware = currentUnit.firmwareApp && currentUnit.firmwareVersion
+      ? `${currentUnit.firmwareApp}@${currentUnit.firmwareVersion}`
+      : currentUnit.firmwareApp ?? currentUnit.firmwareVersion ?? null;
+    if (previousFirmware !== currentFirmware) {
+      entries.push({
+        scope: "unit",
+        target: stableKey,
+        type: "firmware-changed",
+        previous: previousFirmware,
+        current: currentFirmware,
+        summary: `${stableKey} firmware changed from ${previousFirmware ?? "-"} to ${currentFirmware ?? "-"}`,
+      });
+    }
+  }
+
+  const previousFamilies = mapByKey(previousRun.families, "familyKey");
+  const currentFamilies = mapByKey(currentRun.families, "familyKey");
+  const allFamilyKeys = Array.from(new Set([...previousFamilies.keys(), ...currentFamilies.keys()])).sort();
+
+  for (const familyKey of allFamilyKeys) {
+    const previousFamily = previousFamilies.get(familyKey) ?? null;
+    const currentFamily = currentFamilies.get(familyKey) ?? null;
+
+    if (!previousFamily && currentFamily) {
+      entries.push({
+        scope: "family",
+        target: familyKey,
+        type: "added",
+        previous: null,
+        current: String(currentFamily.presentUnitCount ?? 0),
+        summary: `${familyKey} family added with ${currentFamily.presentUnitCount ?? 0} present unit(s)`,
+      });
+      continue;
+    }
+
+    if (previousFamily && !currentFamily) {
+      entries.push({
+        scope: "family",
+        target: familyKey,
+        type: "removed",
+        previous: String(previousFamily.presentUnitCount ?? 0),
+        current: null,
+        summary: `${familyKey} family removed from latest run`,
+      });
+      continue;
+    }
+
+    if ((previousFamily.presentUnitCount ?? 0) !== (currentFamily.presentUnitCount ?? 0)) {
+      entries.push({
+        scope: "family",
+        target: familyKey,
+        type: "population-changed",
+        previous: String(previousFamily.presentUnitCount ?? 0),
+        current: String(currentFamily.presentUnitCount ?? 0),
+        summary: `${familyKey} present-unit count changed from ${previousFamily.presentUnitCount ?? 0} to ${currentFamily.presentUnitCount ?? 0}`,
+      });
+    }
+  }
+
+  return entries;
+}
+
 export function renderTextTable(rows, columns) {
   const widths = {};
   for (const column of columns) widths[column.key] = column.label.length;
@@ -219,6 +338,17 @@ export function renderQueryText(view, payload) {
     ]);
   }
 
+  if (view === "diff") {
+    return renderTextTable(payload, [
+      { key: "scope", label: "Scope" },
+      { key: "type", label: "Type" },
+      { key: "target", label: "Target" },
+      { key: "previous", label: "Previous" },
+      { key: "current", label: "Current" },
+      { key: "summary", label: "Summary" },
+    ]);
+  }
+
   return renderTextTable(payload, [
     { key: "at", label: "At" },
     { key: "scope", label: "Scope" },
@@ -231,8 +361,10 @@ export function renderQueryText(view, payload) {
 export async function runQuery(args) {
   const inventory = await readJson(inventoryPath, { generatedAt: null, units: [] });
   const history = await readJson(historyPath, { generatedAt: null, units: [], families: [] });
+  const discoveryRuns = await readJson(discoveryRunsPath, { generatedAt: null, runs: [] });
 
   let items;
+  let metadata = {};
   if (args.view === "units") {
     items = filterUnits((history.units ?? []).map(mapUnit), args)
       .sort((left, right) => String(left.stableKey).localeCompare(String(right.stableKey)))
@@ -243,13 +375,25 @@ export async function runQuery(args) {
       .slice(0, args.limit);
   } else if (args.view === "changes") {
     items = buildChangeEntries(history).slice(0, args.limit);
+  } else if (args.view === "diff") {
+    const runs = discoveryRuns.runs ?? [];
+    const currentRun = runs.at(-1) ?? null;
+    const previousRun = runs.at(-2) ?? null;
+    items = buildDiffEntries(previousRun, currentRun).slice(0, args.limit);
+    metadata = {
+      previousRunAt: previousRun?.generatedAt ?? null,
+      currentRunAt: currentRun?.generatedAt ?? null,
+      previousRunId: previousRun?.runId ?? null,
+      currentRunId: currentRun?.runId ?? null,
+    };
   } else {
-    throw new Error(`Unsupported --view '${args.view}'. Use units, families, or changes.`);
+    throw new Error(`Unsupported --view '${args.view}'. Use units, families, changes, or diff.`);
   }
 
   return {
-    generatedAt: history.generatedAt ?? inventory.generatedAt ?? null,
+    generatedAt: history.generatedAt ?? inventory.generatedAt ?? discoveryRuns.generatedAt ?? null,
     view: args.view,
+    ...metadata,
     items,
   };
 }

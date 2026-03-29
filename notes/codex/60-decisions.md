@@ -133,3 +133,6 @@
 
 - Keep the query logic in a reusable library module and put both the CLI and HTTP service on top of it. That avoids divergence between operator tooling, the future web UI, and remote integrations.
 - Use a simple JSON-over-HTTP service first instead of prematurely introducing a larger framework. The service contract matters more than the transport stack at this stage.
+
+- 2026-03-29 17:55 Europe/London: Added a compact discovery-runs ledger separate from unit-history so latest-two-run diffs can be computed cheaply without replaying the full cumulative history model.
+- 2026-03-29 17:55 Europe/London: Kept the diff model focused on operator-relevant changes first: unit add/remove, port change, firmware change, family add/remove, and family population change.

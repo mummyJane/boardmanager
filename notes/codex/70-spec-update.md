@@ -112,3 +112,5 @@
 ## 2026-03-29 17:13 Europe/London
 
 - Clarified that the first shared query contract should also be exposed through an HTTP service endpoint. This change is needed because the Milestone 4 web UI and remote callers from another system should not depend on local shell execution.
+
+- 2026-03-29 17:55 Europe/London: Stage 2 spec clarified to require a compact discovery-run ledger and a latest-two-run diff view. Reason: the shared query/service layer now needs a stable way for operators, the future web UI, and remote systems to answer 'what changed since the last scan?' without reconstructing it from cumulative history only.

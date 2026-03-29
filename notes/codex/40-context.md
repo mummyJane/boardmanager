@@ -102,3 +102,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - serve-device-manager.ps1 and project/scripts/device-manager-service.mjs now expose the shared query contract over HTTP at /api/query and /health`r
 - the same JSON query contract is now reachable from local or remote callers without going through PowerShell CLI output
 
+
+- 2026-03-29 17:55 Europe/London: Stage 2 now persists compact discovery-run snapshots in project/device-manager/data/discovery-runs.json and exposes a latest-two-run diff through query.ps1 and the HTTP query service.

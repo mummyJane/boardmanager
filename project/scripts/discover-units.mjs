@@ -14,6 +14,7 @@ const repoRoot = path.resolve(projectRoot, "..");
 const deviceManagerRoot = path.join(projectRoot, "device-manager");
 const inventoryPath = path.join(deviceManagerRoot, "data", "inventory.json");
 const unitHistoryPath = path.join(deviceManagerRoot, "data", "unit-history.json");
+const discoveryRunsPath = path.join(deviceManagerRoot, "data", "discovery-runs.json");
 const annotationsPath = path.join(deviceManagerRoot, "data", "unit-annotations.json");
 const profilesRoot = path.join(deviceManagerRoot, "profiles");
 const espPython = path.join(projectRoot, "tools", "espressif", "python_env", "idf5.5_py3.13_env", "Scripts", "python.exe");
@@ -176,6 +177,54 @@ function mergeTransitionSummary(existing, updates) {
   };
 }
 
+
+function summarizeRunUnit(unit) {
+  return {
+    stableKey: unit.identity.stableKey,
+    boardId: unit.match.boardId ?? null,
+    familyKey: unit.history.familyKey ?? null,
+    port: unit.transport.port ?? null,
+    usbInstance: unit.transport.usbInstance ?? null,
+    firmwareApp: unit.observed.firmwareApp ?? null,
+    firmwareVersion: unit.observed.firmwareVersion ?? null,
+    firmwareBuildId: unit.observed.firmwareBuildId ?? null,
+    firmwareBoard: unit.observed.firmwareBoard ?? null,
+    label: unit.annotation.label ?? null,
+  };
+}
+
+function summarizeRunFamily(family) {
+  return {
+    familyKey: family.familyKey,
+    boardId: family.boardIds?.length === 1 ? family.boardIds[0] : null,
+    presentUnitCount: family.presentUnitCount ?? 0,
+    sampleUnitIds: family.sampleUnitIds ?? [],
+  };
+}
+
+function appendDiscoveryRun(state, units, families, timestamp) {
+  const existingRuns = Array.isArray(state.runs) ? state.runs : [];
+  const nextRun = {
+    runId: `run:${timestamp}`,
+    generatedAt: timestamp,
+    host: {
+      platform: "windows",
+      hostname: os.hostname(),
+    },
+    unitCount: units.length,
+    familyCount: families.length,
+    units: units
+      .map(summarizeRunUnit)
+      .sort((left, right) => String(left.stableKey).localeCompare(String(right.stableKey))),
+    families: families
+      .map(summarizeRunFamily)
+      .sort((left, right) => String(left.familyKey).localeCompare(String(right.familyKey))),
+  };
+
+  state.generatedAt = timestamp;
+  state.host = nextRun.host;
+  state.runs = [...existingRuns, nextRun].slice(-200);
+}
 async function readPorts() {
   const command = "Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3";
   const { stdout } = await execFileAsync("powershell", ["-NoProfile", "-Command", command], {
@@ -845,6 +894,11 @@ async function main() {
     units: [],
     families: [],
   });
+  const discoveryRunsState = await readJsonOrDefault(discoveryRunsPath, {
+    generatedAt: null,
+    host: { platform: "windows", hostname: null },
+    runs: [],
+  });
 
   const units = [];
   const observedStableKeys = new Set();
@@ -879,10 +933,19 @@ async function main() {
     hostname: os.hostname(),
   };
 
+  appendDiscoveryRun(
+    discoveryRunsState,
+    units,
+    (historyState.families ?? []).filter((family) => family.present !== false),
+    timestamp
+  );
+
   await mkdir(path.dirname(inventoryPath), { recursive: true });
   await mkdir(path.dirname(unitHistoryPath), { recursive: true });
+  await mkdir(path.dirname(discoveryRunsPath), { recursive: true });
   await writeFile(inventoryPath, `${JSON.stringify(inventoryPayload, null, 2)}\n`, "utf8");
   await writeFile(unitHistoryPath, `${JSON.stringify(historyState, null, 2)}\n`, "utf8");
+  await writeFile(discoveryRunsPath, `${JSON.stringify(discoveryRunsState, null, 2)}\n`, "utf8");
 
   console.log(`Discovered ${units.length} units.`);
   for (const unit of units) {
@@ -896,6 +959,12 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+
+
+
+
+
 
 
 

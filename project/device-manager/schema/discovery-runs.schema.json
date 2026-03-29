@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Board Manager Discovery Run History",
+  "type": "object",
+  "required": ["generatedAt", "host", "runs"],
+  "properties": {
+    "generatedAt": { "type": ["string", "null"] },
+    "host": {
+      "type": "object",
+      "required": ["platform", "hostname"],
+      "properties": {
+        "platform": { "type": ["string", "null"] },
+        "hostname": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["runId", "generatedAt", "host", "unitCount", "familyCount", "units", "families"],
+        "properties": {
+          "runId": { "type": "string" },
+          "generatedAt": { "type": "string" },
+          "host": {
+            "type": "object",
+            "required": ["platform", "hostname"],
+            "properties": {
+              "platform": { "type": ["string", "null"] },
+              "hostname": { "type": ["string", "null"] }
+            },
+            "additionalProperties": false
+          },
+          "unitCount": { "type": "integer", "minimum": 0 },
+          "familyCount": { "type": "integer", "minimum": 0 },
+          "units": { "type": "array" },
+          "families": { "type": "array" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

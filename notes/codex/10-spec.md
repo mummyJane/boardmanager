@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 17:13 Europe/London
+Last updated: 2026-03-29 17:55 Europe/London
 
 ## Goal
 
@@ -57,6 +57,7 @@ Deliverables:
 - initial APIs for querying connected boards and known inventory
 - a host-side query layer that can be reused by the future web interface and by remote callers from another system
 - a first local or remote service endpoint that exposes the shared query contract over HTTP
+- a persisted discovery-run ledger and a diff view over the latest two runs
 
 Requirements:
 
@@ -77,6 +78,8 @@ Requirements:
 - the Stage 2 model must support operator-assigned labels, notes, and ownership-style metadata per physical unit, keyed by the stable unit identity
 - the Stage 2 history layer must preserve cumulative owner, location, and purpose changes per physical unit rather than only the latest annotation snapshot
 - each physical unit must be able to reference a per-unit AES key and an asymmetric key pair, with secret material stored under `keys/` and linked back to the stable unit identity
+- discovery must persist a compact run-by-run observation ledger so later tools can compare the latest two scans without replaying the full cumulative history model
+- the first diff view must report added or removed units, family population changes, and per-unit port or firmware changes between the latest two discovery runs
 
 ### Stage 3: Build, Program, And Debug
 

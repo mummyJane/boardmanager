@@ -16,6 +16,7 @@ This folder now contains the first Milestone 2 discovery slice.
 - allow operator-assigned labels and notes per physical unit
 - track ownership, location, and purpose changes in the unit history layer
 - persist the current discovery snapshot in simple local data files
+- persist a compact discovery-run ledger so the latest two scans can be diffed quickly
 
 ## Current Files
 
@@ -23,9 +24,11 @@ This folder now contains the first Milestone 2 discovery slice.
 - `schema/unit-history.schema.json`: JSON schema for persisted unit and family history
 - `schema/family-profile.schema.json`: JSON schema for generated family profile stubs
 - `schema/unit-annotations.schema.json`: JSON schema for operator-assigned unit labels and notes
+- `schema/discovery-runs.schema.json`: JSON schema for the compact discovery-run ledger
 - `data/inventory.json`: latest local discovery snapshot
 - `data/unit-history.json`: cumulative unit and family history
 - `data/unit-annotations.json`: operator-assigned labels, notes, and ownership metadata keyed by stable unit id
+- `data/discovery-runs.json`: compact per-run snapshots used for the latest-two-run diff view
 - `profiles/*.json`: draft or known family profile files enriched with likely Stage 1 board candidates
 
 The first pass is intentionally local and Windows-focused. It is designed to give the future service and database layers a stable observation format before introducing a daemon or web API.
@@ -67,30 +70,43 @@ That annotation is merged into both the latest inventory and the cumulative unit
 
 ## Query Access
 
-Use query.ps1 as the first shared query layer for operators, the future web UI, and remote callers.
+Use `query.ps1` as the first shared query layer for operators, the future web UI, and remote callers.
 
 Examples:
 
-- ./query.ps1 -View units`r
-- ./query.ps1 -View families -Format json`r
-- ./query.ps1 -View changes -Limit 10`r
+- `./query.ps1 -View units`
+- `./query.ps1 -View families -Format json`
+- `./query.ps1 -View changes -Limit 10`
+- `./query.ps1 -View diff -Format json`
 
 The JSON output is the stable machine-facing form. The PowerShell wrapper is only the local host entry point.
 
+## Diff View
+
+The diff view compares the latest two discovery runs from `data/discovery-runs.json`.
+
+Current diff coverage:
+
+- added or removed units
+- per-unit port changes
+- per-unit firmware identity changes
+- added or removed families
+- family present-unit count changes
+
+Use a controlled discovery pass, such as temporarily ignoring a known port, when you want the diff to capture a removal or restore event on demand.
 
 ## Service Access
 
-Use serve-device-manager.ps1 to expose the same shared query contract over HTTP for the future web UI and remote callers.
+Use `serve-device-manager.ps1` to expose the same shared query contract over HTTP for the future web UI and remote callers.
 
 Endpoints:
 
-- GET /health`r
-- GET /api/query?view=units`r
-- GET /api/query?view=families`r
-- GET /api/query?view=changes&limit=10`r
+- `GET /health`
+- `GET /api/query?view=units`
+- `GET /api/query?view=families`
+- `GET /api/query?view=changes&limit=10`
+- `GET /api/query?view=diff`
 
 Example:
 
-- ./serve-device-manager.ps1 -BindHost 127.0.0.1 -Port 8787`r
-
-
+- `./serve-device-manager.ps1 -BindHost 127.0.0.1 -Port 8787`

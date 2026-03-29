@@ -810,3 +810,12 @@ Validation:
 - HTTP `GET /api/query?view=units` -> success
 - HTTP `GET /api/query?view=families` -> success
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+
+## 2026-03-29 17:55 Europe/London
+- Added compact discovery-run persistence at project/device-manager/data/discovery-runs.json and schema at project/device-manager/schema/discovery-runs.schema.json.
+- Extended the shared query layer with view=diff for added or removed units, family population changes, and per-unit port or firmware changes between the latest two runs.
+- Updated query.ps1 and the HTTP query service so the diff view is available to local operators, the future web UI, and remote callers.
+- Validation: .\\discover.ps1, .\\validate.ps1, controlled discovery with BOARD_MANAGER_DISCOVERY_IGNORE_PORTS=COM6, restore discovery, node project/scripts/query-device-manager.mjs --view diff --format json, and .\\query.ps1 -View diff.
+- Note: the initial diff validation intentionally used a controlled missing COM6 run; after the restore pass, the latest two normal scans returned an empty diff as expected.
+
+- Validation: service check via node project/scripts/device-manager-service.mjs on 127.0.0.1:8788 with Invoke-WebRequest to /api/query?view=diff returned the expected JSON payload.
