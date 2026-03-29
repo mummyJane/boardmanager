@@ -14,6 +14,7 @@ const repoRoot = path.resolve(projectRoot, "..");
 const deviceManagerRoot = path.join(projectRoot, "device-manager");
 const inventoryPath = path.join(deviceManagerRoot, "data", "inventory.json");
 const unitHistoryPath = path.join(deviceManagerRoot, "data", "unit-history.json");
+const annotationsPath = path.join(deviceManagerRoot, "data", "unit-annotations.json");
 const profilesRoot = path.join(deviceManagerRoot, "profiles");
 const espPython = path.join(projectRoot, "tools", "espressif", "python_env", "idf5.5_py3.13_env", "Scripts", "python.exe");
 const esptoolPy = path.join(projectRoot, "toolchains", "esp-idf", "esp-idf", "components", "esptool_py", "esptool", "esptool.py");
@@ -77,6 +78,28 @@ function uniqueSorted(values) {
   return Array.from(new Set((values ?? []).filter(Boolean))).sort();
 }
 
+function normalizeAnnotation(entry) {
+  if (!entry) {
+    return {
+      label: null,
+      notes: [],
+      owner: null,
+      location: null,
+      purpose: null,
+      updatedAt: null,
+    };
+  }
+
+  return {
+    label: entry.label ?? null,
+    notes: Array.isArray(entry.notes) ? entry.notes.filter(Boolean) : [],
+    owner: entry.owner ?? null,
+    location: entry.location ?? null,
+    purpose: entry.purpose ?? null,
+    updatedAt: entry.updatedAt ?? null,
+  };
+}
+
 async function readPorts() {
   const command = "Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3";
   const { stdout } = await execFileAsync("powershell", ["-NoProfile", "-Command", command], {
@@ -114,6 +137,14 @@ function buildIdentityIndex(units) {
   }
 
   return { byStableKey, byMac, byUsbInstance, bySerial };
+}
+
+function buildAnnotationIndex(units) {
+  const byStableKey = new Map();
+  for (const unit of units ?? []) {
+    if (unit?.stableKey) byStableKey.set(unit.stableKey, unit);
+  }
+  return { byStableKey };
 }
 
 function buildFamilyIndex(families) {
@@ -391,7 +422,12 @@ function buildHistoryStatus(previousUnit, existingFamily) {
   };
 }
 
-async function observePort(portInfo, unitIndex, familyIndex) {
+function attachAnnotation(unit, annotationIndex) {
+  const entry = annotationIndex.byStableKey.get(unit.identity.stableKey);
+  unit.annotation = normalizeAnnotation(entry);
+}
+
+async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
   const transport = {
     kind: "serial",
     port: portInfo.DeviceID,
@@ -437,10 +473,12 @@ async function observePort(portInfo, unitIndex, familyIndex) {
       firmwareSignature: observed.firmwareSignature,
       rawSignatureLine: observed.rawSignatureLine,
     },
+    annotation: normalizeAnnotation(null),
     match: { status: "unknown", boardId: null, reason: null, source: null },
     history: { status: "unknown", familyKey: "unknown", profileId: null, firstSeenAt: null, lastSeenAt: null, seenCount: null, reason: null }
   };
 
+  attachAnnotation(unit, annotationIndex);
   unit.match = basicHeuristicMatch(unit);
   const familyFingerprint = deriveFamilyFingerprint(unit);
   const existingFamily = familyIndex.byFamilyKey.get(familyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(familyFingerprint.fingerprintKey) ?? null;
@@ -462,7 +500,7 @@ async function observePort(portInfo, unitIndex, familyIndex) {
     reason: historyStatus.reason,
   };
 
-  return { unit, previousUnit, familyFingerprint: resolvedFamilyFingerprint, existingFamily: resolvedFamily };
+  return { unit, familyFingerprint: resolvedFamilyFingerprint };
 }
 
 function mergeObservedHistory(existing, unit) {
@@ -538,6 +576,7 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     profileId: familyFingerprint.profileId,
     boardIds: uniqueSorted([...(existingUnit?.boardIds ?? []), unit.match.boardId]),
     identity: unit.identity,
+    annotation: unit.annotation,
     lastTransport: unit.transport,
     observed: mergeObservedHistory(existingUnit?.observed, unit),
   };
@@ -588,6 +627,8 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
 async function main() {
   const ports = await readPorts();
   const boardCatalog = await loadBoardCatalog(projectRoot);
+  const annotationsState = await readJsonOrDefault(annotationsPath, { updatedAt: null, units: [] });
+  const annotationIndex = buildAnnotationIndex(annotationsState.units ?? []);
   const historyState = await readJsonOrDefault(unitHistoryPath, {
     generatedAt: null,
     host: { platform: "windows", hostname: null },
@@ -601,7 +642,7 @@ async function main() {
   for (const portInfo of ports) {
     const unitIndex = buildIdentityIndex(historyState.units ?? []);
     const familyIndex = buildFamilyIndex(historyState.families ?? []);
-    const { unit, familyFingerprint } = await observePort(portInfo, unitIndex, familyIndex);
+    const { unit, familyFingerprint } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
     await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog);
     units.push(unit);
   }
@@ -630,7 +671,8 @@ async function main() {
 
   console.log(`Discovered ${units.length} units.`);
   for (const unit of units) {
-    console.log(`${unit.transport.port}: ${unit.match.boardId ?? "unmatched"} [${unit.identity.stableKey}] (${unit.history.status}; ${unit.history.reason})`);
+    const labelSuffix = unit.annotation.label ? ` label='${unit.annotation.label}'` : "";
+    console.log(`${unit.transport.port}: ${unit.match.boardId ?? "unmatched"} [${unit.identity.stableKey}] (${unit.history.status}; ${unit.history.reason})${labelSuffix}`);
   }
 }
 
@@ -638,5 +680,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-
-

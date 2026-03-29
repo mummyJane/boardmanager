@@ -12,15 +12,18 @@ This folder now contains the first Milestone 2 discovery slice.
 - preserve per-unit history across discovery runs
 - recognize when a newly seen physical unit belongs to a previously seen board family
 - start a draft profile for genuinely new board families
-- persist the current discovery snapshot in a simple local inventory file
+- allow operator-assigned labels and notes per physical unit
+- persist the current discovery snapshot in simple local data files
 
 ## Current Files
 
 - `schema/device-inventory.schema.json`: JSON schema for the latest discovery snapshot
 - `schema/unit-history.schema.json`: JSON schema for persisted unit and family history
 - `schema/family-profile.schema.json`: JSON schema for generated family profile stubs
+- `schema/unit-annotations.schema.json`: JSON schema for operator-assigned unit labels and notes
 - `data/inventory.json`: latest local discovery snapshot
 - `data/unit-history.json`: cumulative unit and family history
+- `data/unit-annotations.json`: operator-assigned labels, notes, and ownership metadata keyed by stable unit id
 - `profiles/*.json`: draft or known family profile files enriched with likely Stage 1 board candidates
 
 The first pass is intentionally local and Windows-focused. It is designed to give the future service and database layers a stable observation format before introducing a daemon or web API.
@@ -48,3 +51,12 @@ When a unit is discovered, the manager should classify it in this order:
 
 This lets discovery distinguish between "the same board again", "another board of a known type", and "something genuinely new on the bench".
 
+## Operator Labels
+
+Use `annotate-unit.ps1` to attach operator-facing metadata to a stable unit id.
+
+Example:
+
+`./annotate-unit.ps1 -Unit "mac:c0:4e:30:13:2b:68" -Label "Dial Left" -Location "Bench A" -Purpose "UI test unit" -Note "Keep on smoke-test firmware"`
+
+That annotation is merged into both the latest inventory and the cumulative unit history on the next discovery run.

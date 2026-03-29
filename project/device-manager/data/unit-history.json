@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T14:01:43.006Z",
+  "generatedAt": "2026-03-29T14:28:39.307Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -8,8 +8,8 @@
     {
       "stableKey": "mac:48:27:e2:66:b0:04",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 3,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 4,
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -24,6 +24,14 @@
           "COM4",
           "USB Serial Device (COM4)"
         ]
+      },
+      "annotation": {
+        "label": null,
+        "notes": [],
+        "owner": null,
+        "location": null,
+        "purpose": null,
+        "updatedAt": null
       },
       "lastTransport": {
         "kind": "serial",
@@ -49,8 +57,8 @@
     {
       "stableKey": "mac:c0:4e:30:12:b3:e0",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 3,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 4,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -65,6 +73,14 @@
           "COM5",
           "USB Serial Device (COM5)"
         ]
+      },
+      "annotation": {
+        "label": null,
+        "notes": [],
+        "owner": null,
+        "location": null,
+        "purpose": null,
+        "updatedAt": null
       },
       "lastTransport": {
         "kind": "serial",
@@ -90,8 +106,8 @@
     {
       "stableKey": "mac:c0:4e:30:13:2b:68",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 3,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 4,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -106,6 +122,14 @@
           "COM3",
           "USB Serial Device (COM3)"
         ]
+      },
+      "annotation": {
+        "label": null,
+        "notes": [],
+        "owner": null,
+        "location": null,
+        "purpose": null,
+        "updatedAt": null
       },
       "lastTransport": {
         "kind": "serial",
@@ -131,8 +155,8 @@
     {
       "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 3,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 4,
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -147,6 +171,14 @@
           "COM6",
           "STMicroelectronics STLink Virtual COM Port (COM6)"
         ]
+      },
+      "annotation": {
+        "label": null,
+        "notes": [],
+        "owner": null,
+        "location": null,
+        "purpose": null,
+        "updatedAt": null
       },
       "lastTransport": {
         "kind": "serial",
@@ -168,8 +200,8 @@
     {
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 3,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 4,
       "status": "known-board",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -192,8 +224,8 @@
     {
       "familyKey": "board:m5stack_dial_v1_1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 6,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 8,
       "status": "known-board",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -217,8 +249,8 @@
     {
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:01:43.006Z",
-      "seenCount": 3,
+      "lastSeenAt": "2026-03-29T14:28:39.307Z",
+      "seenCount": 4,
       "status": "known-board",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [

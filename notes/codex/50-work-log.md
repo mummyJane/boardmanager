@@ -605,3 +605,28 @@ Commands run:
 Actions:
 
 - added a concrete Stage 2 backlog section to `notes/codex/30-tasks.md` covering the remaining discovery, history, profile, query, database, and service-layer tasks
+
+## 2026-03-29 15:27 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/device-manager/data/inventory.json`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content discover.ps1`
+- added `project/device-manager/schema/unit-annotations.schema.json` and `project/device-manager/data/unit-annotations.json`
+- added `project/scripts/set-unit-annotation.mjs` and top-level `annotate-unit.ps1`
+- updated `project/scripts/discover-units.mjs`, `project/device-manager/schema/device-inventory.schema.json`, `project/device-manager/schema/unit-history.schema.json`, and `project/device-manager/README.md`
+- `discover.ps1`
+
+Actions:
+
+- added a persistent annotation store keyed by stable unit id for labels, notes, owner, location, and purpose
+- added a simple top-level annotation command so operators can label units without editing JSON by hand
+- updated discovery so annotation data is merged into both the latest inventory snapshot and the cumulative unit history output
+
+Validation:
+
+- `discover.ps1` -> success; all four attached units still resolved as `known-unit` after the annotation model changes, with empty annotation objects merged by default

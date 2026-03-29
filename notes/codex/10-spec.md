@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 15:05 Europe/London
+Last updated: 2026-03-29 15:27 Europe/London
 
 ## Goal
 
@@ -67,6 +67,7 @@ Requirements:
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
 - family profiles should be enriched from the Stage 1 board catalog with exact board metadata where known and likely board candidates where the family is still being resolved
+- the Stage 2 model must support operator-assigned labels, notes, and ownership-style metadata per physical unit, keyed by the stable unit identity
 
 ### Stage 3: Build, Program, And Debug
 
@@ -111,4 +112,6 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
+
 

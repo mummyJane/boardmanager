@@ -18,7 +18,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["unitId", "identity", "transport", "observed", "match", "history"],
+        "required": ["unitId", "identity", "transport", "observed", "annotation", "match", "history"],
         "properties": {
           "unitId": { "type": "string" },
           "identity": {
@@ -56,6 +56,17 @@
               "serialNumber": { "type": ["string", "null"] },
               "firmwareSignature": { "type": ["string", "null"] },
               "rawSignatureLine": { "type": ["string", "null"] }
+            }
+          },
+          "annotation": {
+            "type": "object",
+            "properties": {
+              "label": { "type": ["string", "null"] },
+              "notes": { "type": "array", "items": { "type": "string" } },
+              "owner": { "type": ["string", "null"] },
+              "location": { "type": ["string", "null"] },
+              "purpose": { "type": ["string", "null"] },
+              "updatedAt": { "type": ["string", "null"] }
             }
           },
           "match": {

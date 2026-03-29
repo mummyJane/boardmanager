@@ -84,3 +84,7 @@
 
 - Extended Stage 2 family profiles to include exact board metadata and likely board candidates from the Stage 1 catalog. This change is needed because a raw hardware fingerprint alone is not enough to help the operator decide which known board definition best fits a newly observed card family.
 
+
+## 2026-03-29 15:27 Europe/London
+
+- Added a Stage 2 requirement for operator-assigned labels and notes keyed by stable unit identity. This change is needed because identical boards on the bench must be distinguishable in operator language even when COM ports change over time.

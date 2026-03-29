@@ -28,6 +28,7 @@
           "profileId": { "type": ["string", "null"] },
           "boardIds": { "type": "array", "items": { "type": "string" } },
           "identity": { "type": "object" },
+          "annotation": { "type": "object" },
           "lastTransport": { "type": "object" },
           "observed": { "type": "object" }
         }

@@ -98,3 +98,8 @@
 - Keep board-catalog enrichment in a small helper module instead of embedding more board-definition logic directly into the discovery script. This keeps the discovery flow readable while still letting profiles reuse Stage 1 metadata.
 - Enrich family profiles with both an exact board summary and scored candidate boards. Exact metadata helps when the family is already known, while candidate ranking gives the operator a practical starting point for genuinely new or unresolved card families.
 
+
+## 2026-03-29 15:27 Europe/London
+
+- Store operator-facing labels and notes in a separate annotation file keyed by stable unit id instead of mixing manual edits directly into discovery history. This keeps discovery reproducible while still letting operators attach local meaning to physical units.
+- Make the annotation CLI target the stable unit key, not the current COM port, so labels survive replug and port renumbering.

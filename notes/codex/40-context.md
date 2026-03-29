@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 15:05 Europe/London
+Last updated: 2026-03-29 15:27 Europe/London
 
 ## Project Intent
 
@@ -82,3 +82,7 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - family profiles are now enriched from the Stage 1 board catalog with exact board metadata for known families and scored candidate boards for unresolved families
 - the current Dial, CoreS3+GNSS, and P-NUCLEO profile files now include vendor, revision, product SKU, chip family, SDK, capabilities, source links, and ranked candidate board matches
 
+
+
+- operator annotations are now stored in `project/device-manager/data/unit-annotations.json` and merged into both `inventory.json` and `unit-history.json` on each discovery run
+- the top-level `annotate-unit.ps1` script now lets the operator assign a stable label, notes, owner, location, and purpose to a physical unit by stable key instead of by COM port

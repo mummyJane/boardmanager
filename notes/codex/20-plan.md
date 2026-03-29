@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 15:05 Europe/London
+Last updated: 2026-03-29 15:27 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -43,6 +43,7 @@ Initial success criteria:
 - a newly seen physical unit can fall back to a previously seen family match before being treated as a brand-new card type
 - discovery starts a draft family profile when it encounters a genuinely new card family
 - family profiles are enriched with exact board metadata or likely board candidates from the Stage 1 board catalog
+- operators can assign stable labels and notes to physical units without depending on the current COM port
 
 ## Future Milestones
 
@@ -57,4 +58,6 @@ Initial success criteria:
 - scaffold dashboard app
 - add inventory and board definition views
 - wire to service APIs
+
+
 
