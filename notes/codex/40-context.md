@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 21:40 Europe/London
+Last updated: 2026-03-29 22:05 Europe/London
 
 ## Project Intent
 
@@ -152,3 +152,12 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 
 - 2026-03-29 21:40 Europe/London: Added `test.ps1` plus a dependency-free Node assertion runner under `project/tests/`. Current coverage now exercises board-candidate enrichment, identity-conflict detection, family-fingerprint derivation, missing-unit and family transition updates, and the direct service-data filters for inventory, history, and profiles.
 
+
+## Current Planning Direction
+
+- Milestone 2 is complete against the current tracked scope
+- Milestone 3 is now being defined as validate, build, program, run, and debug orchestration rather than only flash and debug launch support
+- the first Stage 3 workflow should start from a stable unit id from Stage 2 and the matched board profile from Stage 1
+- the first validation flow should check controller identity first, then buses or IP blocks, then configured attached devices, and should report both expected and unexpected findings
+- Stage 3 reports are expected to capture pass or fail outcomes plus identity and health data such as MAC, serial number, firmware id, firmware version, voltages, and temperatures where the board can expose them
+- Stage 3 should define a protected user-code area and stable board API boundary so generated support code and user firmware can coexist cleanly

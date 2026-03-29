@@ -197,3 +197,6 @@
 
 - Use a plain Node assertion runner instead of `node --test` in this repo’s default test path. The Windows environment here blocks the test runner’s worker-process spawning, but plain Node imports and assertions run reliably.
 - Keep the Stage 2 tests focused on pure discovery helpers and service-data readers first. That gives repeatable coverage without requiring live USB enumeration or serial hardware during every validation pass.
+- 2026-03-29 22:05 Europe/London: Defined Milestone 3 as validate/build/program/run/debug orchestration instead of only build/flash/debug, because the user needs board-config verification, runtime log capture, and IDE-debug metadata as first-class workflows.
+- 2026-03-29 22:05 Europe/London: Chose the Stage 3 validation order as controller first, then controller-owned buses or IP blocks, then configured attached devices, because that mirrors hardware dependencies and produces clearer fault reports.
+- 2026-03-29 22:05 Europe/London: Decided that Stage 3 should produce both machine-readable job or report records and human-readable logs, so the same outputs can serve CLI use, service APIs, and the later web UI.

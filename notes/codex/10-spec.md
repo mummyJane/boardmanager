@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 21:40 Europe/London
+Last updated: 2026-03-29 22:05 Europe/London
 
 ## Goal
 
@@ -106,16 +106,30 @@ Requirements:
 
 Deliverables:
 
-- build orchestration per board family
+- board validation and bring-up reports driven from the board definition and discovered unit identity
+- build orchestration per board family and firmware target
 - flashing workflows for ESP32 and STM32
-- debug session launch support
-- job status APIs for the web interface
+- run and log-capture workflows for board firmware
+- debug session launch support for CLI and IDE-driven flows
+- job status and artifact APIs for the future web interface
 
 Requirements:
 
 - build definitions must be tied to a board profile and firmware target
 - programming tools must be pluggable by MCU family
 - debug support must capture enough metadata to reproduce the session
+- Stage 3 validation must start from a selected physical unit and its matched board profile from Stage 2
+- board validation must verify the controller first, then controller-owned buses or IP blocks, then configured attached devices in dependency order
+- validation must compare observed hardware against the Stage 1 board config and report both missing configured items and unexpected observed items
+- for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config
+- validation should gather self-reported or probed unit facts where available, including chip type, MAC address, serial number, firmware id, firmware version, build id, voltages, temperatures, and similar health or identity data
+- validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators
+- Stage 3 must define a reserved user-code area per board or firmware target so generated board support and operator tooling do not overwrite user application code
+- generated or shared firmware APIs must define the stable boundary that user code calls for board-level functions and part-level services
+- build workflows must emit a build log, build result, selected board id, selected unit id where relevant, and produced artifacts
+- run workflows must be able to stream or return firmware console output back to the operator or service caller
+- debug workflows must support command-line GDB launch details plus enough debugger metadata for IDE integration, including transport, symbol path, and target selection
+- job execution for validate, build, program, run, and debug must produce machine-readable status records and human-readable logs for later web UI consumption
 
 ### Stage 4: Web Interface
 
@@ -147,6 +161,8 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
+
 
 
 

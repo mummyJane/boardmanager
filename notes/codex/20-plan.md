@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 21:40 Europe/London
+Last updated: 2026-03-29 22:05 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -61,11 +61,23 @@ Initial success criteria:
 
 ## Future Milestones
 
-### Milestone 3: Build/Flash/Debug Orchestration
+### Milestone 3: Validate/Build/Run/Debug Orchestration
 
-- define toolchain adapters
-- define job execution model
-- add board-to-toolchain mapping
+Objective:
+Turn the Stage 1 board definitions and Stage 2 unit inventory into operator-facing workflows that can validate a selected board, build firmware, flash it to a selected unit, stream runtime output, and launch reproducible debug sessions.
+
+Initial success criteria:
+
+- a selected physical unit can be matched to a board profile and used as the input to Stage 3 jobs
+- board validation walks controller, buses or IP blocks, and attached devices in dependency order
+- validation compares observed hardware against configured board expectations and records missing or unexpected items
+- validation reports identity and health facts such as MAC, serial, firmware id, firmware version, build id, voltages, and temperatures where available
+- validation produces a machine-readable report plus a human-readable summary with pass and fail results
+- build orchestration is tied to a board profile and firmware target and emits artifacts plus captured build logs
+- run orchestration can capture and return console output from the selected unit
+- programming is tied to the selected physical unit so identical boards can be targeted safely
+- debug orchestration emits reproducible GDB and IDE session metadata
+- job records are exposed in a service-friendly form for later Milestone 4 UI work
 
 ### Milestone 4: Web UI Skeleton
 
@@ -93,4 +105,6 @@ Initial success criteria:
 
 
 - 2026-03-29 21:40 Europe/London: Completed Stage 2 test coverage with a local dependency-free Node assertion runner for discovery matching, history transitions, board-candidate enrichment, and service-data filtering.
+
+
 
