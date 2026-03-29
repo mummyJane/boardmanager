@@ -1203,3 +1203,35 @@ Validation:
 - alidate.ps1 -> success after regenerating the saved reports; validated board definitions, device-manager data, Stage 3 job data, 5 validation contracts, and 2 validation reports.
 - alidate-board.ps1 -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -Seconds 3 -> wrote a new structured report with identity, firmware, and GNSS PPS signal evidence; current result is overallPass=false because internal_i2c_configured and internal_i2c_scan failed in that capture window.
 - alidate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Seconds 3 -> wrote a new structured report with identity and live-input signal evidence; current result is overallPass=false because internal_i2c_configured and internal_i2c_scan failed in that capture window.
+## 2026-03-29 22:55 Europe/London
+
+Commands run:
+
+- `discover.ps1`
+- `validate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Seconds 3`
+- `validate-board.ps1 -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -Seconds 3`
+- `validate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:12:b3:e0 -Seconds 3`
+- `validate-board.ps1 -Board p_nucleo_usb001_f072rb_v1 -Unit usb:USB\VID_0483&PID_374B&MI_02\8&2379FC3D&0&0002 -Seconds 3`
+- `validate.ps1`
+
+Observed issues:
+
+- The current short live-capture windows on the two Dial units and the CoreS3 plus GNSS unit only captured steady-state application output, not fresh `BoardManagerI2CScan:` lines.
+- The attached Nucleo board still has no board-agent or firmware self-report path on `COM6`, so its validation report is transport and identity aware but has no live serial facts.
+- `COM7` is strongly identified as an ESP32 or WROOM-32-class board, but it still has no exact Stage 1 board match, so a board-validation run would currently be guesswork.
+
+Actions:
+
+- Refreshed discovery for the full five-unit bench.
+- Ran fresh Stage 3 validation captures for the two Dial units, the CoreS3 plus GNSS unit, and the attached Nucleo board.
+- Wrote a consolidated sweep summary to `project/device-manager/reports/bench-validation-sweep-2026-03-29.json`.
+- Updated tracked context to reflect the current five-card bench and the sweep result set.
+
+Validation:
+
+- `discover.ps1` -> success; refreshed all five attached units and synced the SQLite inventory.
+- `validate-board.ps1 ... COM3` -> report written; result failed on `internal_i2c_configured` and `internal_i2c_scan`.
+- `validate-board.ps1 ... COM4` -> report written; result failed on `internal_i2c_configured` and `internal_i2c_scan`.
+- `validate-board.ps1 ... COM5` -> report written; result failed on `internal_i2c_configured` and `internal_i2c_scan`.
+- `validate-board.ps1 ... COM6` -> report written; result failed on `usbpd_i2c_configured` and `usbpd_i2c_scan` with no observed addresses.
+- `validate.ps1` -> success after the sweep; validated board definitions, device-manager data, Stage 3 job data, 5 validation contracts, and 4 validation reports.

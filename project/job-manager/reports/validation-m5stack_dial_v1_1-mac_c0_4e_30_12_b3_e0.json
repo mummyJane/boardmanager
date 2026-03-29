@@ -1,20 +1,20 @@
 {
   "reportType": "board-validation-report",
   "schemaVersion": 1,
-  "generatedAt": "2026-03-29T21:47:13.997Z",
+  "generatedAt": "2026-03-29T21:49:20.143Z",
   "contractId": "m5stack_dial_v1_1.validation-contract",
   "identity": {
     "boardId": "m5stack_dial_v1_1",
     "boardDisplayName": "M5Stack Dial V1.1",
-    "stableUnitId": "mac:c0:4e:30:13:2b:68",
-    "port": "COM3",
+    "stableUnitId": "mac:c0:4e:30:12:b3:e0",
+    "port": "COM5",
     "transportKind": "serial",
     "chip": "ESP32-S3 (QFN56) (revision v0.2)",
-    "macAddress": "c0:4e:30:13:2b:68",
-    "serialNumber": "7&203f6002&0&0000",
+    "macAddress": "c0:4e:30:12:b3:e0",
+    "serialNumber": "7&39b40148&0&0000",
     "firmwareApp": "m5stack_dial_demo",
     "firmwareVersion": "0.1.0-dev",
-    "firmwareBuildId": "Mar 29 2026 21:57:19",
+    "firmwareBuildId": "Mar 29 2026 18:22:10",
     "firmwareBoard": "m5stack_dial_v1_1",
     "usbVendorId": "303A",
     "usbProductId": "1001"
@@ -48,7 +48,7 @@
       "agentLine": null,
       "app": "m5stack_dial_demo",
       "version": "0.1.0-dev",
-      "buildId": "Mar 29 2026 21:57:19",
+      "buildId": "Mar 29 2026 18:22:10",
       "board": "m5stack_dial_v1_1",
       "capabilities": [
         "display",
@@ -61,11 +61,11 @@
       ]
     },
     "identity": {
-      "stableUnitId": "mac:c0:4e:30:13:2b:68",
+      "stableUnitId": "mac:c0:4e:30:12:b3:e0",
       "matchedBoardId": "m5stack_dial_v1_1",
       "chip": "ESP32-S3 (QFN56) (revision v0.2)",
-      "macAddress": "c0:4e:30:13:2b:68",
-      "serialNumber": "7&203f6002&0&0000"
+      "macAddress": "c0:4e:30:12:b3:e0",
+      "serialNumber": "7&39b40148&0&0000"
     },
     "signals": [
       {
@@ -254,7 +254,7 @@
       "passCriteria": "A transport such as serial, USB-serial/JTAG, or STLink VCP is available for the selected unit.",
       "evidence": {
         "source": "inventory.transport",
-        "port": "COM3",
+        "port": "COM5",
         "transportKind": "serial"
       },
       "failureNotes": []

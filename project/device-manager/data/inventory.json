@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T19:40:21.501Z",
+  "generatedAt": "2026-03-29T21:46:30.715Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -33,11 +33,11 @@
         "serialNumber": "7&203f6002&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
         "rawSignatureLine": "Board Manager dial smoke test starting",
-        "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1",
-        "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+        "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 21:57:19 board=m5stack_dial_v1_1",
+        "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 21:57:19",
         "firmwareApp": "m5stack_dial_demo",
         "firmwareVersion": "0.1.0-dev",
-        "firmwareBuildId": "Mar 29 2026 18:22:10",
+        "firmwareBuildId": "Mar 29 2026 21:57:19",
         "firmwareBoard": "m5stack_dial_v1_1",
         "agentCapabilities": [
           "display",
@@ -126,8 +126,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:40:21.501Z",
-        "seenCount": 38,
+        "lastSeenAt": "2026-03-29T21:46:30.715Z",
+        "seenCount": 40,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -263,8 +263,8 @@
         "familyKey": "board:m5stack_cores3_gnss_v1",
         "profileId": "board_m5stack_cores3_gnss_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:40:21.501Z",
-        "seenCount": 38,
+        "lastSeenAt": "2026-03-29T21:46:30.715Z",
+        "seenCount": 40,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -395,8 +395,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:40:21.501Z",
-        "seenCount": 38,
+        "lastSeenAt": "2026-03-29T21:46:30.715Z",
+        "seenCount": 40,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -519,8 +519,8 @@
         "familyKey": "board:p_nucleo_usb001_f072rb_v1",
         "profileId": "board_p_nucleo_usb001_f072rb_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T19:40:21.501Z",
-        "seenCount": 35,
+        "lastSeenAt": "2026-03-29T21:46:30.715Z",
+        "seenCount": 37,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {
@@ -559,7 +559,7 @@
         "mac": "c8:2e:18:f0:47:74",
         "serialNumber": "0001",
         "firmwareSignature": null,
-        "rawSignatureLine": "addr=3f400020 size=295d8h (169432) map\u001b[0�ets Jul 29 2019 12:21:46",
+        "rawSignatureLine": "t:  3 at_customize     unknown          ets Jul 29 2019 12:21:46",
         "firmwareLine": null,
         "agentLine": null,
         "firmwareApp": null,
@@ -626,8 +626,8 @@
         "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
         "profileId": "unknown_10c4_ea60_esp32",
         "firstSeenAt": "2026-03-29T17:23:22.319Z",
-        "lastSeenAt": "2026-03-29T19:40:21.501Z",
-        "seenCount": 23,
+        "lastSeenAt": "2026-03-29T21:46:30.715Z",
+        "seenCount": 25,
         "reason": "Stable identity matches a previously seen physical unit"
       },
       "manualOverride": {

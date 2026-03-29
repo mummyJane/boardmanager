@@ -15,7 +15,7 @@ Concrete bench assembly that combines the CoreS3 controller with an attached M5S
 
 ## Bench Notes
 
-- This unit is currently attached on `COM4`.
+- One current bench unit of this assembly is attached on `COM4`.
 - The bench fingerprint already records MAC `48:27:e2:66:b0:04`.
 - The current schema models the physical stack as one concrete board assembly; future schema work should support nested accessory-module composition directly.
 

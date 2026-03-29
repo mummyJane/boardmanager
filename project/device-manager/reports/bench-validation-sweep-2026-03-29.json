@@ -1,0 +1,56 @@
+{
+  "reportType": "bench-validation-sweep",
+  "schemaVersion": 1,
+  "generatedAt": "2026-03-29T22:55:00+01:00",
+  "host": {
+    "platform": "windows",
+    "hostname": "MSI"
+  },
+  "units": [
+    {
+      "stableUnitId": "mac:c0:4e:30:13:2b:68",
+      "port": "COM3",
+      "boardId": "m5stack_dial_v1_1",
+      "method": "stage3-validate-board",
+      "result": "fail",
+      "summary": "Dial live validation captured steady-state input lines but no fresh I2C scan line; internal_i2c_configured and internal_i2c_scan failed.",
+      "reportPath": "project/job-manager/reports/validation-m5stack_dial_v1_1-mac_c0_4e_30_13_2b_68.json"
+    },
+    {
+      "stableUnitId": "mac:48:27:e2:66:b0:04",
+      "port": "COM4",
+      "boardId": "m5stack_cores3_gnss_v1",
+      "method": "stage3-validate-board",
+      "result": "fail",
+      "summary": "CoreS3 plus GNSS live validation captured GNSS PPS state but no fresh internal I2C scan line; internal_i2c_configured and internal_i2c_scan failed.",
+      "reportPath": "project/job-manager/reports/validation-m5stack_cores3_gnss_v1-mac_48_27_e2_66_b0_04.json"
+    },
+    {
+      "stableUnitId": "mac:c0:4e:30:12:b3:e0",
+      "port": "COM5",
+      "boardId": "m5stack_dial_v1_1",
+      "method": "stage3-validate-board",
+      "result": "fail",
+      "summary": "Second Dial unit showed the same live behavior as COM3 during the short capture window; internal_i2c_configured and internal_i2c_scan failed.",
+      "reportPath": "project/job-manager/reports/validation-m5stack_dial_v1_1-mac_c0_4e_30_12_b3_e0.json"
+    },
+    {
+      "stableUnitId": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+      "port": "COM6",
+      "boardId": "p_nucleo_usb001_f072rb_v1",
+      "method": "stage3-validate-board",
+      "result": "fail",
+      "summary": "Nucleo validation had no live serial output in the capture window. Controller and transport facts were resolved from Stage 2 identity, but usbpd_i2c_configured and usbpd_i2c_scan failed with no observed addresses.",
+      "reportPath": "project/job-manager/reports/validation-p_nucleo_usb001_f072rb_v1-usb_usb_vid_0483_pid_374b_mi_02_8_2379fc3d_0_0002.json"
+    },
+    {
+      "stableUnitId": "mac:c8:2e:18:f0:47:74",
+      "port": "COM7",
+      "boardId": null,
+      "method": "stage2-discovery-identification",
+      "result": "identified-unmatched",
+      "summary": "Discovery refreshed the unit and preserved it as an unresolved CP210x-backed ESP32/WROOM-32-class board. Exact Stage 1 board mapping is still unknown, so no board-validation run was attempted against an unsafe guessed profile.",
+      "profileId": "unknown_10c4_ea60_esp32"
+    }
+  ]
+}
