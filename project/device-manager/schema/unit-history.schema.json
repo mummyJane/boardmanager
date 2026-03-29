@@ -3,7 +3,7 @@
   "$id": "board-manager-unit-history.schema.json",
   "title": "Board Manager Unit History",
   "type": "object",
-  "required": ["generatedAt", "host", "units", "families"],
+  "required": ["generatedAt", "host", "units", "families", "conflicts"],
   "properties": {
     "generatedAt": { "type": "string" },
     "host": {
@@ -82,6 +82,27 @@
           "sampleUnitIds": { "type": "array", "items": { "type": "string" } },
           "transitions": { "type": "object" },
           "fingerprint": { "type": "object" }
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["conflictId", "kind", "status", "firstSeenAt", "lastSeenAt", "count", "candidateStableKeys"],
+        "properties": {
+          "conflictId": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" },
+          "firstSeenAt": { "type": "string" },
+          "lastSeenAt": { "type": "string" },
+          "lastResolvedAt": { "type": ["string", "null"] },
+          "count": { "type": "integer" },
+          "chosenStableKey": { "type": ["string", "null"] },
+          "candidateStableKeys": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "object" },
+          "matches": { "type": "array" },
+          "summary": { "type": ["string", "null"] }
         }
       }
     }

@@ -137,7 +137,7 @@ async function main() {
     return;
   }
 
-  console.log(`Validated device-manager data: 4 data files and ${profileFiles.length} profile files.`);
+  console.log(`Validated device-manager data: 4 data files, conflict-aware history, and ${profileFiles.length} profile files.`);
 }
 
 main().catch((error) => {

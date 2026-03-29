@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('units', 'families', 'changes', 'diff')][string]$View = 'units',
+    [ValidateSet('units', 'families', 'changes', 'diff', 'conflicts')][string]$View = 'units',
     [ValidateSet('text', 'json')][string]$Format = 'text',
     [int]$Limit = 20,
     [switch]$PresentOnly,

@@ -109,6 +109,30 @@ CREATE TABLE unit_annotations (
   raw_json TEXT NOT NULL
 );
 
+CREATE TABLE discovery_conflicts (
+  conflict_id TEXT PRIMARY KEY,
+  kind TEXT NOT NULL,
+  status TEXT NOT NULL,
+  first_seen_at TEXT,
+  last_seen_at TEXT,
+  last_resolved_at TEXT,
+  count INTEGER NOT NULL,
+  chosen_stable_key TEXT,
+  summary TEXT,
+  raw_json TEXT NOT NULL
+);
+
+CREATE TABLE discovery_run_conflicts (
+  run_id TEXT NOT NULL,
+  conflict_id TEXT NOT NULL,
+  kind TEXT,
+  status TEXT,
+  chosen_stable_key TEXT,
+  summary TEXT,
+  PRIMARY KEY (run_id, conflict_id),
+  FOREIGN KEY (run_id) REFERENCES discovery_run_snapshots(run_id) ON DELETE CASCADE
+);
+
 CREATE TABLE families (
   family_key TEXT PRIMARY KEY,
   profile_id TEXT,
@@ -189,3 +213,5 @@ CREATE INDEX idx_units_board_id ON units(board_id);
 CREATE INDEX idx_families_present ON families(present);
 CREATE INDEX idx_discovery_run_units_stable_key ON discovery_run_units(stable_key);
 CREATE INDEX idx_discovery_run_families_family_key ON discovery_run_families(family_key);
+
+CREATE INDEX idx_discovery_conflicts_status ON discovery_conflicts(status);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T18:49:14.721Z",
+  "generatedAt": "2026-03-29T19:03:18.130Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -126,8 +126,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:49:14.721Z",
-        "seenCount": 30,
+        "lastSeenAt": "2026-03-29T19:03:18.130Z",
+        "seenCount": 32,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -257,8 +257,8 @@
         "familyKey": "board:m5stack_cores3_gnss_v1",
         "profileId": "board_m5stack_cores3_gnss_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:49:14.721Z",
-        "seenCount": 30,
+        "lastSeenAt": "2026-03-29T19:03:18.130Z",
+        "seenCount": 32,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -383,8 +383,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:49:14.721Z",
-        "seenCount": 30,
+        "lastSeenAt": "2026-03-29T19:03:18.130Z",
+        "seenCount": 32,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -501,8 +501,8 @@
         "familyKey": "board:p_nucleo_usb001_f072rb_v1",
         "profileId": "board_p_nucleo_usb001_f072rb_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:49:14.721Z",
-        "seenCount": 27,
+        "lastSeenAt": "2026-03-29T19:03:18.130Z",
+        "seenCount": 29,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -517,7 +517,9 @@
           "COM7",
           "Silicon Labs CP210x USB to UART Bridge (COM7)"
         ],
-        "priorStableKeys": []
+        "priorStableKeys": [
+          "usb:USB\\VID_10C4&PID_EA60\\0001"
+        ]
       },
       "transport": {
         "kind": "serial",
@@ -533,7 +535,7 @@
         "mac": "c8:2e:18:f0:47:74",
         "serialNumber": "0001",
         "firmwareSignature": null,
-        "rawSignatureLine": "000e0000\u001b[0m",
+        "rawSignatureLine": ";32mI (106) boot:  5 ota_1   �ets Jul 29 2019 12:21:46",
         "firmwareLine": null,
         "agentLine": null,
         "firmwareApp": null,
@@ -600,8 +602,8 @@
         "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
         "profileId": "unknown_10c4_ea60_esp32",
         "firstSeenAt": "2026-03-29T17:23:22.319Z",
-        "lastSeenAt": "2026-03-29T18:49:14.721Z",
-        "seenCount": 15,
+        "lastSeenAt": "2026-03-29T19:03:18.130Z",
+        "seenCount": 17,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     }

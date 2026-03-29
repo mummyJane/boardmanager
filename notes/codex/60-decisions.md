@@ -176,3 +176,5 @@
 - Expose richer USB descriptor fields through the shared query contract, not only inside the raw `usbDescriptor` blob. The web UI and remote callers should not need to know the low-level registry shape to use this identity evidence.
 
 - 2026-03-29 19:50 Europe/London: When discovery upgrades a unit from transport-only identity to a stronger identity such as chip MAC, the stronger key becomes canonical and the older key is retained in `identity.priorStableKeys` instead of keeping two physical-unit records.
+
+- 2026-03-29 20:08 Europe/London: Discovery should keep operating when identity evidence disagrees, but it must persist a conflict record with the competing stable keys and the chosen canonical match so later manual override and UI work can resolve it explicitly.

@@ -64,7 +64,7 @@ async function main() {
 
       sendJson(response, 404, {
         error: "not_found",
-        endpoints: ["/health", "/api/query?view=units", "/api/query?view=families", "/api/query?view=changes", "/api/query?view=diff"],
+        endpoints: ["/health", "/api/query?view=units", "/api/query?view=families", "/api/query?view=changes", "/api/query?view=diff", "/api/query?view=conflicts"],
       });
     } catch (error) {
       sendJson(response, 500, { error: "internal_error", message: error.message || String(error) });

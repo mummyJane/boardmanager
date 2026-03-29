@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 19:50 Europe/London
+Last updated: 2026-03-29 20:08 Europe/London
 
 ## Goal
 
@@ -95,6 +95,7 @@ Requirements:
 - discovery should preserve host-observed USB topology summaries when Windows exposes stable port or path information, so later UI and operator tooling can distinguish where a unit is physically connected
 - discovery should promote richer USB descriptor fields such as product name, revision, driver path, and related hardware identifiers when the host exposes them, so board matching and operator workflows can use more than VID/PID alone
 - when a unit is first seen through a transport-only identity and later yields a stronger fingerprint such as a chip MAC, discovery must reconcile that evidence into one physical-unit record and preserve the older key as alias history instead of leaving duplicate unit records
+- when multiple identity evidence sources for one observation disagree with prior history, discovery must preserve a conflict record with the competing unit identities and the chosen canonical match instead of silently overwriting history
 
 ### Stage 3: Build, Program, And Debug
 

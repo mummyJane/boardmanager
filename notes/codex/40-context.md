@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 19:50 Europe/London
+Last updated: 2026-03-29 20:08 Europe/London
 
 ## Project Intent
 
@@ -137,3 +137,7 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 20:05 Europe/London: Query output for units now exposes `usbProductName`, `usbRevision`, `usbDriver`, `usbBaseSerialNumber`, and the existing topology path so later web or remote consumers can distinguish boards with more than VID/PID and COM port alone.
 
 - 2026-03-29 19:50 Europe/London: Discovery now reconciles transport-only unit history into stronger identities when later scans recover better evidence such as a chip MAC. The COM7 ESP32 board now persists as `mac:c8:2e:18:f0:47:74` with `usb:USB\VID_10C4&PID_EA60\0001` preserved in `priorStableKeys` instead of as a second stale missing unit.
+
+- 2026-03-29 20:08 Europe/London: Stage 2 discovery now preserves an explicit conflict ledger in `unit-history.json` when MAC, USB-instance, or serial evidence for one observation points at different prior units.
+- 2026-03-29 20:08 Europe/London: The query layer and HTTP service now expose `view=conflicts`, and SQLite sync stores conflict rows for later operator tooling and UI work.
+- 2026-03-29 20:08 Europe/London: Current live bench validation shows no active conflicts, while a synthetic mismatch validation through the exported conflict detector produced the expected competing-unit record without changing bench data.

@@ -1003,3 +1003,12 @@ Validation:
 - Ran `discover.ps1`; live discovery still found 5 units and collapsed the previous `usb:USB\VID_10C4&PID_EA60\0001` history record into `mac:c8:2e:18:f0:47:74`.
 - Ran `query.ps1 -View units -Format json` to confirm the COM7 unit now carries `priorStableKeys = ["usb:USB\VID_10C4&PID_EA60\0001"]` and the stale transport-only unit no longer appears as a separate record.
 - Ran `validate.ps1`; board-definition and device-manager schema validation passed.
+
+## 2026-03-29 20:08 Europe/London
+
+- Task: add conflict handling when observed identity evidence disagrees with prior history.
+- Updated `project/scripts/discover-units.mjs` to detect MAC/USB-instance/serial disagreements, persist conflict records in history, and include conflict summaries in new discovery runs.
+- Updated query/service/schema/SQLite support so `query.ps1 -View conflicts` and `/api/query?view=conflicts` return the same machine-facing conflict ledger.
+- Ran `discover.ps1`; current bench still discovers 5 units and records zero live conflicts.
+- Ran a synthetic validation with `node --input-type=module -e ... detectIdentityConflict(...)`; it returned the expected conflict object with competing stable keys and a chosen canonical match.
+- Ran `validate.ps1`; board-definition and device-manager validation passed.

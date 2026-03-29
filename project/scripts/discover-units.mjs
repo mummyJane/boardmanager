@@ -346,7 +346,18 @@ function summarizeRunFamily(family) {
   };
 }
 
-function appendDiscoveryRun(state, units, families, timestamp) {
+function summarizeConflict(conflict) {
+  return {
+    conflictId: conflict.conflictId,
+    kind: conflict.kind,
+    status: conflict.status ?? 'active',
+    chosenStableKey: conflict.chosenStableKey ?? null,
+    candidateStableKeys: conflict.candidateStableKeys ?? [],
+    summary: conflict.summary ?? null,
+  };
+}
+
+function appendDiscoveryRun(state, units, families, conflicts, timestamp) {
   const existingRuns = Array.isArray(state.runs) ? state.runs : [];
   const nextRun = {
     runId: `run:${timestamp}`,
@@ -357,12 +368,16 @@ function appendDiscoveryRun(state, units, families, timestamp) {
     },
     unitCount: units.length,
     familyCount: families.length,
+    conflictCount: conflicts.length,
     units: units
       .map(summarizeRunUnit)
       .sort((left, right) => String(left.stableKey).localeCompare(String(right.stableKey))),
     families: families
       .map(summarizeRunFamily)
       .sort((left, right) => String(left.familyKey).localeCompare(String(right.familyKey))),
+    conflicts: conflicts
+      .map(summarizeConflict)
+      .sort((left, right) => String(left.conflictId).localeCompare(String(right.conflictId))),
   };
 
   state.generatedAt = timestamp;
@@ -669,6 +684,74 @@ function mergeIdentity(observed, transport, previousMatch) {
     serialNumber: observed.serialNumber ?? prior.serialNumber ?? null,
     aliases: Array.from(aliases).sort(),
     priorStableKeys: Array.from(priorStableKeys).sort(),
+  };
+}
+
+function collectIdentityMatches(observed, transport, indices) {
+  const matches = [];
+  const seen = new Set();
+
+  const pushMatch = (source, unit) => {
+    if (!unit) return;
+    const stableKey = unit.stableKey ?? unit.identity?.stableKey ?? null;
+    if (!stableKey) return;
+    const key = `${source}:${stableKey}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    matches.push({
+      source,
+      stableKey,
+      unit,
+    });
+  };
+
+  if (observed.mac && indices.byMac.has(observed.mac)) pushMatch('mac', indices.byMac.get(observed.mac));
+  if (transport.usbInstance && indices.byUsbInstance.has(transport.usbInstance)) pushMatch('usbInstance', indices.byUsbInstance.get(transport.usbInstance));
+  if (observed.serialNumber && indices.bySerial.has(observed.serialNumber)) pushMatch('serialNumber', indices.bySerial.get(observed.serialNumber));
+  return matches;
+}
+
+export function detectIdentityConflict(observed, transport, indices) {
+  const matches = collectIdentityMatches(observed, transport, indices);
+  const stableKeys = uniqueSorted(matches.map((entry) => entry.stableKey));
+  if (stableKeys.length <= 1) {
+    return null;
+  }
+
+  const chosenStableKey = matches.find((entry) => entry.source == 'mac')?.stableKey
+    ?? matches.find((entry) => entry.source == 'usbInstance')?.stableKey
+    ?? matches[0]?.stableKey
+    ?? null;
+
+  const evidence = {
+    port: transport.port ?? null,
+    usbInstance: transport.usbInstance ?? observed.usbInstance ?? null,
+    serialNumber: observed.serialNumber ?? null,
+    mac: observed.mac ?? null,
+    vid: observed.vid ?? null,
+    pid: observed.pid ?? null,
+  };
+
+  const idText = [
+    'identity-evidence-mismatch',
+    chosenStableKey ?? 'unknown',
+    stableKeys.join('|'),
+    evidence.usbInstance ?? 'no-usb',
+    evidence.mac ?? 'no-mac',
+    evidence.serialNumber ?? 'no-serial',
+  ].join('|');
+
+  return {
+    conflictId: `conflict_${sanitizeSegment(idText)}`,
+    kind: 'identity-evidence-mismatch',
+    chosenStableKey,
+    candidateStableKeys: stableKeys,
+    evidence,
+    matches: matches.map((entry) => ({
+      source: entry.source,
+      stableKey: entry.stableKey,
+    })),
+    summary: `Identity evidence disagrees for ${transport.port ?? chosenStableKey ?? 'unit'}: ${stableKeys.join(' vs ')}`,
   };
 }
 
@@ -986,6 +1069,7 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
   }
 
   const previousUnit = findPreviousUnit(observed, transport, unitIndex);
+  const identityConflict = detectIdentityConflict(observed, transport, unitIndex);
   const identity = mergeIdentity(observed, transport, previousUnit);
 
   const unit = {
@@ -1036,7 +1120,7 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     reason: historyStatus.reason,
   };
 
-  return { unit, familyFingerprint: resolvedFamilyFingerprint, previousUnit };
+  return { unit, familyFingerprint: resolvedFamilyFingerprint, previousUnit, identityConflict };
 }
 
 function mergeObservedHistory(existing, unit) {
@@ -1393,6 +1477,53 @@ function refreshFamilyTransitions(state, timestamp, observedStableKeys) {
   }
 }
 
+function updateConflictLedger(state, conflict, timestamp) {
+  const conflicts = Array.isArray(state.conflicts) ? state.conflicts : [];
+  const conflictIndex = conflicts.findIndex((entry) => entry.conflictId === conflict.conflictId);
+  const existingConflict = conflictIndex >= 0 ? conflicts[conflictIndex] : null;
+  const nextConflict = {
+    conflictId: conflict.conflictId,
+    kind: conflict.kind,
+    status: 'active',
+    firstSeenAt: existingConflict?.firstSeenAt ?? timestamp,
+    lastSeenAt: timestamp,
+    count: (existingConflict?.count ?? 0) + 1,
+    chosenStableKey: conflict.chosenStableKey ?? null,
+    candidateStableKeys: uniqueSorted([...(existingConflict?.candidateStableKeys ?? []), ...(conflict.candidateStableKeys ?? [])]),
+    evidence: {
+      port: conflict.evidence?.port ?? existingConflict?.evidence?.port ?? null,
+      usbInstance: conflict.evidence?.usbInstance ?? existingConflict?.evidence?.usbInstance ?? null,
+      serialNumber: conflict.evidence?.serialNumber ?? existingConflict?.evidence?.serialNumber ?? null,
+      mac: conflict.evidence?.mac ?? existingConflict?.evidence?.mac ?? null,
+      vid: conflict.evidence?.vid ?? existingConflict?.evidence?.vid ?? null,
+      pid: conflict.evidence?.pid ?? existingConflict?.evidence?.pid ?? null,
+    },
+    matches: Array.from(new Map([...(existingConflict?.matches ?? []), ...(conflict.matches ?? [])].map((entry) => [`${entry.source}:${entry.stableKey}`, entry])).values()),
+    summary: conflict.summary ?? existingConflict?.summary ?? null,
+    lastResolvedAt: existingConflict?.lastResolvedAt ?? null,
+  };
+
+  if (conflictIndex >= 0) conflicts[conflictIndex] = nextConflict;
+  else conflicts.push(nextConflict);
+
+  state.conflicts = conflicts.sort((left, right) => String(left.conflictId).localeCompare(String(right.conflictId)));
+}
+
+function refreshConflictStatus(state, observedConflictIds, timestamp) {
+  const conflicts = Array.isArray(state.conflicts) ? state.conflicts : [];
+  for (const conflict of conflicts) {
+    if (observedConflictIds.has(conflict.conflictId)) {
+      conflict.status = 'active';
+      continue;
+    }
+
+    if (conflict.status !== 'resolved') {
+      conflict.status = 'resolved';
+      conflict.lastResolvedAt = timestamp;
+    }
+  }
+}
+
 async function main() {
   const ports = await readPorts();
   const boardCatalog = await loadBoardCatalog(projectRoot);
@@ -1403,6 +1534,7 @@ async function main() {
     host: { platform: "windows", hostname: null },
     units: [],
     families: [],
+    conflicts: [],
   });
   const discoveryRunsState = await readJsonOrDefault(discoveryRunsPath, {
     generatedAt: null,
@@ -1412,19 +1544,25 @@ async function main() {
 
   const units = [];
   const observedStableKeys = new Set();
+  const observedConflictIds = new Set();
   const timestamp = new Date().toISOString();
 
   for (const portInfo of ports) {
     const unitIndex = buildIdentityIndex(historyState.units ?? []);
     const familyIndex = buildFamilyIndex(historyState.families ?? []);
-    const { unit, familyFingerprint, previousUnit } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
+    const { unit, familyFingerprint, previousUnit, identityConflict } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
     observedStableKeys.add(unit.identity.stableKey);
     await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog, previousUnit);
+    if (identityConflict) {
+      updateConflictLedger(historyState, identityConflict, timestamp);
+      observedConflictIds.add(identityConflict.conflictId);
+    }
     units.push(unit);
   }
 
   markMissingUnits(historyState, observedStableKeys, timestamp);
   refreshFamilyTransitions(historyState, timestamp, observedStableKeys);
+  refreshConflictStatus(historyState, observedConflictIds, timestamp);
 
   units.sort((left, right) => String(left.transport.port).localeCompare(String(right.transport.port)));
 
@@ -1442,11 +1580,13 @@ async function main() {
     platform: "windows",
     hostname: os.hostname(),
   };
+  historyState.conflicts = Array.isArray(historyState.conflicts) ? historyState.conflicts : [];
 
   appendDiscoveryRun(
     discoveryRunsState,
     units,
     (historyState.families ?? []).filter((family) => family.present !== false),
+    (historyState.conflicts ?? []).filter((conflict) => conflict.status !== 'resolved'),
     timestamp
   );
 
@@ -1465,10 +1605,14 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+
+if (isMainModule) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
 
 
 

@@ -70,6 +70,7 @@ def sync_database():
             [
                 ("inventory", inventory.get("generatedAt"), len(inventory.get("units", [])), str(DATA_ROOT / "inventory.json")),
                 ("unit_history", history.get("generatedAt"), len(history.get("units", [])), str(DATA_ROOT / "unit-history.json")),
+                ("discovery_conflicts", history.get("generatedAt"), len(history.get("conflicts", [])), str(DATA_ROOT / "unit-history.json")),
                 ("annotations", annotations.get("updatedAt"), len(annotations.get("units", [])), str(DATA_ROOT / "unit-annotations.json")),
                 ("discovery_runs", discovery_runs.get("generatedAt"), len(discovery_runs.get("runs", [])), str(DATA_ROOT / "discovery-runs.json")),
             ],
@@ -135,6 +136,23 @@ def sync_database():
                         "INSERT INTO unit_transitions (stable_key, transition_name, at, state) VALUES (?, ?, ?, ?)",
                         (unit.get("stableKey"), transition_name, transition.get("at"), transition.get("state")),
                     )
+
+        for conflict in history.get("conflicts", []):
+            connection.execute(
+                "INSERT INTO discovery_conflicts (conflict_id, kind, status, first_seen_at, last_seen_at, last_resolved_at, count, chosen_stable_key, summary, raw_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    conflict.get("conflictId"),
+                    conflict.get("kind"),
+                    conflict.get("status"),
+                    conflict.get("firstSeenAt"),
+                    conflict.get("lastSeenAt"),
+                    conflict.get("lastResolvedAt"),
+                    conflict.get("count", 0),
+                    conflict.get("chosenStableKey"),
+                    conflict.get("summary"),
+                    json.dumps(conflict, indent=2),
+                ),
+            )
 
         for annotation in annotations.get("units", []):
             connection.execute(
@@ -235,6 +253,18 @@ def sync_database():
                         family.get("familyKey"),
                         family.get("boardId"),
                         family.get("presentUnitCount", 0),
+                    ),
+                )
+            for conflict in run.get("conflicts", []):
+                connection.execute(
+                    "INSERT INTO discovery_run_conflicts (run_id, conflict_id, kind, status, chosen_stable_key, summary) VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        run.get("runId"),
+                        conflict.get("conflictId"),
+                        conflict.get("kind"),
+                        conflict.get("status"),
+                        conflict.get("chosenStableKey"),
+                        conflict.get("summary"),
                     ),
                 )
 

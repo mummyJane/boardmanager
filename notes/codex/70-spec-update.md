@@ -133,3 +133,5 @@
 - 2026-03-29 20:05 Europe/London: Stage 2 spec updated to require promotion of richer USB descriptor fields such as product name, revision, driver path, and related hardware identifiers when the host exposes them. Reason: multiple attached units now share transport classes, and later matching or UI flows benefit from stable descriptor evidence beyond bare VID/PID and COM-port names.
 
 - 2026-03-29 19:50 Europe/London: Add an explicit Stage 2 requirement that identity upgrades reconcile into one unit record with alias history. This was already implied by stable identity tracking, but the COM7 CP210x-to-ESP32 case showed the project needs the rule written down to avoid duplicate stale records.
+
+- 2026-03-29 20:08 Europe/London: Add an explicit Stage 2 requirement for persisted identity-conflict records. Identity reconciliation alone was not enough once multiple evidence sources could disagree; the later UI and remote service need the disagreement preserved instead of hidden.

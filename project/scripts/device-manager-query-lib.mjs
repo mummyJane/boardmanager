@@ -123,6 +123,21 @@ function mapUnit(unit) {
   };
 }
 
+function mapConflict(conflict) {
+  return {
+    conflictId: conflict.conflictId,
+    kind: conflict.kind ?? null,
+    status: conflict.status ?? null,
+    chosenStableKey: conflict.chosenStableKey ?? null,
+    candidateStableKeys: Array.isArray(conflict.candidateStableKeys) ? conflict.candidateStableKeys : [],
+    firstSeenAt: conflict.firstSeenAt ?? null,
+    lastSeenAt: conflict.lastSeenAt ?? null,
+    lastResolvedAt: conflict.lastResolvedAt ?? null,
+    count: conflict.count ?? 0,
+    summary: conflict.summary ?? null,
+  };
+}
+
 function mapFamily(family) {
   return {
     familyKey: family.familyKey,
@@ -192,6 +207,18 @@ function buildChangeEntries(history) {
         target: family.familyKey,
         type: transitions.lastPresent.state ?? "present",
         summary: `${family.familyKey} family present with ${family.presentUnitCount ?? 0} unit(s)`,
+      });
+    }
+  }
+
+  for (const conflict of history.conflicts ?? []) {
+    if (conflict.lastSeenAt) {
+      entries.push({
+        at: conflict.lastSeenAt,
+        scope: "conflict",
+        target: conflict.conflictId,
+        type: conflict.status ?? "active",
+        summary: conflict.summary ?? conflict.conflictId,
       });
     }
   }
@@ -384,6 +411,17 @@ export function renderQueryText(view, payload) {
     ]);
   }
 
+  if (view === "conflicts") {
+    return renderTextTable(payload, [
+      { key: "conflictId", label: "Conflict" },
+      { key: "status", label: "Status" },
+      { key: "chosenStableKey", label: "Chosen" },
+      { key: "count", label: "Count" },
+      { key: "lastSeenAt", label: "LastSeenAt" },
+      { key: "summary", label: "Summary" },
+    ]);
+  }
+
   return renderTextTable(payload, [
     { key: "at", label: "At" },
     { key: "scope", label: "Scope" },
@@ -395,7 +433,7 @@ export function renderQueryText(view, payload) {
 
 export async function runQuery(args) {
   const inventory = await readJson(inventoryPath, { generatedAt: null, units: [] });
-  const history = await readJson(historyPath, { generatedAt: null, units: [], families: [] });
+  const history = await readJson(historyPath, { generatedAt: null, units: [], families: [], conflicts: [] });
   const discoveryRuns = await readJson(discoveryRunsPath, { generatedAt: null, runs: [] });
 
   let items;
@@ -421,8 +459,13 @@ export async function runQuery(args) {
       previousRunId: previousRun?.runId ?? null,
       currentRunId: currentRun?.runId ?? null,
     };
+  } else if (args.view === "conflicts") {
+    items = (history.conflicts ?? [])
+      .map(mapConflict)
+      .sort((left, right) => String(right.lastSeenAt ?? "").localeCompare(String(left.lastSeenAt ?? "")))
+      .slice(0, args.limit);
   } else {
-    throw new Error(`Unsupported --view '${args.view}'. Use units, families, changes, or diff.`);
+    throw new Error(`Unsupported --view '${args.view}'. Use units, families, changes, diff, or conflicts.`);
   }
 
   return {

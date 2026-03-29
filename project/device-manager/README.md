@@ -134,3 +134,10 @@ Example:
 
 - `./serve-device-manager.ps1 -BindHost 127.0.0.1 -Port 8787`
 
+
+
+## Conflict View
+
+- `query.ps1 -View conflicts` shows persisted identity-evidence conflicts where one observation matched multiple prior units.
+- The same data is exposed over HTTP at `/api/query?view=conflicts`.
+- Conflict records stay in `project/device-manager/data/unit-history.json` and are synchronized into SQLite for later UI and operator workflows.
