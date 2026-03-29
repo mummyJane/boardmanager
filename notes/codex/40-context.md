@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 16:26 Europe/London
+Last updated: 2026-03-29 16:43 Europe/London
 
 ## Project Intent
 
@@ -89,4 +89,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 
 - unit history now keeps previously known units even when they are absent from the latest discovery run, using present, lastPresentAt, lastMissingAt, and missingCount fields
 - discovery can ignore named COM ports via BOARD_MANAGER_DISCOVERY_IGNORE_PORTS for controlled missing-unit validation runs without changing bench wiring
+
+
+- unit and family history now expose transition summaries through 	ransitions.firstSeen, 	ransitions.lastSeen, 	ransitions.lastPresent, and 	ransitions.lastMissing`r
+- the current Nucleo unit and its family retain a valid lastMissing transition from the controlled COM6-ignored validation pass while ending the latest real discovery pass in the present state
 

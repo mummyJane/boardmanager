@@ -118,3 +118,8 @@
 
 - Keep missing units in cumulative history instead of deleting them when they are not present on the latest scan. Operator workflows need durable per-unit records even when hardware is temporarily unplugged.
 - Model missing state as a unit-level concern first with `present`, `lastPresentAt`, `lastMissingAt`, and `missingCount`; family-level transition summaries can be added separately.
+
+## 2026-03-29 16:43 Europe/London
+
+- Add explicit transition summaries to both unit and family history rather than making callers infer state changes only from raw timestamps. This keeps the later service and web layers simpler and less error-prone.
+- Track family presence from the current set of units in that family, not from transport heuristics alone. Family state should derive from unit state so the summary stays consistent.

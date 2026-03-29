@@ -167,6 +167,15 @@ function mergeMetadataHistory(existing, annotation, timestamp) {
   };
 }
 
+function mergeTransitionSummary(existing, updates) {
+  return {
+    firstSeen: existing?.firstSeen ?? updates.firstSeen ?? null,
+    lastSeen: updates.lastSeen ?? existing?.lastSeen ?? null,
+    lastPresent: updates.lastPresent ?? existing?.lastPresent ?? null,
+    lastMissing: updates.lastMissing ?? existing?.lastMissing ?? null,
+  };
+}
+
 async function readPorts() {
   const command = "Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3";
   const { stdout } = await execFileAsync("powershell", ["-NoProfile", "-Command", command], {
@@ -708,6 +717,12 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     identity: unit.identity,
     annotation: unit.annotation,
     metadataHistory: mergeMetadataHistory(existingUnit?.metadataHistory, unit.annotation, timestamp),
+    transitions: mergeTransitionSummary(existingUnit?.transitions, {
+      firstSeen: existingUnit?.transitions?.firstSeen ?? { at: existingUnit?.firstSeenAt ?? timestamp, state: "discovered" },
+      lastSeen: { at: timestamp, state: "observed" },
+      lastPresent: { at: timestamp, state: "present" },
+      lastMissing: existingUnit?.transitions?.lastMissing ?? null,
+    }),
     lastTransport: unit.transport,
     observed: mergeObservedHistory(existingUnit?.observed, unit),
   };
@@ -719,11 +734,22 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     familyKey: familyFingerprint.familyKey,
     firstSeenAt: existingFamily?.firstSeenAt ?? timestamp,
     lastSeenAt: timestamp,
+    lastPresentAt: existingFamily?.lastPresentAt ?? timestamp,
+    lastMissingAt: existingFamily?.lastMissingAt ?? null,
+    present: true,
+    presentUnitCount: existingFamily?.presentUnitCount ?? 0,
+    missingUnitCount: existingFamily?.missingUnitCount ?? 0,
     seenCount: (existingFamily?.seenCount ?? 0) + 1,
     status: familyFingerprint.status,
     profileId: familyFingerprint.profileId,
     boardIds: uniqueSorted([...(existingFamily?.boardIds ?? []), unit.match.boardId]),
     sampleUnitIds: uniqueSorted([...(existingFamily?.sampleUnitIds ?? []), unit.identity.stableKey]).slice(0, 16),
+    transitions: mergeTransitionSummary(existingFamily?.transitions, {
+      firstSeen: existingFamily?.transitions?.firstSeen ?? { at: existingFamily?.firstSeenAt ?? timestamp, state: "discovered" },
+      lastSeen: { at: timestamp, state: "observed" },
+      lastPresent: existingFamily?.transitions?.lastPresent ?? { at: timestamp, state: "present" },
+      lastMissing: existingFamily?.transitions?.lastMissing ?? null,
+    }),
     fingerprint: {
       fingerprintKey: familyFingerprint.fingerprintKey,
       vid: familyFingerprint.vid,
@@ -764,6 +790,47 @@ function markMissingUnits(state, observedStableKeys, timestamp) {
     unit.lastMissingAt = wasPresent ? timestamp : (unit.lastMissingAt ?? timestamp);
     unit.lastPresentAt = unit.lastPresentAt ?? unit.lastSeenAt ?? null;
     unit.missingCount = (unit.missingCount ?? 0) + (wasPresent ? 1 : 0);
+    unit.transitions = mergeTransitionSummary(unit.transitions, {
+      firstSeen: unit.transitions?.firstSeen ?? { at: unit.firstSeenAt ?? timestamp, state: "discovered" },
+      lastSeen: unit.transitions?.lastSeen ?? (unit.lastSeenAt ? { at: unit.lastSeenAt, state: "observed" } : null),
+      lastPresent: unit.transitions?.lastPresent ?? (unit.lastPresentAt ? { at: unit.lastPresentAt, state: "present" } : null),
+      lastMissing: wasPresent ? { at: timestamp, state: "missing" } : (unit.transitions?.lastMissing ?? { at: unit.lastMissingAt ?? timestamp, state: "missing" }),
+    });
+  }
+}
+
+function refreshFamilyTransitions(state, timestamp, observedStableKeys) {
+  const units = Array.isArray(state.units) ? state.units : [];
+  const families = Array.isArray(state.families) ? state.families : [];
+  const observedFamilies = new Set();
+
+  for (const unit of units) {
+    if (observedStableKeys.has(unit.stableKey)) observedFamilies.add(unit.familyKey);
+  }
+
+  for (const family of families) {
+    const familyUnits = units.filter((unit) => unit.familyKey === family.familyKey);
+    const presentUnits = familyUnits.filter((unit) => unit.present !== false);
+    const missingUnits = familyUnits.filter((unit) => unit.present === false);
+    const wasPresent = family.present !== false;
+    const isPresent = presentUnits.length > 0;
+    const latestPresentAt = presentUnits.map((unit) => unit.lastPresentAt).filter(Boolean).sort().at(-1) ?? family.lastPresentAt ?? null;
+    const latestMissingAt = missingUnits.map((unit) => unit.lastMissingAt).filter(Boolean).sort().at(-1) ?? family.lastMissingAt ?? null;
+
+    family.present = isPresent;
+    family.presentUnitCount = presentUnits.length;
+    family.missingUnitCount = missingUnits.length;
+    if (observedFamilies.has(family.familyKey)) family.lastSeenAt = timestamp;
+    family.lastPresentAt = isPresent ? latestPresentAt : (family.lastPresentAt ?? latestPresentAt ?? null);
+    family.lastMissingAt = !isPresent && familyUnits.length > 0 && wasPresent
+      ? timestamp
+      : (latestMissingAt ?? family.lastMissingAt ?? null);
+    family.transitions = mergeTransitionSummary(family.transitions, {
+      firstSeen: family.transitions?.firstSeen ?? { at: family.firstSeenAt ?? timestamp, state: "discovered" },
+      lastSeen: observedFamilies.has(family.familyKey) ? { at: family.lastSeenAt ?? timestamp, state: "observed" } : (family.transitions?.lastSeen ?? null),
+      lastPresent: isPresent && family.lastPresentAt ? { at: family.lastPresentAt, state: "present" } : (family.transitions?.lastPresent ?? null),
+      lastMissing: !isPresent && family.lastMissingAt ? { at: family.lastMissingAt, state: "missing" } : (family.transitions?.lastMissing ?? null),
+    });
   }
 }
 
@@ -793,6 +860,7 @@ async function main() {
   }
 
   markMissingUnits(historyState, observedStableKeys, timestamp);
+  refreshFamilyTransitions(historyState, timestamp, observedStableKeys);
 
   units.sort((left, right) => String(left.transport.port).localeCompare(String(right.transport.port)));
 
@@ -828,5 +896,7 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+
 
 

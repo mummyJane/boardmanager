@@ -9,7 +9,8 @@ This folder now contains the first Milestone 2 discovery slice.
 - capture stable identifiers such as USB instance path, MAC, and serial-like values where available
 - capture ESP32 short firmware signatures where possible
 - match observations back to known board definitions from Stage 1
-- preserve per-unit history across discovery runs`n- record when previously known units are currently missing without deleting their history
+- preserve per-unit history across discovery runs
+- record when previously known units are currently missing without deleting their history
 - recognize when a newly seen physical unit belongs to a previously seen board family
 - start a draft profile for genuinely new board families
 - allow operator-assigned labels and notes per physical unit
@@ -52,7 +53,7 @@ When a unit is discovered, the manager should classify it in this order:
 
 This lets discovery distinguish between "the same board again", "another board of a known type", and "something genuinely new on the bench".
 
-The unit history also preserves cumulative metadata history for operator-assigned owner, location, and purpose values so bench-role changes can be tracked over time. It now also records whether a unit is currently present, plus the last time it was seen present and the last time it transitioned to missing.
+The unit history also preserves cumulative metadata history for operator-assigned owner, location, and purpose values so bench-role changes can be tracked over time. It now records whether a unit or family is currently present, plus transition summaries for first seen, last seen, last present, and last missing state changes.
 
 ## Operator Labels
 
@@ -63,4 +64,3 @@ Example:
 `./annotate-unit.ps1 -Unit "mac:c0:4e:30:13:2b:68" -Label "Dial Left" -Location "Bench A" -Purpose "UI test unit" -Note "Keep on smoke-test firmware"`
 
 That annotation is merged into both the latest inventory and the cumulative unit history on the next discovery run. Ownership, location, and purpose values are also appended into the unit metadata history immediately when the annotation command runs.
-

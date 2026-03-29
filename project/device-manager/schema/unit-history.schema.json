@@ -23,12 +23,17 @@
           "stableKey": { "type": "string" },
           "firstSeenAt": { "type": "string" },
           "lastSeenAt": { "type": "string" },
+          "lastPresentAt": { "type": ["string", "null"] },
+          "lastMissingAt": { "type": ["string", "null"] },
+          "present": { "type": "boolean" },
+          "missingCount": { "type": "integer" },
           "seenCount": { "type": "integer" },
           "familyKey": { "type": "string" },
           "profileId": { "type": ["string", "null"] },
           "boardIds": { "type": "array", "items": { "type": "string" } },
           "identity": { "type": "object" },
           "annotation": { "type": "object" },
+          "transitions": { "type": "object" },
           "metadataHistory": {
             "type": "object",
             "properties": {
@@ -65,15 +70,20 @@
           "familyKey": { "type": "string" },
           "firstSeenAt": { "type": "string" },
           "lastSeenAt": { "type": "string" },
+          "lastPresentAt": { "type": ["string", "null"] },
+          "lastMissingAt": { "type": ["string", "null"] },
+          "present": { "type": "boolean" },
+          "presentUnitCount": { "type": "integer" },
+          "missingUnitCount": { "type": "integer" },
           "seenCount": { "type": "integer" },
           "status": { "type": "string" },
           "profileId": { "type": ["string", "null"] },
           "boardIds": { "type": "array", "items": { "type": "string" } },
           "sampleUnitIds": { "type": "array", "items": { "type": "string" } },
+          "transitions": { "type": "object" },
           "fingerprint": { "type": "object" }
         }
       }
     }
   }
 }
-

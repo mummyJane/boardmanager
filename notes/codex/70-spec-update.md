@@ -100,3 +100,7 @@
 ## 2026-03-29 16:26 Europe/London
 
 - Added a Stage 2 requirement that unplugged or currently missing units remain in history with explicit missing-state tracking. This change is needed because the bench inventory should retain continuity for physical units even when they are temporarily disconnected.
+
+## 2026-03-29 16:43 Europe/London
+
+- Added a Stage 2 requirement for explicit transition summaries in the persisted unit and family model. This change is needed because later query and web layers should be able to read first-seen, last-seen, last-present, and last-missing state directly instead of reconstructing transitions from multiple timestamps.

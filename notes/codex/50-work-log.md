@@ -720,3 +720,35 @@ Validation:
 
 - `discover.ps1` -> success with all four attached units present
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+
+## 2026-03-29 16:43 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `Get-Content project/device-manager/schema/unit-history.schema.json`
+- `discover.ps1` with `BOARD_MANAGER_DISCOVERY_IGNORE_PORTS=COM6`
+- `discover.ps1`
+- `validate.ps1`
+
+Observed issues:
+
+- the first validation attempt mistakenly ran the simulated-missing scan and the normal scan in parallel, which left the persisted state reflecting the wrong pass
+- a PowerShell string replacement inserted literal escape text into the schema and one source line; both were corrected before the final validation run
+- ESP32 serial banner capture remains opportunistic; one intermediate normal scan matched the units but did not capture all firmware banners on every port
+
+Actions:
+
+- added unit transition summaries for first seen, last seen, last present, and last missing
+- added family transition summaries plus `presentUnitCount` and `missingUnitCount`
+- corrected the validation flow to run the simulated missing pass first and the real bench pass second
+- updated Stage 2 notes, task tracker, context, decisions, and release wrappers for transition tracking
+
+Validation:
+
+- `discover.ps1` with `BOARD_MANAGER_DISCOVERY_IGNORE_PORTS=COM6` -> success; the Nucleo unit and family recorded a missing transition without being deleted from history
+- `discover.ps1` -> success; restored the real four-unit bench state with transition data preserved
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
