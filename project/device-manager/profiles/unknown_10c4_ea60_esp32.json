@@ -1,0 +1,58 @@
+{
+  "profileId": "unknown_10c4_ea60_esp32",
+  "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+  "status": "draft",
+  "createdAt": "2026-03-29T18:00:14.234Z",
+  "updatedAt": "2026-03-29T18:00:14.234Z",
+  "boardIds": [],
+  "sampleUnitIds": [
+    "mac:c8:2e:18:f0:47:74"
+  ],
+  "fingerprint": {
+    "fingerprintKey": "vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+    "vid": "10C4",
+    "pid": "EA60",
+    "chipFamily": "esp32",
+    "chip": "ESP32-D0WD-V3 (revision v3.1)",
+    "description": "Silicon Labs CP210x USB to UART Bridge",
+    "name": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+    "firmwareSignature": null,
+    "capabilities": [],
+    "manufacturer": "Silicon Labs",
+    "service": "silabser",
+    "containerId": "{34c052a1-08b6-5809-881e-95820d434537}",
+    "locationInformation": "Port_#0003.Hub_#0008",
+    "baseUsbIdentity": "USB\\VID_10C4&PID_EA60\\0001",
+    "relatedServices": [],
+    "relatedFunctionNames": []
+  },
+  "notes": [
+    "Discovery created this draft profile because a previously unseen board family was observed.",
+    "Review this profile and replace generic fingerprint data with a proper board definition match when known.",
+    "Passive UART capture at 115200 showed an ESP32 ROM and bootloader log with ESP-IDF qa-test-v4.3.3-20220423, module_name:WROOM-32, and OTA-style partition labels.",
+    "Direct esptool probing confirmed ESP32-D0WD-V3 revision v3.1, MAC c8:2e:18:f0:47:74, 40MHz crystal, and detected 4MB flash."
+  ],
+  "exactBoard": null,
+  "candidateBoards": [
+    {
+      "boardId": "esp32_dev_relay_v1",
+      "displayName": "ESP32 Dev Relay V1",
+      "revision": "1.0",
+      "vendor": "Generic",
+      "productSku": "sample-esp32-relay-v1",
+      "controllerModuleId": "esp32_wroom_32",
+      "chipFamily": "esp32",
+      "platformSdk": "esp-idf",
+      "capabilities": [
+        "bluetooth",
+        "uart",
+        "wifi"
+      ],
+      "sources": [],
+      "score": 6,
+      "reasons": [
+        "Chip family matches esp32"
+      ]
+    }
+  ]
+}

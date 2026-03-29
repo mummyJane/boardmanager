@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 19:05 Europe/London
+Last updated: 2026-03-29 19:30 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -56,9 +56,10 @@ Last updated: 2026-03-29 19:05 Europe/London
 - [x] Add per-unit key manifests linking each stable unit id to an AES key record and an asymmetric keypair record
 - [x] Add key-generation and rotation tooling under keys/ for per-unit AES keys and asymmetric keypairs
 - [x] Add a board-agent handshake path so firmware can self-identify board id, firmware version, and capabilities directly
-- [ ] Add stronger STM32-family fingerprinting beyond ST-LINK transport naming
+- [x] Add stronger STM32-family fingerprinting beyond ST-LINK transport naming
 - [ ] Add USB hub or topology metadata when it can be observed reliably
 - [ ] Add serial-number and descriptor probing for devices that expose richer USB identity
+- [ ] Add identity-upgrade reconciliation when a transport-only unit later gains a chip MAC or richer fingerprint
 - [ ] Add conflict handling when observed identity evidence disagrees with prior history
 - [ ] Add manual override support when an operator wants to pin a unit to a board or family
 - [ ] Add merge/reconcile tooling for draft family profiles after a board type is understood

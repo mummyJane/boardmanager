@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T17:23:22.319Z",
+  "generatedAt": "2026-03-29T18:00:14.234Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -11,7 +11,7 @@
         "stableKey": "mac:c0:4e:30:13:2b:68",
         "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
         "mac": "c0:4e:30:13:2b:68",
-        "serialNumber": "7&203F6002&0&0000",
+        "serialNumber": "7&203f6002&0&0000",
         "aliases": [
           "COM3",
           "USB Serial Device (COM3)"
@@ -29,7 +29,7 @@
         "pid": "1001",
         "chip": "ESP32-S3 (QFN56) (revision v0.2)",
         "mac": "c0:4e:30:13:2b:68",
-        "serialNumber": "7&203F6002&0&0000",
+        "serialNumber": "7&203f6002&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
         "rawSignatureLine": "Board Manager dial smoke test starting",
         "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1",
@@ -46,7 +46,32 @@
           "touch",
           "usb",
           "wifi"
-        ]
+        ],
+        "usbDescriptor": {
+          "friendlyName": "USB Serial Device (COM3)",
+          "deviceDescription": "USB Serial Device",
+          "manufacturer": "Microsoft",
+          "service": "usbser",
+          "locationInformation": "0000.0014.0000.005.001.000.000.000.000",
+          "containerId": "{1ac53e2e-95f0-5664-996c-e3d96d8d3e9d}",
+          "hardwareIds": [
+            "USB\\VID_303A&PID_1001&REV_0101&MI_00",
+            "USB\\VID_303A&PID_1001&MI_00"
+          ],
+          "compatibleIds": [
+            "USB\\COMPAT_VID_303a&Class_02&SubClass_02&Prot_00",
+            "USB\\COMPAT_VID_303a&Class_02&SubClass_02",
+            "USB\\COMPAT_VID_303a&Class_02",
+            "USB\\Class_02&SubClass_02&Prot_00",
+            "USB\\Class_02&SubClass_02",
+            "USB\\Class_02"
+          ],
+          "relatedInterfaces": [],
+          "relatedServices": [],
+          "relatedFunctionNames": [],
+          "basePnpDeviceId": "USB\\VID_303A&PID_1001&MI_00\\7&203f6002&0&0000",
+          "baseSerialNumber": "7&203f6002&0&0000"
+        }
       },
       "annotation": {
         "label": null,
@@ -67,8 +92,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T17:23:22.319Z",
-        "seenCount": 16,
+        "lastSeenAt": "2026-03-29T18:00:14.234Z",
+        "seenCount": 25,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -78,7 +103,7 @@
         "stableKey": "mac:48:27:e2:66:b0:04",
         "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
         "mac": "48:27:e2:66:b0:04",
-        "serialNumber": "7&2D2626DF&0&0000",
+        "serialNumber": "7&2d2626df&0&0000",
         "aliases": [
           "COM4",
           "USB Serial Device (COM4)"
@@ -96,7 +121,7 @@
         "pid": "1001",
         "chip": "ESP32-S3 (QFN56) (revision v0.2)",
         "mac": "48:27:e2:66:b0:04",
-        "serialNumber": "7&2D2626DF&0&0000",
+        "serialNumber": "7&2d2626df&0&0000",
         "firmwareSignature": "board_manager_cores3_gnss_demo",
         "rawSignatureLine": "Board Manager CoreS3 GNSS bring-up starting",
         "firmwareLine": "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 18:22:38 board=m5stack_cores3_gnss_v1",
@@ -118,7 +143,32 @@
           "uart",
           "usb",
           "wifi"
-        ]
+        ],
+        "usbDescriptor": {
+          "friendlyName": "USB Serial Device (COM4)",
+          "deviceDescription": "USB Serial Device",
+          "manufacturer": "Microsoft",
+          "service": "usbser",
+          "locationInformation": "0000.0014.0000.005.003.000.000.000.000",
+          "containerId": "{116bb454-e963-5409-9406-30549791eacc}",
+          "hardwareIds": [
+            "USB\\VID_303A&PID_1001&REV_0101&MI_00",
+            "USB\\VID_303A&PID_1001&MI_00"
+          ],
+          "compatibleIds": [
+            "USB\\COMPAT_VID_303a&Class_02&SubClass_02&Prot_00",
+            "USB\\COMPAT_VID_303a&Class_02&SubClass_02",
+            "USB\\COMPAT_VID_303a&Class_02",
+            "USB\\Class_02&SubClass_02&Prot_00",
+            "USB\\Class_02&SubClass_02",
+            "USB\\Class_02"
+          ],
+          "relatedInterfaces": [],
+          "relatedServices": [],
+          "relatedFunctionNames": [],
+          "basePnpDeviceId": "USB\\VID_303A&PID_1001&MI_00\\7&2d2626df&0&0000",
+          "baseSerialNumber": "7&2d2626df&0&0000"
+        }
       },
       "annotation": {
         "label": null,
@@ -139,8 +189,8 @@
         "familyKey": "board:m5stack_cores3_gnss_v1",
         "profileId": "board_m5stack_cores3_gnss_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T17:23:22.319Z",
-        "seenCount": 16,
+        "lastSeenAt": "2026-03-29T18:00:14.234Z",
+        "seenCount": 25,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -150,7 +200,7 @@
         "stableKey": "mac:c0:4e:30:12:b3:e0",
         "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
         "mac": "c0:4e:30:12:b3:e0",
-        "serialNumber": "7&39B40148&0&0000",
+        "serialNumber": "7&39b40148&0&0000",
         "aliases": [
           "COM5",
           "USB Serial Device (COM5)"
@@ -168,7 +218,7 @@
         "pid": "1001",
         "chip": "ESP32-S3 (QFN56) (revision v0.2)",
         "mac": "c0:4e:30:12:b3:e0",
-        "serialNumber": "7&39B40148&0&0000",
+        "serialNumber": "7&39b40148&0&0000",
         "firmwareSignature": "board_manager_dial_smoketest",
         "rawSignatureLine": "Board Manager dial smoke test starting",
         "firmwareLine": "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 18:22:10 board=m5stack_dial_v1_1",
@@ -185,7 +235,32 @@
           "touch",
           "usb",
           "wifi"
-        ]
+        ],
+        "usbDescriptor": {
+          "friendlyName": "USB Serial Device (COM5)",
+          "deviceDescription": "USB Serial Device",
+          "manufacturer": "Microsoft",
+          "service": "usbser",
+          "locationInformation": "0000.0014.0000.005.002.000.000.000.000",
+          "containerId": "{4e9caef0-0f32-5b9a-b1f5-75ca74184f85}",
+          "hardwareIds": [
+            "USB\\VID_303A&PID_1001&REV_0101&MI_00",
+            "USB\\VID_303A&PID_1001&MI_00"
+          ],
+          "compatibleIds": [
+            "USB\\COMPAT_VID_303a&Class_02&SubClass_02&Prot_00",
+            "USB\\COMPAT_VID_303a&Class_02&SubClass_02",
+            "USB\\COMPAT_VID_303a&Class_02",
+            "USB\\Class_02&SubClass_02&Prot_00",
+            "USB\\Class_02&SubClass_02",
+            "USB\\Class_02"
+          ],
+          "relatedInterfaces": [],
+          "relatedServices": [],
+          "relatedFunctionNames": [],
+          "basePnpDeviceId": "USB\\VID_303A&PID_1001&MI_00\\7&39b40148&0&0000",
+          "baseSerialNumber": "7&39b40148&0&0000"
+        }
       },
       "annotation": {
         "label": null,
@@ -206,8 +281,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T17:23:22.319Z",
-        "seenCount": 16,
+        "lastSeenAt": "2026-03-29T18:00:14.234Z",
+        "seenCount": 25,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -217,7 +292,7 @@
         "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
         "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
         "mac": null,
-        "serialNumber": "8&2379FC3D&0&0002",
+        "serialNumber": "8&2379fc3d&0&0002",
         "aliases": [
           "COM6",
           "STMicroelectronics STLink Virtual COM Port (COM6)"
@@ -235,7 +310,7 @@
         "pid": "374B",
         "chip": null,
         "mac": null,
-        "serialNumber": "8&2379FC3D&0&0002",
+        "serialNumber": "8&2379fc3d&0&0002",
         "firmwareSignature": null,
         "rawSignatureLine": null,
         "firmwareLine": null,
@@ -244,7 +319,32 @@
         "firmwareVersion": null,
         "firmwareBuildId": null,
         "firmwareBoard": null,
-        "agentCapabilities": []
+        "agentCapabilities": [],
+        "usbDescriptor": {
+          "friendlyName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "deviceDescription": "STMicroelectronics STLink Virtual COM Port",
+          "manufacturer": "STMicroelectronics",
+          "service": "usbser",
+          "locationInformation": "0000.0014.0000.005.004.002.000.000.000",
+          "containerId": "{d8ef23b1-2aa2-5488-9ed4-3d8f515ca2fb}",
+          "hardwareIds": [
+            "USB\\VID_0483&PID_374B&REV_0100&MI_02",
+            "USB\\VID_0483&PID_374B&MI_02"
+          ],
+          "compatibleIds": [
+            "USB\\COMPAT_VID_0483&Class_02&SubClass_02&Prot_01",
+            "USB\\COMPAT_VID_0483&Class_02&SubClass_02",
+            "USB\\COMPAT_VID_0483&Class_02",
+            "USB\\Class_02&SubClass_02&Prot_01",
+            "USB\\Class_02&SubClass_02",
+            "USB\\Class_02"
+          ],
+          "relatedInterfaces": [],
+          "relatedServices": [],
+          "relatedFunctionNames": [],
+          "basePnpDeviceId": "USB\\VID_0483&PID_374B&MI_02\\8&2379fc3d&0&0002",
+          "baseSerialNumber": "8&2379fc3d&0&0002"
+        }
       },
       "annotation": {
         "label": null,
@@ -257,25 +357,25 @@
       "match": {
         "status": "matched",
         "boardId": "p_nucleo_usb001_f072rb_v1",
-        "reason": "STLink virtual COM port matches the attached P-NUCLEO-USB001 / Nucleo-F072RB",
-        "source": "heuristic"
+        "reason": "STMicroelectronics USB registry identity and STLink VCP VID/PID match the attached P-NUCLEO-USB001 / Nucleo-F072RB",
+        "source": "usb-registry"
       },
       "history": {
         "status": "known-unit",
         "familyKey": "board:p_nucleo_usb001_f072rb_v1",
         "profileId": "board_p_nucleo_usb001_f072rb_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T17:23:22.319Z",
-        "seenCount": 13,
+        "lastSeenAt": "2026-03-29T18:00:14.234Z",
+        "seenCount": 22,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
     {
-      "unitId": "usb:USB\\VID_10C4&PID_EA60\\0001",
+      "unitId": "mac:c8:2e:18:f0:47:74",
       "identity": {
-        "stableKey": "usb:USB\\VID_10C4&PID_EA60\\0001",
+        "stableKey": "mac:c8:2e:18:f0:47:74",
         "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
-        "mac": null,
+        "mac": "c8:2e:18:f0:47:74",
         "serialNumber": "0001",
         "aliases": [
           "COM7",
@@ -292,18 +392,43 @@
       "observed": {
         "vid": "10C4",
         "pid": "EA60",
-        "chip": null,
-        "mac": null,
+        "chip": "ESP32-D0WD-V3 (revision v3.1)",
+        "mac": "c8:2e:18:f0:47:74",
         "serialNumber": "0001",
         "firmwareSignature": null,
-        "rawSignatureLine": null,
+        "rawSignatureLine": "0;32mI (106) boot:  5 ota_1       �ets Jul 29 2019 12:21:46",
         "firmwareLine": null,
         "agentLine": null,
         "firmwareApp": null,
         "firmwareVersion": null,
         "firmwareBuildId": null,
         "firmwareBoard": null,
-        "agentCapabilities": []
+        "agentCapabilities": [],
+        "usbDescriptor": {
+          "friendlyName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "deviceDescription": "Silicon Labs CP210x USB to UART Bridge",
+          "manufacturer": "Silicon Labs",
+          "service": "silabser",
+          "locationInformation": "Port_#0003.Hub_#0008",
+          "containerId": "{34c052a1-08b6-5809-881e-95820d434537}",
+          "hardwareIds": [
+            "USB\\VID_10C4&PID_EA60&REV_0100",
+            "USB\\VID_10C4&PID_EA60"
+          ],
+          "compatibleIds": [
+            "USB\\COMPAT_VID_10C4&Class_FF&SubClass_00&Prot_00",
+            "USB\\COMPAT_VID_10C4&Class_FF&SubClass_00",
+            "USB\\COMPAT_VID_10C4&Class_FF",
+            "USB\\Class_FF&SubClass_00&Prot_00",
+            "USB\\Class_FF&SubClass_00",
+            "USB\\Class_FF"
+          ],
+          "relatedInterfaces": [],
+          "relatedServices": [],
+          "relatedFunctionNames": [],
+          "basePnpDeviceId": "USB\\VID_10C4&PID_EA60\\0001",
+          "baseSerialNumber": "0001"
+        }
       },
       "annotation": {
         "label": null,
@@ -320,13 +445,13 @@
         "source": null
       },
       "history": {
-        "status": "new-family",
-        "familyKey": "unknown:vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
-        "profileId": "unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge",
-        "firstSeenAt": "2026-03-29T17:23:22.319Z",
-        "lastSeenAt": "2026-03-29T17:23:22.319Z",
+        "status": "known-unit",
+        "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+        "profileId": "unknown_10c4_ea60_esp32",
+        "firstSeenAt": "2026-03-29T18:00:14.234Z",
+        "lastSeenAt": "2026-03-29T18:00:14.234Z",
         "seenCount": 1,
-        "reason": "Neither this physical unit nor its card family has been seen before"
+        "reason": "Stable identity matches a previously seen physical unit"
       }
     }
   ]

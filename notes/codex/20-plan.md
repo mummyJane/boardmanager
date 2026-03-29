@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 19:05 Europe/London
+Last updated: 2026-03-29 19:30 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -29,7 +29,7 @@ Objective:
 Add a local host-side discovery flow that fingerprints connected units, matches them back to Stage 1 board definitions, and persists an inventory snapshot for later service and database work.
 
 Status:
-Started on 2026-03-29 with a Windows discovery script, persisted inventory schema, and a first matched scan of the current four-unit bench.
+In progress on 2026-03-29 with persisted discovery, history, query, service, reports, SQLite sync, key management, board-agent capture, registry-backed STM32 matching, and live profiling of an additional unknown ESP32-class unit on COM7.
 
 Initial success criteria:
 
@@ -53,6 +53,9 @@ Initial success criteria:
 - the first query layer is reusable by operators now and by the future web UI and remote systems later
 - the first HTTP service endpoint exposes that same query contract for local and remote consumers
 - discovery persists a compact run ledger and can diff the latest two runs for added, removed, or changed units and families`n- operators can export the current bench snapshot and cumulative history as stable JSON report files under project/device-manager/reports`r`n- discovery and annotation flows synchronize the persisted Stage 2 model into project/device-manager/data/device-manager.sqlite for normalized table access`r`n- the standard validation flow also checks device-manager data files and family profiles against their schemas`r`n- local key-management tooling now maintains a root signer plus per-unit AES and identity keys under keys/ for the currently attached units
+- STM32-family matching uses registry-backed USB identity fields instead of only STLink transport naming
+- known USB-to-UART bridges can be probed non-destructively for MCU identity so unknown ESP-class boards can be promoted to MAC-based units and richer draft profiles
+- the current unknown COM7 board is promoted from a generic CP210x bridge record to an ESP32-based draft family with captured MAC, chip, flash size, and boot-banner evidence
 
 ## Future Milestones
 

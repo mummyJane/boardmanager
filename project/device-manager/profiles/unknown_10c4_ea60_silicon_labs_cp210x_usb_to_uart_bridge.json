@@ -3,7 +3,7 @@
   "familyKey": "unknown:vidpid:10C4:EA60|chip:unknown|desc:silicon_labs_cp210x_usb_to_uart_bridge",
   "status": "draft",
   "createdAt": "2026-03-29T17:23:22.319Z",
-  "updatedAt": "2026-03-29T17:23:22.319Z",
+  "updatedAt": "2026-03-29T17:58:02.913Z",
   "boardIds": [],
   "sampleUnitIds": [
     "usb:USB\\VID_10C4&PID_EA60\\0001"
@@ -17,11 +17,19 @@
     "description": "Silicon Labs CP210x USB to UART Bridge",
     "name": "Silicon Labs CP210x USB to UART Bridge (COM7)",
     "firmwareSignature": null,
-    "capabilities": []
+    "capabilities": [],
+    "manufacturer": "Silicon Labs",
+    "service": "silabser",
+    "containerId": "{34c052a1-08b6-5809-881e-95820d434537}",
+    "locationInformation": "Port_#0003.Hub_#0008",
+    "baseUsbIdentity": "USB\\VID_10C4&PID_EA60\\0001",
+    "relatedServices": [],
+    "relatedFunctionNames": []
   },
   "notes": [
     "Discovery created this draft profile because a previously unseen board family was observed.",
-    "Review this profile and replace generic fingerprint data with a proper board definition match when known."
+    "Review this profile and replace generic fingerprint data with a proper board definition match when known.",
+    "This transport-only draft was superseded once COM7 exposed ESP32 chip identity and was promoted to the newer unknown_10c4_ea60_esp32 profile."
   ],
   "exactBoard": null,
   "candidateBoards": []

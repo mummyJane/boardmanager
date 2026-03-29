@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 19:05 Europe/London
+Last updated: 2026-03-29 19:30 Europe/London
 
 ## Goal
 
@@ -89,6 +89,9 @@ Requirements:
 - the persisted Stage 2 JSON model must be synchronized into a simple SQLite database so later service and UI work can query normalized tables without replacing the existing discovery contract
 - the SQLite store should update automatically when discovery or unit-annotation flows change the persisted Stage 2 JSON state
 - Stage 2 persisted data files and family profiles must be validated against their schemas as part of the standard validation flow
+- STM32-family discovery must use registry-backed USB identity fields such as VID/PID, manufacturer, service, and stable USB-instance or base-serial evidence instead of relying only on STLink transport naming
+- discovery should probe known USB-to-UART bridge families for non-destructive MCU identity where possible so unresolved ESP-class boards can be promoted from generic bridge records to chip-aware draft profiles
+- discovery should preserve boot ROM, bootloader, and module-identification banners for unresolved units when those can be observed safely over the target serial link
 
 ### Stage 3: Build, Program, And Debug
 

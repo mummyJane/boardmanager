@@ -123,3 +123,11 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
   - `COM5` Dial -> capabilities `display,rfid,rotaryEncoder,rtc,touch,usb,wifi`
 - 2026-03-29 19:05 Europe/London: The F072 linker script now includes heap/stack reservation plus `end` and `_end` symbols, which restored a clean host-side build for `p_nucleo_usb001_demo`.
 - 2026-03-29 19:05 Europe/London: Discovery also observed an additional `COM7` unit during validation: `USB\\VID_10C4&PID_EA60\\0001`, presented by Windows as `Silicon Labs CP210x USB to UART Bridge (COM7)`. This created a draft family profile at `project/device-manager/profiles/unknown_10c4_ea60_silicon_labs_cp210x_usb_to_uart_bridge.json`.
+- 2026-03-29 19:30 Europe/London: Stage 2 discovery now records registry-backed USB descriptor fields such as manufacturer, service, location information, and base USB identity for all currently attached serial devices.
+- 2026-03-29 19:30 Europe/London: The attached P-NUCLEO / Nucleo-F072RB on COM6 is now matched from registry-backed STMicroelectronics USB identity evidence (`VID_0483`, `PID_374B`, `service=usbser`) rather than only the transport name.
+- 2026-03-29 19:30 Europe/London: Discovery now probes CP210x-backed serial bridges as potential ESP targets. The COM7 unit was promoted from a generic USB-bridge record to `mac:c8:2e:18:f0:47:74` with chip `ESP32-D0WD-V3 (revision v3.1)`.
+- 2026-03-29 19:30 Europe/London: Passive serial capture on COM7 at 115200 showed an ESP32 boot log, `ESP-IDF qa-test-v4.3.3-20220423` bootloader text, `module_name:WROOM-32`, and an OTA-style partition table with 4MB flash.
+- 2026-03-29 19:30 Europe/London: Direct esptool probing on COM7 confirmed chip `ESP32-D0WD-V3 (revision v3.1)`, MAC `c8:2e:18:f0:47:74`, 40MHz crystal, WiFi+BT dual-core features, and detected 4MB flash.
+- 2026-03-29 19:30 Europe/London: Discovery now maintains a new draft family profile at `project/device-manager/profiles/unknown_10c4_ea60_esp32.json` for the COM7 board, with Stage 1 candidate matching currently pointing weakly at the generic ESP32 sample family.
+- 2026-03-29 19:30 Europe/London: The earlier generic CP210x profile remains in history as a superseded transport-only observation and highlights a remaining Stage 2 reconciliation task when identity quality improves from USB-instance-only to chip-MAC-based.
+

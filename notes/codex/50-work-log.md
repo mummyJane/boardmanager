@@ -896,3 +896,43 @@ Validation:
 - `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 4 profile files.
 - `query.ps1 -View units -Format json` -> success; JSON output now includes `firmwareBoard` and `firmwareCapabilities`.
 - `sync-device-manager-db.ps1` and direct SQLite query -> success; unit rows now include firmware capability strings and truncated board-agent lines.
+
+## 2026-03-29 19:30 Europe/London
+
+Commands run:
+
+- `git status --short`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/scripts/device-manager-query-lib.mjs`
+- `Get-Content project/device-manager/schema/device-inventory.schema.json`
+- `discover.ps1`
+- `validate.ps1`
+- `query.ps1 -View units -Format json`
+- passive serial capture on `COM7` via the local ESP Python environment at `115200`, `9600`, `57600`, `74880`, and `38400` baud
+- `esptool.py --chip auto -p COM7 read_mac`
+- `esptool.py --chip auto -p COM7 flash_id`
+
+Observed issues:
+
+- the first USB-descriptor refactor introduced a malformed `join("\n")` string in `discover-units.mjs`, which broke discovery with a JavaScript syntax error
+- the first STM32 registry-backed match patch referenced `observed.vid` and `observed.pid` inside `basicHeuristicMatch`, but only `unit.observed` is in scope there
+- the composite USB-container walk still did not populate sibling ST-Link functions in-process, so COM6 matching currently relies on registry-backed manufacturer, service, and VID/PID evidence rather than the richer composite sibling evidence
+- once COM7 was promoted from USB-instance identity to MAC identity, the history layer retained the earlier transport-only record as a now-missing unit; this exposed the need for later identity-upgrade reconciliation tooling
+
+Actions:
+
+- simplified `readPorts()` back to raw serial-port enumeration and moved USB-registry descriptor lookup into `readUsbRegistryDescriptor()`
+- fixed USB descriptor persistence so discovery now records manufacturer, service, location information, base USB identity, and base serial number in inventory, history, and query output
+- upgraded STM32 matching so the attached COM6 Nucleo is matched from registry-backed STMicroelectronics USB identity evidence instead of only STLink naming
+- extended discovery to probe CP210x-backed serial bridges as possible ESP targets using the local esptool path plus passive serial signature capture
+- promoted COM7 from `usb:USB\VID_10C4&PID_EA60\0001` to `mac:c8:2e:18:f0:47:74` when chip-MAC evidence became available
+- created or refreshed the richer draft profile `project/device-manager/profiles/unknown_10c4_ea60_esp32.json` for the newly characterized ESP32-based board
+
+Validation:
+
+- `discover.ps1` -> success after the syntax and scope fixes; discovery persisted 5 present units and synced SQLite
+- `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 5 profile files
+- `query.ps1 -View units -Format json` -> success; JSON now shows USB manufacturer/service/location and base serial values for the attached boards, plus the new MAC-based COM7 identity
+- passive serial capture on `COM7` at `115200` -> success; captured ESP32 ROM and bootloader output including `ESP-IDF qa-test-v4.3.3-20220423`, `module_name:WROOM-32`, and a 4MB OTA partition table
+- `esptool.py --chip auto -p COM7 read_mac` -> success; confirmed `ESP32-D0WD-V3 (revision v3.1)` and MAC `c8:2e:18:f0:47:74`
+- `esptool.py --chip auto -p COM7 flash_id` -> success; confirmed detected flash size `4MB`, 40MHz crystal, and ESP32 feature set `WiFi, BT, Dual Core, 240MHz`

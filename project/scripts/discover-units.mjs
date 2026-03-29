@@ -50,6 +50,20 @@ function parseSerialFromUsbInstance(pnpDeviceId) {
   return parts.length >= 3 ? parts[2] : null;
 }
 
+function parseRegistryLabel(value) {
+  const text = String(value ?? "").trim();
+  const segments = text.split(";").map((entry) => entry.trim()).filter(Boolean);
+  return segments.length > 0 ? segments[segments.length - 1] : null;
+}
+
+function normalizeStringList(values) {
+  if (!Array.isArray(values)) {
+    return values ? [String(values)] : [];
+  }
+
+  return values.map((entry) => String(entry)).filter(Boolean);
+}
+
 function parseFirmwareIdentity(rawLine) {
   const text = String(rawLine ?? "");
   const match = text.match(/BoardManagerFirmware:\s+app=(\S+)\s+version=(\S+)\s+build=(.+?)\s+board=(\S+)$/);
@@ -217,6 +231,9 @@ function summarizeRunUnit(unit) {
     firmwareBuildId: unit.observed.firmwareBuildId ?? null,
     firmwareBoard: unit.observed.firmwareBoard ?? null,
     agentCapabilities: unit.observed.agentCapabilities ?? [],
+    usbManufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+    usbService: unit.observed.usbDescriptor?.service ?? null,
+    usbBaseSerialNumber: unit.observed.usbDescriptor?.baseSerialNumber ?? null,
     agentLine: unit.observed.agentLine ?? null,
     label: unit.annotation.label ?? null,
   };
@@ -255,7 +272,9 @@ function appendDiscoveryRun(state, units, families, timestamp) {
   state.runs = [...existingRuns, nextRun].slice(-200);
 }
 async function readPorts() {
-  const command = "Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3";
+  const command = [
+    'Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3'
+  ].join("\n");
   const { stdout } = await execFileAsync("powershell", ["-NoProfile", "-Command", command], {
     cwd: repoRoot,
     windowsHide: true,
@@ -265,6 +284,103 @@ async function readPorts() {
   const parsed = JSON.parse(stdout || "[]");
   const ports = Array.isArray(parsed) ? parsed : [parsed];
   return ports.filter((port) => !ignoredPorts.has(String(port?.DeviceID ?? "").trim()));
+}
+
+async function readUsbRegistryDescriptor(pnpDeviceId) {
+  const match = String(pnpDeviceId ?? "").match(/^USB\\(VID_[0-9A-F]{4}&PID_[0-9A-F]{4}(?:&MI_[0-9A-F]{2})?)\\(.+)$/i);
+  if (!match) {
+    return null;
+  }
+
+  const enumKey = match[1].toUpperCase();
+  const instanceId = match[2].toLowerCase();
+  const vidPidKey = enumKey.replace(/&MI_[0-9A-F]{2}$/i, "");
+  const command = [
+    `$enumKey = '${enumKey}'`,
+    `$instanceId = '${instanceId}'`,
+    `$vidPidKey = '${vidPidKey}'`,
+    '$currentPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\USB\\" + $enumKey + "\\" + $instanceId',
+    '$current = Get-ItemProperty -LiteralPath $currentPath -ErrorAction SilentlyContinue',
+    'if ($null -eq $current) { Write-Output "null"; exit 0 }',
+    '$containerId = $current.ContainerID',
+    '$usbRoot = "Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\USB"',
+    '$related = @(',
+    '  Get-ChildItem -Path $usbRoot -Recurse -ErrorAction SilentlyContinue | ForEach-Object {',
+    '    $item = Get-ItemProperty -Path $_.PSPath -ErrorAction SilentlyContinue',
+    '    if ($null -ne $item -and $containerId -and $item.ContainerID -eq $containerId) {',
+    '      [pscustomobject]@{',
+    '        pnpDeviceId = ($_.PSPath -replace "^Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Enum\\", "")',
+    '        friendlyName = $item.FriendlyName',
+    '        deviceDesc = $item.DeviceDesc',
+    '        manufacturer = $item.Mfg',
+    '        service = $item.Service',
+    '        locationInformation = $item.LocationInformation',
+    '        hardwareIds = @($item.HardwareID)',
+    '        compatibleIds = @($item.CompatibleIDs)',
+    '      }',
+    '    }',
+    '  }',
+    ')',
+    '$payload = [pscustomobject]@{',
+    '  currentPnpDeviceId = "USB\\" + $enumKey + "\\" + $instanceId',
+    '  friendlyName = $current.FriendlyName',
+    '  deviceDesc = $current.DeviceDesc',
+    '  manufacturer = $current.Mfg',
+    '  service = $current.Service',
+    '  locationInformation = $current.LocationInformation',
+    '  containerId = $current.ContainerID',
+    '  hardwareIds = @($current.HardwareID)',
+    '  compatibleIds = @($current.CompatibleIDs)',
+    '  related = $related',
+    '}',
+    '$payload | ConvertTo-Json -Depth 6 -Compress'
+  ].join('\n');
+
+  try {
+    const { stdout } = await execFileAsync('powershell', ['-NoProfile', '-Command', command], {
+      cwd: repoRoot,
+      windowsHide: true,
+      maxBuffer: 1024 * 1024,
+    });
+    const raw = String(stdout ?? '').trim();
+    if (!raw || raw === 'null') {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+    const related = Array.isArray(parsed.related) ? parsed.related : parsed.related ? [parsed.related] : [];
+    const relatedInterfaces = related.map((entry) => ({
+      pnpDeviceId: entry.pnpDeviceId ?? null,
+      friendlyName: parseRegistryLabel(entry.friendlyName),
+      deviceDescription: parseRegistryLabel(entry.deviceDesc),
+      manufacturer: parseRegistryLabel(entry.manufacturer),
+      service: entry.service ?? null,
+      locationInformation: entry.locationInformation ?? null,
+      hardwareIds: normalizeStringList(entry.hardwareIds),
+      compatibleIds: normalizeStringList(entry.compatibleIds),
+    }));
+    const baseIdentity = relatedInterfaces.find((entry) => /USB\\VID_[0-9A-F]{4}&PID_[0-9A-F]{4}\\/i.test(entry.pnpDeviceId ?? '')) ?? null;
+
+    return {
+      friendlyName: parseRegistryLabel(parsed.friendlyName),
+      deviceDescription: parseRegistryLabel(parsed.deviceDesc),
+      manufacturer: parseRegistryLabel(parsed.manufacturer),
+      service: parsed.service ?? null,
+      locationInformation: parsed.locationInformation ?? null,
+      containerId: parsed.containerId ?? null,
+      hardwareIds: normalizeStringList(parsed.hardwareIds),
+      compatibleIds: normalizeStringList(parsed.compatibleIds),
+      relatedInterfaces,
+      relatedServices: uniqueSorted(relatedInterfaces.map((entry) => entry.service)),
+      relatedFunctionNames: uniqueSorted(relatedInterfaces.flatMap((entry) => [entry.friendlyName, entry.deviceDescription])),
+      basePnpDeviceId: baseIdentity?.pnpDeviceId ?? parsed.currentPnpDeviceId ?? null,
+      baseSerialNumber: baseIdentity?.pnpDeviceId
+        ? parseSerialFromUsbInstance(baseIdentity.pnpDeviceId)
+        : (parsed.currentPnpDeviceId ? parseSerialFromUsbInstance(parsed.currentPnpDeviceId) : null),
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function readJsonOrDefault(filePath, fallback) {
@@ -313,9 +429,9 @@ function buildFamilyIndex(families) {
   return { byFamilyKey, byFingerprintKey };
 }
 
-async function runEspTool(port) {
+async function runEspTool(port, chip = "esp32s3") {
   try {
-    const { stdout, stderr } = await execFileAsync(espPython, [esptoolPy, "--chip", "esp32s3", "-p", port, "read_mac"], {
+    const { stdout, stderr } = await execFileAsync(espPython, [esptoolPy, "--chip", chip, "-p", port, "read_mac"], {
       cwd: repoRoot,
       windowsHide: true,
       maxBuffer: 1024 * 1024,
@@ -432,7 +548,7 @@ function findPreviousUnit(observed, transport, indices) {
 
 function basicHeuristicMatch(unit) {
   const { description, name } = unit.transport;
-  const { mac, firmwareSignature, rawSignatureLine, firmwareBoard } = unit.observed;
+  const { mac, firmwareSignature, rawSignatureLine, firmwareBoard, usbDescriptor } = unit.observed;
 
   if (firmwareBoard === "m5stack_dial_v1_1") {
     return {
@@ -449,6 +565,31 @@ function basicHeuristicMatch(unit) {
       boardId: "m5stack_cores3_gnss_v1",
       reason: "Firmware self-identifies the board as m5stack_cores3_gnss_v1",
       source: "firmware-self-id"
+    };
+  }
+
+  if ((usbDescriptor?.manufacturer === "STMicroelectronics")
+    && unit.observed.vid === "0483"
+    && unit.observed.pid === "374B"
+    && usbDescriptor?.service === "usbser") {
+    return {
+      status: "matched",
+      boardId: "p_nucleo_usb001_f072rb_v1",
+      reason: "STMicroelectronics USB registry identity and STLink VCP VID/PID match the attached P-NUCLEO-USB001 / Nucleo-F072RB",
+      source: "usb-registry"
+    };
+  }
+
+  if ((usbDescriptor?.manufacturer === "STMicroelectronics")
+    && (usbDescriptor?.relatedServices ?? []).includes("WinUSB")
+    && (usbDescriptor?.relatedServices ?? []).includes("USBSTOR")
+    && ((usbDescriptor?.relatedFunctionNames ?? []).some((entry) => String(entry).includes("ST-Link Debug"))
+      || (usbDescriptor?.relatedFunctionNames ?? []).some((entry) => String(entry).includes("STLink Virtual COM Port")))) {
+    return {
+      status: "matched",
+      boardId: "p_nucleo_usb001_f072rb_v1",
+      reason: "Composite STLink debug, mass-storage, and VCP interfaces match the attached P-NUCLEO-USB001 / Nucleo-F072RB",
+      source: "usb-registry"
     };
   }
 
@@ -541,6 +682,13 @@ function deriveFamilyFingerprint(unit) {
       name: unit.transport.name ?? null,
       firmwareSignature: unit.observed.firmwareSignature ?? null,
       capabilities: unit.observed.agentCapabilities ?? [],
+      manufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+      service: unit.observed.usbDescriptor?.service ?? null,
+      containerId: unit.observed.usbDescriptor?.containerId ?? null,
+      locationInformation: unit.observed.usbDescriptor?.locationInformation ?? null,
+      baseUsbIdentity: unit.observed.usbDescriptor?.basePnpDeviceId ?? null,
+      relatedServices: unit.observed.usbDescriptor?.relatedServices ?? [],
+      relatedFunctionNames: unit.observed.usbDescriptor?.relatedFunctionNames ?? [],
     };
   }
 
@@ -558,6 +706,13 @@ function deriveFamilyFingerprint(unit) {
       name: unit.transport.name ?? null,
       firmwareSignature: unit.observed.firmwareSignature ?? null,
       capabilities: unit.observed.agentCapabilities ?? [],
+      manufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+      service: unit.observed.usbDescriptor?.service ?? null,
+      containerId: unit.observed.usbDescriptor?.containerId ?? null,
+      locationInformation: unit.observed.usbDescriptor?.locationInformation ?? null,
+      baseUsbIdentity: unit.observed.usbDescriptor?.basePnpDeviceId ?? null,
+      relatedServices: unit.observed.usbDescriptor?.relatedServices ?? [],
+      relatedFunctionNames: unit.observed.usbDescriptor?.relatedFunctionNames ?? [],
     };
   }
 
@@ -580,6 +735,13 @@ function deriveFamilyFingerprint(unit) {
     name: unit.transport.name ?? null,
     firmwareSignature: unit.observed.firmwareSignature ?? null,
     capabilities: unit.observed.agentCapabilities ?? [],
+    manufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+    service: unit.observed.usbDescriptor?.service ?? null,
+    containerId: unit.observed.usbDescriptor?.containerId ?? null,
+    locationInformation: unit.observed.usbDescriptor?.locationInformation ?? null,
+    baseUsbIdentity: unit.observed.usbDescriptor?.basePnpDeviceId ?? null,
+    relatedServices: unit.observed.usbDescriptor?.relatedServices ?? [],
+    relatedFunctionNames: unit.observed.usbDescriptor?.relatedFunctionNames ?? [],
   };
 }
 
@@ -661,10 +823,16 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     firmwareBuildId: null,
     firmwareBoard: null,
     agentCapabilities: [],
+    usbDescriptor: null,
   };
 
-  if ((vidPid.vid === "303A" && vidPid.pid === "1001") || (transport.name ?? "").includes("USB Serial Device")) {
-    const toolOutput = await runEspTool(transport.port);
+  observed.usbDescriptor = await readUsbRegistryDescriptor(portInfo.PNPDeviceID);
+  observed.serialNumber = observed.usbDescriptor?.baseSerialNumber ?? observed.serialNumber;
+
+  const isNativeEspUsb = (vidPid.vid === "303A" && vidPid.pid === "1001") || (transport.name ?? "").includes("USB Serial Device");
+  const isEspBridge = vidPid.vid === "10C4" && vidPid.pid === "EA60";
+  if (isNativeEspUsb || isEspBridge) {
+    const toolOutput = await runEspTool(transport.port, isNativeEspUsb ? "esp32s3" : "auto");
     observed.mac = parseMac(toolOutput) ?? observed.mac;
     observed.chip = parseChip(toolOutput);
     const signature = await captureSignature(transport.port);
@@ -701,6 +869,7 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
       firmwareBuildId: observed.firmwareBuildId,
       firmwareBoard: observed.firmwareBoard,
       agentCapabilities: observed.agentCapabilities,
+      usbDescriptor: observed.usbDescriptor,
     },
     annotation: normalizeAnnotation(null),
     match: { status: "unknown", boardId: null, reason: null, source: null },
@@ -745,6 +914,13 @@ function mergeObservedHistory(existing, unit) {
     firmwareLines: uniqueSorted([...(existing?.firmwareLines ?? []), unit.observed.firmwareLine]),
     agentLines: uniqueSorted([...(existing?.agentLines ?? []), unit.observed.agentLine]),
     agentCapabilitySets: uniqueSorted([...(existing?.agentCapabilitySets ?? []), (unit.observed.agentCapabilities ?? []).join(",")]),
+    usbManufacturers: uniqueSorted([...(existing?.usbManufacturers ?? []), unit.observed.usbDescriptor?.manufacturer]),
+    usbServices: uniqueSorted([...(existing?.usbServices ?? []), unit.observed.usbDescriptor?.service, ...(unit.observed.usbDescriptor?.relatedServices ?? [])]),
+    usbContainerIds: uniqueSorted([...(existing?.usbContainerIds ?? []), unit.observed.usbDescriptor?.containerId]),
+    usbLocationInformation: uniqueSorted([...(existing?.usbLocationInformation ?? []), unit.observed.usbDescriptor?.locationInformation]),
+    usbBaseIdentities: uniqueSorted([...(existing?.usbBaseIdentities ?? []), unit.observed.usbDescriptor?.basePnpDeviceId]),
+    usbBaseSerialNumbers: uniqueSorted([...(existing?.usbBaseSerialNumbers ?? []), unit.observed.usbDescriptor?.baseSerialNumber]),
+    usbFunctionNames: uniqueSorted([...(existing?.usbFunctionNames ?? []), ...(unit.observed.usbDescriptor?.relatedFunctionNames ?? [])]),
     rawSignatureLines: uniqueSorted([...(existing?.rawSignatureLines ?? []), unit.observed.rawSignatureLine]),
   };
 }
@@ -861,6 +1037,13 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
       name: familyFingerprint.name,
       firmwareSignature: familyFingerprint.firmwareSignature,
       capabilities: familyFingerprint.capabilities ?? [],
+      manufacturer: familyFingerprint.manufacturer ?? null,
+      service: familyFingerprint.service ?? null,
+      containerId: familyFingerprint.containerId ?? null,
+      locationInformation: familyFingerprint.locationInformation ?? null,
+      baseUsbIdentity: familyFingerprint.baseUsbIdentity ?? null,
+      relatedServices: familyFingerprint.relatedServices ?? [],
+      relatedFunctionNames: familyFingerprint.relatedFunctionNames ?? [],
     }
   };
 

@@ -155,3 +155,10 @@
 - Persist the capability set in history as a normalized comma-joined `agentCapabilitySets` list and expose it back out to callers as an array. This keeps history deduplicated while keeping service output convenient for later web and remote consumers.
 - Treat the unexpected CP210x serial bridge on `COM7` as a legitimate new-family discovery event and keep the resulting draft profile. The system should learn from surprising bench hardware rather than silently filtering it out.
 - Fix the F072 host-build failure in the linker script rather than hiding `printf` or the board-agent helper. The missing `end` symbol was a real bare-metal build gap that should be corrected at the memory-layout layer.
+
+## 2026-03-29 19:30 Europe/London
+
+- Keep Windows serial-port enumeration and USB-registry lookup as separate steps. Port discovery is reliable as a simple list, while descriptor enrichment is easier to debug and evolve as a focused per-device probe.
+- Treat registry-backed USB identity as the first stronger STM32-family match layer, even before the composite sibling-function walk is perfect. For the attached Nucleo, `VID_0483`, `PID_374B`, `manufacturer=STMicroelectronics`, and `service=usbser` are already materially stronger than transport-name-only matching.
+- Probe known USB-to-UART bridge families non-destructively for MCU identity when the bench hardware suggests an ESP-class target. For now the discovery path promotes CP210x-backed units through esptool and passive serial capture instead of leaving them as anonymous bridge-only cards.
+- Prefer promoting an unresolved unit to a MAC-based identity as soon as chip evidence is available, even if that temporarily leaves an older transport-only record in history. Keeping the stronger identity now is better than holding the weaker one; a later reconciliation task can merge superseded records cleanly.

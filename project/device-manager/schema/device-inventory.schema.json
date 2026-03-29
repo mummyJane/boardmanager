@@ -62,7 +62,8 @@
               "firmwareVersion": { "type": ["string", "null"] },
               "firmwareBuildId": { "type": ["string", "null"] },
               "firmwareBoard": { "type": ["string", "null"] },
-              "agentCapabilities": { "type": "array", "items": { "type": "string" } }
+              "agentCapabilities": { "type": "array", "items": { "type": "string" } },
+              "usbDescriptor": { "type": ["object", "null"] }
             }
           },
           "annotation": {
