@@ -33,6 +33,7 @@
           "boardIds": { "type": "array", "items": { "type": "string" } },
           "identity": { "type": "object" },
           "annotation": { "type": "object" },
+          "manualOverride": { "type": "object" },
           "transitions": { "type": "object" },
           "metadataHistory": {
             "type": "object",

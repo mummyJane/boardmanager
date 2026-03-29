@@ -91,7 +91,7 @@ function mapUnit(unit) {
   return {
     stableKey: unit.stableKey,
     priorStableKeys: Array.isArray(unit.identity?.priorStableKeys) ? unit.identity.priorStableKeys : [],
-    boardId: unit.boardIds?.[unit.boardIds.length - 1] ?? null,
+    boardId: unit.manualOverride?.boardId ?? unit.boardIds?.[unit.boardIds.length - 1] ?? null,
     familyKey: unit.familyKey,
     present: unit.present !== false,
     presentPort: unit.present !== false ? unit.lastTransport?.port ?? null : null,
@@ -119,6 +119,9 @@ function mapUnit(unit) {
     owner: unit.annotation?.owner ?? null,
     location: unit.annotation?.location ?? null,
     purpose: unit.annotation?.purpose ?? null,
+    overrideBoardId: unit.manualOverride?.boardId ?? null,
+    overrideFamilyKey: unit.manualOverride?.familyKey ?? null,
+    overrideNote: unit.manualOverride?.note ?? null,
     label: pickLabel(unit),
   };
 }
@@ -384,6 +387,7 @@ export function renderQueryText(view, payload) {
       { key: "present", label: "Present" },
       { key: "presentPort", label: "Port" },
       { key: "firmwareVersion", label: "FW" },
+      { key: "overrideBoardId", label: "Override" },
       { key: "location", label: "Location" },
       { key: "purpose", label: "Purpose" },
     ]);

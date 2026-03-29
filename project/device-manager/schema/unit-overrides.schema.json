@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "board-manager-unit-overrides.schema.json",
+  "title": "Board Manager Unit Overrides",
+  "type": "object",
+  "required": ["updatedAt", "units"],
+  "properties": {
+    "updatedAt": { "type": ["string", "null"] },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stableKey"],
+        "properties": {
+          "stableKey": { "type": "string" },
+          "boardId": { "type": ["string", "null"] },
+          "familyKey": { "type": ["string", "null"] },
+          "note": { "type": ["string", "null"] },
+          "updatedAt": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

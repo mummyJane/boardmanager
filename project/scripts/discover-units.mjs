@@ -16,6 +16,7 @@ const inventoryPath = path.join(deviceManagerRoot, "data", "inventory.json");
 const unitHistoryPath = path.join(deviceManagerRoot, "data", "unit-history.json");
 const discoveryRunsPath = path.join(deviceManagerRoot, "data", "discovery-runs.json");
 const annotationsPath = path.join(deviceManagerRoot, "data", "unit-annotations.json");
+const overridesPath = path.join(deviceManagerRoot, "data", "unit-overrides.json");
 const profilesRoot = path.join(deviceManagerRoot, "profiles");
 const espPython = path.join(projectRoot, "tools", "espressif", "python_env", "idf5.5_py3.13_env", "Scripts", "python.exe");
 const esptoolPy = path.join(projectRoot, "toolchains", "esp-idf", "esp-idf", "components", "esptool_py", "esptool", "esptool.py");
@@ -561,6 +562,23 @@ function buildAnnotationIndex(units) {
   return { byStableKey };
 }
 
+function normalizeManualOverride(entry) {
+  return {
+    boardId: entry?.boardId ?? null,
+    familyKey: entry?.familyKey ?? null,
+    note: entry?.note ?? null,
+    updatedAt: entry?.updatedAt ?? null,
+  };
+}
+
+function buildOverrideIndex(units) {
+  const byStableKey = new Map();
+  for (const unit of units ?? []) {
+    if (unit?.stableKey) byStableKey.set(unit.stableKey, unit);
+  }
+  return { byStableKey };
+}
+
 function buildFamilyIndex(families) {
   const byFamilyKey = new Map();
   const byFingerprintKey = new Map();
@@ -1018,7 +1036,40 @@ function attachAnnotation(unit, annotationIndex) {
   unit.annotation = normalizeAnnotation(entry);
 }
 
-async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
+function attachManualOverride(unit, overrideIndex) {
+  const candidateKeys = [unit.identity.stableKey, ...(unit.identity.priorStableKeys ?? [])].filter(Boolean);
+  const entry = candidateKeys.map((key) => overrideIndex.byStableKey.get(key)).find(Boolean) ?? null;
+  unit.manualOverride = normalizeManualOverride(entry);
+}
+
+function applyManualOverride(unit) {
+  const override = unit.manualOverride ?? {};
+  if (override.boardId) {
+    unit.match = {
+      status: "matched",
+      boardId: override.boardId,
+      reason: override.note ? `Manual board override: ${override.note}` : "Manual board override",
+      source: "manual-override",
+    };
+    return {
+      familyKey: `board:${override.boardId}`,
+      profileId: `board_${sanitizeSegment(override.boardId)}`,
+      forced: true,
+    };
+  }
+
+  if (override.familyKey) {
+    return {
+      familyKey: override.familyKey,
+      profileId: sanitizeSegment(override.familyKey),
+      forced: true,
+    };
+  }
+
+  return null;
+}
+
+async function observePort(portInfo, unitIndex, familyIndex, annotationIndex, overrideIndex) {
   const transport = {
     kind: "serial",
     port: portInfo.DeviceID,
@@ -1095,32 +1146,45 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     },
     annotation: normalizeAnnotation(null),
     match: { status: "unknown", boardId: null, reason: null, source: null },
-    history: { status: "unknown", familyKey: "unknown", profileId: null, firstSeenAt: null, lastSeenAt: null, seenCount: null, reason: null }
+    history: { status: "unknown", familyKey: "unknown", profileId: null, firstSeenAt: null, lastSeenAt: null, seenCount: null, reason: null },
+    manualOverride: normalizeManualOverride(null)
   };
 
   attachAnnotation(unit, annotationIndex);
+  attachManualOverride(unit, overrideIndex);
   unit.match = basicHeuristicMatch(unit);
-  const familyFingerprint = deriveFamilyFingerprint(unit);
-  const existingFamily = familyIndex.byFamilyKey.get(familyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(familyFingerprint.fingerprintKey) ?? null;
-  unit.match = resolveMatch(unit, previousUnit, existingFamily);
+  const heuristicFamilyFingerprint = deriveFamilyFingerprint(unit);
+  const heuristicFamily = familyIndex.byFamilyKey.get(heuristicFamilyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(heuristicFamilyFingerprint.fingerprintKey) ?? null;
+  const learnedMatch = resolveMatch(unit, previousUnit, heuristicFamily);
+  const learnedFamilyFingerprint = learnedMatch.boardId
+    ? deriveFamilyFingerprint({ ...unit, match: { ...learnedMatch } })
+    : heuristicFamilyFingerprint;
+  const learnedFamily = familyIndex.byFamilyKey.get(learnedFamilyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(learnedFamilyFingerprint.fingerprintKey) ?? null;
 
-  const resolvedFamilyFingerprint = unit.match.boardId
-    ? deriveFamilyFingerprint({ ...unit, match: { ...unit.match } })
-    : familyFingerprint;
-  const resolvedFamily = familyIndex.byFamilyKey.get(resolvedFamilyFingerprint.familyKey) ?? familyIndex.byFingerprintKey.get(resolvedFamilyFingerprint.fingerprintKey) ?? null;
-  const historyStatus = buildHistoryStatus(previousUnit, resolvedFamily);
+  unit.match = { ...learnedMatch };
+  const manualOverride = applyManualOverride(unit);
+  const effectiveFamilyFingerprint = manualOverride?.forced
+    ? {
+        ...learnedFamilyFingerprint,
+        familyKey: manualOverride.familyKey ?? learnedFamilyFingerprint.familyKey,
+        profileId: manualOverride.profileId ?? learnedFamilyFingerprint.profileId,
+        status: unit.match.boardId ? "known-board" : learnedFamilyFingerprint.status,
+        fingerprintKey: unit.match.boardId ? `board:${unit.match.boardId}` : learnedFamilyFingerprint.fingerprintKey,
+      }
+    : learnedFamilyFingerprint;
+  const historyStatus = buildHistoryStatus(previousUnit, learnedFamily);
 
   unit.history = {
     status: historyStatus.status,
-    familyKey: resolvedFamilyFingerprint.familyKey,
-    profileId: resolvedFamilyFingerprint.profileId,
-    firstSeenAt: previousUnit?.firstSeenAt ?? resolvedFamily?.firstSeenAt ?? null,
-    lastSeenAt: previousUnit?.lastSeenAt ?? resolvedFamily?.lastSeenAt ?? null,
+    familyKey: effectiveFamilyFingerprint.familyKey,
+    profileId: effectiveFamilyFingerprint.profileId,
+    firstSeenAt: previousUnit?.firstSeenAt ?? learnedFamily?.firstSeenAt ?? null,
+    lastSeenAt: previousUnit?.lastSeenAt ?? learnedFamily?.lastSeenAt ?? null,
     seenCount: previousUnit?.seenCount ?? null,
     reason: historyStatus.reason,
   };
 
-  return { unit, familyFingerprint: resolvedFamilyFingerprint, previousUnit, identityConflict };
+  return { unit, familyFingerprint: effectiveFamilyFingerprint, historyFamilyFingerprint: learnedFamilyFingerprint, historyMatch: learnedMatch, previousUnit, identityConflict };
 }
 
 function mergeObservedHistory(existing, unit) {
@@ -1240,6 +1304,17 @@ function mergeMetadataHistorySnapshots(primary, secondary) {
   };
 }
 
+function normalizeHistoricalBoardIds(existingBoardIds, existingManualOverride, currentMatch, currentManualOverride) {
+  const staleManualBoardId = (!currentManualOverride?.boardId || currentManualOverride.boardId !== existingManualOverride?.boardId)
+    ? (existingManualOverride?.boardId ?? null)
+    : null;
+  const retained = (existingBoardIds ?? []).filter((boardId) => boardId && boardId !== staleManualBoardId);
+  if (currentMatch?.boardId && currentMatch.source !== "manual-override") {
+    retained.push(currentMatch.boardId);
+  }
+  return uniqueSorted(retained);
+}
+
 function mergeIdentitySnapshots(primary, secondary, stableKey) {
   const aliases = uniqueSorted([...(primary?.aliases ?? []), ...(secondary?.aliases ?? [])]);
   const priorStableKeys = uniqueSorted([
@@ -1280,6 +1355,9 @@ function mergeExistingUnits(primary, secondary, stableKey) {
     boardIds: uniqueSorted([...(primary?.boardIds ?? []), ...(secondary?.boardIds ?? [])]),
     identity: mergeIdentitySnapshots(primary?.identity, secondary?.identity, stableKey),
     annotation: hasAnnotationContent(primary?.annotation) ? primary.annotation : (secondary?.annotation ?? normalizeAnnotation(null)),
+    manualOverride: primary?.manualOverride?.boardId || primary?.manualOverride?.familyKey || primary?.manualOverride?.note || primary?.manualOverride?.updatedAt
+      ? primary.manualOverride
+      : (secondary?.manualOverride ?? normalizeManualOverride(null)),
     metadataHistory: mergeMetadataHistorySnapshots(primary?.metadataHistory, secondary?.metadataHistory),
     transitions: {
       firstSeen: pickEarlierTransition(primary?.transitions?.firstSeen ?? null, secondary?.transitions?.firstSeen ?? null),
@@ -1326,10 +1404,10 @@ function buildReconciledExistingUnit(units, identity, previousUnit) {
   return { existingUnit, candidateIndices: uniqueCandidateIndices };
 }
 
-async function updateHistory(state, unit, familyFingerprint, timestamp, boardCatalog, previousUnit = null) {
+async function updateHistory(state, unit, familyFingerprint, historyFamilyFingerprint, historyMatch, timestamp, boardCatalog, previousUnit = null) {
   const units = Array.isArray(state.units) ? state.units : [];
   const families = Array.isArray(state.families) ? state.families : [];
-  const familyIndex = families.findIndex((entry) => entry.familyKey === familyFingerprint.familyKey);
+  const familyIndex = families.findIndex((entry) => entry.familyKey === historyFamilyFingerprint.familyKey);
   const { existingUnit, candidateIndices } = buildReconciledExistingUnit(units, unit.identity, previousUnit);
 
   const existingFamily = familyIndex >= 0 ? families[familyIndex] : null;
@@ -1343,11 +1421,14 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     present: true,
     missingCount: existingUnit?.missingCount ?? 0,
     seenCount: (existingUnit?.seenCount ?? 0) + 1,
-    familyKey: familyFingerprint.familyKey,
-    profileId: familyFingerprint.profileId,
-    boardIds: uniqueSorted([...(existingUnit?.boardIds ?? []), unit.match.boardId]),
+    familyKey: historyFamilyFingerprint.familyKey,
+    profileId: historyFamilyFingerprint.profileId,
+    boardIds: normalizeHistoricalBoardIds(existingUnit?.boardIds ?? [], existingUnit?.manualOverride, historyMatch, unit.manualOverride),
     identity: mergeIdentitySnapshots(unit.identity, existingUnit?.identity, unit.identity.stableKey),
     annotation: hasAnnotationContent(unit.annotation) ? unit.annotation : normalizeAnnotation(existingUnit?.annotation),
+    manualOverride: unit.manualOverride?.boardId || unit.manualOverride?.familyKey || unit.manualOverride?.note || unit.manualOverride?.updatedAt
+      ? unit.manualOverride
+      : normalizeManualOverride(null),
     metadataHistory: mergeMetadataHistory(existingUnit?.metadataHistory, unit.annotation, timestamp),
     transitions: mergeTransitionSummary(existingUnit?.transitions, {
       firstSeen: existingUnit?.transitions?.firstSeen ?? { at: existingUnit?.firstSeenAt ?? timestamp, state: "discovered" },
@@ -1365,7 +1446,7 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
   units.push(nextUnit);
 
   const nextFamily = {
-    familyKey: familyFingerprint.familyKey,
+    familyKey: historyFamilyFingerprint.familyKey,
     firstSeenAt: existingFamily?.firstSeenAt ?? timestamp,
     lastSeenAt: timestamp,
     lastPresentAt: existingFamily?.lastPresentAt ?? timestamp,
@@ -1374,9 +1455,9 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     presentUnitCount: existingFamily?.presentUnitCount ?? 0,
     missingUnitCount: existingFamily?.missingUnitCount ?? 0,
     seenCount: (existingFamily?.seenCount ?? 0) + 1,
-    status: familyFingerprint.status,
-    profileId: familyFingerprint.profileId,
-    boardIds: uniqueSorted([...(existingFamily?.boardIds ?? []), unit.match.boardId]),
+    status: historyFamilyFingerprint.status,
+    profileId: historyFamilyFingerprint.profileId,
+    boardIds: normalizeHistoricalBoardIds(existingFamily?.boardIds ?? [], { boardId: existingUnit?.manualOverride?.boardId ?? null }, historyMatch, unit.manualOverride),
     sampleUnitIds: uniqueSorted([...(existingFamily?.sampleUnitIds ?? []), unit.identity.stableKey]).slice(0, 16),
     transitions: mergeTransitionSummary(existingFamily?.transitions, {
       firstSeen: existingFamily?.transitions?.firstSeen ?? { at: existingFamily?.firstSeenAt ?? timestamp, state: "discovered" },
@@ -1385,22 +1466,22 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
       lastMissing: existingFamily?.transitions?.lastMissing ?? null,
     }),
     fingerprint: {
-      fingerprintKey: familyFingerprint.fingerprintKey,
-      vid: familyFingerprint.vid,
-      pid: familyFingerprint.pid,
-      chipFamily: familyFingerprint.chipFamily,
-      chip: familyFingerprint.chip,
-      description: familyFingerprint.description,
-      name: familyFingerprint.name,
-      firmwareSignature: familyFingerprint.firmwareSignature,
-      capabilities: familyFingerprint.capabilities ?? [],
-      manufacturer: familyFingerprint.manufacturer ?? null,
-      service: familyFingerprint.service ?? null,
-      containerId: familyFingerprint.containerId ?? null,
-      locationInformation: familyFingerprint.locationInformation ?? null,
-      baseUsbIdentity: familyFingerprint.baseUsbIdentity ?? null,
-      relatedServices: familyFingerprint.relatedServices ?? [],
-      relatedFunctionNames: familyFingerprint.relatedFunctionNames ?? [],
+      fingerprintKey: historyFamilyFingerprint.fingerprintKey,
+      vid: historyFamilyFingerprint.vid,
+      pid: historyFamilyFingerprint.pid,
+      chipFamily: historyFamilyFingerprint.chipFamily,
+      chip: historyFamilyFingerprint.chip,
+      description: historyFamilyFingerprint.description,
+      name: historyFamilyFingerprint.name,
+      firmwareSignature: historyFamilyFingerprint.firmwareSignature,
+      capabilities: historyFamilyFingerprint.capabilities ?? [],
+      manufacturer: historyFamilyFingerprint.manufacturer ?? null,
+      service: historyFamilyFingerprint.service ?? null,
+      containerId: historyFamilyFingerprint.containerId ?? null,
+      locationInformation: historyFamilyFingerprint.locationInformation ?? null,
+      baseUsbIdentity: historyFamilyFingerprint.baseUsbIdentity ?? null,
+      relatedServices: historyFamilyFingerprint.relatedServices ?? [],
+      relatedFunctionNames: historyFamilyFingerprint.relatedFunctionNames ?? [],
     }
   };
 
@@ -1529,6 +1610,8 @@ async function main() {
   const boardCatalog = await loadBoardCatalog(projectRoot);
   const annotationsState = await readJsonOrDefault(annotationsPath, { updatedAt: null, units: [] });
   const annotationIndex = buildAnnotationIndex(annotationsState.units ?? []);
+  const overridesState = await readJsonOrDefault(overridesPath, { updatedAt: null, units: [] });
+  const overrideIndex = buildOverrideIndex(overridesState.units ?? []);
   const historyState = await readJsonOrDefault(unitHistoryPath, {
     generatedAt: null,
     host: { platform: "windows", hostname: null },
@@ -1550,9 +1633,9 @@ async function main() {
   for (const portInfo of ports) {
     const unitIndex = buildIdentityIndex(historyState.units ?? []);
     const familyIndex = buildFamilyIndex(historyState.families ?? []);
-    const { unit, familyFingerprint, previousUnit, identityConflict } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
+    const { unit, familyFingerprint, historyFamilyFingerprint, historyMatch, previousUnit, identityConflict } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex, overrideIndex);
     observedStableKeys.add(unit.identity.stableKey);
-    await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog, previousUnit);
+    await updateHistory(historyState, unit, familyFingerprint, historyFamilyFingerprint, historyMatch, timestamp, boardCatalog, previousUnit);
     if (identityConflict) {
       updateConflictLedger(historyState, identityConflict, timestamp);
       observedConflictIds.add(identityConflict.conflictId);

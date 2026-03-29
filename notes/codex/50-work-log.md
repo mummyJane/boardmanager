@@ -1012,3 +1012,12 @@ Validation:
 - Ran `discover.ps1`; current bench still discovers 5 units and records zero live conflicts.
 - Ran a synthetic validation with `node --input-type=module -e ... detectIdentityConflict(...)`; it returned the expected conflict object with competing stable keys and a chosen canonical match.
 - Ran `validate.ps1`; board-definition and device-manager validation passed.
+
+## 2026-03-29 20:22 Europe/London
+
+- Task: add manual override support so an operator can pin a unit to a board or family.
+- Added `project/device-manager/data/unit-overrides.json`, schema `project/device-manager/schema/unit-overrides.schema.json`, helper `project/scripts/set-unit-override.mjs`, and top-level wrapper `override-unit.ps1`.
+- Updated discovery/query/SQLite paths so persistent overrides are merged into current unit output without becoming permanent learned fingerprint truth.
+- Validation used a temporary override on `mac:c8:2e:18:f0:47:74` to pin it to `esp32_dev_relay_v1`, confirmed the pin through `discover.ps1` and `query.ps1 -View units -Unit ... -Format json`, then cleared the override and reran discovery.
+- Final bench state after validation returned `COM7` to unmatched / unknown-family status with no active manual override.
+- Ran `validate.ps1`; board-definition and device-manager validation passed.

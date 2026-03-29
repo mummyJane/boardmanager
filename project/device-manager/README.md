@@ -141,3 +141,11 @@ Example:
 - `query.ps1 -View conflicts` shows persisted identity-evidence conflicts where one observation matched multiple prior units.
 - The same data is exposed over HTTP at `/api/query?view=conflicts`.
 - Conflict records stay in `project/device-manager/data/unit-history.json` and are synchronized into SQLite for later UI and operator workflows.
+
+
+## Manual Overrides
+
+- `override-unit.ps1 -Unit <stableKey> -Board <boardId>` pins a unit to a board definition.
+- `override-unit.ps1 -Unit <stableKey> -Family <familyKey>` pins a unit to a family without forcing a board id.
+- `override-unit.ps1 -Unit <stableKey> -Clear` removes the operator override.
+- Overrides live in `project/device-manager/data/unit-overrides.json` and are exposed through the normal unit query output.

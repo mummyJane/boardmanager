@@ -81,6 +81,15 @@
               "updatedAt": { "type": ["string", "null"] }
             }
           },
+          "manualOverride": {
+            "type": "object",
+            "properties": {
+              "boardId": { "type": ["string", "null"] },
+              "familyKey": { "type": ["string", "null"] },
+              "note": { "type": ["string", "null"] },
+              "updatedAt": { "type": ["string", "null"] }
+            }
+          },
           "match": {
             "type": "object",
             "required": ["status"],

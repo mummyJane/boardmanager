@@ -114,6 +114,10 @@ async function main() {
       schema: path.join(schemaRoot, "unit-annotations.schema.json"),
     },
     {
+      file: path.join(dataRoot, "unit-overrides.json"),
+      schema: path.join(schemaRoot, "unit-overrides.schema.json"),
+    },
+    {
       file: path.join(dataRoot, "discovery-runs.json"),
       schema: path.join(schemaRoot, "discovery-runs.schema.json"),
     },
@@ -137,7 +141,7 @@ async function main() {
     return;
   }
 
-  console.log(`Validated device-manager data: 4 data files, conflict-aware history, and ${profileFiles.length} profile files.`);
+  console.log(`Validated device-manager data: 5 data files, conflict-aware history, and ${profileFiles.length} profile files.`);
 }
 
 main().catch((error) => {

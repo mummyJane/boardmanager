@@ -80,3 +80,5 @@ Initial success criteria:
 - 2026-03-29 19:50 Europe/London: Completed identity-upgrade reconciliation so transport-only unit history collapses into stronger MAC-backed identity records instead of leaving split history.
 
 - 2026-03-29 20:08 Europe/London: Completed conflict handling for disagreeing identity evidence, with persisted conflict ledger entries, query support, and SQLite sync for later UI and operator workflows.
+
+- 2026-03-29 20:22 Europe/London: Completed manual override support for pinning units to board or family identities, with clearable persistent overrides merged into discovery and query output.

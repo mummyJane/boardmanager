@@ -99,6 +99,16 @@ CREATE TABLE unit_transitions (
   FOREIGN KEY (stable_key) REFERENCES units(stable_key) ON DELETE CASCADE
 );
 
+CREATE TABLE unit_overrides (
+  stable_key TEXT PRIMARY KEY,
+  board_id TEXT,
+  family_key TEXT,
+  note TEXT,
+  updated_at TEXT,
+  raw_json TEXT NOT NULL,
+  FOREIGN KEY (stable_key) REFERENCES units(stable_key) ON DELETE CASCADE
+);
+
 CREATE TABLE unit_annotations (
   stable_key TEXT PRIMARY KEY,
   label TEXT,

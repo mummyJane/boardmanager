@@ -135,3 +135,5 @@
 - 2026-03-29 19:50 Europe/London: Add an explicit Stage 2 requirement that identity upgrades reconcile into one unit record with alias history. This was already implied by stable identity tracking, but the COM7 CP210x-to-ESP32 case showed the project needs the rule written down to avoid duplicate stale records.
 
 - 2026-03-29 20:08 Europe/London: Add an explicit Stage 2 requirement for persisted identity-conflict records. Identity reconciliation alone was not enough once multiple evidence sources could disagree; the later UI and remote service need the disagreement preserved instead of hidden.
+
+- 2026-03-29 20:22 Europe/London: Add an explicit Stage 2 requirement for clearable manual unit overrides. Bench operators need a way to pin uncertain boards for work, but the override must remain separate from the learned fingerprint history.

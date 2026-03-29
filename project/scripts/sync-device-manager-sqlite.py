@@ -33,6 +33,7 @@ def sync_database():
     inventory = read_json(DATA_ROOT / "inventory.json", {"generatedAt": None, "host": {}, "units": []})
     history = read_json(DATA_ROOT / "unit-history.json", {"generatedAt": None, "host": {}, "units": [], "families": []})
     annotations = read_json(DATA_ROOT / "unit-annotations.json", {"updatedAt": None, "units": []})
+    overrides = read_json(DATA_ROOT / "unit-overrides.json", {"updatedAt": None, "units": []})
     discovery_runs = read_json(DATA_ROOT / "discovery-runs.json", {"generatedAt": None, "host": {}, "runs": []})
 
     if TEMP_DB_PATH.exists():
@@ -72,6 +73,7 @@ def sync_database():
                 ("unit_history", history.get("generatedAt"), len(history.get("units", [])), str(DATA_ROOT / "unit-history.json")),
                 ("discovery_conflicts", history.get("generatedAt"), len(history.get("conflicts", [])), str(DATA_ROOT / "unit-history.json")),
                 ("annotations", annotations.get("updatedAt"), len(annotations.get("units", [])), str(DATA_ROOT / "unit-annotations.json")),
+                ("overrides", overrides.get("updatedAt"), len(overrides.get("units", [])), str(DATA_ROOT / "unit-overrides.json")),
                 ("discovery_runs", discovery_runs.get("generatedAt"), len(discovery_runs.get("runs", [])), str(DATA_ROOT / "discovery-runs.json")),
             ],
         )
@@ -80,6 +82,7 @@ def sync_database():
             observed = unit.get("observed", {})
             identity = unit.get("identity", {})
             annotation = unit.get("annotation", {})
+            manual_override = unit.get("manualOverride", {})
             connection.execute(
                 """
                 INSERT INTO units (
@@ -119,6 +122,18 @@ def sync_database():
                     json.dumps(unit, indent=2),
                 ),
             )
+            if manual_override.get("boardId") or manual_override.get("familyKey") or manual_override.get("note") or manual_override.get("updatedAt"):
+                connection.execute(
+                    "INSERT INTO unit_overrides (stable_key, board_id, family_key, note, updated_at, raw_json) VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        unit.get("stableKey"),
+                        manual_override.get("boardId"),
+                        manual_override.get("familyKey"),
+                        manual_override.get("note"),
+                        manual_override.get("updatedAt"),
+                        json.dumps(manual_override, indent=2),
+                    ),
+                )
             for board_id in unit.get("boardIds", []):
                 connection.execute("INSERT INTO unit_board_ids (stable_key, board_id) VALUES (?, ?)", (unit.get("stableKey"), board_id))
             for alias in identity.get("aliases", []):

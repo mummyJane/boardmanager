@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 20:08 Europe/London
+Last updated: 2026-03-29 20:22 Europe/London
 
 ## Project Intent
 
@@ -141,3 +141,6 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 20:08 Europe/London: Stage 2 discovery now preserves an explicit conflict ledger in `unit-history.json` when MAC, USB-instance, or serial evidence for one observation points at different prior units.
 - 2026-03-29 20:08 Europe/London: The query layer and HTTP service now expose `view=conflicts`, and SQLite sync stores conflict rows for later operator tooling and UI work.
 - 2026-03-29 20:08 Europe/London: Current live bench validation shows no active conflicts, while a synthetic mismatch validation through the exported conflict detector produced the expected competing-unit record without changing bench data.
+
+- 2026-03-29 20:22 Europe/London: Added persistent manual unit overrides in `project/device-manager/data/unit-overrides.json`, managed through `override-unit.ps1` and merged into discovery/query output as operator-intent metadata.
+- 2026-03-29 20:22 Europe/London: Manual override validation used a temporary board pin on `COM7` / `mac:c8:2e:18:f0:47:74`, confirmed that discovery and query output reflected the pin, then cleared it so the final bench state returned to the unresolved ESP32 family draft.

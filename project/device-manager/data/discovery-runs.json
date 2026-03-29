@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T19:03:18.130Z",
+  "generatedAt": "2026-03-29T19:19:44.444Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -3056,6 +3056,896 @@
     {
       "runId": "run:2026-03-29T19:03:18.130Z",
       "generatedAt": "2026-03-29T19:03:18.130Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 5,
+      "familyCount": 4,
+      "conflictCount": 0,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:38",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "agentCapabilities": [
+            "audio",
+            "battery",
+            "bluetooth_le",
+            "display",
+            "gnss",
+            "imu",
+            "jtag",
+            "rtc",
+            "touch",
+            "uart",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM4)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&2d2626df&0&0000",
+          "usbTopologyPath": "0014/005/003/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM5)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&39b40148&0&0000",
+          "usbTopologyPath": "0014/005/002/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM3)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&203f6002&0&0000",
+          "usbTopologyPath": "0014/005/001/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c8:2e:18:f0:47:74",
+          "boardId": null,
+          "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+          "port": "COM7",
+          "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "Silicon Labs",
+          "usbProductName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "usbService": "silabser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "0001",
+          "usbTopologyPath": "hub-8/port-3",
+          "agentLine": null,
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "STMicroelectronics",
+          "usbProductName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "usbService": "usbser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "8&2379fc3d&0&0002",
+          "usbTopologyPath": "0014/005/004/002/000/000/000",
+          "agentLine": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        },
+        {
+          "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
+          "boardId": null,
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:c8:2e:18:f0:47:74"
+          ]
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "runId": "run:2026-03-29T19:13:16.334Z",
+      "generatedAt": "2026-03-29T19:13:16.334Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 5,
+      "familyCount": 4,
+      "conflictCount": 0,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:38",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "agentCapabilities": [
+            "audio",
+            "battery",
+            "bluetooth_le",
+            "display",
+            "gnss",
+            "imu",
+            "jtag",
+            "rtc",
+            "touch",
+            "uart",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM4)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&2d2626df&0&0000",
+          "usbTopologyPath": "0014/005/003/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM5)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&39b40148&0&0000",
+          "usbTopologyPath": "0014/005/002/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM3)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&203f6002&0&0000",
+          "usbTopologyPath": "0014/005/001/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c8:2e:18:f0:47:74",
+          "boardId": "esp32_dev_relay_v1",
+          "familyKey": "board:esp32_dev_relay_v1",
+          "port": "COM7",
+          "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "Silicon Labs",
+          "usbProductName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "usbService": "silabser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "0001",
+          "usbTopologyPath": "hub-8/port-3",
+          "agentLine": null,
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "STMicroelectronics",
+          "usbProductName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "usbService": "usbser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "8&2379fc3d&0&0002",
+          "usbTopologyPath": "0014/005/004/002/000/000/000",
+          "agentLine": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:esp32_dev_relay_v1",
+          "boardId": "esp32_dev_relay_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:c8:2e:18:f0:47:74"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "runId": "run:2026-03-29T19:14:55.882Z",
+      "generatedAt": "2026-03-29T19:14:55.882Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 5,
+      "familyCount": 4,
+      "conflictCount": 0,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:38",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "agentCapabilities": [
+            "audio",
+            "battery",
+            "bluetooth_le",
+            "display",
+            "gnss",
+            "imu",
+            "jtag",
+            "rtc",
+            "touch",
+            "uart",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM4)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&2d2626df&0&0000",
+          "usbTopologyPath": "0014/005/003/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM5)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&39b40148&0&0000",
+          "usbTopologyPath": "0014/005/002/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM3)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&203f6002&0&0000",
+          "usbTopologyPath": "0014/005/001/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c8:2e:18:f0:47:74",
+          "boardId": "esp32_dev_relay_v1",
+          "familyKey": "board:esp32_dev_relay_v1",
+          "port": "COM7",
+          "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "Silicon Labs",
+          "usbProductName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "usbService": "silabser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "0001",
+          "usbTopologyPath": "hub-8/port-3",
+          "agentLine": null,
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "STMicroelectronics",
+          "usbProductName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "usbService": "usbser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "8&2379fc3d&0&0002",
+          "usbTopologyPath": "0014/005/004/002/000/000/000",
+          "agentLine": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:esp32_dev_relay_v1",
+          "boardId": "esp32_dev_relay_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:c8:2e:18:f0:47:74"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "runId": "run:2026-03-29T19:15:52.320Z",
+      "generatedAt": "2026-03-29T19:15:52.320Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 5,
+      "familyCount": 4,
+      "conflictCount": 0,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:38",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "agentCapabilities": [
+            "audio",
+            "battery",
+            "bluetooth_le",
+            "display",
+            "gnss",
+            "imu",
+            "jtag",
+            "rtc",
+            "touch",
+            "uart",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM4)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&2d2626df&0&0000",
+          "usbTopologyPath": "0014/005/003/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM5)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&39b40148&0&0000",
+          "usbTopologyPath": "0014/005/002/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM3)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&203f6002&0&0000",
+          "usbTopologyPath": "0014/005/001/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c8:2e:18:f0:47:74",
+          "boardId": "esp32_dev_relay_v1",
+          "familyKey": "board:esp32_dev_relay_v1",
+          "port": "COM7",
+          "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "Silicon Labs",
+          "usbProductName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "usbService": "silabser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "0001",
+          "usbTopologyPath": "hub-8/port-3",
+          "agentLine": null,
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "STMicroelectronics",
+          "usbProductName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "usbService": "usbser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "8&2379fc3d&0&0002",
+          "usbTopologyPath": "0014/005/004/002/000/000/000",
+          "agentLine": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:esp32_dev_relay_v1",
+          "boardId": "esp32_dev_relay_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:c8:2e:18:f0:47:74"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "runId": "run:2026-03-29T19:17:20.586Z",
+      "generatedAt": "2026-03-29T19:17:20.586Z",
+      "host": {
+        "platform": "windows",
+        "hostname": "MSI"
+      },
+      "unitCount": 5,
+      "familyCount": 4,
+      "conflictCount": 0,
+      "units": [
+        {
+          "stableKey": "mac:48:27:e2:66:b0:04",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "port": "COM4",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&2D2626DF&0&0000",
+          "firmwareApp": "m5stack_cores3_gnss_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:38",
+          "firmwareBoard": "m5stack_cores3_gnss_v1",
+          "agentCapabilities": [
+            "audio",
+            "battery",
+            "bluetooth_le",
+            "display",
+            "gnss",
+            "imu",
+            "jtag",
+            "rtc",
+            "touch",
+            "uart",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM4)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&2d2626df&0&0000",
+          "usbTopologyPath": "0014/005/003/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_cores3_gnss_v1 app=m5stack_cores3_gnss_demo version=0.1.0-dev capabilities=audio,battery,bluetooth_le,display,gnss,imu,jtag,rtc,touch,uart,usb,wifi build=Mar 29 2026 18:22:38",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:12:b3:e0",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM5",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&39B40148&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM5)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&39b40148&0&0000",
+          "usbTopologyPath": "0014/005/002/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c0:4e:30:13:2b:68",
+          "boardId": "m5stack_dial_v1_1",
+          "familyKey": "board:m5stack_dial_v1_1",
+          "port": "COM3",
+          "usbInstance": "USB\\VID_303A&PID_1001&MI_00\\7&203F6002&0&0000",
+          "firmwareApp": "m5stack_dial_demo",
+          "firmwareVersion": "0.1.0-dev",
+          "firmwareBuildId": "Mar 29 2026 18:22:10",
+          "firmwareBoard": "m5stack_dial_v1_1",
+          "agentCapabilities": [
+            "display",
+            "rfid",
+            "rotaryEncoder",
+            "rtc",
+            "touch",
+            "usb",
+            "wifi"
+          ],
+          "usbManufacturer": "Microsoft",
+          "usbProductName": "USB Serial Device (COM3)",
+          "usbService": "usbser",
+          "usbRevision": "0101",
+          "usbBaseSerialNumber": "7&203f6002&0&0000",
+          "usbTopologyPath": "0014/005/001/000/000/000/000",
+          "agentLine": "BoardManagerAgent: board=m5stack_dial_v1_1 app=m5stack_dial_demo version=0.1.0-dev capabilities=display,rfid,rotaryEncoder,rtc,touch,usb,wifi build=Mar 29 2026 18:22:10",
+          "label": null
+        },
+        {
+          "stableKey": "mac:c8:2e:18:f0:47:74",
+          "boardId": "esp32_dev_relay_v1",
+          "familyKey": "board:esp32_dev_relay_v1",
+          "port": "COM7",
+          "usbInstance": "USB\\VID_10C4&PID_EA60\\0001",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "Silicon Labs",
+          "usbProductName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "usbService": "silabser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "0001",
+          "usbTopologyPath": "hub-8/port-3",
+          "agentLine": null,
+          "label": null
+        },
+        {
+          "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "port": "COM6",
+          "usbInstance": "USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
+          "firmwareApp": null,
+          "firmwareVersion": null,
+          "firmwareBuildId": null,
+          "firmwareBoard": null,
+          "agentCapabilities": [],
+          "usbManufacturer": "STMicroelectronics",
+          "usbProductName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "usbService": "usbser",
+          "usbRevision": "0100",
+          "usbBaseSerialNumber": "8&2379fc3d&0&0002",
+          "usbTopologyPath": "0014/005/004/002/000/000/000",
+          "agentLine": null,
+          "label": null
+        }
+      ],
+      "families": [
+        {
+          "familyKey": "board:esp32_dev_relay_v1",
+          "boardId": "esp32_dev_relay_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:c8:2e:18:f0:47:74"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_cores3_gnss_v1",
+          "boardId": "m5stack_cores3_gnss_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "mac:48:27:e2:66:b0:04"
+          ]
+        },
+        {
+          "familyKey": "board:m5stack_dial_v1_1",
+          "boardId": "m5stack_dial_v1_1",
+          "presentUnitCount": 2,
+          "sampleUnitIds": [
+            "mac:c0:4e:30:12:b3:e0",
+            "mac:c0:4e:30:13:2b:68"
+          ]
+        },
+        {
+          "familyKey": "board:p_nucleo_usb001_f072rb_v1",
+          "boardId": "p_nucleo_usb001_f072rb_v1",
+          "presentUnitCount": 1,
+          "sampleUnitIds": [
+            "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002"
+          ]
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "runId": "run:2026-03-29T19:19:44.444Z",
+      "generatedAt": "2026-03-29T19:19:44.444Z",
       "host": {
         "platform": "windows",
         "hostname": "MSI"
