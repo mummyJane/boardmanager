@@ -1,22 +1,32 @@
 # Keys
 
-This folder is reserved for per-unit security material.
+This folder stores local-only security material for Board Manager.
 
-Planned use:
+Current Stage 2 layout:
 
-- one AES key per physical unit
-- one asymmetric key pair per physical unit
-- manifests that link key material back to the stable unit id from discovery
+- `keys/root/`: local root signing keypair and root manifest
+- `keys/units/<unit>/`: per-unit AES key, per-unit identity keypair, signed payload, and unit manifest
+- `keys/key-manifest-index.json`: local index that links stable unit ids to their current key manifests
 
-Rules:
+Current rules:
 
-- do not commit private keys or raw AES key files to git
-- only commit documentation, templates, and non-secret manifest examples when needed
-- keep generated key material organized by stable unit id so identical board models still remain distinct
+- do not commit private keys, raw AES keys, or local manifests to git
+- keep all generated key material under `keys/`
+- the local root signing keypair signs the per-unit key payloads
+- for now the Board Manager generates per-unit keys locally
+- later stages may replace the Board Manager-generated unit identity keypair with one generated on the board during setup
 
-The Stage 2 discovery/database model should eventually link each stable unit id to:
+Each physical unit should have:
 
-- an AES key record
-- a public-key record
-- a private-key storage reference
-- creation and rotation timestamps
+- one AES-256 key
+- one asymmetric identity keypair
+- one signed unit-key payload
+- one local manifest linked to the stable unit id from discovery
+
+Top-level tooling:
+
+- `./manage-unit-keys.ps1 -EnsureRootOnly`
+- `./manage-unit-keys.ps1 -AllUnits`
+- `./manage-unit-keys.ps1 -Unit "<stableKey>" -Rotate`
+
+The tracked schemas for the local manifest format live under `project/device-manager/schema/`.

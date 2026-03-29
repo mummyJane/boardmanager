@@ -110,3 +110,5 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 18:20 Europe/London: Added normalized SQLite persistence at project/device-manager/data/device-manager.sqlite with automatic sync from discover.ps1 and annotate-unit.ps1 via project/scripts/sync-device-manager-sqlite.py.
 
 - 2026-03-29 18:32 Europe/London: Added project/scripts/validate-device-manager-data.mjs and hooked it into validate.ps1 so Stage 2 data files and family profiles are schema-checked alongside board definitions.
+
+- 2026-03-29 18:48 Europe/London: Added local key-management tooling with a root signing keypair plus per-unit AES and Ed25519 identity keys under keys/. For now Board Manager generates these locally; later board setup may replace the unit identity keypair with a board-generated keypair.

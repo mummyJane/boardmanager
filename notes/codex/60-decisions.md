@@ -143,3 +143,6 @@
 - 2026-03-29 18:20 Europe/London: SQLite sync is triggered automatically by discovery and annotation flows so the DB does not drift behind the Stage 2 JSON state.
 
 - 2026-03-29 18:32 Europe/London: Implemented a small in-repo JSON Schema subset validator for device-manager data instead of adding a third-party dependency, because the current schemas only need type, required, properties, items, minimum, and additionalProperties=false checks.
+
+- 2026-03-29 18:48 Europe/London: Used a local root RSA-3072 signing keypair and per-unit Ed25519 identity keypairs with AES-256 symmetric keys. The root signs a per-unit payload that binds the stable unit id, AES key record, and unit public key record together.
+- 2026-03-29 18:48 Europe/London: Kept all generated key material and local manifests under keys/ and out of git; only tooling, docs, and schemas are tracked in the repo.

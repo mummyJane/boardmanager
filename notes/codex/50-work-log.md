@@ -835,3 +835,8 @@ Validation:
 - Added project/scripts/validate-device-manager-data.mjs to validate persisted Stage 2 data files and family profiles against their schemas.
 - Hooked device-manager schema validation into validate.ps1 via common.ps1 so standard validation now checks both board definitions and persisted device-manager state.
 - Validation: .\\validate.ps1 and direct run of node project/scripts/validate-device-manager-data.mjs both passed on the current repo state.
+## 2026-03-29 18:48 Europe/London
+- Added project/scripts/manage-unit-keys.py and top-level wrapper .\manage-unit-keys.ps1 for local root and per-unit key management.
+- Added tracked schemas for local key manifests at project/device-manager/schema/unit-key-manifest.schema.json and project/device-manager/schema/key-manifest-index.schema.json.
+- Generated a local root signing keypair plus per-unit AES and Ed25519 identity keys under keys/ for the four current stable units.
+- Validation: .\manage-unit-keys.ps1 -AllUnits, .\manage-unit-keys.ps1 -Unit "mac:c0:4e:30:13:2b:68" -Rotate, and inspection of keys/key-manifest-index.json, keys/root/root-manifest.json, and unit manifest files. Note: generated secrets and local manifests remain gitignored and were not committed.

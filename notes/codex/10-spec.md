@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 18:32 Europe/London
+Last updated: 2026-03-29 18:48 Europe/London
 
 ## Goal
 
@@ -80,11 +80,14 @@ Requirements:
 - the Stage 2 model must support operator-assigned labels, notes, and ownership-style metadata per physical unit, keyed by the stable unit identity
 - the Stage 2 history layer must preserve cumulative owner, location, and purpose changes per physical unit rather than only the latest annotation snapshot
 - each physical unit must be able to reference a per-unit AES key and an asymmetric key pair, with secret material stored under `keys/` and linked back to the stable unit identity
+- a local root signing keypair must be maintained under `keys/` so Board Manager can sign per-unit key payloads
+- until boards generate their own keypairs during setup, Board Manager should generate per-unit AES keys and asymmetric identity keypairs locally and record signed per-unit key manifests
 - discovery must persist a compact run-by-run observation ledger so later tools can compare the latest two scans without replaying the full cumulative history model
 - the first diff view must report added or removed units, family population changes, and per-unit port or firmware changes between the latest two discovery runs
 - Stage 2 must be able to export stable JSON report files for the current bench state and the cumulative unit history so operators and remote systems can archive or hand off snapshots without querying the service live
 - the persisted Stage 2 JSON model must be synchronized into a simple SQLite database so later service and UI work can query normalized tables without replacing the existing discovery contract
-- the SQLite store should update automatically when discovery or unit-annotation flows change the persisted Stage 2 JSON state`r`n- Stage 2 persisted data files and family profiles must be validated against their schemas as part of the standard validation flow
+- the SQLite store should update automatically when discovery or unit-annotation flows change the persisted Stage 2 JSON state
+- Stage 2 persisted data files and family profiles must be validated against their schemas as part of the standard validation flow
 
 ### Stage 3: Build, Program, And Debug
 
@@ -131,4 +134,3 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
-

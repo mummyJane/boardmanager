@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "board-manager-unit-key-manifest.schema.json",
+  "title": "Board Manager Unit Key Manifest",
+  "type": "object",
+  "required": ["manifestVersion", "stableKey", "generation", "state", "aesKey", "identityKeyPair", "rootSigner", "payloadPath", "payloadSignaturePath"],
+  "properties": {
+    "manifestVersion": { "type": "integer" },
+    "stableKey": { "type": "string" },
+    "boardIds": { "type": "array", "items": { "type": "string" } },
+    "familyKey": { "type": ["string", "null"] },
+    "profileId": { "type": ["string", "null"] },
+    "generation": { "type": "integer", "minimum": 1 },
+    "createdAt": { "type": "string" },
+    "lastRotatedAt": { "type": "string" },
+    "state": { "type": "string" },
+    "origin": { "type": "string" },
+    "payloadPath": { "type": "string" },
+    "payloadSha256": { "type": "string" },
+    "payloadSignaturePath": { "type": "string" },
+    "payloadSignatureSha256": { "type": "string" },
+    "signatureVerification": { "type": "string" },
+    "aesKey": { "type": "object" },
+    "identityKeyPair": { "type": "object" },
+    "rootSigner": { "type": "object" },
+    "storage": { "type": "object" }
+  }
+}

@@ -120,3 +120,5 @@
 - 2026-03-29 18:20 Europe/London: Stage 2 spec updated to require synchronized SQLite persistence behind the existing discovery model. Reason: later service and UI work need normalized table access, but the current JSON contract should remain stable for operators and existing scripts.
 
 - 2026-03-29 18:32 Europe/London: Stage 2 spec updated to require schema validation for persisted device-manager data and family profiles as part of normal validation. Reason: later service and UI layers depend on these files being structurally valid, not just present.
+
+- 2026-03-29 18:48 Europe/London: Stage 2 spec updated to require a local root signing keypair and Board Manager-generated per-unit keys until boards generate their own during setup. Reason: the immediate security model needs signed per-unit manifests now, while later setup flows can migrate identity-key generation onto the boards themselves.

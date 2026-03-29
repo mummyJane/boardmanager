@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "board-manager-key-manifest-index.schema.json",
+  "title": "Board Manager Key Manifest Index",
+  "type": "object",
+  "required": ["manifestVersion", "generatedAt", "rootSigner", "units"],
+  "properties": {
+    "manifestVersion": { "type": "integer" },
+    "generatedAt": { "type": "string" },
+    "rootSigner": { "type": "object" },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["stableKey", "generation", "manifestPath", "aesKeyId", "identityKeyId"],
+        "properties": {
+          "stableKey": { "type": "string" },
+          "boardIds": { "type": "array", "items": { "type": "string" } },
+          "familyKey": { "type": ["string", "null"] },
+          "generation": { "type": "integer", "minimum": 1 },
+          "state": { "type": "string" },
+          "manifestPath": { "type": "string" },
+          "payloadPath": { "type": "string" },
+          "payloadSignaturePath": { "type": "string" },
+          "aesKeyId": { "type": "string" },
+          "identityKeyId": { "type": "string" },
+          "lastRotatedAt": { "type": "string" }
+        }
+      }
+    }
+  }
+}

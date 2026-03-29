@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 18:32 Europe/London
+Last updated: 2026-03-29 18:48 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -53,8 +53,8 @@ Last updated: 2026-03-29 18:32 Europe/London
 - [x] Add exportable JSON reports for the current bench inventory and unit history
 - [x] Normalize the history store into a simple SQLite database behind the same discovery model
 - [x] Add schema validation for the new history and profile data files
-- [ ] Add per-unit key manifests linking each stable unit id to an AES key record and an asymmetric keypair record
-- [ ] Add key-generation and rotation tooling under keys/ for per-unit AES keys and asymmetric keypairs
+- [x] Add per-unit key manifests linking each stable unit id to an AES key record and an asymmetric keypair record
+- [x] Add key-generation and rotation tooling under keys/ for per-unit AES keys and asymmetric keypairs
 - [ ] Add a board-agent handshake path so firmware can self-identify board id, firmware version, and capabilities directly
 - [ ] Add stronger STM32-family fingerprinting beyond ST-LINK transport naming
 - [ ] Add USB hub or topology metadata when it can be observed reliably
@@ -66,5 +66,7 @@ Last updated: 2026-03-29 18:32 Europe/London
 - [x] Add a first local or remote service endpoint that exposes the shared query contract for web and external systems
 - [ ] Add basic service-layer APIs for querying inventory, history, and profiles
 - [ ] Add tests for discovery matching, history updates, and profile enrichment logic
+
+
 
 
