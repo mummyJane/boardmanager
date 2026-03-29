@@ -214,3 +214,18 @@ function Invoke-ValidationContractsValidator {
         Pop-Location
     }
 }
+
+function Invoke-ValidationReportsValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & node project/scripts/validate-validation-reports.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Validation-report validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}

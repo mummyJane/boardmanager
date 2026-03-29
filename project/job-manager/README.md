@@ -74,3 +74,14 @@ Current behavior:
 - it compares configured contract addresses against observed addresses
 - it writes a JSON report under `project/job-manager/reports/`
 - the command exits non-zero when configured addresses are missing or unexpected addresses are observed
+
+## Validation Report Shape
+
+Current validation reports include:
+
+- identity fields for board, stable unit id, transport, chip, MAC, serial, and firmware identity
+- summary fields for overall pass, executed checks, failures, and warnings
+- health placeholders for voltages, temperatures, and runner warnings
+- ordered phase summaries copied from the contract
+- per-check results with pass state, criteria, evidence, and failure notes
+- raw captured lines for operator review and later parser improvements

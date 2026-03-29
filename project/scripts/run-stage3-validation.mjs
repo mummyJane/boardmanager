@@ -90,47 +90,124 @@ async function captureSerialLines(port, durationSeconds) {
   return String(stdout).split(/\r?\n/).filter(Boolean);
 }
 
-function buildReport(boardId, unitId, port, contract, scanMap, lines) {
-  const i2cChecks = [];
+function normalizeAddressList(values) {
+  return uniqueSorted((values ?? []).map((entry) => String(entry).toLowerCase()));
+}
+
+function buildIdentity(unit, boardId, port) {
+  return {
+    boardId,
+    boardDisplayName: unit.match?.boardId === boardId ? (unit.match?.boardId ?? boardId) : boardId,
+    stableUnitId: unit.identity?.stableKey ?? unit.unitId,
+    port,
+    transportKind: unit.transport?.kind ?? null,
+    chip: unit.observed?.chip ?? null,
+    macAddress: unit.observed?.mac ?? unit.identity?.mac ?? null,
+    serialNumber: unit.observed?.serialNumber ?? unit.identity?.serialNumber ?? null,
+    firmwareApp: unit.observed?.firmwareApp ?? null,
+    firmwareVersion: unit.observed?.firmwareVersion ?? null,
+    firmwareBuildId: unit.observed?.firmwareBuildId ?? null,
+    firmwareBoard: unit.observed?.firmwareBoard ?? null,
+    usbVendorId: unit.observed?.vid ?? null,
+    usbProductId: unit.observed?.pid ?? null,
+  };
+}
+
+function buildHealth(lines) {
+  return {
+    lineCount: lines.length,
+    voltages: [],
+    temperatures: [],
+    warnings: [],
+  };
+}
+
+function buildChecks(contract, scanMap) {
+  const checks = [];
   for (const phase of contract.phases ?? []) {
     for (const check of phase.checks ?? []) {
-      if (check.kind !== "i2c-scan") continue;
-      const observed = scanMap.get(check.config?.bus ?? "") ?? { observedAddresses: [], rawLine: null };
-      const configured = uniqueSorted((check.config?.configuredAddresses ?? []).map((entry) => String(entry).toLowerCase()));
-      const observedAddresses = uniqueSorted((observed.observedAddresses ?? []).map((entry) => String(entry).toLowerCase()));
-      const missingConfigured = configured.filter((entry) => !observedAddresses.includes(entry));
-      const unexpectedObserved = observedAddresses.filter((entry) => !configured.includes(entry));
-      i2cChecks.push({
+      if (check.kind === "i2c-scan") {
+        const observed = scanMap.get(check.config?.bus ?? "") ?? { observedAddresses: [], rawLine: null };
+        const configuredAddresses = normalizeAddressList(check.config?.configuredAddresses ?? []);
+        const observedAddresses = normalizeAddressList(observed.observedAddresses ?? []);
+        const missingConfigured = configuredAddresses.filter((entry) => !observedAddresses.includes(entry));
+        const unexpectedObserved = observedAddresses.filter((entry) => !configuredAddresses.includes(entry));
+        checks.push({
+          phaseId: phase.phaseId,
+          checkId: check.checkId,
+          level: phase.level,
+          target: phase.target,
+          kind: check.kind,
+          description: check.description,
+          pass: missingConfigured.length === 0 && unexpectedObserved.length === 0,
+          passCriteria: check.passCriteria ?? null,
+          evidence: {
+            source: check.source,
+            bus: check.config?.bus ?? null,
+            configuredAddresses,
+            observedAddresses,
+            missingConfigured,
+            unexpectedObserved,
+            rawLine: observed.rawLine,
+          },
+          failureNotes: check.failureNotes ?? [],
+        });
+        continue;
+      }
+
+      checks.push({
         phaseId: phase.phaseId,
         checkId: check.checkId,
-        bus: check.config?.bus ?? null,
-        configuredAddresses: configured,
-        observedAddresses,
-        missingConfigured,
-        unexpectedObserved,
-        pass: missingConfigured.length === 0 && unexpectedObserved.length === 0,
-        rawLine: observed.rawLine,
+        level: phase.level,
+        target: phase.target,
+        kind: check.kind,
+        description: check.description,
+        pass: null,
+        passCriteria: check.passCriteria ?? null,
+        evidence: {
+          source: check.source,
+          config: check.config ?? {},
+        },
+        failureNotes: check.failureNotes ?? [],
       });
     }
   }
+  return checks;
+}
 
-  const overallPass = i2cChecks.every((entry) => entry.pass);
+function buildReport(boardId, unit, port, contract, scanMap, lines) {
+  const checks = buildChecks(contract, scanMap);
+  const executedChecks = checks.filter((entry) => entry.pass !== null);
+  const failingChecks = executedChecks.filter((entry) => entry.pass === false);
+
   return {
+    reportType: "board-validation-report",
+    schemaVersion: 1,
     generatedAt: new Date().toISOString(),
-    boardId,
-    unitId,
-    port,
-    platformSdk: contract.platformSdk ?? null,
+    contractId: contract.contractId,
+    identity: buildIdentity(unit, boardId, port),
     source: {
       kind: "serial-capture",
       lineCount: lines.length,
     },
     summary: {
-      overallPass,
-      i2cCheckCount: i2cChecks.length,
-      failingI2cCheckCount: i2cChecks.filter((entry) => !entry.pass).length,
+      overallPass: failingChecks.length === 0,
+      executedCheckCount: executedChecks.length,
+      failingCheckCount: failingChecks.length,
+      warningCount: 0,
     },
-    i2cChecks,
+    health: buildHealth(lines),
+    phases: (contract.phases ?? []).map((phase) => ({
+      phaseId: phase.phaseId,
+      order: phase.order,
+      level: phase.level,
+      target: phase.target,
+      dependsOn: phase.dependsOn ?? [],
+    })),
+    checks,
+    rawCapture: {
+      lines,
+    },
   };
 }
 
@@ -164,13 +241,13 @@ async function main() {
 
   const lines = await captureSerialLines(port, durationSeconds);
   const scanMap = parseI2cScanLines(lines);
-  const report = buildReport(boardId, unitId, port, contract, scanMap, lines);
+  const report = buildReport(boardId, unit, port, contract, scanMap, lines);
 
   await mkdir(reportsRoot, { recursive: true });
   const reportPath = path.join(reportsRoot, `validation-${sanitizeSegment(boardId)}-${sanitizeSegment(unitId)}.json`);
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
-  console.log(JSON.stringify({ reportPath, summary: report.summary, i2cChecks: report.i2cChecks }, null, 2));
+  console.log(JSON.stringify({ reportPath, summary: report.summary, failingChecks: report.checks.filter((entry) => entry.pass === false) }, null, 2));
   if (!report.summary.overallPass) {
     process.exitCode = 1;
   }
@@ -180,4 +257,3 @@ main().catch((error) => {
   console.error(error.message || error);
   process.exitCode = 1;
 });
-

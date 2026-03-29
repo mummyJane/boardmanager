@@ -14,6 +14,7 @@ try {
     Invoke-DeviceManagerValidator -Paths $paths
     Invoke-JobManagerValidator -Paths $paths
     Invoke-ValidationContractsValidator -Paths $paths
+    Invoke-ValidationReportsValidator -Paths $paths
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot

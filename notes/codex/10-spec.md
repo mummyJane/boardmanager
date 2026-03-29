@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 23:05 Europe/London
+Last updated: 2026-03-29 23:20 Europe/London
 
 ## Goal
 
@@ -123,7 +123,7 @@ Requirements:
 - validation must compare observed hardware against the Stage 1 board config and report both missing configured items and unexpected observed items
 - for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config`r`n- validation runners may consume structured serial or board-agent scan output such as `BoardManagerI2CScan:` lines as the first transport for bus-level scan evidence
 - validation should gather self-reported or probed unit facts where available, including chip type, MAC address, serial number, firmware id, firmware version, build id, voltages, temperatures, and similar health or identity data
-- validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators
+- validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators`r`n- structured validation reports must include unit and board identity, summary status, per-check evidence, and space for health metrics such as voltages and temperatures when available
 - Stage 3 must define a reserved user-code area per board or firmware target so generated board support and operator tooling do not overwrite user application code
 - generated or shared firmware APIs must define the stable boundary that user code calls for board-level functions and part-level services
 - build workflows must emit a build log, build result, selected board id, selected unit id where relevant, and produced artifacts
@@ -161,6 +161,7 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 
 
