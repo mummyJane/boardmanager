@@ -2,6 +2,8 @@
 #define M5STACK_DIAL_V1_1_PLATFORM_H
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
     bool controller_ready;
@@ -18,5 +20,6 @@ typedef struct {
 } m5stack_dial_v1_1_self_test_t;
 
 void m5stack_dial_v1_1_platform_get_self_test(m5stack_dial_v1_1_self_test_t *result);
+size_t m5stack_dial_v1_1_platform_scan_internal_i2c(uint8_t *addresses, size_t max_count);
 
 #endif

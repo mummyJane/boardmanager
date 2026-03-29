@@ -1,4 +1,4 @@
-#include "m5stack_cores3_gnss_v1.h"
+#include "m5stack_cores3_gnss_v1.h"`r`n#include "m5stack_cores3_gnss_v1_platform.h"
 
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
@@ -104,7 +104,29 @@ void m5stack_cores3_gnss_v1_platform_boot_gnss_module(void)
     ESP_LOGI(TAG, "GNSS module UART path ready");
 }
 
+
+size_t m5stack_cores3_gnss_v1_platform_scan_internal_i2c(uint8_t *addresses, size_t max_count)
+{
+    static const uint16_t candidates[] = { 0x34, 0x51 };
+    size_t count = 0;
+
+    if (addresses == NULL || max_count == 0 || s_i2c_bus == NULL) {
+        return 0;
+    }
+
+    for (size_t index = 0; index < (sizeof(candidates) / sizeof(candidates[0])); index += 1) {
+        if (i2c_master_probe(s_i2c_bus, candidates[index], 50) == ESP_OK) {
+            if (count < max_count) {
+                addresses[count] = (uint8_t)candidates[index];
+            }
+            count += 1;
+        }
+    }
+
+    return count;
+}
 bool m5stack_cores3_gnss_v1_platform_gnss_pps_read(void)
 {
     return gpio_get_level(GPIO_NUM_8) != 0;
 }
+

@@ -1,0 +1,183 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
+
+const execFileAsync = promisify(execFile);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(projectRoot, "..");
+const inventoryPath = path.join(projectRoot, "device-manager", "data", "inventory.json");
+const contractsRoot = path.join(projectRoot, "job-manager", "contracts");
+const reportsRoot = path.join(projectRoot, "job-manager", "reports");
+const espPython = path.join(projectRoot, "tools", "espressif", "python_env", "idf5.5_py3.13_env", "Scripts", "python.exe");
+
+function parseArguments(argv) {
+  const options = {};
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (!token.startsWith("--")) {
+      throw new Error(`Unexpected argument '${token}'`);
+    }
+    const key = token.slice(2);
+    const value = argv[index + 1];
+    if (!value || value.startsWith("--")) {
+      options[key] = true;
+      continue;
+    }
+    options[key] = value;
+    index += 1;
+  }
+  return options;
+}
+
+async function readJson(filePath) {
+  return JSON.parse(await readFile(filePath, "utf8"));
+}
+
+function sanitizeSegment(text) {
+  return String(text ?? "unknown")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "unknown";
+}
+
+function uniqueSorted(values) {
+  return Array.from(new Set((values ?? []).filter(Boolean))).sort();
+}
+
+function parseI2cScanLines(lines) {
+  const scans = new Map();
+  for (const line of lines) {
+    const trimmed = String(line).trim();
+    const match = trimmed.match(/^BoardManagerI2CScan:\s+bus=(\S+)\s+observed=(.+)$/);
+    if (!match) continue;
+    const bus = match[1];
+    const observed = match[2] === "none"
+      ? []
+      : match[2].split(",").map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+    scans.set(bus, {
+      bus,
+      observedAddresses: uniqueSorted(observed),
+      rawLine: trimmed,
+    });
+  }
+  return scans;
+}
+
+async function captureSerialLines(port, durationSeconds) {
+  const pythonSnippet = [
+    "import serial,time,sys",
+    `ser=serial.Serial('${port}',115200,timeout=0.2)`,
+    `end=time.time()+${Number(durationSeconds)}`,
+    "chunks=[]",
+    "while time.time()<end:",
+    " data=ser.read(4096)",
+    " if data: chunks.append(data)",
+    " time.sleep(0.05)",
+    "ser.close()",
+    "sys.stdout.buffer.write(b''.join(chunks))"
+  ].join("\n");
+
+  const { stdout } = await execFileAsync(espPython, ["-c", pythonSnippet], {
+    cwd: repoRoot,
+    windowsHide: true,
+    maxBuffer: 1024 * 1024,
+  });
+
+  return String(stdout).split(/\r?\n/).filter(Boolean);
+}
+
+function buildReport(boardId, unitId, port, contract, scanMap, lines) {
+  const i2cChecks = [];
+  for (const phase of contract.phases ?? []) {
+    for (const check of phase.checks ?? []) {
+      if (check.kind !== "i2c-scan") continue;
+      const observed = scanMap.get(check.config?.bus ?? "") ?? { observedAddresses: [], rawLine: null };
+      const configured = uniqueSorted((check.config?.configuredAddresses ?? []).map((entry) => String(entry).toLowerCase()));
+      const observedAddresses = uniqueSorted((observed.observedAddresses ?? []).map((entry) => String(entry).toLowerCase()));
+      const missingConfigured = configured.filter((entry) => !observedAddresses.includes(entry));
+      const unexpectedObserved = observedAddresses.filter((entry) => !configured.includes(entry));
+      i2cChecks.push({
+        phaseId: phase.phaseId,
+        checkId: check.checkId,
+        bus: check.config?.bus ?? null,
+        configuredAddresses: configured,
+        observedAddresses,
+        missingConfigured,
+        unexpectedObserved,
+        pass: missingConfigured.length === 0 && unexpectedObserved.length === 0,
+        rawLine: observed.rawLine,
+      });
+    }
+  }
+
+  const overallPass = i2cChecks.every((entry) => entry.pass);
+  return {
+    generatedAt: new Date().toISOString(),
+    boardId,
+    unitId,
+    port,
+    platformSdk: contract.platformSdk ?? null,
+    source: {
+      kind: "serial-capture",
+      lineCount: lines.length,
+    },
+    summary: {
+      overallPass,
+      i2cCheckCount: i2cChecks.length,
+      failingI2cCheckCount: i2cChecks.filter((entry) => !entry.pass).length,
+    },
+    i2cChecks,
+  };
+}
+
+async function main() {
+  const options = parseArguments(process.argv.slice(2));
+  const boardId = options.board;
+  const unitId = options.unit;
+  const durationSeconds = Number(options.seconds ?? 4);
+
+  if (!boardId || !unitId) {
+    throw new Error("Missing required --board and --unit arguments.");
+  }
+
+  const inventory = await readJson(inventoryPath);
+  const unit = (inventory.units ?? []).find((entry) => entry.unitId === unitId || entry.identity?.stableKey === unitId);
+  if (!unit) {
+    throw new Error(`Unit '${unitId}' was not found in inventory.`);
+  }
+
+  const resolvedBoardId = unit.match?.boardId ?? unit.manualOverride?.boardId ?? null;
+  if (resolvedBoardId && resolvedBoardId !== boardId) {
+    throw new Error(`Unit '${unitId}' currently resolves to board '${resolvedBoardId}', not '${boardId}'.`);
+  }
+
+  const contractPath = path.join(contractsRoot, `${boardId}.validation-contract.json`);
+  const contract = await readJson(contractPath);
+  const port = options.port ?? unit.transport?.port;
+  if (!port) {
+    throw new Error(`No transport port is available for unit '${unitId}'.`);
+  }
+
+  const lines = await captureSerialLines(port, durationSeconds);
+  const scanMap = parseI2cScanLines(lines);
+  const report = buildReport(boardId, unitId, port, contract, scanMap, lines);
+
+  await mkdir(reportsRoot, { recursive: true });
+  const reportPath = path.join(reportsRoot, `validation-${sanitizeSegment(boardId)}-${sanitizeSegment(unitId)}.json`);
+  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+
+  console.log(JSON.stringify({ reportPath, summary: report.summary, i2cChecks: report.i2cChecks }, null, 2));
+  if (!report.summary.overallPass) {
+    process.exitCode = 1;
+  }
+}
+
+main().catch((error) => {
+  console.error(error.message || error);
+  process.exitCode = 1;
+});
+

@@ -276,6 +276,27 @@ bool m5stack_dial_v1_1_platform_encoder_phase_b_read(void)
     return gpio_get_level(GPIO_NUM_40) != 0;
 }
 
+
+size_t m5stack_dial_v1_1_platform_scan_internal_i2c(uint8_t *addresses, size_t max_count)
+{
+    static const uint16_t candidates[] = { 0x28, 0x38, 0x51 };
+    size_t count = 0;
+
+    if (addresses == NULL || max_count == 0 || s_internal_i2c_bus == NULL) {
+        return 0;
+    }
+
+    for (size_t index = 0; index < (sizeof(candidates) / sizeof(candidates[0])); index += 1) {
+        if (i2c_master_probe(s_internal_i2c_bus, candidates[index], 50) == ESP_OK) {
+            if (count < max_count) {
+                addresses[count] = (uint8_t)candidates[index];
+            }
+            count += 1;
+        }
+    }
+
+    return count;
+}
 void m5stack_dial_v1_1_platform_get_self_test(m5stack_dial_v1_1_self_test_t *result)
 {
     if (result == NULL) {
@@ -294,3 +315,4 @@ void m5stack_dial_v1_1_platform_get_self_test(m5stack_dial_v1_1_self_test_t *res
     result->encoder_phase_a = m5stack_dial_v1_1_platform_encoder_phase_a_read();
     result->encoder_phase_b = m5stack_dial_v1_1_platform_encoder_phase_b_read();
 }
+

@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 22:55 Europe/London
+Last updated: 2026-03-29 23:05 Europe/London
 
 ## Goal
 
@@ -121,7 +121,7 @@ Requirements:
 - Stage 3 validation must start from a selected physical unit and its matched board profile from Stage 2
 - board validation must verify the controller first, then controller-owned buses or IP blocks, then configured attached devices in dependency order`r`n- the validation contract should be generated into a machine-readable board-specific plan so later validation runners and reports consume a stable phase and check structure
 - validation must compare observed hardware against the Stage 1 board config and report both missing configured items and unexpected observed items
-- for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config
+- for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config`r`n- validation runners may consume structured serial or board-agent scan output such as `BoardManagerI2CScan:` lines as the first transport for bus-level scan evidence
 - validation should gather self-reported or probed unit facts where available, including chip type, MAC address, serial number, firmware id, firmware version, build id, voltages, temperatures, and similar health or identity data
 - validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators
 - Stage 3 must define a reserved user-code area per board or firmware target so generated board support and operator tooling do not overwrite user application code
@@ -161,6 +161,7 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 
 

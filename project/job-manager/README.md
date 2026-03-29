@@ -57,3 +57,20 @@ Each generated contract currently defines:
 - signal checks for board-local drive or read access
 - device checks derived from reusable part smoke-test contracts
 - explicit check metadata, pass criteria, failure notes, and config payloads for later runtime validation and reporting
+
+## Validation Runs
+
+Use `validate-board.ps1` to capture current serial validation output from a selected unit and compare any `BoardManagerI2CScan:` lines against the generated validation contract.
+
+Example:
+
+- `./validate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68`
+
+Current behavior:
+
+- the runner resolves the selected unit from Stage 2 inventory data
+- it captures serial output from the current transport port
+- it parses `BoardManagerI2CScan:` lines by bus name
+- it compares configured contract addresses against observed addresses
+- it writes a JSON report under `project/job-manager/reports/`
+- the command exits non-zero when configured addresses are missing or unexpected addresses are observed

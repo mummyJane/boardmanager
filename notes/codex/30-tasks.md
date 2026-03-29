@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 22:55 Europe/London
+Last updated: 2026-03-29 23:05 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -83,7 +83,7 @@ Last updated: 2026-03-29 22:55 Europe/London
 - [x] Add a persisted job store and JSON schemas for Stage 3 job requests, logs, artifacts, and results
 - [x] Add board-selection and unit-selection resolution so Stage 3 jobs start from a stable unit id and matched board profile
 - [x] Add a validation contract for controller, bus or IP block, and attached-device checks in dependency order
-- [ ] Add I2C scan support to validation and report configured addresses, missing configured addresses, and unexpected observed addresses
+- [x] Add I2C scan support to validation and report configured addresses, missing configured addresses, and unexpected observed addresses
 - [ ] Add a structured board-validation report format with pass or fail status, discovered identity data, health data, and per-check evidence
 - [ ] Add reusable part-level validation hooks for shared devices so board checks reuse part knowledge instead of duplicating probe logic
 - [ ] Add board-level validation orchestration that gathers controller facts, bus scans, device checks, voltages, temperatures, firmware identity, MACs, and serial numbers where available
@@ -94,6 +94,7 @@ Last updated: 2026-03-29 22:55 Europe/London
 - [ ] Add debug-job orchestration that emits GDB launch details and IDE debugger metadata for supported MCU families
 - [ ] Expose Stage 3 job status, logs, reports, and artifacts through service APIs for later web UI use
 - [ ] Add repeatable local tests for Stage 3 validation logic and job-state transitions
+
 
 
 
