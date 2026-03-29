@@ -167,3 +167,8 @@ Example:
 - Use `retain-history.ps1 -DryRun -MaxRuns 5` to preview what would be pruned without mutating the persisted data.
 
 
+
+## Tests
+
+- `test.ps1` runs the current local Stage 2 regression checks without extra dependencies.
+- Current coverage exercises discovery matching helpers, identity-conflict detection, family-fingerprint derivation, missing-unit and family transition handling, and the direct service-data filters for inventory, history, and profiles.

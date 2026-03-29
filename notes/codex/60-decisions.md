@@ -193,3 +193,7 @@
 
 - Keep the shared `/api/query` contract for list-style views, but add direct resource endpoints for raw inventory, history, and profiles. The web UI and remote callers will need both summary queries and direct object models.
 - Make the first service-layer APIs read-only JSON endpoints over the persisted Stage 2 files instead of introducing write semantics or job control yet. This keeps the service stable while later milestones add programming and setup actions.
+## 2026-03-29 21:40 Europe/London
+
+- Use a plain Node assertion runner instead of `node --test` in this repo’s default test path. The Windows environment here blocks the test runner’s worker-process spawning, but plain Node imports and assertions run reliably.
+- Keep the Stage 2 tests focused on pure discovery helpers and service-data readers first. That gives repeatable coverage without requiring live USB enumeration or serial hardware during every validation pass.

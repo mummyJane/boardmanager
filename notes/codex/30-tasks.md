@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 21:20 Europe/London
+Last updated: 2026-03-29 21:40 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -66,7 +66,8 @@ Last updated: 2026-03-29 21:20 Europe/London
 - [x] Add retention rules for historical observations so the local database stays manageable
 - [x] Add a first local or remote service endpoint that exposes the shared query contract for web and external systems
 - [x] Add basic service-layer APIs for querying inventory, history, and profiles
-- [ ] Add tests for discovery matching, history updates, and profile enrichment logic
+- [x] Add tests for discovery matching, history updates, and profile enrichment logic
+
 
 
 

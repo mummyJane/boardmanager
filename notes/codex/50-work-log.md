@@ -1109,3 +1109,29 @@ Validation:
 - `GET /api/history?family=board:m5stack_dial_v1_1&includeMissing=false` -> success; returned the two present Dial units and the Dial family history.
 - `GET /api/profiles?status=draft` -> success; returned the two unresolved COM7-related draft profiles.
 - `validate.ps1` -> success; board-definition and device-manager validation passed after the service-layer API changes.
+
+## 2026-03-29 21:40 Europe/London
+
+Commands run:
+
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/scripts/discovery-board-catalog.mjs`
+- `test.ps1`
+- `validate.ps1`
+
+Observed issues:
+
+- `node --test` failed in this Windows environment with `spawn EPERM` because the built-in runner tried to create worker processes that the host would not allow.
+- The first test-file creation pass failed because `project/tests` did not exist yet.
+
+Actions:
+
+- Exported a small set of pure discovery helpers from `project/scripts/discover-units.mjs` for repeatable tests.
+- Added dependency-free local test modules under `project/tests/` covering discovery matching, history-state updates, board-candidate enrichment, and service-data filtering.
+- Added `project/tests/run-device-manager-tests.mjs` plus top-level `test.ps1` as the standard local test entry point.
+- Switched away from `node --test` to a plain Node assertion runner so the test path works on this machine.
+
+Validation:
+
+- `test.ps1` -> success; passed the discovery/history test group and the service-data API test group.
+- `validate.ps1` -> success; board-definition and device-manager validation still pass with the new test harness in place.

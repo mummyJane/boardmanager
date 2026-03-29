@@ -1688,6 +1688,8 @@ async function main() {
   }
 }
 
+export { buildIdentityIndex, deriveFamilyFingerprint, markMissingUnits, refreshFamilyTransitions, appendDiscoveryRun };
+
 const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
 if (isMainModule) {
@@ -1696,6 +1698,7 @@ if (isMainModule) {
     process.exitCode = 1;
   });
 }
+
 
 
 
