@@ -55,7 +55,12 @@
               "mac": { "type": ["string", "null"] },
               "serialNumber": { "type": ["string", "null"] },
               "firmwareSignature": { "type": ["string", "null"] },
-              "rawSignatureLine": { "type": ["string", "null"] }
+              "rawSignatureLine": { "type": ["string", "null"] },
+              "firmwareLine": { "type": ["string", "null"] },
+              "firmwareApp": { "type": ["string", "null"] },
+              "firmwareVersion": { "type": ["string", "null"] },
+              "firmwareBuildId": { "type": ["string", "null"] },
+              "firmwareBoard": { "type": ["string", "null"] }
             }
           },
           "annotation": {

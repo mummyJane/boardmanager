@@ -5,6 +5,10 @@
 #include "m5stack_dial_v1_1.h"
 #include "m5stack_dial_v1_1_platform.h"
 
+#define BOARD_MANAGER_FW_APP "m5stack_dial_demo"
+#define BOARD_MANAGER_FW_VERSION "0.1.0-dev"
+#define BOARD_MANAGER_FW_BUILD_ID __DATE__ " " __TIME__
+
 static const char *status_text(bool value)
 {
     return value ? "PASS" : "FAIL";
@@ -42,6 +46,11 @@ void app_main(void)
     m5stack_dial_v1_1_self_test_t result = {0};
 
     printf("Board Manager dial smoke test starting\n");
+    printf("BoardManagerFirmware: app=%s version=%s build=%s board=%s\n",
+        BOARD_MANAGER_FW_APP,
+        BOARD_MANAGER_FW_VERSION,
+        BOARD_MANAGER_FW_BUILD_ID,
+        "m5stack_dial_v1_1");
     m5stack_dial_v1_1_init();
     m5stack_dial_v1_1_platform_get_self_test(&result);
     printf("Board init complete for %s using %s\n",

@@ -88,3 +88,7 @@
 ## 2026-03-29 15:27 Europe/London
 
 - Added a Stage 2 requirement for operator-assigned labels and notes keyed by stable unit identity. This change is needed because identical boards on the bench must be distinguishable in operator language even when COM ports change over time.
+
+## 2026-03-29 15:52 Europe/London
+
+- Added a Stage 2 requirement for persisted per-unit firmware identity, not just a generic firmware signature. This change is needed because the bench now has multiple identical boards and the system must record which firmware app, version, build, and self-reported board id is actually running on each physical unit.

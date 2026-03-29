@@ -630,3 +630,45 @@ Actions:
 Validation:
 
 - `discover.ps1` -> success; all four attached units still resolved as `known-unit` after the annotation model changes, with empty annotation objects merged by default
+
+## 2026-03-29 15:52 Europe/London
+
+Commands run:
+
+- `git status --short --branch`
+- `git diff -- project/scripts/discover-units.mjs`
+- `git diff -- project/apps/m5stack_dial_demo/main/app_main.c`
+- `git diff -- project/apps/m5stack_cores3_gnss_demo/main/app_main.c`
+- `git diff -- project/apps/p_nucleo_usb001_demo/main/main.c`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM3`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM5`
+- `program.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit COM4`
+- `discover.ps1`
+- `validate.ps1`
+
+Observed issues:
+
+- the first retry of the flash step failed because the PowerShell executable path was wrapped incorrectly in the escalated command string and split at `C:\Program Files`; rerunning the already approved command in its simpler form fixed it
+- `apply_patch` hit a Windows sandbox refresh failure during the documentation update step, so the notes were rewritten with narrow PowerShell file writes to avoid another broad edit failure
+
+Actions:
+
+- added a machine-readable firmware identity boot line to the ESP32 and STM32 demo apps
+- updated discovery to parse and persist firmware app id, version, build id, and self-reported board id
+- taught discovery matching to prefer firmware self-identification when available
+- flashed the updated Dial firmware to `COM3` and `COM5`
+- flashed the updated CoreS3 + GNSS firmware to `COM4`
+- reran discovery and validation after the firmware updates
+- updated Stage 2 notes, plan, task tracker, context, decisions, and release wrappers for the firmware-identity task
+
+Validation:
+
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1` -> success
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM3` -> success; flashed Dial on MAC `c0:4e:30:13:2b:68`
+- `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM5` -> success; flashed Dial on MAC `c0:4e:30:12:b3:e0`
+- `program.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit COM4` -> success; flashed CoreS3 + GNSS on MAC `48:27:e2:66:b0:04`
+- `discover.ps1` -> success; persisted firmware identity for `COM3`, `COM4`, and `COM5`
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects

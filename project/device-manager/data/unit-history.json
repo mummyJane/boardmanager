@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T14:28:39.307Z",
+  "generatedAt": "2026-03-29T14:46:40.154Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -8,8 +8,8 @@
     {
       "stableKey": "mac:48:27:e2:66:b0:04",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 4,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 5,
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -49,6 +49,21 @@
         "firmwareSignatures": [
           "board_manager_cores3_gnss_demo"
         ],
+        "firmwareApps": [
+          "m5stack_cores3_gnss_demo"
+        ],
+        "firmwareVersions": [
+          "0.1.0-dev"
+        ],
+        "firmwareBuildIds": [
+          "Mar 29 2026 15:44:03"
+        ],
+        "firmwareBoards": [
+          "m5stack_cores3_gnss_v1"
+        ],
+        "firmwareLines": [
+          "BoardManagerFirmware: app=m5stack_cores3_gnss_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_cores3_gnss_v1"
+        ],
         "rawSignatureLines": [
           "Board Manager CoreS3 GNSS bring-up starting"
         ]
@@ -57,8 +72,8 @@
     {
       "stableKey": "mac:c0:4e:30:12:b3:e0",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 4,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 5,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -98,6 +113,21 @@
         "firmwareSignatures": [
           "board_manager_dial_smoketest"
         ],
+        "firmwareApps": [
+          "m5stack_dial_demo"
+        ],
+        "firmwareVersions": [
+          "0.1.0-dev"
+        ],
+        "firmwareBuildIds": [
+          "Mar 29 2026 15:44:03"
+        ],
+        "firmwareBoards": [
+          "m5stack_dial_v1_1"
+        ],
+        "firmwareLines": [
+          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1"
+        ],
         "rawSignatureLines": [
           "Board Manager dial smoke test starting"
         ]
@@ -106,8 +136,8 @@
     {
       "stableKey": "mac:c0:4e:30:13:2b:68",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 4,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 5,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -147,6 +177,21 @@
         "firmwareSignatures": [
           "board_manager_dial_smoketest"
         ],
+        "firmwareApps": [
+          "m5stack_dial_demo"
+        ],
+        "firmwareVersions": [
+          "0.1.0-dev"
+        ],
+        "firmwareBuildIds": [
+          "Mar 29 2026 15:44:03"
+        ],
+        "firmwareBoards": [
+          "m5stack_dial_v1_1"
+        ],
+        "firmwareLines": [
+          "BoardManagerFirmware: app=m5stack_dial_demo version=0.1.0-dev build=Mar 29 2026 15:44:03 board=m5stack_dial_v1_1"
+        ],
         "rawSignatureLines": [
           "Board Manager dial smoke test starting"
         ]
@@ -155,8 +200,8 @@
     {
       "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 4,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 5,
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -192,6 +237,11 @@
         "pid": "374B",
         "chips": [],
         "firmwareSignatures": [],
+        "firmwareApps": [],
+        "firmwareVersions": [],
+        "firmwareBuildIds": [],
+        "firmwareBoards": [],
+        "firmwareLines": [],
         "rawSignatureLines": []
       }
     }
@@ -200,8 +250,8 @@
     {
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 4,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 5,
       "status": "known-board",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -224,8 +274,8 @@
     {
       "familyKey": "board:m5stack_dial_v1_1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 8,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 10,
       "status": "known-board",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -249,8 +299,8 @@
     {
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T14:28:39.307Z",
-      "seenCount": 4,
+      "lastSeenAt": "2026-03-29T14:46:40.154Z",
+      "seenCount": 5,
       "status": "known-board",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [

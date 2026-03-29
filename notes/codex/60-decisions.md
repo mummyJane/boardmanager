@@ -103,3 +103,9 @@
 
 - Store operator-facing labels and notes in a separate annotation file keyed by stable unit id instead of mixing manual edits directly into discovery history. This keeps discovery reproducible while still letting operators attach local meaning to physical units.
 - Make the annotation CLI target the stable unit key, not the current COM port, so labels survive replug and port renumbering.
+
+## 2026-03-29 15:52 Europe/London
+
+- Prefer a machine-readable firmware boot line over heuristic banner matching when the firmware exposes one.
+- Standardize the firmware identity line as `BoardManagerFirmware: app=<app> version=<version> build=<build-id> board=<board-id>`.
+- Persist firmware app id, version, build id, and self-reported board id in both the latest inventory snapshot and cumulative unit history so physical identity and firmware state can be tracked independently.

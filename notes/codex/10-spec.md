@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 15:27 Europe/London
+Last updated: 2026-03-29 15:52 Europe/London
 
 ## Goal
 
@@ -64,6 +64,7 @@ Requirements:
 - discovery records must persist stable per-unit identity fields such as chip MAC, USB instance path, serial number, and alias history so identical boards can be distinguished from one another across replug events
 - discovery data must link back to the board definition model from Stage 1
 - discovery must preserve cumulative per-unit history with first-seen, last-seen, seen-count, prior aliases, and observed firmware or hardware fingerprints
+- discovery must preserve per-unit firmware identity across runs, including the observed firmware app id, firmware version, build identifier, and self-reported board id when firmware exposes it
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
 - family profiles should be enriched from the Stage 1 board catalog with exact board metadata where known and likely board candidates where the family is still being resolved
@@ -112,6 +113,3 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
-
-
-

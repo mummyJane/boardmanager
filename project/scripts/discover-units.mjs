@@ -43,10 +43,31 @@ function parseSerialFromUsbInstance(pnpDeviceId) {
   return parts.length >= 3 ? parts[2] : null;
 }
 
+function parseFirmwareIdentity(rawLine) {
+  const text = String(rawLine ?? "");
+  const match = text.match(/BoardManagerFirmware:\s+app=(\S+)\s+version=(\S+)\s+build=(.+?)\s+board=(\S+)$/);
+  if (!match) {
+    return {
+      firmwareApp: null,
+      firmwareVersion: null,
+      firmwareBuildId: null,
+      firmwareBoard: null,
+    };
+  }
+
+  return {
+    firmwareApp: match[1],
+    firmwareVersion: match[2],
+    firmwareBuildId: match[3],
+    firmwareBoard: match[4],
+  };
+}
+
 function pickSignatureLine(lines) {
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
+    if (trimmed.includes("BoardManagerFirmware:")) return trimmed;
     if (trimmed.includes("Board Manager dial smoke test starting")) return trimmed;
     if (trimmed.includes("Board Manager CoreS3 GNSS bring-up starting")) return trimmed;
     if (trimmed.includes("Board Manager")) return trimmed;
@@ -198,8 +219,12 @@ async function captureSignature(port) {
     });
     const lines = String(stdout).split(/\r?\n/).filter(Boolean);
     const rawSignatureLine = pickSignatureLine(lines);
+    const firmwareLine = lines.map((line) => line.trim()).find((line) => line.includes("BoardManagerFirmware:")) ?? null;
+    const identity = parseFirmwareIdentity(firmwareLine);
     let firmwareSignature = null;
-    if (rawSignatureLine) {
+    if (identity.firmwareApp === "m5stack_dial_demo") firmwareSignature = "board_manager_dial_smoketest";
+    else if (identity.firmwareApp === "m5stack_cores3_gnss_demo") firmwareSignature = "board_manager_cores3_gnss_demo";
+    else if (rawSignatureLine) {
       if (rawSignatureLine.includes("Board Manager dial smoke test starting")) firmwareSignature = "board_manager_dial_smoketest";
       else if (rawSignatureLine.includes("Board Manager CoreS3 GNSS bring-up starting")) firmwareSignature = "board_manager_cores3_gnss_demo";
       else if (rawSignatureLine.includes("Live GNSS PPS state:")) firmwareSignature = "board_manager_cores3_gnss_demo";
@@ -207,9 +232,25 @@ async function captureSignature(port) {
       else if (rawSignatureLine.includes("stamp_ring_factory_test")) firmwareSignature = "m5_factory_stamp_ring_test";
       else if (rawSignatureLine.includes("Board Manager")) firmwareSignature = "board_manager_boot_banner";
     }
-    return { firmwareSignature, rawSignatureLine };
+    return {
+      firmwareSignature,
+      rawSignatureLine,
+      firmwareLine,
+      firmwareApp: identity.firmwareApp,
+      firmwareVersion: identity.firmwareVersion,
+      firmwareBuildId: identity.firmwareBuildId,
+      firmwareBoard: identity.firmwareBoard,
+    };
   } catch {
-    return { firmwareSignature: null, rawSignatureLine: null };
+    return {
+      firmwareSignature: null,
+      rawSignatureLine: null,
+      firmwareLine: null,
+      firmwareApp: null,
+      firmwareVersion: null,
+      firmwareBuildId: null,
+      firmwareBoard: null,
+    };
   }
 }
 
@@ -245,7 +286,25 @@ function findPreviousUnit(observed, transport, indices) {
 
 function basicHeuristicMatch(unit) {
   const { description, name } = unit.transport;
-  const { mac, firmwareSignature, rawSignatureLine } = unit.observed;
+  const { mac, firmwareSignature, rawSignatureLine, firmwareBoard } = unit.observed;
+
+  if (firmwareBoard === "m5stack_dial_v1_1") {
+    return {
+      status: "matched",
+      boardId: "m5stack_dial_v1_1",
+      reason: "Firmware self-identifies the board as m5stack_dial_v1_1",
+      source: "firmware-self-id"
+    };
+  }
+
+  if (firmwareBoard === "m5stack_cores3_gnss_v1") {
+    return {
+      status: "matched",
+      boardId: "m5stack_cores3_gnss_v1",
+      reason: "Firmware self-identifies the board as m5stack_cores3_gnss_v1",
+      source: "firmware-self-id"
+    };
+  }
 
   if ((description ?? "").includes("STLink") || (name ?? "").includes("STLink")) {
     return {
@@ -446,6 +505,11 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     usbInstance: portInfo.PNPDeviceID ?? null,
     firmwareSignature: null,
     rawSignatureLine: null,
+    firmwareLine: null,
+    firmwareApp: null,
+    firmwareVersion: null,
+    firmwareBuildId: null,
+    firmwareBoard: null,
   };
 
   if ((vidPid.vid === "303A" && vidPid.pid === "1001") || (transport.name ?? "").includes("USB Serial Device")) {
@@ -455,6 +519,11 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
     const signature = await captureSignature(transport.port);
     observed.firmwareSignature = signature.firmwareSignature;
     observed.rawSignatureLine = signature.rawSignatureLine;
+    observed.firmwareLine = signature.firmwareLine;
+    observed.firmwareApp = signature.firmwareApp;
+    observed.firmwareVersion = signature.firmwareVersion;
+    observed.firmwareBuildId = signature.firmwareBuildId;
+    observed.firmwareBoard = signature.firmwareBoard;
   }
 
   const previousUnit = findPreviousUnit(observed, transport, unitIndex);
@@ -472,6 +541,11 @@ async function observePort(portInfo, unitIndex, familyIndex, annotationIndex) {
       serialNumber: observed.serialNumber,
       firmwareSignature: observed.firmwareSignature,
       rawSignatureLine: observed.rawSignatureLine,
+      firmwareLine: observed.firmwareLine,
+      firmwareApp: observed.firmwareApp,
+      firmwareVersion: observed.firmwareVersion,
+      firmwareBuildId: observed.firmwareBuildId,
+      firmwareBoard: observed.firmwareBoard,
     },
     annotation: normalizeAnnotation(null),
     match: { status: "unknown", boardId: null, reason: null, source: null },
@@ -509,6 +583,11 @@ function mergeObservedHistory(existing, unit) {
     pid: unit.observed.pid ?? existing?.pid ?? null,
     chips: uniqueSorted([...(existing?.chips ?? []), unit.observed.chip]),
     firmwareSignatures: uniqueSorted([...(existing?.firmwareSignatures ?? []), unit.observed.firmwareSignature]),
+    firmwareApps: uniqueSorted([...(existing?.firmwareApps ?? []), unit.observed.firmwareApp]),
+    firmwareVersions: uniqueSorted([...(existing?.firmwareVersions ?? []), unit.observed.firmwareVersion]),
+    firmwareBuildIds: uniqueSorted([...(existing?.firmwareBuildIds ?? []), unit.observed.firmwareBuildId]),
+    firmwareBoards: uniqueSorted([...(existing?.firmwareBoards ?? []), unit.observed.firmwareBoard]),
+    firmwareLines: uniqueSorted([...(existing?.firmwareLines ?? []), unit.observed.firmwareLine]),
     rawSignatureLines: uniqueSorted([...(existing?.rawSignatureLines ?? []), unit.observed.rawSignatureLine]),
   };
 }
@@ -672,7 +751,8 @@ async function main() {
   console.log(`Discovered ${units.length} units.`);
   for (const unit of units) {
     const labelSuffix = unit.annotation.label ? ` label='${unit.annotation.label}'` : "";
-    console.log(`${unit.transport.port}: ${unit.match.boardId ?? "unmatched"} [${unit.identity.stableKey}] (${unit.history.status}; ${unit.history.reason})${labelSuffix}`);
+    const firmwareSuffix = unit.observed.firmwareVersion ? ` fw=${unit.observed.firmwareApp}@${unit.observed.firmwareVersion}` : "";
+    console.log(`${unit.transport.port}: ${unit.match.boardId ?? "unmatched"} [${unit.identity.stableKey}] (${unit.history.status}; ${unit.history.reason})${firmwareSuffix}${labelSuffix}`);
   }
 }
 

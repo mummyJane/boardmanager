@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 15:27 Europe/London
+Last updated: 2026-03-29 15:52 Europe/London
 
 ## Project Intent
 
@@ -66,23 +66,20 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the persisted inventory schema is stored at `project/device-manager/schema/device-inventory.schema.json`
 - the latest snapshot is stored at `project/device-manager/data/inventory.json`
 - the Windows discovery script is `project/scripts/discover-units.mjs` with a top-level wrapper at `discover.ps1`
-- the latest discovery run matched all four attached units: `COM3` and `COM5` as `m5stack_dial_v1_1`, `COM4` as `m5stack_cores3_gnss_v1`, and `COM6` as `p_nucleo_usb001_f072rb_v1` 
+- the latest discovery run matched all four attached units: `COM3` and `COM5` as `m5stack_dial_v1_1`, `COM4` as `m5stack_cores3_gnss_v1`, and `COM6` as `p_nucleo_usb001_f072rb_v1`
 - the persisted inventory now stores stable per-unit identity records with MAC-based keys for the two attached Dial units, allowing them to be distinguished independently from their current COM port assignments
 - the current matching logic uses port data, USB identifiers, STLink naming, and short firmware signature lines as the first heuristic set
-
-
-
-- discovery now persists cumulative unit history in project/device-manager/data/unit-history.json and family profile stubs under project/device-manager/profiles
-- the first history-populating discovery pass classified COM3, COM4, and COM6 as new-family and COM5 as known-family because the Dial family had already been seen earlier in the same run
-- the second discovery pass classified all four currently attached units as known-unit using stable identity keys from history
+- discovery now persists cumulative unit history in `project/device-manager/data/unit-history.json` and family profile stubs under `project/device-manager/profiles`
+- the first history-populating discovery pass classified COM3, COM4, and COM6 as `new-family` and COM5 as `known-family` because the Dial family had already been seen earlier in the same run
+- the second discovery pass classified all four currently attached units as `known-unit` using stable identity keys from history
 - the history layer now records first seen, last seen, seen count, family key, aliases, and accumulated observed signatures per physical unit
-
-
-
 - family profiles are now enriched from the Stage 1 board catalog with exact board metadata for known families and scored candidate boards for unresolved families
 - the current Dial, CoreS3+GNSS, and P-NUCLEO profile files now include vendor, revision, product SKU, chip family, SDK, capabilities, source links, and ranked candidate board matches
-
-
-
 - operator annotations are now stored in `project/device-manager/data/unit-annotations.json` and merged into both `inventory.json` and `unit-history.json` on each discovery run
 - the top-level `annotate-unit.ps1` script now lets the operator assign a stable label, notes, owner, location, and purpose to a physical unit by stable key instead of by COM port
+- discovery now persists firmware identity fields per unit where the firmware exposes them, including firmware app id, version, build id, and self-reported board id
+- the latest live discovery run captured firmware identities for the attached ESP32 units:
+  - `COM3` / `mac:c0:4e:30:13:2b:68` -> `m5stack_dial_demo` version `0.1.0-dev` for `m5stack_dial_v1_1`
+  - `COM4` / `mac:48:27:e2:66:b0:04` -> `m5stack_cores3_gnss_demo` version `0.1.0-dev` for `m5stack_cores3_gnss_v1`
+  - `COM5` / `mac:c0:4e:30:12:b3:e0` -> `m5stack_dial_demo` version `0.1.0-dev` for `m5stack_dial_v1_1`
+  - `COM6` still has no firmware self-report path through the current STLink VCP probe

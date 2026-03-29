@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 15:27 Europe/London
+Last updated: 2026-03-29 15:52 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -44,7 +44,7 @@ Last updated: 2026-03-29 15:27 Europe/London
 ## Stage 2 Next Tasks
 
 - [x] Add operator-assigned labels and notes per physical unit
-- [ ] Track firmware version/build identity per unit across discovery runs
+- [x] Track firmware version/build identity per unit across discovery runs
 - [ ] Track board ownership, location, and purpose metadata in the history layer
 - [ ] Record unplugged or missing units without losing their history record
 - [ ] Add first-seen, last-seen, and last-missing transitions to the persisted family and unit model
