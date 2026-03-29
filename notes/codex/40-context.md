@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 09:19 Europe/London
+Last updated: 2026-03-29 09:24 Europe/London
 
 ## Project Intent
 
@@ -52,5 +52,6 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - a second physical Dial on `COM5` was fingerprinted as MAC `c0:4e:30:12:b3:e0`; before reflashing it reported a factory test image named `stamp_ring_factory_test` with I2C devices visible at `0x28`, `0x38`, and `0x51`
 - a second ESP32-S3 unit on `COM4` was fingerprinted as MAC `48:27:e2:66:b0:04`; the user identifies it as an M5Stack CoreS3 with battery and GNSS module, but only ROM boot output has been captured so far from software
 - after a targeted flash to `COM5`, the same port reported the Board Manager smoke-test live input stream, confirming the flash path can select one unit without disturbing the others
+- the current attached bench inventory is `COM3` = M5Stack Dial, `COM4` = M5Stack CoreS3 with battery and GNSS, `COM5` = M5Stack Dial, and `COM6` = P-NUCLEO-USB001 based on Nucleo-F072RB
 - part ownership has been clarified: reusable parts should own init/setup, smoke-test behavior, and high-level API shape, while boards only bind those parts into concrete hardware
 - a per-part help/man page convention now exists under `project/help/parts`, with `bm8563` added as the first example including datasheet, website, and API usage guidance

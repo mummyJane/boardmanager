@@ -369,3 +369,18 @@ Validation:
 - pre-flash serial capture on `COM5` -> success; observed factory image `stamp_ring_factory_test` plus I2C activity at `0x28`, `0x38`, and `0x51`
 - `program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit COM5` -> success; targeted flash completed with `COM3`, `COM4`, and `COM5` connected
 - post-flash serial capture on `COM5` -> success; observed repeated `Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1` from the Board Manager app on the same port
+
+## 2026-03-29 09:24 Europe/London
+
+Commands run:
+
+- `Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID`
+
+Actions:
+
+- confirmed the current attached bench inventory as `COM3` = M5Stack Dial, `COM4` = M5Stack CoreS3 with battery and GNSS, `COM5` = M5Stack Dial, and `COM6` = P-NUCLEO-USB001 / Nucleo-F072RB
+- recorded the newly attached STM32 board as current Stage 2 discovery context
+
+Validation:
+
+- `Get-CimInstance Win32_SerialPort ...` -> success; `COM6` enumerates as `STMicroelectronics STLink Virtual COM Port`, consistent with the attached Nucleo board
