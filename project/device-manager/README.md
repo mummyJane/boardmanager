@@ -64,3 +64,16 @@ Example:
 `./annotate-unit.ps1 -Unit "mac:c0:4e:30:13:2b:68" -Label "Dial Left" -Location "Bench A" -Purpose "UI test unit" -Note "Keep on smoke-test firmware"`
 
 That annotation is merged into both the latest inventory and the cumulative unit history on the next discovery run. Ownership, location, and purpose values are also appended into the unit metadata history immediately when the annotation command runs.
+
+## Query Access
+
+Use query.ps1 as the first shared query layer for operators, the future web UI, and remote callers.
+
+Examples:
+
+- ./query.ps1 -View units`r
+- ./query.ps1 -View families -Format json`r
+- ./query.ps1 -View changes -Limit 10`r
+
+The JSON output is the stable machine-facing form. The PowerShell wrapper is only the local host entry point.
+

@@ -123,3 +123,8 @@
 
 - Add explicit transition summaries to both unit and family history rather than making callers infer state changes only from raw timestamps. This keeps the later service and web layers simpler and less error-prone.
 - Track family presence from the current set of units in that family, not from transport heuristics alone. Family state should derive from unit state so the summary stays consistent.
+
+## 2026-03-29 17:01 Europe/London
+
+- Start the query layer as a shared script that returns stable JSON, with the CLI as a wrapper. That keeps the first operator tooling lightweight while avoiding a second incompatible path for the future web UI and remote systems.
+- Treat human-readable text output as a convenience view only; JSON is the machine-facing contract.

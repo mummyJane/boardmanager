@@ -752,3 +752,31 @@ Validation:
 - `discover.ps1` with `BOARD_MANAGER_DISCOVERY_IGNORE_PORTS=COM6` -> success; the Nucleo unit and family recorded a missing transition without being deleted from history
 - `discover.ps1` -> success; restored the real four-unit bench state with transition data preserved
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+
+## 2026-03-29 17:01 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/device-manager/data/inventory.json`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `Get-Content project/scripts/common.ps1`
+- `query.ps1 -View units`
+- `query.ps1 -View families -Format json`
+- `query.ps1 -View changes -Limit 6`
+- `validate.ps1`
+
+Actions:
+
+- added `project/scripts/query-device-manager.mjs` as the first shared query layer over persisted units, families, and recent changes
+- added `query.ps1` as the top-level local wrapper with self-managed environment setup
+- made the query layer emit either text or stable JSON so the future web interface and remote callers can reuse the same contract
+- updated the Stage 2 and Stage 4 notes to explicitly call out the shared query layer and future remote-call support
+
+Validation:
+
+- `query.ps1 -View units` -> success
+- `query.ps1 -View families -Format json` -> success
+- `query.ps1 -View changes -Limit 6` -> success
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects

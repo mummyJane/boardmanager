@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 16:43 Europe/London
+Last updated: 2026-03-29 17:01 Europe/London
 
 ## Project Intent
 
@@ -93,4 +93,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 
 - unit and family history now expose transition summaries through 	ransitions.firstSeen, 	ransitions.lastSeen, 	ransitions.lastPresent, and 	ransitions.lastMissing`r
 - the current Nucleo unit and its family retain a valid lastMissing transition from the controlled COM6-ignored validation pass while ending the latest real discovery pass in the present state
+
+
+- query.ps1 and project/scripts/query-device-manager.mjs now provide the first shared query layer over units, families, and recent changes
+- the JSON query output is intended as the stable machine-facing form for both the later web UI and remote callers from another system
 

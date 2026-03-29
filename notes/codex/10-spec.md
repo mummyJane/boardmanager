@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 16:43 Europe/London
+Last updated: 2026-03-29 17:01 Europe/London
 
 ## Goal
 
@@ -54,7 +54,7 @@ Deliverables:
 - USB discovery service for connected units and boards
 - a normalized database for board inventory, parts, and capabilities
 - persistence for board definitions, observed hardware, firmware versions, and ownership history
-- initial APIs for querying connected boards and known inventory
+- initial APIs for querying connected boards and known inventory`r`n- a host-side query layer that can be reused by the future web interface and by remote callers from another system
 
 Requirements:
 
@@ -64,7 +64,9 @@ Requirements:
 - discovery records must persist stable per-unit identity fields such as chip MAC, USB instance path, serial number, and alias history so identical boards can be distinguished from one another across replug events
 - discovery data must link back to the board definition model from Stage 1
 - discovery must preserve cumulative per-unit history with first-seen, last-seen, seen-count, prior aliases, and observed firmware or hardware fingerprints
-- discovery must preserve units that are currently unplugged or missing from the latest scan instead of deleting them from history, and must record that missing state per unit`r`n- the persisted unit and family model must expose transition summaries for first seen, last seen, last present, and last missing state changes
+- discovery must preserve units that are currently unplugged or missing from the latest scan instead of deleting them from history, and must record that missing state per unit
+- the persisted unit and family model must expose transition summaries for first seen, last seen, last present, and last missing state changes
+- Stage 2 should expose a stable query contract over the persisted inventory and history so later Milestone 4 UI work and remote systems can consume the same data model
 - discovery must preserve per-unit firmware identity across runs, including the observed firmware app id, firmware version, build identifier, and self-reported board id when firmware exposes it
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
@@ -100,7 +102,7 @@ Deliverables:
 
 Requirements:
 
-- UI must talk to a service layer, not directly to firmware tools
+- UI must talk to a service layer, not directly to firmware tools`r`n- the service layer must also support remote calls from another system, not only the local browser UI
 - UI must be able to inspect board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part help/man pages including datasheet, website, and API usage references
 
 ## Non-Goals For Initial Milestone
@@ -116,5 +118,6 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 

@@ -104,3 +104,7 @@
 ## 2026-03-29 16:43 Europe/London
 
 - Added a Stage 2 requirement for explicit transition summaries in the persisted unit and family model. This change is needed because later query and web layers should be able to read first-seen, last-seen, last-present, and last-missing state directly instead of reconstructing transitions from multiple timestamps.
+
+## 2026-03-29 17:01 Europe/London
+
+- Clarified that the Stage 2 query layer should be reusable by both the future Milestone 4 web interface and remote callers from another system. This change is needed so the project does not grow one query path for local CLI use and a second incompatible path for the UI or external integrations.

@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 16:43 Europe/London
+Last updated: 2026-03-29 17:01 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -48,7 +48,7 @@ Last updated: 2026-03-29 16:43 Europe/London
 - [x] Track board ownership, location, and purpose metadata in the history layer
 - [x] Record unplugged or missing units without losing their history record
 - [x] Add first-seen, last-seen, and last-missing transitions to the persisted family and unit model
-- [ ] Add a simple query CLI for listing units, families, and recent discovery changes
+- [x] Add a simple query CLI for listing units, families, and recent discovery changes
 - [ ] Add a diff view between the latest two discovery runs
 - [ ] Add exportable JSON reports for the current bench inventory and unit history
 - [ ] Normalize the history store into a simple SQLite database behind the same discovery model
@@ -63,8 +63,9 @@ Last updated: 2026-03-29 16:43 Europe/London
 - [ ] Add manual override support when an operator wants to pin a unit to a board or family
 - [ ] Add merge/reconcile tooling for draft family profiles after a board type is understood
 - [ ] Add retention rules for historical observations so the local database stays manageable
-- [ ] Add basic service-layer APIs for querying inventory, history, and profiles
+- [ ] Add a first local or remote service endpoint that exposes the shared query contract for web and external systems`r`n- [ ] Add basic service-layer APIs for querying inventory, history, and profiles
 - [ ] Add tests for discovery matching, history updates, and profile enrichment logic
+
 
 
 
