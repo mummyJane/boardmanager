@@ -108,3 +108,7 @@
 ## 2026-03-29 17:01 Europe/London
 
 - Clarified that the Stage 2 query layer should be reusable by both the future Milestone 4 web interface and remote callers from another system. This change is needed so the project does not grow one query path for local CLI use and a second incompatible path for the UI or external integrations.
+
+## 2026-03-29 17:13 Europe/London
+
+- Clarified that the first shared query contract should also be exposed through an HTTP service endpoint. This change is needed because the Milestone 4 web UI and remote callers from another system should not depend on local shell execution.

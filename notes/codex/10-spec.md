@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 17:01 Europe/London
+Last updated: 2026-03-29 17:13 Europe/London
 
 ## Goal
 
@@ -54,7 +54,9 @@ Deliverables:
 - USB discovery service for connected units and boards
 - a normalized database for board inventory, parts, and capabilities
 - persistence for board definitions, observed hardware, firmware versions, and ownership history
-- initial APIs for querying connected boards and known inventory`r`n- a host-side query layer that can be reused by the future web interface and by remote callers from another system
+- initial APIs for querying connected boards and known inventory
+- a host-side query layer that can be reused by the future web interface and by remote callers from another system
+- a first local or remote service endpoint that exposes the shared query contract over HTTP
 
 Requirements:
 
@@ -67,6 +69,7 @@ Requirements:
 - discovery must preserve units that are currently unplugged or missing from the latest scan instead of deleting them from history, and must record that missing state per unit
 - the persisted unit and family model must expose transition summaries for first seen, last seen, last present, and last missing state changes
 - Stage 2 should expose a stable query contract over the persisted inventory and history so later Milestone 4 UI work and remote systems can consume the same data model
+- the first service endpoint should expose that query contract over HTTP using JSON responses suitable for local and remote callers
 - discovery must preserve per-unit firmware identity across runs, including the observed firmware app id, firmware version, build identifier, and self-reported board id when firmware exposes it
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
@@ -102,7 +105,9 @@ Deliverables:
 
 Requirements:
 
-- UI must talk to a service layer, not directly to firmware tools`r`n- the service layer must also support remote calls from another system, not only the local browser UI
+- UI must talk to a service layer, not directly to firmware tools
+- the service layer must also support remote calls from another system, not only the local browser UI
+- the initial web UI may consume the Stage 2 query service directly until richer job-control APIs are added
 - UI must be able to inspect board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part help/man pages including datasheet, website, and API usage references
 
 ## Non-Goals For Initial Milestone
@@ -118,6 +123,3 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
-
-
-

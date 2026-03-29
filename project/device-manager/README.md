@@ -77,3 +77,20 @@ Examples:
 
 The JSON output is the stable machine-facing form. The PowerShell wrapper is only the local host entry point.
 
+
+## Service Access
+
+Use serve-device-manager.ps1 to expose the same shared query contract over HTTP for the future web UI and remote callers.
+
+Endpoints:
+
+- GET /health`r
+- GET /api/query?view=units`r
+- GET /api/query?view=families`r
+- GET /api/query?view=changes&limit=10`r
+
+Example:
+
+- ./serve-device-manager.ps1 -BindHost 127.0.0.1 -Port 8787`r
+
+

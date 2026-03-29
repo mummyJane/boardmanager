@@ -128,3 +128,8 @@
 
 - Start the query layer as a shared script that returns stable JSON, with the CLI as a wrapper. That keeps the first operator tooling lightweight while avoiding a second incompatible path for the future web UI and remote systems.
 - Treat human-readable text output as a convenience view only; JSON is the machine-facing contract.
+
+## 2026-03-29 17:13 Europe/London
+
+- Keep the query logic in a reusable library module and put both the CLI and HTTP service on top of it. That avoids divergence between operator tooling, the future web UI, and remote integrations.
+- Use a simple JSON-over-HTTP service first instead of prematurely introducing a larger framework. The service contract matters more than the transport stack at this stage.

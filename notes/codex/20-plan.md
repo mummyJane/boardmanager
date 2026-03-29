@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 17:01 Europe/London
+Last updated: 2026-03-29 17:13 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -48,7 +48,7 @@ Initial success criteria:
 - unit history preserves cumulative owner, location, and purpose changes for each stable unit id
 - discovery preserves known units that are missing from the latest scan and records their missing state
 - the unit and family model preserve transition summaries for first-seen, last-seen, last-present, and last-missing state changes
-- the model reserves a per-unit security binding for an AES key and an asymmetric keypair stored under `keys/``r`n- the first query layer is reusable by operators now and by the future web UI and remote systems later
+- the model reserves a per-unit security binding for an AES key and an asymmetric keypair stored under `keys/``r`n- the first query layer is reusable by operators now and by the future web UI and remote systems later`r`n- the first HTTP service endpoint exposes that same query contract for local and remote consumers
 
 ## Future Milestones
 
@@ -63,4 +63,5 @@ Initial success criteria:
 - scaffold dashboard app
 - add inventory and board definition views
 - wire to service APIs
+
 

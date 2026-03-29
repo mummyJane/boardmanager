@@ -780,3 +780,33 @@ Validation:
 - `query.ps1 -View families -Format json` -> success
 - `query.ps1 -View changes -Limit 6` -> success
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+
+## 2026-03-29 17:13 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/query-device-manager.mjs`
+- `Get-Content query.ps1`
+- `serve-device-manager.ps1 -Host 127.0.0.1 -Port 8787` via background process for validation
+- `Invoke-RestMethod http://127.0.0.1:8787/health`
+- `Invoke-RestMethod http://127.0.0.1:8787/api/query?view=units`
+- `Invoke-RestMethod http://127.0.0.1:8787/api/query?view=families`
+- `validate.ps1`
+
+Actions:
+
+- split the shared query logic into `device-manager-query-lib.mjs`
+- kept `query.ps1` as the local CLI wrapper over the shared query contract
+- added `project/scripts/device-manager-service.mjs` as the first HTTP service endpoint for local and remote consumers
+- added `serve-device-manager.ps1` as the top-level service wrapper
+- updated the spec and plan so the future web UI and remote systems both target the same JSON query service contract
+
+Validation:
+
+- local CLI queries still pass after the shared-library split
+- HTTP `GET /health` -> success
+- HTTP `GET /api/query?view=units` -> success
+- HTTP `GET /api/query?view=families` -> success
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
