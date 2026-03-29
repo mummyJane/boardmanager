@@ -74,14 +74,59 @@ function normalizeNotes(existingNotes, nextNote, clearNotes) {
   return Array.from(new Set(notes.map((entry) => String(entry).trim()).filter(Boolean)));
 }
 
+function uniqueSorted(values) {
+  return Array.from(new Set((values ?? []).filter(Boolean))).sort();
+}
+
+function normalizeMetadataHistory(entry) {
+  return {
+    owners: uniqueSorted(entry?.owners ?? []),
+    locations: uniqueSorted(entry?.locations ?? []),
+    purposes: uniqueSorted(entry?.purposes ?? []),
+    firstUpdatedAt: entry?.firstUpdatedAt ?? null,
+    lastUpdatedAt: entry?.lastUpdatedAt ?? null,
+    entries: Array.isArray(entry?.entries) ? entry.entries.filter(Boolean) : [],
+  };
+}
+
+function mergeMetadataHistory(existing, annotation, timestamp) {
+  const history = normalizeMetadataHistory(existing);
+  const hasValues = Boolean(annotation.owner || annotation.location || annotation.purpose);
+  const entry = hasValues
+    ? {
+        updatedAt: annotation.updatedAt ?? timestamp,
+        owner: annotation.owner ?? null,
+        location: annotation.location ?? null,
+        purpose: annotation.purpose ?? null,
+      }
+    : null;
+
+  const lastEntry = history.entries[history.entries.length - 1] ?? null;
+  const sameAsLast = entry
+    && lastEntry
+    && lastEntry.owner === entry.owner
+    && lastEntry.location === entry.location
+    && lastEntry.purpose === entry.purpose;
+
+  return {
+    owners: uniqueSorted([...(history.owners ?? []), annotation.owner]),
+    locations: uniqueSorted([...(history.locations ?? []), annotation.location]),
+    purposes: uniqueSorted([...(history.purposes ?? []), annotation.purpose]),
+    firstUpdatedAt: history.firstUpdatedAt ?? (entry?.updatedAt ?? null),
+    lastUpdatedAt: entry?.updatedAt ?? history.lastUpdatedAt ?? null,
+    entries: entry && !sameAsLast ? [...history.entries, entry] : history.entries,
+  };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.stableKey) {
     throw new Error("Missing required --unit <stableKey> argument.");
   }
 
-  const history = await readJsonOrDefault(historyPath, { units: [] });
-  const knownUnit = Array.isArray(history.units) ? history.units.find((unit) => unit.stableKey === args.stableKey) : null;
+  const history = await readJsonOrDefault(historyPath, { generatedAt: null, host: {}, units: [], families: [] });
+  const knownUnitIndex = Array.isArray(history.units) ? history.units.findIndex((unit) => unit.stableKey === args.stableKey) : -1;
+  const knownUnit = knownUnitIndex >= 0 ? history.units[knownUnitIndex] : null;
   if (!knownUnit) {
     throw new Error(`Stable unit '${args.stableKey}' is not present in unit-history.json.`);
   }
@@ -108,6 +153,15 @@ async function main() {
   annotations.updatedAt = timestamp;
   annotations.units = units.sort((left, right) => left.stableKey.localeCompare(right.stableKey));
   await writeFile(annotationsPath, `${JSON.stringify(annotations, null, 2)}\n`, "utf8");
+
+  const nextHistoryUnit = {
+    ...knownUnit,
+    annotation: next,
+    metadataHistory: mergeMetadataHistory(knownUnit.metadataHistory, next, timestamp),
+  };
+  history.units[knownUnitIndex] = nextHistoryUnit;
+  history.generatedAt = timestamp;
+  await writeFile(historyPath, `${JSON.stringify(history, null, 2)}\n`, "utf8");
 
   console.log(`Updated annotations for ${args.stableKey}`);
   if (next.label) console.log(`Label: ${next.label}`);

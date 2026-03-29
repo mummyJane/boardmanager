@@ -92,3 +92,7 @@
 ## 2026-03-29 15:52 Europe/London
 
 - Added a Stage 2 requirement for persisted per-unit firmware identity, not just a generic firmware signature. This change is needed because the bench now has multiple identical boards and the system must record which firmware app, version, build, and self-reported board id is actually running on each physical unit.
+## 2026-03-29 16:12 Europe/London
+
+- Added a Stage 2 requirement for cumulative owner, location, and purpose history per physical unit. This change is needed because bench-role metadata changes over time and should not overwrite the historical record.
+- Added a per-unit security binding requirement covering one AES key and one asymmetric keypair per physical unit, stored under `keys/` and linked to the stable unit id. This change is needed because identical boards must be distinguishable both operationally and cryptographically.

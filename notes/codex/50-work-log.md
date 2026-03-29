@@ -672,3 +672,28 @@ Validation:
 - `program.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit COM4` -> success; flashed CoreS3 + GNSS on MAC `48:27:e2:66:b0:04`
 - `discover.ps1` -> success; persisted firmware identity for `COM3`, `COM4`, and `COM5`
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+## 2026-03-29 16:12 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/set-unit-annotation.mjs`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/device-manager/schema/unit-history.schema.json`
+- `Get-Content project/device-manager/README.md`
+- `discover.ps1`
+- `validate.ps1`
+
+Actions:
+
+- extended the annotation update flow so ownership, location, and purpose are recorded into cumulative per-unit metadata history
+- extended discovery so future scans preserve and grow metadata history in `unit-history.json`
+- updated the unit-history schema and device-manager documentation for the metadata history layer
+- documented the planned per-unit security model under `keys/README.md`
+- added Stage 2 tasks for per-unit AES keys and asymmetric keypairs linked by stable unit identity
+
+Validation:
+
+- `discover.ps1` -> success; discovery still completed for the current four-unit bench after the metadata-history changes
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects

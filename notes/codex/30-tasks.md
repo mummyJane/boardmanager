@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 15:52 Europe/London
+Last updated: 2026-03-29 16:12 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -45,7 +45,7 @@ Last updated: 2026-03-29 15:52 Europe/London
 
 - [x] Add operator-assigned labels and notes per physical unit
 - [x] Track firmware version/build identity per unit across discovery runs
-- [ ] Track board ownership, location, and purpose metadata in the history layer
+- [x] Track board ownership, location, and purpose metadata in the history layer
 - [ ] Record unplugged or missing units without losing their history record
 - [ ] Add first-seen, last-seen, and last-missing transitions to the persisted family and unit model
 - [ ] Add a simple query CLI for listing units, families, and recent discovery changes
@@ -53,6 +53,8 @@ Last updated: 2026-03-29 15:52 Europe/London
 - [ ] Add exportable JSON reports for the current bench inventory and unit history
 - [ ] Normalize the history store into a simple SQLite database behind the same discovery model
 - [ ] Add schema validation for the new history and profile data files
+- [ ] Add per-unit key manifests linking each stable unit id to an AES key record and an asymmetric keypair record
+- [ ] Add key-generation and rotation tooling under keys/ for per-unit AES keys and asymmetric keypairs
 - [ ] Add a board-agent handshake path so firmware can self-identify board id, firmware version, and capabilities directly
 - [ ] Add stronger STM32-family fingerprinting beyond ST-LINK transport naming
 - [ ] Add USB hub or topology metadata when it can be observed reliably
@@ -63,5 +65,6 @@ Last updated: 2026-03-29 15:52 Europe/London
 - [ ] Add retention rules for historical observations so the local database stays manageable
 - [ ] Add basic service-layer APIs for querying inventory, history, and profiles
 - [ ] Add tests for discovery matching, history updates, and profile enrichment logic
+
 
 

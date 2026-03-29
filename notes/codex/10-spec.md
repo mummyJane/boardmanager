@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 15:52 Europe/London
+Last updated: 2026-03-29 16:12 Europe/London
 
 ## Goal
 
@@ -68,7 +68,7 @@ Requirements:
 - when a stable unit identity is not yet known, discovery must try to match the observation against previously seen board families before treating it as a genuinely new card type
 - if neither a known unit nor a known family matches, the system must start a draft profile for the new card family so later work can refine it
 - family profiles should be enriched from the Stage 1 board catalog with exact board metadata where known and likely board candidates where the family is still being resolved
-- the Stage 2 model must support operator-assigned labels, notes, and ownership-style metadata per physical unit, keyed by the stable unit identity
+- the Stage 2 model must support operator-assigned labels, notes, and ownership-style metadata per physical unit, keyed by the stable unit identity`n- the Stage 2 history layer must preserve cumulative owner, location, and purpose changes per physical unit rather than only the latest annotation snapshot`n- each physical unit must be able to reference a per-unit AES key and an asymmetric key pair, with secret material stored under `keys/` and linked back to the stable unit identity
 
 ### Stage 3: Build, Program, And Debug
 

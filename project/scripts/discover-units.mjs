@@ -121,6 +121,46 @@ function normalizeAnnotation(entry) {
   };
 }
 
+function normalizeMetadataHistory(entry) {
+  return {
+    owners: uniqueSorted(entry?.owners ?? []),
+    locations: uniqueSorted(entry?.locations ?? []),
+    purposes: uniqueSorted(entry?.purposes ?? []),
+    firstUpdatedAt: entry?.firstUpdatedAt ?? null,
+    lastUpdatedAt: entry?.lastUpdatedAt ?? null,
+    entries: Array.isArray(entry?.entries) ? entry.entries.filter(Boolean) : [],
+  };
+}
+
+function mergeMetadataHistory(existing, annotation, timestamp) {
+  const history = normalizeMetadataHistory(existing);
+  const hasValues = Boolean(annotation?.owner || annotation?.location || annotation?.purpose);
+  const entry = hasValues
+    ? {
+        updatedAt: annotation.updatedAt ?? timestamp,
+        owner: annotation.owner ?? null,
+        location: annotation.location ?? null,
+        purpose: annotation.purpose ?? null,
+      }
+    : null;
+
+  const lastEntry = history.entries[history.entries.length - 1] ?? null;
+  const sameAsLast = entry
+    && lastEntry
+    && lastEntry.owner === entry.owner
+    && lastEntry.location === entry.location
+    && lastEntry.purpose === entry.purpose;
+
+  return {
+    owners: uniqueSorted([...(history.owners ?? []), annotation?.owner]),
+    locations: uniqueSorted([...(history.locations ?? []), annotation?.location]),
+    purposes: uniqueSorted([...(history.purposes ?? []), annotation?.purpose]),
+    firstUpdatedAt: history.firstUpdatedAt ?? (entry?.updatedAt ?? null),
+    lastUpdatedAt: entry?.updatedAt ?? history.lastUpdatedAt ?? null,
+    entries: entry && !sameAsLast ? [...history.entries, entry] : history.entries,
+  };
+}
+
 async function readPorts() {
   const command = "Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,Description,PNPDeviceID | ConvertTo-Json -Depth 3";
   const { stdout } = await execFileAsync("powershell", ["-NoProfile", "-Command", command], {
@@ -656,6 +696,7 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     boardIds: uniqueSorted([...(existingUnit?.boardIds ?? []), unit.match.boardId]),
     identity: unit.identity,
     annotation: unit.annotation,
+    metadataHistory: mergeMetadataHistory(existingUnit?.metadataHistory, unit.annotation, timestamp),
     lastTransport: unit.transport,
     observed: mergeObservedHistory(existingUnit?.observed, unit),
   };
@@ -760,3 +801,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

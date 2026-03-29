@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 15:52 Europe/London
+Last updated: 2026-03-29 16:12 Europe/London
 
 ## Project Intent
 
@@ -83,3 +83,6 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
   - `COM4` / `mac:48:27:e2:66:b0:04` -> `m5stack_cores3_gnss_demo` version `0.1.0-dev` for `m5stack_cores3_gnss_v1`
   - `COM5` / `mac:c0:4e:30:12:b3:e0` -> `m5stack_dial_demo` version `0.1.0-dev` for `m5stack_dial_v1_1`
   - `COM6` still has no firmware self-report path through the current STLink VCP probe
+- unit history now preserves cumulative owner/location/purpose metadata history in addition to the latest annotation snapshot
+- keys/README.md now records the planned per-unit security model: one AES key and one asymmetric keypair per physical unit, linked by stable unit id
+

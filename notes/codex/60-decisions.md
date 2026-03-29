@@ -109,3 +109,7 @@
 - Prefer a machine-readable firmware boot line over heuristic banner matching when the firmware exposes one.
 - Standardize the firmware identity line as `BoardManagerFirmware: app=<app> version=<version> build=<build-id> board=<board-id>`.
 - Persist firmware app id, version, build id, and self-reported board id in both the latest inventory snapshot and cumulative unit history so physical identity and firmware state can be tracked independently.
+## 2026-03-29 16:12 Europe/London
+
+- Treat owner, location, and purpose as historical unit metadata, not just mutable current annotations. The latest annotation remains useful for operator workflows, but the history layer must preserve previous bench assignments.
+- Reserve the `keys/` folder for per-unit secret material and link future key records to the stable unit identity rather than board model alone, because identical boards must still have different keys.

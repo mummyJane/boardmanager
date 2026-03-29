@@ -13,6 +13,7 @@ This folder now contains the first Milestone 2 discovery slice.
 - recognize when a newly seen physical unit belongs to a previously seen board family
 - start a draft profile for genuinely new board families
 - allow operator-assigned labels and notes per physical unit
+- track ownership, location, and purpose changes in the unit history layer
 - persist the current discovery snapshot in simple local data files
 
 ## Current Files
@@ -51,6 +52,8 @@ When a unit is discovered, the manager should classify it in this order:
 
 This lets discovery distinguish between "the same board again", "another board of a known type", and "something genuinely new on the bench".
 
+The unit history also preserves cumulative metadata history for operator-assigned owner, location, and purpose values so bench-role changes can be tracked over time.
+
 ## Operator Labels
 
 Use `annotate-unit.ps1` to attach operator-facing metadata to a stable unit id.
@@ -59,4 +62,4 @@ Example:
 
 `./annotate-unit.ps1 -Unit "mac:c0:4e:30:13:2b:68" -Label "Dial Left" -Location "Bench A" -Purpose "UI test unit" -Note "Keep on smoke-test firmware"`
 
-That annotation is merged into both the latest inventory and the cumulative unit history on the next discovery run.
+That annotation is merged into both the latest inventory and the cumulative unit history on the next discovery run. Ownership, location, and purpose values are also appended into the unit metadata history immediately when the annotation command runs.

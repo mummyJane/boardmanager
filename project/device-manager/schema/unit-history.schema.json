@@ -29,6 +29,28 @@
           "boardIds": { "type": "array", "items": { "type": "string" } },
           "identity": { "type": "object" },
           "annotation": { "type": "object" },
+          "metadataHistory": {
+            "type": "object",
+            "properties": {
+              "owners": { "type": "array", "items": { "type": "string" } },
+              "locations": { "type": "array", "items": { "type": "string" } },
+              "purposes": { "type": "array", "items": { "type": "string" } },
+              "firstUpdatedAt": { "type": ["string", "null"] },
+              "lastUpdatedAt": { "type": ["string", "null"] },
+              "entries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "updatedAt": { "type": "string" },
+                    "owner": { "type": ["string", "null"] },
+                    "location": { "type": ["string", "null"] },
+                    "purpose": { "type": ["string", "null"] }
+                  }
+                }
+              }
+            }
+          },
           "lastTransport": { "type": "object" },
           "observed": { "type": "object" }
         }

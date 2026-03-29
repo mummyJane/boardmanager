@@ -6,6 +6,7 @@ coverage/
 *.code-workspace
 keys/*
 !keys/.gitkeep
+!keys/README.md
 .history/
 project/tools/
 project/toolchains/
@@ -13,3 +14,4 @@ project/downloads/
 project/build/
 project/apps/*/sdkconfig
 project/apps/*/sdkconfig.old
+
