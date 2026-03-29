@@ -113,3 +113,8 @@
 
 - Treat owner, location, and purpose as historical unit metadata, not just mutable current annotations. The latest annotation remains useful for operator workflows, but the history layer must preserve previous bench assignments.
 - Reserve the `keys/` folder for per-unit secret material and link future key records to the stable unit identity rather than board model alone, because identical boards must still have different keys.
+
+## 2026-03-29 16:26 Europe/London
+
+- Keep missing units in cumulative history instead of deleting them when they are not present on the latest scan. Operator workflows need durable per-unit records even when hardware is temporarily unplugged.
+- Model missing state as a unit-level concern first with `present`, `lastPresentAt`, `lastMissingAt`, and `missingCount`; family-level transition summaries can be added separately.

@@ -697,3 +697,26 @@ Validation:
 
 - `discover.ps1` -> success; discovery still completed for the current four-unit bench after the metadata-history changes
 - `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+
+## 2026-03-29 16:26 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/device-manager/data/unit-history.json`
+- `discover.ps1`
+- `validate.ps1`
+
+Actions:
+
+- extended discovery history so previously seen units remain in `unit-history.json` even when they are absent from the latest scan
+- added per-unit missing-state fields: `present`, `lastPresentAt`, `lastMissingAt`, and `missingCount`
+- added a controlled discovery ignore-port hook through `BOARD_MANAGER_DISCOVERY_IGNORE_PORTS` so missing-unit behavior can be validated without physically unplugging hardware
+- updated the Stage 2 spec, plan, task tracker, context, and device-manager docs for missing-unit handling
+
+Validation:
+
+- `discover.ps1` -> success with all four attached units present
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects

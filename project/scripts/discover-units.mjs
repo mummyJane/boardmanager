@@ -18,6 +18,12 @@ const annotationsPath = path.join(deviceManagerRoot, "data", "unit-annotations.j
 const profilesRoot = path.join(deviceManagerRoot, "profiles");
 const espPython = path.join(projectRoot, "tools", "espressif", "python_env", "idf5.5_py3.13_env", "Scripts", "python.exe");
 const esptoolPy = path.join(projectRoot, "toolchains", "esp-idf", "esp-idf", "components", "esptool_py", "esptool", "esptool.py");
+const ignoredPorts = new Set(
+  String(process.env.BOARD_MANAGER_DISCOVERY_IGNORE_PORTS ?? "")
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+);
 
 function parseVidPid(pnpDeviceId) {
   const match = String(pnpDeviceId ?? "").match(/VID_([0-9A-F]{4})&PID_([0-9A-F]{4})/i);
@@ -170,7 +176,8 @@ async function readPorts() {
   });
 
   const parsed = JSON.parse(stdout || "[]");
-  return Array.isArray(parsed) ? parsed : [parsed];
+  const ports = Array.isArray(parsed) ? parsed : [parsed];
+  return ports.filter((port) => !ignoredPorts.has(String(port?.DeviceID ?? "").trim()));
 }
 
 async function readJsonOrDefault(filePath, fallback) {
@@ -690,6 +697,10 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
     stableKey: unit.identity.stableKey,
     firstSeenAt: existingUnit?.firstSeenAt ?? timestamp,
     lastSeenAt: timestamp,
+    lastPresentAt: timestamp,
+    lastMissingAt: existingUnit?.lastMissingAt ?? null,
+    present: true,
+    missingCount: existingUnit?.missingCount ?? 0,
     seenCount: (existingUnit?.seenCount ?? 0) + 1,
     familyKey: familyFingerprint.familyKey,
     profileId: familyFingerprint.profileId,
@@ -744,6 +755,18 @@ async function updateHistory(state, unit, familyFingerprint, timestamp, boardCat
   };
 }
 
+function markMissingUnits(state, observedStableKeys, timestamp) {
+  const units = Array.isArray(state.units) ? state.units : [];
+  for (const unit of units) {
+    if (observedStableKeys.has(unit.stableKey)) continue;
+    const wasPresent = unit.present !== false;
+    unit.present = false;
+    unit.lastMissingAt = wasPresent ? timestamp : (unit.lastMissingAt ?? timestamp);
+    unit.lastPresentAt = unit.lastPresentAt ?? unit.lastSeenAt ?? null;
+    unit.missingCount = (unit.missingCount ?? 0) + (wasPresent ? 1 : 0);
+  }
+}
+
 async function main() {
   const ports = await readPorts();
   const boardCatalog = await loadBoardCatalog(projectRoot);
@@ -757,15 +780,19 @@ async function main() {
   });
 
   const units = [];
+  const observedStableKeys = new Set();
   const timestamp = new Date().toISOString();
 
   for (const portInfo of ports) {
     const unitIndex = buildIdentityIndex(historyState.units ?? []);
     const familyIndex = buildFamilyIndex(historyState.families ?? []);
     const { unit, familyFingerprint } = await observePort(portInfo, unitIndex, familyIndex, annotationIndex);
+    observedStableKeys.add(unit.identity.stableKey);
     await updateHistory(historyState, unit, familyFingerprint, timestamp, boardCatalog);
     units.push(unit);
   }
+
+  markMissingUnits(historyState, observedStableKeys, timestamp);
 
   units.sort((left, right) => String(left.transport.port).localeCompare(String(right.transport.port)));
 
@@ -801,4 +828,5 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
 

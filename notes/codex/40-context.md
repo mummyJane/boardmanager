@@ -1,6 +1,6 @@
 # Context
 
-Last updated: 2026-03-29 16:12 Europe/London
+Last updated: 2026-03-29 16:26 Europe/London
 
 ## Project Intent
 
@@ -85,4 +85,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
   - `COM6` still has no firmware self-report path through the current STLink VCP probe
 - unit history now preserves cumulative owner/location/purpose metadata history in addition to the latest annotation snapshot
 - keys/README.md now records the planned per-unit security model: one AES key and one asymmetric keypair per physical unit, linked by stable unit id
+
+
+- unit history now keeps previously known units even when they are absent from the latest discovery run, using present, lastPresentAt, lastMissingAt, and missingCount fields
+- discovery can ignore named COM ports via BOARD_MANAGER_DISCOVERY_IGNORE_PORTS for controlled missing-unit validation runs without changing bench wiring
 

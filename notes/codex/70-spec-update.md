@@ -96,3 +96,7 @@
 
 - Added a Stage 2 requirement for cumulative owner, location, and purpose history per physical unit. This change is needed because bench-role metadata changes over time and should not overwrite the historical record.
 - Added a per-unit security binding requirement covering one AES key and one asymmetric keypair per physical unit, stored under `keys/` and linked to the stable unit id. This change is needed because identical boards must be distinguishable both operationally and cryptographically.
+
+## 2026-03-29 16:26 Europe/London
+
+- Added a Stage 2 requirement that unplugged or currently missing units remain in history with explicit missing-state tracking. This change is needed because the bench inventory should retain continuity for physical units even when they are temporarily disconnected.
