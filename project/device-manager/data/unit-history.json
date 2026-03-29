@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T18:14:53.908Z",
+  "generatedAt": "2026-03-29T18:33:46.759Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -8,12 +8,12 @@
     {
       "stableKey": "mac:48:27:e2:66:b0:04",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 27,
+      "seenCount": 28,
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -51,11 +51,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null
@@ -102,8 +102,14 @@
         "usbManufacturers": [
           "Microsoft"
         ],
+        "usbProductNames": [
+          "USB Serial Device (COM4)"
+        ],
         "usbServices": [
           "usbser"
+        ],
+        "usbRevisions": [
+          "0101"
         ],
         "usbContainerIds": [
           "{116bb454-e963-5409-9406-30549791eacc}"
@@ -116,6 +122,12 @@
         ],
         "usbBaseSerialNumbers": [
           "7&2d2626df&0&0000"
+        ],
+        "usbParentIdPrefixes": [],
+        "usbEnumeratorNames": [],
+        "usbClassNames": [],
+        "usbDrivers": [
+          "{4d36e978-e325-11ce-bfc1-08002be10318}\\0001"
         ],
         "usbTopologyPaths": [
           "0000.0014.0000.005.003.000.000.000.000",
@@ -134,12 +146,12 @@
     {
       "stableKey": "mac:c0:4e:30:12:b3:e0",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 27,
+      "seenCount": 28,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -177,11 +189,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null
@@ -228,8 +240,14 @@
         "usbManufacturers": [
           "Microsoft"
         ],
+        "usbProductNames": [
+          "USB Serial Device (COM5)"
+        ],
         "usbServices": [
           "usbser"
+        ],
+        "usbRevisions": [
+          "0101"
         ],
         "usbContainerIds": [
           "{4e9caef0-0f32-5b9a-b1f5-75ca74184f85}"
@@ -242,6 +260,12 @@
         ],
         "usbBaseSerialNumbers": [
           "7&39b40148&0&0000"
+        ],
+        "usbParentIdPrefixes": [],
+        "usbEnumeratorNames": [],
+        "usbClassNames": [],
+        "usbDrivers": [
+          "{4d36e978-e325-11ce-bfc1-08002be10318}\\0002"
         ],
         "usbTopologyPaths": [
           "0000.0014.0000.005.002.000.000.000.000",
@@ -260,12 +284,12 @@
     {
       "stableKey": "mac:c0:4e:30:13:2b:68",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 27,
+      "seenCount": 28,
       "familyKey": "board:m5stack_dial_v1_1",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -303,11 +327,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null
@@ -354,8 +378,14 @@
         "usbManufacturers": [
           "Microsoft"
         ],
+        "usbProductNames": [
+          "USB Serial Device (COM3)"
+        ],
         "usbServices": [
           "usbser"
+        ],
+        "usbRevisions": [
+          "0101"
         ],
         "usbContainerIds": [
           "{1ac53e2e-95f0-5664-996c-e3d96d8d3e9d}"
@@ -368,6 +398,12 @@
         ],
         "usbBaseSerialNumbers": [
           "7&203f6002&0&0000"
+        ],
+        "usbParentIdPrefixes": [],
+        "usbEnumeratorNames": [],
+        "usbClassNames": [],
+        "usbDrivers": [
+          "{4d36e978-e325-11ce-bfc1-08002be10318}\\0000"
         ],
         "usbTopologyPaths": [
           "0000.0014.0000.005.001.000.000.000.000",
@@ -386,12 +422,12 @@
     {
       "stableKey": "mac:c8:2e:18:f0:47:74",
       "firstSeenAt": "2026-03-29T18:00:14.234Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "missingCount": 0,
-      "seenCount": 3,
+      "seenCount": 4,
       "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
       "profileId": "unknown_10c4_ea60_esp32",
       "boardIds": [],
@@ -427,11 +463,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null
@@ -460,8 +496,14 @@
         "usbManufacturers": [
           "Silicon Labs"
         ],
+        "usbProductNames": [
+          "Silicon Labs CP210x USB to UART Bridge (COM7)"
+        ],
         "usbServices": [
           "silabser"
+        ],
+        "usbRevisions": [
+          "0100"
         ],
         "usbContainerIds": [
           "{34c052a1-08b6-5809-881e-95820d434537}"
@@ -475,6 +517,12 @@
         "usbBaseSerialNumbers": [
           "0001"
         ],
+        "usbParentIdPrefixes": [],
+        "usbEnumeratorNames": [],
+        "usbClassNames": [],
+        "usbDrivers": [
+          "{4d36e978-e325-11ce-bfc1-08002be10318}\\0004"
+        ],
         "usbTopologyPaths": [
           "hub-8/port-3"
         ],
@@ -485,19 +533,20 @@
         "rawSignatureLines": [
           "0;32mI (106) boot:  5 ota_1       �ets Jul 29 2019 12:21:46",
           "OTA app          00 11 002800�ets Jul 29 2019 12:21:46",
-          "a_1            OTA ap�ets Jul 29 2019 12:21:46"
+          "a_1            OTA ap�ets Jul 29 2019 12:21:46",
+          "unknown          40 00 00020000 000e00�ets Jul 29 2019 12:21:46"
         ]
       }
     },
     {
       "stableKey": "usb:USB\\VID_0483&PID_374B&MI_02\\8&2379FC3D&0&0002",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": "2026-03-29T16:14:34.394Z",
       "present": true,
       "missingCount": 3,
-      "seenCount": 24,
+      "seenCount": 25,
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -535,11 +584,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": {
@@ -569,8 +618,14 @@
         "usbManufacturers": [
           "STMicroelectronics"
         ],
+        "usbProductNames": [
+          "STMicroelectronics STLink Virtual COM Port (COM6)"
+        ],
         "usbServices": [
           "usbser"
+        ],
+        "usbRevisions": [
+          "0100"
         ],
         "usbContainerIds": [
           "{d8ef23b1-2aa2-5488-9ed4-3d8f515ca2fb}"
@@ -583,6 +638,12 @@
         ],
         "usbBaseSerialNumbers": [
           "8&2379fc3d&0&0002"
+        ],
+        "usbParentIdPrefixes": [],
+        "usbEnumeratorNames": [],
+        "usbClassNames": [],
+        "usbDrivers": [
+          "{4d36e978-e325-11ce-bfc1-08002be10318}\\0003"
         ],
         "usbTopologyPaths": [
           "0000.0014.0000.005.004.002.000.000.000",
@@ -698,13 +759,13 @@
     {
       "familyKey": "board:m5stack_cores3_gnss_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 27,
+      "seenCount": 28,
       "status": "known-board",
       "profileId": "board_m5stack_cores3_gnss_v1",
       "boardIds": [
@@ -719,11 +780,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null
@@ -763,13 +824,13 @@
     {
       "familyKey": "board:m5stack_dial_v1_1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 2,
       "missingUnitCount": 0,
-      "seenCount": 54,
+      "seenCount": 56,
       "status": "known-board",
       "profileId": "board_m5stack_dial_v1_1",
       "boardIds": [
@@ -785,11 +846,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null
@@ -824,13 +885,13 @@
     {
       "familyKey": "board:p_nucleo_usb001_f072rb_v1",
       "firstSeenAt": "2026-03-29T13:41:50.532Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": "2026-03-29T16:14:34.394Z",
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 24,
+      "seenCount": 25,
       "status": "known-board",
       "profileId": "board_p_nucleo_usb001_f072rb_v1",
       "boardIds": [
@@ -845,11 +906,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": {
@@ -879,13 +940,13 @@
     {
       "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
       "firstSeenAt": "2026-03-29T18:00:14.234Z",
-      "lastSeenAt": "2026-03-29T18:14:53.908Z",
-      "lastPresentAt": "2026-03-29T18:14:53.908Z",
+      "lastSeenAt": "2026-03-29T18:33:46.759Z",
+      "lastPresentAt": "2026-03-29T18:33:46.759Z",
       "lastMissingAt": null,
       "present": true,
       "presentUnitCount": 1,
       "missingUnitCount": 0,
-      "seenCount": 3,
+      "seenCount": 4,
       "status": "emerging",
       "profileId": "unknown_10c4_ea60_esp32",
       "boardIds": [],
@@ -898,11 +959,11 @@
           "state": "discovered"
         },
         "lastSeen": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "observed"
         },
         "lastPresent": {
-          "at": "2026-03-29T18:14:53.908Z",
+          "at": "2026-03-29T18:33:46.759Z",
           "state": "present"
         },
         "lastMissing": null

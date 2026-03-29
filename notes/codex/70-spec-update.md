@@ -129,3 +129,5 @@
 - 2026-03-29 19:30 Europe/London: Stage 2 spec updated to allow non-destructive probing of known USB-to-UART bridges for MCU identity and boot banners. Reason: the newly attached COM7 board would otherwise remain a generic CP210x bridge, but safe probing exposed that it is an ESP32/WROOM-32-class board with a stable MAC and useful boot metadata.
 
 - 2026-03-29 19:45 Europe/London: Stage 2 spec updated to require host-observed USB topology summaries when Windows exposes stable location information. Reason: the project now has multiple live units on the same bench, and later UI or operator workflows benefit from knowing where a unit is connected without relying only on COM-port names.
+
+- 2026-03-29 20:05 Europe/London: Stage 2 spec updated to require promotion of richer USB descriptor fields such as product name, revision, driver path, and related hardware identifiers when the host exposes them. Reason: multiple attached units now share transport classes, and later matching or UI flows benefit from stable descriptor evidence beyond bare VID/PID and COM-port names.

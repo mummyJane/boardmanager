@@ -103,6 +103,28 @@ function parseUsbTopology(locationInformation) {
   };
 }
 
+function pickUsbProductName(...values) {
+  for (const value of values) {
+    const parsed = parseRegistryLabel(value);
+    if (parsed) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
+function parseUsbRevision(hardwareIds) {
+  for (const value of normalizeStringList(hardwareIds)) {
+    const match = value.match(/REV_([0-9A-F]{4})/i);
+    if (match) {
+      return match[1].toUpperCase();
+    }
+  }
+
+  return null;
+}
+
 function parseFirmwareIdentity(rawLine) {
   const text = String(rawLine ?? "");
   const match = text.match(/BoardManagerFirmware:\s+app=(\S+)\s+version=(\S+)\s+build=(.+?)\s+board=(\S+)$/);
@@ -271,7 +293,9 @@ function summarizeRunUnit(unit) {
     firmwareBoard: unit.observed.firmwareBoard ?? null,
     agentCapabilities: unit.observed.agentCapabilities ?? [],
     usbManufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+    usbProductName: unit.observed.usbDescriptor?.productName ?? null,
     usbService: unit.observed.usbDescriptor?.service ?? null,
+    usbRevision: unit.observed.usbDescriptor?.revision ?? null,
     usbBaseSerialNumber: unit.observed.usbDescriptor?.baseSerialNumber ?? null,
     usbTopologyPath: unit.observed.usbDescriptor?.topology?.path ?? null,
     agentLine: unit.observed.agentLine ?? null,
@@ -354,6 +378,12 @@ async function readUsbRegistryDescriptor(pnpDeviceId) {
     '        deviceDesc = $item.DeviceDesc',
     '        manufacturer = $item.Mfg',
     '        service = $item.Service',
+    '        busReportedDeviceDesc = $item.BusReportedDeviceDesc',
+    '        parentIdPrefix = $item.ParentIdPrefix',
+    '        enumeratorName = $item.EnumeratorName',
+    '        className = $item.Class',
+    '        classGuid = $item.ClassGuid',
+    '        driver = $item.Driver',
     '        locationInformation = $item.LocationInformation',
     '        hardwareIds = @($item.HardwareID)',
     '        compatibleIds = @($item.CompatibleIDs)',
@@ -367,6 +397,12 @@ async function readUsbRegistryDescriptor(pnpDeviceId) {
     '  deviceDesc = $current.DeviceDesc',
     '  manufacturer = $current.Mfg',
     '  service = $current.Service',
+    '  busReportedDeviceDesc = $current.BusReportedDeviceDesc',
+    '  parentIdPrefix = $current.ParentIdPrefix',
+    '  enumeratorName = $current.EnumeratorName',
+    '  className = $current.Class',
+    '  classGuid = $current.ClassGuid',
+    '  driver = $current.Driver',
     '  locationInformation = $current.LocationInformation',
     '  containerId = $current.ContainerID',
     '  hardwareIds = @($current.HardwareID)',
@@ -395,6 +431,12 @@ async function readUsbRegistryDescriptor(pnpDeviceId) {
       deviceDescription: parseRegistryLabel(entry.deviceDesc),
       manufacturer: parseRegistryLabel(entry.manufacturer),
       service: entry.service ?? null,
+      productName: pickUsbProductName(entry.busReportedDeviceDesc, entry.friendlyName, entry.deviceDesc),
+      parentIdPrefix: entry.parentIdPrefix ?? null,
+      enumeratorName: entry.enumeratorName ?? null,
+      className: entry.className ?? null,
+      classGuid: entry.classGuid ?? null,
+      driver: entry.driver ?? null,
       locationInformation: entry.locationInformation ?? null,
       topology: parseUsbTopology(entry.locationInformation),
       hardwareIds: normalizeStringList(entry.hardwareIds),
@@ -407,6 +449,13 @@ async function readUsbRegistryDescriptor(pnpDeviceId) {
       deviceDescription: parseRegistryLabel(parsed.deviceDesc),
       manufacturer: parseRegistryLabel(parsed.manufacturer),
       service: parsed.service ?? null,
+      productName: pickUsbProductName(parsed.busReportedDeviceDesc, parsed.friendlyName, parsed.deviceDesc),
+      parentIdPrefix: parsed.parentIdPrefix ?? null,
+      enumeratorName: parsed.enumeratorName ?? null,
+      className: parsed.className ?? null,
+      classGuid: parsed.classGuid ?? null,
+      driver: parsed.driver ?? null,
+      revision: parseUsbRevision(parsed.hardwareIds),
       locationInformation: parsed.locationInformation ?? null,
       topology: parseUsbTopology(parsed.locationInformation),
       containerId: parsed.containerId ?? null,
@@ -725,7 +774,9 @@ function deriveFamilyFingerprint(unit) {
       firmwareSignature: unit.observed.firmwareSignature ?? null,
       capabilities: unit.observed.agentCapabilities ?? [],
       manufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+      productName: unit.observed.usbDescriptor?.productName ?? null,
       service: unit.observed.usbDescriptor?.service ?? null,
+      revision: unit.observed.usbDescriptor?.revision ?? null,
       containerId: unit.observed.usbDescriptor?.containerId ?? null,
       locationInformation: unit.observed.usbDescriptor?.locationInformation ?? null,
       baseUsbIdentity: unit.observed.usbDescriptor?.basePnpDeviceId ?? null,
@@ -749,7 +800,9 @@ function deriveFamilyFingerprint(unit) {
       firmwareSignature: unit.observed.firmwareSignature ?? null,
       capabilities: unit.observed.agentCapabilities ?? [],
       manufacturer: unit.observed.usbDescriptor?.manufacturer ?? null,
+      productName: unit.observed.usbDescriptor?.productName ?? null,
       service: unit.observed.usbDescriptor?.service ?? null,
+      revision: unit.observed.usbDescriptor?.revision ?? null,
       containerId: unit.observed.usbDescriptor?.containerId ?? null,
       locationInformation: unit.observed.usbDescriptor?.locationInformation ?? null,
       baseUsbIdentity: unit.observed.usbDescriptor?.basePnpDeviceId ?? null,
@@ -957,11 +1010,17 @@ function mergeObservedHistory(existing, unit) {
     agentLines: uniqueSorted([...(existing?.agentLines ?? []), unit.observed.agentLine]),
     agentCapabilitySets: uniqueSorted([...(existing?.agentCapabilitySets ?? []), (unit.observed.agentCapabilities ?? []).join(",")]),
     usbManufacturers: uniqueSorted([...(existing?.usbManufacturers ?? []), unit.observed.usbDescriptor?.manufacturer]),
+    usbProductNames: uniqueSorted([...(existing?.usbProductNames ?? []), unit.observed.usbDescriptor?.productName]),
     usbServices: uniqueSorted([...(existing?.usbServices ?? []), unit.observed.usbDescriptor?.service, ...(unit.observed.usbDescriptor?.relatedServices ?? [])]),
+    usbRevisions: uniqueSorted([...(existing?.usbRevisions ?? []), unit.observed.usbDescriptor?.revision]),
     usbContainerIds: uniqueSorted([...(existing?.usbContainerIds ?? []), unit.observed.usbDescriptor?.containerId]),
     usbLocationInformation: uniqueSorted([...(existing?.usbLocationInformation ?? []), unit.observed.usbDescriptor?.locationInformation]),
     usbBaseIdentities: uniqueSorted([...(existing?.usbBaseIdentities ?? []), unit.observed.usbDescriptor?.basePnpDeviceId]),
     usbBaseSerialNumbers: uniqueSorted([...(existing?.usbBaseSerialNumbers ?? []), unit.observed.usbDescriptor?.baseSerialNumber]),
+    usbParentIdPrefixes: uniqueSorted([...(existing?.usbParentIdPrefixes ?? []), unit.observed.usbDescriptor?.parentIdPrefix]),
+    usbEnumeratorNames: uniqueSorted([...(existing?.usbEnumeratorNames ?? []), unit.observed.usbDescriptor?.enumeratorName]),
+    usbClassNames: uniqueSorted([...(existing?.usbClassNames ?? []), unit.observed.usbDescriptor?.className]),
+    usbDrivers: uniqueSorted([...(existing?.usbDrivers ?? []), unit.observed.usbDescriptor?.driver]),
     usbTopologyPaths: uniqueSorted([...(existing?.usbTopologyPaths ?? []), unit.observed.usbDescriptor?.topology?.path]),
     usbTopologyKinds: uniqueSorted([...(existing?.usbTopologyKinds ?? []), unit.observed.usbDescriptor?.topology?.kind]),
     usbFunctionNames: uniqueSorted([...(existing?.usbFunctionNames ?? []), ...(unit.observed.usbDescriptor?.relatedFunctionNames ?? [])]),

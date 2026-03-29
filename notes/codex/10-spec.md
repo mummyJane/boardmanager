@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 19:45 Europe/London
+Last updated: 2026-03-29 20:05 Europe/London
 
 ## Goal
 
@@ -93,6 +93,7 @@ Requirements:
 - discovery should probe known USB-to-UART bridge families for non-destructive MCU identity where possible so unresolved ESP-class boards can be promoted from generic bridge records to chip-aware draft profiles
 - discovery should preserve boot ROM, bootloader, and module-identification banners for unresolved units when those can be observed safely over the target serial link
 - discovery should preserve host-observed USB topology summaries when Windows exposes stable port or path information, so later UI and operator tooling can distinguish where a unit is physically connected
+- discovery should promote richer USB descriptor fields such as product name, revision, driver path, and related hardware identifiers when the host exposes them, so board matching and operator workflows can use more than VID/PID alone
 
 ### Stage 3: Build, Program, And Debug
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-29T18:14:53.908Z",
+  "generatedAt": "2026-03-29T18:33:46.759Z",
   "host": {
     "platform": "windows",
     "hostname": "MSI"
@@ -52,6 +52,13 @@
           "deviceDescription": "USB Serial Device",
           "manufacturer": "Microsoft",
           "service": "usbser",
+          "productName": "USB Serial Device (COM3)",
+          "parentIdPrefix": null,
+          "enumeratorName": null,
+          "className": null,
+          "classGuid": "{4d36e978-e325-11ce-bfc1-08002be10318}",
+          "driver": "{4d36e978-e325-11ce-bfc1-08002be10318}\\0000",
+          "revision": "0101",
           "locationInformation": "0000.0014.0000.005.001.000.000.000.000",
           "topology": {
             "kind": "path-segments",
@@ -118,8 +125,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:14:53.908Z",
-        "seenCount": 27,
+        "lastSeenAt": "2026-03-29T18:33:46.759Z",
+        "seenCount": 28,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -175,6 +182,13 @@
           "deviceDescription": "USB Serial Device",
           "manufacturer": "Microsoft",
           "service": "usbser",
+          "productName": "USB Serial Device (COM4)",
+          "parentIdPrefix": null,
+          "enumeratorName": null,
+          "className": null,
+          "classGuid": "{4d36e978-e325-11ce-bfc1-08002be10318}",
+          "driver": "{4d36e978-e325-11ce-bfc1-08002be10318}\\0001",
+          "revision": "0101",
           "locationInformation": "0000.0014.0000.005.003.000.000.000.000",
           "topology": {
             "kind": "path-segments",
@@ -241,8 +255,8 @@
         "familyKey": "board:m5stack_cores3_gnss_v1",
         "profileId": "board_m5stack_cores3_gnss_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:14:53.908Z",
-        "seenCount": 27,
+        "lastSeenAt": "2026-03-29T18:33:46.759Z",
+        "seenCount": 28,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -293,6 +307,13 @@
           "deviceDescription": "USB Serial Device",
           "manufacturer": "Microsoft",
           "service": "usbser",
+          "productName": "USB Serial Device (COM5)",
+          "parentIdPrefix": null,
+          "enumeratorName": null,
+          "className": null,
+          "classGuid": "{4d36e978-e325-11ce-bfc1-08002be10318}",
+          "driver": "{4d36e978-e325-11ce-bfc1-08002be10318}\\0002",
+          "revision": "0101",
           "locationInformation": "0000.0014.0000.005.002.000.000.000.000",
           "topology": {
             "kind": "path-segments",
@@ -359,8 +380,8 @@
         "familyKey": "board:m5stack_dial_v1_1",
         "profileId": "board_m5stack_dial_v1_1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:14:53.908Z",
-        "seenCount": 27,
+        "lastSeenAt": "2026-03-29T18:33:46.759Z",
+        "seenCount": 28,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -403,6 +424,13 @@
           "deviceDescription": "STMicroelectronics STLink Virtual COM Port",
           "manufacturer": "STMicroelectronics",
           "service": "usbser",
+          "productName": "STMicroelectronics STLink Virtual COM Port (COM6)",
+          "parentIdPrefix": null,
+          "enumeratorName": null,
+          "className": null,
+          "classGuid": "{4d36e978-e325-11ce-bfc1-08002be10318}",
+          "driver": "{4d36e978-e325-11ce-bfc1-08002be10318}\\0003",
+          "revision": "0100",
           "locationInformation": "0000.0014.0000.005.004.002.000.000.000",
           "topology": {
             "kind": "path-segments",
@@ -469,8 +497,8 @@
         "familyKey": "board:p_nucleo_usb001_f072rb_v1",
         "profileId": "board_p_nucleo_usb001_f072rb_v1",
         "firstSeenAt": "2026-03-29T13:41:50.532Z",
-        "lastSeenAt": "2026-03-29T18:14:53.908Z",
-        "seenCount": 24,
+        "lastSeenAt": "2026-03-29T18:33:46.759Z",
+        "seenCount": 25,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     },
@@ -500,7 +528,7 @@
         "mac": "c8:2e:18:f0:47:74",
         "serialNumber": "0001",
         "firmwareSignature": null,
-        "rawSignatureLine": "a_1            OTA ap�ets Jul 29 2019 12:21:46",
+        "rawSignatureLine": "unknown          40 00 00020000 000e00�ets Jul 29 2019 12:21:46",
         "firmwareLine": null,
         "agentLine": null,
         "firmwareApp": null,
@@ -513,6 +541,13 @@
           "deviceDescription": "Silicon Labs CP210x USB to UART Bridge",
           "manufacturer": "Silicon Labs",
           "service": "silabser",
+          "productName": "Silicon Labs CP210x USB to UART Bridge (COM7)",
+          "parentIdPrefix": null,
+          "enumeratorName": null,
+          "className": null,
+          "classGuid": "{4d36e978-e325-11ce-bfc1-08002be10318}",
+          "driver": "{4d36e978-e325-11ce-bfc1-08002be10318}\\0004",
+          "revision": "0100",
           "locationInformation": "Port_#0003.Hub_#0008",
           "topology": {
             "kind": "hub-port",
@@ -560,8 +595,8 @@
         "familyKey": "unknown:vidpid:10C4:EA60|chip:esp32|desc:silicon_labs_cp210x_usb_to_uart_bridge",
         "profileId": "unknown_10c4_ea60_esp32",
         "firstSeenAt": "2026-03-29T18:00:14.234Z",
-        "lastSeenAt": "2026-03-29T18:14:53.908Z",
-        "seenCount": 3,
+        "lastSeenAt": "2026-03-29T18:33:46.759Z",
+        "seenCount": 4,
         "reason": "Stable identity matches a previously seen physical unit"
       }
     }

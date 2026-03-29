@@ -965,3 +965,32 @@ Validation:
 - `discover.ps1` -> success; persisted refreshed inventory, history, discovery runs, and SQLite with topology summaries for the five present units
 - `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 5 profile files
 - `query.ps1 -View units -Format json` -> success; current topology summaries show `COM3 -> 0014/005/001/000/000/000/000`, `COM4 -> 0014/005/003/000/000/000/000`, `COM5 -> 0014/005/002/000/000/000/000`, `COM6 -> 0014/005/004/002/000/000/000`, and `COM7 -> hub-8/port-3`
+
+## 2026-03-29 20:05 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-Content project/scripts/discover-units.mjs`
+- `Get-Content project/scripts/device-manager-query-lib.mjs`
+- `discover.ps1`
+- `validate.ps1`
+- `query.ps1 -View units -Format json`
+
+Observed issues:
+
+- the first post-discovery query ran in parallel with discovery and showed stale unit data rather than the newly persisted descriptor fields
+- several registry fields such as `ParentIdPrefix`, `EnumeratorName`, and `Class` are not populated for the current bench devices, so this task could only promote them opportunistically rather than rely on them as always-present identity keys
+
+Actions:
+
+- extended `readUsbRegistryDescriptor()` in `project/scripts/discover-units.mjs` to capture richer descriptor fields including product name, driver path, class GUID, parent-id prefix, enumerator name, and hardware-id-derived USB revision
+- added `pickUsbProductName()` and `parseUsbRevision()` helpers so descriptor fields are normalized into stable strings before persistence
+- rolled richer USB descriptor arrays into cumulative unit history and exposed the latest values through `project/scripts/device-manager-query-lib.mjs` as `usbProductName`, `usbRevision`, `usbDriver`, `usbParentIdPrefix`, `usbEnumeratorName`, and `usbClassName`
+
+Validation:
+
+- `discover.ps1` -> success; persisted refreshed inventory, history, profiles, discovery runs, and SQLite data with richer USB descriptor metadata
+- `validate.ps1` -> success; validated 22 parts, 5 boards, 3 projects, 4 Stage 2 data files, and 5 profile files
+- `query.ps1 -View units -Format json` -> success; current examples include `COM3/4/5` as `USB Serial Device (COMx)` revision `0101`, `COM6` as `STMicroelectronics STLink Virtual COM Port (COM6)` revision `0100`, and `COM7` as `Silicon Labs CP210x USB to UART Bridge (COM7)` revision `0100`

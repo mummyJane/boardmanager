@@ -168,3 +168,9 @@
 - Keep USB topology metadata host-derived and descriptive rather than pretending it is a portable physical truth. Windows location strings are still useful for bench workflows even if they are platform-specific.
 - Parse Windows USB location information into a small normalized summary with `kind`, `raw`, and `path` fields. This is enough for operators and later UI work without locking the project into a more detailed topology model than the host can prove.
 - Prefer parsed slash-separated topology summaries over raw location strings in operator-facing query output. The raw string still belongs in history, but the parsed path is easier to compare across units on the bench.
+
+## 2026-03-29 20:05 Europe/London
+
+- Use host-exposed descriptor fields opportunistically rather than forcing a synthetic schema where Windows does not provide the value. Product name, revision, and driver key are useful now; parent-prefix and enumerator name should remain nullable.
+- Derive USB revision from the hardware ID `REV_####` token when present instead of trying to infer it from product names or driver metadata. That mapping is simple, deterministic, and already available in the Windows registry for the current devices.
+- Expose richer USB descriptor fields through the shared query contract, not only inside the raw `usbDescriptor` blob. The web UI and remote callers should not need to know the low-level registry shape to use this identity evidence.

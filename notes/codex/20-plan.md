@@ -1,6 +1,6 @@
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 19:45 Europe/London
+Last updated: 2026-03-29 20:05 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -57,6 +57,7 @@ Initial success criteria:
 - known USB-to-UART bridges can be probed non-destructively for MCU identity so unknown ESP-class boards can be promoted to MAC-based units and richer draft profiles
 - the current unknown COM7 board is promoted from a generic CP210x bridge record to an ESP32-based draft family with captured MAC, chip, flash size, and boot-banner evidence
 - discovery now records parsed USB topology summaries from Windows location information, including path-style summaries for the native USB boards and hub/port summaries for bridged boards such as COM7
+- discovery now persists richer USB descriptor identity fields including product name, revision, driver key, and hardware-id derived revision data for the current bench devices
 
 ## Future Milestones
 
