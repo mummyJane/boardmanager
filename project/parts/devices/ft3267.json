@@ -7,5 +7,48 @@
   "defaultConfig": {
     "i2cAddress": "0x38",
     "interruptActiveLevel": "low"
+  },
+  "initContract": {
+    "preconditions": [
+      "The shared I2C bus must already be initialized.",
+      "Any touch reset line must be released before probe."
+    ],
+    "steps": [
+      "Probe the configured I2C address.",
+      "Read an identification or status register if available.",
+      "Configure any board-local interrupt GPIO after successful probe."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Confirm the controller acknowledges on I2C.",
+      "Sample the interrupt line state without requiring a touch event."
+    ],
+    "passCriteria": "The controller responds on I2C and the interrupt line can be sampled.",
+    "failureNotes": [
+      "A quiet interrupt line is not a fault by itself.",
+      "No I2C response usually indicates a power, reset, or address mismatch."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "touch_is_present",
+        "description": "Return whether the controller responded during setup."
+      },
+      {
+        "name": "touch_read_points",
+        "description": "Read the current touch points from the controller."
+      },
+      {
+        "name": "touch_irq_active",
+        "description": "Read the board-mapped interrupt state for event-driven input."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://focuslcds.com/content/FT3267.pdf",
+    "website": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
+    "apiGuide": "project/help/parts/ft3267.md"
   }
 }

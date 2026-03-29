@@ -61,3 +61,9 @@
 
 - Use the target port plus hardware fingerprint data such as USB instance path, chip MAC, and observed boot log signature as the first Stage 2 identity record for connected ESP32-family units.
 - Treat a successful targeted flash followed by unit-specific serial output on the same port as the minimum validation for multi-unit programming correctness.
+
+## 2026-03-29 09:55 Europe/London
+
+- Treat the currently attached CoreS3 plus GNSS hardware as a concrete board assembly in the repo today, instead of blocking on a richer nested accessory-module schema.
+- Promote reusable part metadata to include init/setup contracts, smoke-test meaning, high-level API shape, and local help references so board-level code and the future web UI can share one source of truth.
+- Add board-level help pages alongside part help pages for the real bench hardware, because operators will need board assembly context as well as per-part detail.

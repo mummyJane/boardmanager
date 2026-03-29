@@ -1,0 +1,16 @@
+{
+  "partId": "stm32f072rb_lqfp64",
+  "partType": "package",
+  "displayName": "STM32F072RBT6 LQFP64",
+  "vendor": "STMicroelectronics",
+  "mcuId": "stm32f072",
+  "pins": {
+    "PA5": "PA5",
+    "PA6": "PA6",
+    "PA7": "PA7",
+    "PA8": "PA8",
+    "PB8": "PB8",
+    "PB9": "PB9",
+    "PC13": "PC13"
+  }
+}

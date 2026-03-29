@@ -53,3 +53,9 @@
 ## 2026-03-29 09:19 Europe/London
 
 - Clarified that Stage 2 USB discovery should preserve port target, chip MAC, USB instance identity, and any observed current-firmware signature for each connected unit. This change is needed because multiple ESP32-family units can share the same vendor and product IDs, so reliable selection and history need stronger identity evidence than VID/PID alone.
+
+## 2026-03-29 09:55 Europe/London
+
+- Added a requirement that reusable parts carry init/setup contracts, smoke-test meaning, high-level API guidance, and local help/man references. This change is needed because the later web interface and the generated firmware layer should both consume the same part-level operational metadata.
+- Clarified that attached accessory stacks may be modeled as concrete board assemblies until the schema grows first-class nested subassembly support. This change is needed because the current CoreS3 + GNSS bench hardware must be represented now without inventing a second incompatible schema path.
+- Added local help/man page coverage for concrete boards, not just reusable parts. This change is needed because operators need bench-level context such as boot order, connector usage, and known attached-unit notes in addition to part datasheets.

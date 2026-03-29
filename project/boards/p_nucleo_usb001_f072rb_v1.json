@@ -1,0 +1,110 @@
+{
+  "boardId": "p_nucleo_usb001_f072rb_v1",
+  "displayName": "P-NUCLEO-USB001 (Nucleo-F072RB)",
+  "revision": "1.0",
+  "vendor": "STMicroelectronics",
+  "productSku": "P-NUCLEO-USB001",
+  "controller": {
+    "moduleId": "nucleo_f072rb_controller"
+  },
+  "capabilities": {
+    "usb": true,
+    "uart": true,
+    "jtag": true,
+    "powerDelivery": true
+  },
+  "signals": [
+    {
+      "name": "heartbeat_led",
+      "kind": "digital_output",
+      "logicalFunction": "status_indicator",
+      "controllerSignal": "PA5",
+      "peripheral": "LD2",
+      "activeLevel": "high"
+    },
+    {
+      "name": "vconn_enable",
+      "kind": "digital_output",
+      "logicalFunction": "usb_pd_vconn_enable",
+      "controllerSignal": "PA6",
+      "peripheral": "VCONN_SWITCH",
+      "activeLevel": "high"
+    },
+    {
+      "name": "buzzer_enable",
+      "kind": "digital_output",
+      "logicalFunction": "audio_alert",
+      "controllerSignal": "PA7",
+      "peripheral": "BUZZER",
+      "activeLevel": "high"
+    },
+    {
+      "name": "board_detect",
+      "kind": "digital_input",
+      "logicalFunction": "daughterboard_presence",
+      "controllerSignal": "PA8",
+      "peripheral": "BOARD_DETECT",
+      "activeLevel": "low"
+    },
+    {
+      "name": "user_button",
+      "kind": "digital_input",
+      "logicalFunction": "user_button",
+      "controllerSignal": "PC13",
+      "peripheral": "B1",
+      "activeLevel": "low"
+    }
+  ],
+  "buses": [
+    {
+      "name": "usbpd_i2c",
+      "kind": "i2c",
+      "controllerPeripheral": "I2C1",
+      "lines": {
+        "scl": "PB8",
+        "sda": "PB9"
+      },
+      "devices": [
+        {
+          "instanceId": "usb_pd_controller",
+          "partId": "stusb4761",
+          "config": {
+            "i2cAddress": "0x28"
+          }
+        }
+      ]
+    }
+  ],
+  "bootSequence": [
+    { "name": "controller", "kind": "module" },
+    { "name": "usbpd_i2c", "kind": "bus", "bus": "usbpd_i2c" },
+    { "name": "usb_pd_controller", "kind": "device", "instanceId": "usb_pd_controller" },
+    { "name": "heartbeat_led_off", "kind": "signal", "signal": "heartbeat_led", "state": false },
+    { "name": "vconn_disable", "kind": "signal", "signal": "vconn_enable", "state": false },
+    { "name": "buzzer_disable", "kind": "signal", "signal": "buzzer_enable", "state": false }
+  ],
+  "connectors": [
+    {
+      "name": "arduino_uno_v3",
+      "type": "Arduino Uno V3",
+      "pins": [
+        { "label": "D13", "signal": "PA5" },
+        { "label": "D15", "signal": "PB8" },
+        { "label": "D14", "signal": "PB9" }
+      ]
+    },
+    {
+      "name": "st_morpho",
+      "type": "ST Morpho",
+      "pins": [
+        { "label": "PC13", "signal": "PC13" },
+        { "label": "PA8", "signal": "PA8" }
+      ]
+    }
+  ],
+  "sources": [
+    "https://www.st.com/en/evaluation-tools/p-nucleo-usb001.html",
+    "https://estore.st.com/en/nucleo-f072rb-cpn.html",
+    "https://www.st.com/resource/en/product_presentation/stswstusb006quickstartv1.pdf"
+  ]
+}

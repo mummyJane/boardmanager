@@ -1,0 +1,12 @@
+{
+  "partId": "nucleo_f072rb_controller",
+  "partType": "module",
+  "displayName": "Nucleo-F072RB Controller",
+  "vendor": "STMicroelectronics",
+  "packageId": "stm32f072rb_lqfp64",
+  "mcuId": "stm32f072",
+  "notes": [
+    "STM32 Nucleo-64 controller with on-board ST-LINK, user LED, and user button.",
+    "Used as the controller base inside the P-NUCLEO-USB001 USB-C and Power Delivery pack."
+  ]
+}

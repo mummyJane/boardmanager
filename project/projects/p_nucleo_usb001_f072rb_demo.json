@@ -1,0 +1,28 @@
+{
+  "projectId": "p_nucleo_usb001_f072rb_demo",
+  "displayName": "P-NUCLEO-USB001 Demo",
+  "boardId": "p_nucleo_usb001_f072rb_v1",
+  "firmwareTarget": {
+    "family": "stm32cube",
+    "entryPoint": "main/main.c"
+  },
+  "partOverrides": {
+    "usb_pd_controller": {
+      "partId": "stusb4761",
+      "config": {
+        "providerMode": true
+      }
+    }
+  },
+  "signalOverrides": {
+    "heartbeat_led": {
+      "defaultState": false
+    },
+    "vconn_enable": {
+      "defaultState": false
+    },
+    "buzzer_enable": {
+      "defaultState": false
+    }
+  }
+}

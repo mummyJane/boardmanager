@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 09:19 Europe/London
+Last updated: 2026-03-29 09:55 Europe/London
 
 ## Goal
 
@@ -22,16 +22,18 @@ Deliverables:
 - local project-managed SDK and toolchain layout under `project/`
 - top-level build, clean, and program scripts that self-manage environment setup
 - a shared firmware API layer that higher-level code can call without depending on raw pin numbers
+- local help/man pages for active reusable parts and concrete boards
 
 Requirements:
 
 - board definitions must include board id, display name, revision, supported transport capabilities, and references to reusable part definitions
 - reusable part definitions must capture stable metadata for MCU families, packages, modules, peripherals, and external devices so they can be shared across boards
-- reusable parts own the init/setup contract, smoke-test contract, and reusable high-level API shape for that part class; boards only bind and configure instances of those parts
+- reusable parts own the init/setup contract, smoke-test contract, reusable high-level API shape, and help/man references for that part class; boards only bind and configure instances of those parts
 - each board control or status signal must define board-level semantic name, direction, logical function, and its mapping through module/package/MCU signals
 - definitions must be able to describe board buses such as I2C and SPI plus exposed connectors and expansion ports
 - project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target
 - board definitions must be able to declare boot/setup order so the generated board init function can call controller, bus, device, and signal setup in sequence
+- stacked or attached accessory modules may be represented as concrete board assemblies until the schema gains first-class nested subassembly support
 - ESP32-family targets use `esp-idf` as the chip-level SDK; STM32-family targets use `stm32cube`
 - all project-managed SDKs, toolchains, downloads, and build outputs must live under `project/`
 - build/clean/program entry scripts must require no pre-sourced environment and must restore any temporary environment changes when they exit
@@ -104,9 +106,3 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
-
-
-
-
-
-

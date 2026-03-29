@@ -1,0 +1,12 @@
+{
+  "partId": "m5stack_cores3_controller",
+  "partType": "module",
+  "displayName": "M5Stack CoreS3 Controller",
+  "vendor": "M5Stack",
+  "packageId": "esp32_s3fn16",
+  "mcuId": "esp32_s3",
+  "notes": [
+    "CoreS3 uses an ESP32-S3FN16 with 16MB flash and 8MB PSRAM.",
+    "The controller exposes M5-Bus and PORT A/B/C expansion interfaces plus internal I2C on G12/G11."
+  ]
+}

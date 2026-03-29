@@ -1,0 +1,29 @@
+{
+  "projectId": "m5stack_cores3_gnss_demo",
+  "displayName": "M5Stack CoreS3 GNSS Demo",
+  "boardId": "m5stack_cores3_gnss_v1",
+  "firmwareTarget": {
+    "family": "esp-idf",
+    "entryPoint": "main/app_main.c"
+  },
+  "partOverrides": {
+    "pmu": {
+      "partId": "axp2101",
+      "config": {
+        "chargeEnabled": true
+      }
+    },
+    "gnss_module": {
+      "partId": "m5_module_gnss",
+      "config": {
+        "uartBaudRate": 38400,
+        "samplePeriodMs": 1000
+      }
+    }
+  },
+  "signalOverrides": {
+    "gnss_pps": {
+      "defaultState": false
+    }
+  }
+}

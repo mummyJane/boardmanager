@@ -1,0 +1,62 @@
+{
+  "partId": "m5_module_gnss",
+  "partType": "device",
+  "displayName": "M5Stack Module GNSS",
+  "vendor": "M5Stack",
+  "interfaces": ["uart", "i2c", "pps", "m5-bus"],
+  "composition": {
+    "gnssReceiverPartId": "neo_m9n",
+    "imu": "BMI270",
+    "magnetometer": "BMM150",
+    "barometer": "BMP280"
+  },
+  "defaultConfig": {
+    "uartBaudRate": 38400,
+    "sensorI2cAddress": "0x69",
+    "barometerI2cAddress": "0x76"
+  },
+  "initContract": {
+    "preconditions": [
+      "The host board must provide the selected M5-Bus UART mapping.",
+      "If the module sensors are used, the corresponding I2C mapping must also be present."
+    ],
+    "steps": [
+      "Open the configured UART and confirm NEO-M9N traffic is present.",
+      "Probe the module sensor I2C bus for BMI270 and BMP280 where used.",
+      "Apply board-local DIP switch assumptions for UART and PPS routing."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Read GNSS serial traffic from the mapped UART.",
+      "Probe the module IMU and barometer addresses if their I2C path is wired.",
+      "Observe the mapped PPS input if present."
+    ],
+    "passCriteria": "The GNSS UART path is alive and any wired sensor bus responds as expected.",
+    "failureNotes": [
+      "Satellite lock and heading quality depend on antenna placement and environment.",
+      "The BMM150 is behind the module sensor hub and may not appear directly on the host I2C scan."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "gnss_module_get_fix",
+        "description": "Return the latest parsed GNSS solution from the attached module."
+      },
+      {
+        "name": "gnss_module_get_motion",
+        "description": "Read motion and environmental data exposed by the module sensors."
+      },
+      {
+        "name": "gnss_module_get_pps_state",
+        "description": "Read the mapped PPS line for timing diagnostics."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://docs.m5stack.com/en/products/sku/M135",
+    "website": "https://docs.m5stack.com/en/module/GNSS%20Module",
+    "apiGuide": "project/help/parts/m5_module_gnss.md"
+  }
+}

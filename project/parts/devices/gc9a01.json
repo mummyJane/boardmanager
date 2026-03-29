@@ -6,5 +6,49 @@
   "interfaces": ["spi"],
   "defaultConfig": {
     "pixelFormat": "RGB565"
+  },
+  "initContract": {
+    "preconditions": [
+      "The display SPI bus must already be initialized.",
+      "Any board-local reset and backlight signals must be available if used."
+    ],
+    "steps": [
+      "Reset the panel if a reset line is wired.",
+      "Send the panel sleep-exit and display-on command sequence.",
+      "Apply any project-local rotation, inversion, or backlight defaults."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Initialize the SPI peripheral for the panel bus.",
+      "Transmit at least one known display command over the command path.",
+      "Toggle backlight if that signal exists."
+    ],
+    "passCriteria": "The command path completes without transport error and any backlight control responds.",
+    "failureNotes": [
+      "A passing command-path test does not guarantee pixel rendering is correct.",
+      "Shared reset wiring must be documented if the display reset line is multiplexed."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "display_init",
+        "description": "Bring the panel out of reset and apply the standard init sequence."
+      },
+      {
+        "name": "display_set_backlight",
+        "description": "Control the board-mapped backlight output when present."
+      },
+      {
+        "name": "display_write_command",
+        "description": "Send a low-level command for bring-up and diagnostics."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://www.buydisplay.com/download/ic/GC9A01A.pdf",
+    "website": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
+    "apiGuide": "project/help/parts/gc9a01.md"
   }
 }

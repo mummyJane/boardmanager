@@ -1,0 +1,53 @@
+{
+  "partId": "stusb4761",
+  "partType": "device",
+  "displayName": "STUSB4761 USB PD Controller",
+  "vendor": "STMicroelectronics",
+  "interfaces": ["i2c", "usb-pd"],
+  "defaultConfig": {
+    "i2cAddress": "0x28"
+  },
+  "initContract": {
+    "preconditions": [
+      "The board I2C bus used for USB PD control must already be configured.",
+      "Any external VBUS or VCONN enable path must be in a safe default state."
+    ],
+    "steps": [
+      "Probe the configured I2C address.",
+      "Read the controller status registers and current PDO configuration.",
+      "Apply any project-local power-delivery contract or NVM policy."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Probe the controller over I2C.",
+      "Read a status register that confirms the controller is alive."
+    ],
+    "passCriteria": "The USB PD controller responds on I2C and returns status data.",
+    "failureNotes": [
+      "A board can still enumerate the ST-LINK port even if the PD controller is unreachable.",
+      "PD contract success depends on attached partners and cabling, not only on controller presence."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "usbpd_read_status",
+        "description": "Read current USB PD negotiation and fault status."
+      },
+      {
+        "name": "usbpd_set_profile",
+        "description": "Apply a selected source or provider power profile."
+      },
+      {
+        "name": "usbpd_store_nvm",
+        "description": "Persist controller configuration when the workflow requires it."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://www.st.com/resource/en/datasheet/stusb4761.pdf",
+    "website": "https://www.st.com/en/product/STUSB4761",
+    "apiGuide": "project/help/parts/stusb4761.md"
+  }
+}

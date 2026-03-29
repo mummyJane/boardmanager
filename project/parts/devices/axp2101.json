@@ -1,0 +1,55 @@
+{
+  "partId": "axp2101",
+  "partType": "device",
+  "displayName": "AXP2101 PMU",
+  "vendor": "X-Powers",
+  "interfaces": ["i2c", "interrupt"],
+  "defaultConfig": {
+    "i2cAddress": "0x34",
+    "interruptActiveLevel": "low"
+  },
+  "initContract": {
+    "preconditions": [
+      "The system I2C bus must already be configured.",
+      "Any battery or external supply path should already be present before initialization."
+    ],
+    "steps": [
+      "Probe the PMU on the configured I2C address.",
+      "Read the power-source and battery-status registers.",
+      "Apply project-local charge, regulator, and wake-source policy."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Probe the PMU over I2C.",
+      "Read at least one power-status register.",
+      "If exposed, sample the PMU interrupt line."
+    ],
+    "passCriteria": "The PMU responds on I2C and returns coherent power-status data.",
+    "failureNotes": [
+      "A present board can still boot with reduced power-control visibility if the PMU probe fails.",
+      "Battery absence should not be treated as a PMU communication failure."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "pmu_read_status",
+        "description": "Read current power-path, battery, and charger status."
+      },
+      {
+        "name": "pmu_set_charge_policy",
+        "description": "Apply project-local battery charge configuration."
+      },
+      {
+        "name": "pmu_configure_wakeup",
+        "description": "Enable or disable wake sources exposed by the PMU."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/core/CoreS3/AXP2101_Datasheet_V1.0_en.pdf",
+    "website": "https://docs.m5stack.com/en/core/CoreS3",
+    "apiGuide": "project/help/parts/axp2101.md"
+  }
+}

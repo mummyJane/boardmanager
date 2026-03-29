@@ -384,3 +384,45 @@ Actions:
 Validation:
 
 - `Get-CimInstance Win32_SerialPort ...` -> success; `COM6` enumerates as `STMicroelectronics STLink Virtual COM Port`, consistent with the attached Nucleo board
+
+## 2026-03-29 09:55 Europe/London
+
+Commands run:
+
+- `Get-Content notes/codex/10-spec.md`
+- `Get-Content notes/codex/20-plan.md`
+- `Get-Content notes/codex/30-tasks.md`
+- `Get-ChildItem -Recurse project/boards,project/parts,project/help | Select-Object FullName`
+- `Get-Content project/scripts/generate-board-artifacts.mjs`
+- `Get-Content project/scripts/validate-definitions.mjs`
+- updated reusable part JSON files for existing Dial devices plus added new CoreS3, GNSS, STM32F072, and USB PD part files
+- added board JSON files for `m5stack_cores3_gnss_v1` and `p_nucleo_usb001_f072rb_v1`
+- added new project metadata, platform stubs, help/man pages, and updated readmes under `project/`
+- `node project/scripts/generate-board-artifacts.mjs`
+- `validate.ps1`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+- `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1`
+
+Observed issues:
+
+- the Windows sandbox `apply_patch` path failed again, so file edits were completed with PowerShell `Set-Content`
+- the current schema does not yet support true nested accessory-module composition, so the physical CoreS3 + GNSS stack is represented as a concrete board assembly for now
+- the new CoreS3 + GNSS and P-NUCLEO board platform files are scaffolds and metadata coverage only; there are not yet dedicated buildable demo apps for those new boards
+
+Actions:
+
+- expanded reusable part metadata to include init contracts, smoke-test meaning, high-level API shape, docs links, and local help references
+- added reusable parts for the CoreS3 controller, AXP2101 PMU, NEO-M9N, M5 GNSS module, STM32F072 MCU, Nucleo-F072RB controller, and STUSB4761
+- added concrete board assemblies for the attached CoreS3 + GNSS and P-NUCLEO-USB001 bench units
+- added project-level override examples for the new boards
+- generated headers and C wrappers for all five board definitions now present in the repo
+- added ESP-IDF and STM32Cube platform-side stubs for the new boards
+- added board help pages for the current real boards and part help pages for the shared Dial, PMU, GNSS, and USB PD parts
+- updated the spec, context, task tracker, decisions, and spec-update notes to reflect the expanded attached-board coverage and richer reusable part metadata
+
+Validation:
+
+- `node project/scripts/generate-board-artifacts.mjs` -> success; generated artifacts for 5 boards including `m5stack_cores3_gnss_v1` and `p_nucleo_usb001_f072rb_v1`
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 3 projects
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success after the metadata expansion and new board additions
+- `build.ps1 -Platform stm32 -App stm32_nucleo_io_demo -Board stm32_nucleo_io_v1` -> success with the expected bare-metal `nosys` linker warnings still present

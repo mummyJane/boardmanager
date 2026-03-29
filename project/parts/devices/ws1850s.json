@@ -8,5 +8,49 @@
     "i2cAddress": "0x28",
     "interruptActiveLevel": "low",
     "resetActiveLevel": "low"
+  },
+  "initContract": {
+    "preconditions": [
+      "The shared I2C bus must already be configured.",
+      "The board must expose a reset signal if hardware reset is required."
+    ],
+    "steps": [
+      "Drive reset inactive using the configured active level.",
+      "Probe the configured I2C address after any required settle delay.",
+      "Enable board-local interrupt handling only after the device responds."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Assert and release reset if wired.",
+      "Probe the configured I2C address.",
+      "Read the board-mapped interrupt input for a stable idle state."
+    ],
+    "passCriteria": "The part recovers from reset and responds on I2C.",
+    "failureNotes": [
+      "A bad reset polarity can keep the device permanently offline.",
+      "Interrupt inactivity alone is not a failure if I2C probe succeeds."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "rfid_reset",
+        "description": "Control the board-mapped reset line for the RFID device."
+      },
+      {
+        "name": "rfid_is_present",
+        "description": "Return whether the device responded during setup."
+      },
+      {
+        "name": "rfid_poll",
+        "description": "Poll the controller for card or field status."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
+    "website": "https://docs.m5stack.com/en/core/M5Dial",
+    "apiGuide": "project/help/parts/ws1850s.md"
   }
 }

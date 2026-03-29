@@ -7,6 +7,44 @@
   "defaultConfig": {
     "i2cAddress": "0x51"
   },
+  "initContract": {
+    "preconditions": [
+      "An I2C bus must be configured before probing the device.",
+      "Any board-level wake or power-hold wiring should already be stable."
+    ],
+    "steps": [
+      "Open the I2C target at the configured address.",
+      "Read a status or time register to confirm the device responds.",
+      "Apply any project-local timezone or wake-alarm defaults after probe success."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Probe the configured I2C address and confirm an ACK is received.",
+      "Read a known RTC register to verify bus-level communication."
+    ],
+    "passCriteria": "The device acknowledges on I2C and returns readable register data.",
+    "failureNotes": [
+      "A missing ACK usually indicates the bus is not powered or the address is wrong.",
+      "Readable but invalid time data should be treated as present but unconfigured."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "rtc_get_time",
+        "description": "Read current wall-clock time from the RTC."
+      },
+      {
+        "name": "rtc_set_time",
+        "description": "Write a new wall-clock time into the RTC."
+      },
+      {
+        "name": "rtc_configure_alarm",
+        "description": "Configure a wake or alarm event using board-local policy."
+      }
+    ]
+  },
   "docs": {
     "datasheet": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/BM8563.pdf",
     "website": "https://docs.m5stack.com/en/unit/rtc",

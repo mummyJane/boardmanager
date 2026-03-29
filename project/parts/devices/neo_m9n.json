@@ -1,0 +1,54 @@
+{
+  "partId": "neo_m9n",
+  "partType": "device",
+  "displayName": "u-blox NEO-M9N",
+  "vendor": "u-blox",
+  "interfaces": ["uart", "pps"],
+  "defaultConfig": {
+    "baudRate": 38400,
+    "ppsActiveLevel": "high"
+  },
+  "initContract": {
+    "preconditions": [
+      "The selected UART must already be configured with the expected baud rate.",
+      "Any optional PPS signal should be routed before use."
+    ],
+    "steps": [
+      "Open the UART channel at the configured default baud rate.",
+      "Read an NMEA or UBX frame to confirm the receiver is alive.",
+      "Optionally configure update rate or output sentence policy."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Confirm UART receive traffic from the receiver.",
+      "If wired, observe PPS transitions or a stable idle level."
+    ],
+    "passCriteria": "The receiver emits valid serial traffic on the configured UART.",
+    "failureNotes": [
+      "A lack of fix is not the same as a communication failure.",
+      "Indoor or shielded use can prevent a position lock while the UART link is still healthy."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "gnss_read_frame",
+        "description": "Read raw NMEA or UBX frames from the receiver."
+      },
+      {
+        "name": "gnss_get_fix",
+        "description": "Return the latest parsed position and timing solution."
+      },
+      {
+        "name": "gnss_configure_rate",
+        "description": "Apply a project-local navigation update rate."
+      }
+    ]
+  },
+  "docs": {
+    "datasheet": "https://content.u-blox.com/sites/default/files/NEO-M9N_DataSheet_UBX-19014286.pdf",
+    "website": "https://www.u-blox.com/en/product/neo-m9n-module",
+    "apiGuide": "project/help/parts/neo_m9n.md"
+  }
+}
