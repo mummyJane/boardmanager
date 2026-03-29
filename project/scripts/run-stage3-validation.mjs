@@ -48,6 +48,18 @@ function uniqueSorted(values) {
   return Array.from(new Set((values ?? []).filter(Boolean))).sort();
 }
 
+function normalizeAddressList(values) {
+  return uniqueSorted((values ?? []).map((entry) => String(entry).toLowerCase()));
+}
+
+function normalizeBooleanToken(value) {
+  if (value === true || value === false) return value;
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (["1", "true", "yes", "pass", "ok"].includes(normalized)) return true;
+  if (["0", "false", "no", "fail", "error"].includes(normalized)) return false;
+  return null;
+}
+
 function parseI2cScanLines(lines) {
   const scans = new Map();
   for (const line of lines) {
@@ -90,71 +102,449 @@ async function captureSerialLines(port, durationSeconds) {
   return String(stdout).split(/\r?\n/).filter(Boolean);
 }
 
-function normalizeAddressList(values) {
-  return uniqueSorted((values ?? []).map((entry) => String(entry).toLowerCase()));
+function createTelemetry() {
+  return {
+    firmware: null,
+    agent: null,
+    controller: {},
+    signalSamples: [],
+    signalMap: new Map(),
+    checkResults: new Map(),
+    health: {
+      voltages: [],
+      temperatures: [],
+      warnings: [],
+    },
+    notes: [],
+  };
 }
 
-function buildIdentity(unit, boardId, port) {
+function setCheckResult(telemetry, checkId, pass, evidence) {
+  telemetry.checkResults.set(checkId, {
+    pass,
+    evidence,
+  });
+}
+
+function setSignalSample(telemetry, signalName, value, source, extra = {}) {
+  const sample = {
+    signalName,
+    value,
+    source,
+    ...extra,
+  };
+  telemetry.signalMap.set(signalName, sample);
+  telemetry.signalSamples.push(sample);
+}
+
+function parseFirmwareLine(line) {
+  const match = String(line).trim().match(/^BoardManagerFirmware:\s+app=(\S+)\s+version=(\S+)\s+build=(.+)\s+board=(\S+)$/);
+  if (!match) return null;
   return {
-    boardId,
-    boardDisplayName: unit.match?.boardId === boardId ? (unit.match?.boardId ?? boardId) : boardId,
+    app: match[1],
+    version: match[2],
+    buildId: match[3],
+    board: match[4],
+    rawLine: String(line).trim(),
+  };
+}
+
+function parseAgentLine(line) {
+  const match = String(line).trim().match(/^BoardManagerAgent:\s+board=(\S+)\s+app=(\S+)\s+version=(\S+)\s+capabilities=(\S+)\s+build=(.+)$/);
+  if (!match) return null;
+  return {
+    board: match[1],
+    app: match[2],
+    version: match[3],
+    capabilities: match[4] === "none" ? [] : match[4].split(",").filter(Boolean),
+    buildId: match[5],
+    rawLine: String(line).trim(),
+  };
+}
+
+function parseGenericCheckLine(line) {
+  const match = String(line).trim().match(/^BoardManagerCheck:\s+check=(\S+)\s+pass=(\S+)(?:\s+evidence=(.+))?$/);
+  if (!match) return null;
+  return {
+    checkId: match[1],
+    pass: normalizeBooleanToken(match[2]),
+    evidenceText: match[3] ?? null,
+  };
+}
+
+function parseHealthMetricLine(line) {
+  const match = String(line).trim().match(/^BoardManagerHealth:\s+kind=(\S+)\s+name=(\S+)\s+value=(\S+)(?:\s+unit=(\S+))?$/);
+  if (!match) return null;
+  return {
+    kind: match[1],
+    name: match[2],
+    value: Number(match[3]),
+    unit: match[4] ?? null,
+    rawLine: String(line).trim(),
+  };
+}
+
+function parseTelemetry(lines, contract) {
+  const telemetry = createTelemetry();
+  const expectedBoardId = contract.boardId;
+
+  for (const line of lines) {
+    const trimmed = String(line).trim();
+
+    const firmware = parseFirmwareLine(trimmed);
+    if (firmware) {
+      telemetry.firmware = firmware;
+      continue;
+    }
+
+    const agent = parseAgentLine(trimmed);
+    if (agent) {
+      telemetry.agent = agent;
+      continue;
+    }
+
+    const genericCheck = parseGenericCheckLine(trimmed);
+    if (genericCheck) {
+      if (genericCheck.pass !== null) {
+        setCheckResult(telemetry, genericCheck.checkId, genericCheck.pass, {
+          source: "BoardManagerCheck",
+          text: genericCheck.evidenceText,
+          rawLine: trimmed,
+        });
+      }
+      continue;
+    }
+
+    const metric = parseHealthMetricLine(trimmed);
+    if (metric) {
+      const target = metric.kind.startsWith("temp") ? telemetry.health.temperatures : telemetry.health.voltages;
+      target.push(metric);
+      continue;
+    }
+
+    let match = trimmed.match(/^Board init complete for (.+) using (.+)$/);
+    if (match) {
+      telemetry.controller.displayName = match[1];
+      telemetry.controller.platformSdk = match[2];
+      telemetry.notes.push(trimmed);
+      continue;
+    }
+
+    match = trimmed.match(/^controller gpio path:\s+(PASS|FAIL)$/i);
+    if (match) {
+      telemetry.controller.gpioPathReady = normalizeBooleanToken(match[1]);
+      continue;
+    }
+
+    match = trimmed.match(/^internal i2c bus:\s+(PASS|FAIL)$/i);
+    if (match) {
+      setCheckResult(telemetry, "internal_i2c_configured", normalizeBooleanToken(match[1]), {
+        source: "dial-self-test",
+        rawLine: trimmed,
+      });
+      continue;
+    }
+
+    match = trimmed.match(/^rtc present:\s+(PASS|FAIL)$/i);
+    if (match) {
+      const pass = normalizeBooleanToken(match[1]);
+      setCheckResult(telemetry, "rtc_presence", pass, { source: "dial-self-test", rawLine: trimmed });
+      setCheckResult(telemetry, "rtc_hook_i2c_ack", pass, { source: "dial-self-test", rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^touch present:\s+(PASS|FAIL)$/i);
+    if (match) {
+      const pass = normalizeBooleanToken(match[1]);
+      setCheckResult(telemetry, "touch_presence", pass, { source: "dial-self-test", rawLine: trimmed });
+      setCheckResult(telemetry, "touch_hook_i2c_ack", pass, { source: "dial-self-test", rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^rfid present:\s+(PASS|FAIL)$/i);
+    if (match) {
+      const pass = normalizeBooleanToken(match[1]);
+      setCheckResult(telemetry, "rfid_presence", pass, { source: "dial-self-test", rawLine: trimmed });
+      setCheckResult(telemetry, "rfid_hook_i2c_ack", pass, { source: "dial-self-test", rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^display spi path:\s+(PASS|FAIL)$/i);
+    if (match) {
+      const pass = normalizeBooleanToken(match[1]);
+      setCheckResult(telemetry, "display_spi_configured", pass, { source: "dial-self-test", rawLine: trimmed });
+      setCheckResult(telemetry, "display_hook_spi_path", pass, { source: "dial-self-test", rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^display command path:\s+(PASS|FAIL)$/i);
+    if (match) {
+      const pass = normalizeBooleanToken(match[1]);
+      setCheckResult(telemetry, "display_spi_command_path", pass, { source: "dial-self-test", rawLine: trimmed });
+      setCheckResult(telemetry, "display_presence", pass, { source: "dial-self-test", rawLine: trimmed });
+      setCheckResult(telemetry, "display_hook_display_command", pass, { source: "dial-self-test", rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^touch irq active:\s+(YES|NO)$/i);
+    if (match) {
+      const value = normalizeBooleanToken(match[1]);
+      setSignalSample(telemetry, "touch_interrupt", value ? 1 : 0, "dial-self-test", { rawLine: trimmed });
+      setCheckResult(telemetry, "touch_hook_interrupt_idle_sample", true, {
+        source: "dial-self-test",
+        sampledValue: value ? 1 : 0,
+        rawLine: trimmed,
+      });
+      continue;
+    }
+
+    match = trimmed.match(/^rfid irq active:\s+(YES|NO)$/i);
+    if (match) {
+      const value = normalizeBooleanToken(match[1]);
+      setSignalSample(telemetry, "rfid_interrupt", value ? 1 : 0, "dial-self-test", { rawLine: trimmed });
+      setCheckResult(telemetry, "rfid_hook_interrupt_idle_sample", true, {
+        source: "dial-self-test",
+        sampledValue: value ? 1 : 0,
+        rawLine: trimmed,
+      });
+      continue;
+    }
+
+    match = trimmed.match(/^encoder phases:\s+A=(\d+)\s+B=(\d+)$/i);
+    if (match) {
+      setSignalSample(telemetry, "encoder_phase_a", Number(match[1]), "dial-self-test", { rawLine: trimmed });
+      setSignalSample(telemetry, "encoder_phase_b", Number(match[2]), "dial-self-test", { rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^Live inputs:\s+touch_irq=(\d+)\s+rfid_irq=(\d+)\s+enc_a=(\d+)\s+enc_b=(\d+)$/);
+    if (match) {
+      setSignalSample(telemetry, "touch_interrupt", Number(match[1]), "dial-live", { rawLine: trimmed });
+      setSignalSample(telemetry, "rfid_interrupt", Number(match[2]), "dial-live", { rawLine: trimmed });
+      setSignalSample(telemetry, "encoder_phase_a", Number(match[3]), "dial-live", { rawLine: trimmed });
+      setSignalSample(telemetry, "encoder_phase_b", Number(match[4]), "dial-live", { rawLine: trimmed });
+      setCheckResult(telemetry, "touch_hook_interrupt_idle_sample", true, { source: "dial-live", sampledValue: Number(match[1]), rawLine: trimmed });
+      setCheckResult(telemetry, "rfid_hook_interrupt_idle_sample", true, { source: "dial-live", sampledValue: Number(match[2]), rawLine: trimmed });
+      continue;
+    }
+
+    match = trimmed.match(/^GNSS PPS input path is mapped as (.+) on (.+)$/);
+    if (match) {
+      telemetry.controller.gnssPpsSignal = {
+        ioName: match[1],
+        controllerSignal: match[2],
+        rawLine: trimmed,
+      };
+      continue;
+    }
+
+    match = trimmed.match(/^Live GNSS PPS state:\s+(\d+)$/);
+    if (match) {
+      setSignalSample(telemetry, "gnss_pps", Number(match[1]), "gnss-live", { rawLine: trimmed });
+      continue;
+    }
+  }
+
+  if (telemetry.agent && telemetry.agent.board !== expectedBoardId) {
+    telemetry.health.warnings.push(`Board-agent line reported board '${telemetry.agent.board}' instead of expected '${expectedBoardId}'.`);
+  }
+
+  return telemetry;
+}
+
+function findObservedAddressEvidence(check, scanMap) {
+  const bus = check.config?.bus ?? null;
+  const address = String(check.config?.deviceConfig?.i2cAddress ?? "").toLowerCase();
+  if (!bus || !address) return null;
+  const observed = scanMap.get(bus);
+  if (!observed) return null;
+  const observedAddresses = normalizeAddressList(observed.observedAddresses);
+  return {
+    bus,
+    address,
+    observedAddresses,
+    pass: observedAddresses.includes(address),
+    rawLine: observed.rawLine,
+  };
+}
+
+function inferCheckResult(contract, check, unit, telemetry, scanMap) {
+  const manual = telemetry.checkResults.get(check.checkId);
+  if (manual) {
+    return {
+      pass: manual.pass,
+      evidence: manual.evidence,
+    };
+  }
+
+  if (check.kind === "controller-identity") {
+    const pass = (unit.match?.boardId ?? unit.manualOverride?.boardId ?? null) === contract.boardId
+      && (!telemetry.agent || telemetry.agent.board === contract.boardId);
+    return {
+      pass,
+      evidence: {
+        source: "inventory-and-agent",
+        matchedBoardId: unit.match?.boardId ?? null,
+        firmwareBoard: telemetry.firmware?.board ?? unit.observed?.firmwareBoard ?? null,
+        agentBoard: telemetry.agent?.board ?? null,
+        chip: unit.observed?.chip ?? null,
+      },
+    };
+  }
+
+  if (check.kind === "transport-ready") {
+    return {
+      pass: Boolean(unit.transport?.port),
+      evidence: {
+        source: "inventory.transport",
+        port: unit.transport?.port ?? null,
+        transportKind: unit.transport?.kind ?? null,
+      },
+    };
+  }
+
+  if (check.kind === "controller-peripheral-declared") {
+    return {
+      pass: Array.isArray(check.config?.declared) && check.config.declared.length > 0,
+      evidence: {
+        source: "contract.config",
+        family: check.config?.family ?? null,
+        declared: check.config?.declared ?? [],
+      },
+    };
+  }
+
+  if (check.kind === "bus-configured") {
+    if (check.config?.kind === "i2c") {
+      const observed = scanMap.get(check.config?.bus ?? "");
+      return {
+        pass: Boolean(observed),
+        evidence: {
+          source: observed ? "BoardManagerI2CScan" : "contract.config",
+          bus: check.config?.bus ?? null,
+          observedAddresses: observed?.observedAddresses ?? [],
+          rawLine: observed?.rawLine ?? null,
+        },
+      };
+    }
+    return null;
+  }
+
+  if (check.kind === "i2c-scan") {
+    const observed = scanMap.get(check.config?.bus ?? "") ?? { observedAddresses: [], rawLine: null };
+    const configuredAddresses = normalizeAddressList(check.config?.configuredAddresses ?? []);
+    const observedAddresses = normalizeAddressList(observed.observedAddresses ?? []);
+    const missingConfigured = configuredAddresses.filter((entry) => !observedAddresses.includes(entry));
+    const unexpectedObserved = observedAddresses.filter((entry) => !configuredAddresses.includes(entry));
+    return {
+      pass: missingConfigured.length === 0 && unexpectedObserved.length === 0,
+      evidence: {
+        source: check.source,
+        bus: check.config?.bus ?? null,
+        configuredAddresses,
+        observedAddresses,
+        missingConfigured,
+        unexpectedObserved,
+        rawLine: observed.rawLine,
+      },
+    };
+  }
+
+  if (check.kind === "device-presence" || check.kind === "device-i2c-ack") {
+    const observed = findObservedAddressEvidence(check, scanMap);
+    if (!observed) return null;
+    return {
+      pass: observed.pass,
+      evidence: {
+        source: "BoardManagerI2CScan",
+        bus: observed.bus,
+        expectedAddress: observed.address,
+        observedAddresses: observed.observedAddresses,
+        rawLine: observed.rawLine,
+      },
+    };
+  }
+
+  if (check.kind === "signal-read") {
+    const sample = telemetry.signalMap.get(check.config?.signal ?? "");
+    if (!sample) return null;
+    return {
+      pass: true,
+      evidence: {
+        source: sample.source,
+        signal: sample.signalName,
+        sampledValue: sample.value,
+        rawLine: sample.rawLine ?? null,
+      },
+    };
+  }
+
+  return null;
+}
+
+function buildIdentity(unit, contract, port, telemetry) {
+  return {
+    boardId: contract.boardId,
+    boardDisplayName: contract.displayName ?? contract.boardId,
     stableUnitId: unit.identity?.stableKey ?? unit.unitId,
     port,
     transportKind: unit.transport?.kind ?? null,
     chip: unit.observed?.chip ?? null,
     macAddress: unit.observed?.mac ?? unit.identity?.mac ?? null,
-    serialNumber: unit.observed?.serialNumber ?? unit.identity?.serialNumber ?? null,
-    firmwareApp: unit.observed?.firmwareApp ?? null,
-    firmwareVersion: unit.observed?.firmwareVersion ?? null,
-    firmwareBuildId: unit.observed?.firmwareBuildId ?? null,
-    firmwareBoard: unit.observed?.firmwareBoard ?? null,
+    serialNumber: unit.observed?.serialNumber ?? unit.identity?.serialNumber ?? unit.observed?.usbBaseSerialNumber ?? null,
+    firmwareApp: telemetry.firmware?.app ?? unit.observed?.firmwareApp ?? null,
+    firmwareVersion: telemetry.firmware?.version ?? unit.observed?.firmwareVersion ?? null,
+    firmwareBuildId: telemetry.firmware?.buildId ?? unit.observed?.firmwareBuildId ?? null,
+    firmwareBoard: telemetry.firmware?.board ?? telemetry.agent?.board ?? unit.observed?.firmwareBoard ?? null,
     usbVendorId: unit.observed?.vid ?? null,
     usbProductId: unit.observed?.pid ?? null,
   };
 }
 
-function buildHealth(lines) {
+function buildFacts(unit, contract, telemetry) {
   return {
-    lineCount: lines.length,
-    voltages: [],
-    temperatures: [],
-    warnings: [],
+    controller: {
+      moduleId: contract.phases?.find((phase) => phase.level === "controller")?.target ?? null,
+      displayName: telemetry.controller.displayName ?? contract.displayName ?? null,
+      platformSdk: telemetry.controller.platformSdk ?? contract.platformSdk ?? null,
+      gpioPathReady: telemetry.controller.gpioPathReady ?? null,
+      gnssPpsSignal: telemetry.controller.gnssPpsSignal ?? null,
+    },
+    firmware: {
+      firmwareLine: telemetry.firmware?.rawLine ?? null,
+      agentLine: telemetry.agent?.rawLine ?? null,
+      app: telemetry.firmware?.app ?? telemetry.agent?.app ?? unit.observed?.firmwareApp ?? null,
+      version: telemetry.firmware?.version ?? telemetry.agent?.version ?? unit.observed?.firmwareVersion ?? null,
+      buildId: telemetry.firmware?.buildId ?? telemetry.agent?.buildId ?? unit.observed?.firmwareBuildId ?? null,
+      board: telemetry.firmware?.board ?? telemetry.agent?.board ?? unit.observed?.firmwareBoard ?? null,
+      capabilities: telemetry.agent?.capabilities ?? unit.observed?.agentCapabilities ?? [],
+    },
+    identity: {
+      stableUnitId: unit.identity?.stableKey ?? unit.unitId,
+      matchedBoardId: unit.match?.boardId ?? null,
+      chip: unit.observed?.chip ?? null,
+      macAddress: unit.observed?.mac ?? unit.identity?.mac ?? null,
+      serialNumber: unit.observed?.serialNumber ?? unit.identity?.serialNumber ?? unit.observed?.usbBaseSerialNumber ?? null,
+    },
+    signals: telemetry.signalSamples,
+    notes: telemetry.notes,
   };
 }
 
-function buildChecks(contract, scanMap) {
+function buildHealth(lines, telemetry) {
+  return {
+    lineCount: lines.length,
+    voltages: telemetry.health.voltages,
+    temperatures: telemetry.health.temperatures,
+    warnings: telemetry.health.warnings,
+  };
+}
+
+function buildChecks(contract, unit, telemetry, scanMap) {
   const checks = [];
   for (const phase of contract.phases ?? []) {
     for (const check of phase.checks ?? []) {
-      if (check.kind === "i2c-scan") {
-        const observed = scanMap.get(check.config?.bus ?? "") ?? { observedAddresses: [], rawLine: null };
-        const configuredAddresses = normalizeAddressList(check.config?.configuredAddresses ?? []);
-        const observedAddresses = normalizeAddressList(observed.observedAddresses ?? []);
-        const missingConfigured = configuredAddresses.filter((entry) => !observedAddresses.includes(entry));
-        const unexpectedObserved = observedAddresses.filter((entry) => !configuredAddresses.includes(entry));
-        checks.push({
-          phaseId: phase.phaseId,
-          checkId: check.checkId,
-          level: phase.level,
-          target: phase.target,
-          kind: check.kind,
-          description: check.description,
-          pass: missingConfigured.length === 0 && unexpectedObserved.length === 0,
-          passCriteria: check.passCriteria ?? null,
-          evidence: {
-            source: check.source,
-            bus: check.config?.bus ?? null,
-            configuredAddresses,
-            observedAddresses,
-            missingConfigured,
-            unexpectedObserved,
-            rawLine: observed.rawLine,
-          },
-          failureNotes: check.failureNotes ?? [],
-        });
-        continue;
-      }
-
+      const inferred = inferCheckResult(contract, check, unit, telemetry, scanMap);
       checks.push({
         phaseId: phase.phaseId,
         checkId: check.checkId,
@@ -162,9 +552,9 @@ function buildChecks(contract, scanMap) {
         target: phase.target,
         kind: check.kind,
         description: check.description,
-        pass: null,
+        pass: inferred ? inferred.pass : null,
         passCriteria: check.passCriteria ?? null,
-        evidence: {
+        evidence: inferred ? inferred.evidence : {
           source: check.source,
           config: check.config ?? {},
         },
@@ -175,17 +565,18 @@ function buildChecks(contract, scanMap) {
   return checks;
 }
 
-function buildReport(boardId, unit, port, contract, scanMap, lines) {
-  const checks = buildChecks(contract, scanMap);
+function buildReport(contract, unit, port, scanMap, lines, telemetry) {
+  const checks = buildChecks(contract, unit, telemetry, scanMap);
   const executedChecks = checks.filter((entry) => entry.pass !== null);
   const failingChecks = executedChecks.filter((entry) => entry.pass === false);
+  const health = buildHealth(lines, telemetry);
 
   return {
     reportType: "board-validation-report",
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     contractId: contract.contractId,
-    identity: buildIdentity(unit, boardId, port),
+    identity: buildIdentity(unit, contract, port, telemetry),
     source: {
       kind: "serial-capture",
       lineCount: lines.length,
@@ -194,9 +585,10 @@ function buildReport(boardId, unit, port, contract, scanMap, lines) {
       overallPass: failingChecks.length === 0,
       executedCheckCount: executedChecks.length,
       failingCheckCount: failingChecks.length,
-      warningCount: 0,
+      warningCount: health.warnings.length,
     },
-    health: buildHealth(lines),
+    health,
+    facts: buildFacts(unit, contract, telemetry),
     phases: (contract.phases ?? []).map((phase) => ({
       phaseId: phase.phaseId,
       order: phase.order,
@@ -241,13 +633,20 @@ async function main() {
 
   const lines = await captureSerialLines(port, durationSeconds);
   const scanMap = parseI2cScanLines(lines);
-  const report = buildReport(boardId, unit, port, contract, scanMap, lines);
+  const telemetry = parseTelemetry(lines, contract);
+  const report = buildReport(contract, unit, port, scanMap, lines, telemetry);
 
   await mkdir(reportsRoot, { recursive: true });
   const reportPath = path.join(reportsRoot, `validation-${sanitizeSegment(boardId)}-${sanitizeSegment(unitId)}.json`);
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
-  console.log(JSON.stringify({ reportPath, summary: report.summary, failingChecks: report.checks.filter((entry) => entry.pass === false) }, null, 2));
+  console.log(JSON.stringify({
+    reportPath,
+    summary: report.summary,
+    health: report.health,
+    facts: report.facts,
+    failingChecks: report.checks.filter((entry) => entry.pass === false),
+  }, null, 2));
   if (!report.summary.overallPass) {
     process.exitCode = 1;
   }

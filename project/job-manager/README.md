@@ -72,7 +72,7 @@ Current behavior:
 - it captures serial output from the current transport port
 - it parses `BoardManagerI2CScan:` lines by bus name
 - it compares configured contract addresses against observed addresses
-- it writes a JSON report under `project/job-manager/reports/`
+- it writes a JSON report under `project/job-manager/reports/` with identity, controller facts, firmware facts, signal samples, and health metrics where available
 - the command exits non-zero when configured addresses are missing or unexpected addresses are observed
 
 ## Validation Report Shape
@@ -84,4 +84,4 @@ Current validation reports include:
 - health placeholders for voltages, temperatures, and runner warnings
 - ordered phase summaries copied from the contract
 - per-check results with pass state, criteria, evidence, and failure notes
-- raw captured lines for operator review and later parser improvements
+- raw captured lines for operator review and later parser improvements`r`n- parsed controller, firmware, identity, and signal facts gathered from the board-agent, firmware, and diagnostic output

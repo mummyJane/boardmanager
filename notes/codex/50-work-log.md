@@ -1177,3 +1177,29 @@ Actions:
 Validation:
 - generate-validation-contracts.ps1 -> success; regenerated 5 board validation-contract files with reusable part-hook-derived device checks.
 - alidate.ps1 -> success; validated board definitions, device-manager data, Stage 3 job data, 5 validation contracts, and 1 validation report.
+## 2026-03-29 22:36 Europe/London
+
+Commands run:
+
+- alidate.ps1
+- alidate-board.ps1 -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -Seconds 3
+- alidate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Seconds 3
+- alidate.ps1
+
+Observed issues:
+
+- Both live board-validation captures only saw steady-state runtime lines during the capture window, so no fresh BoardManagerFirmware, BoardManagerAgent, or BoardManagerI2CScan lines were present in those runs.
+- The old Dial validation report had to be regenerated because the validation-report schema now requires the new acts section.
+
+Actions:
+
+- Extended project/scripts/run-stage3-validation.mjs so the validation runner now parses controller facts, firmware lines, board-agent lines, signal samples, and future board-health lines in addition to I2C scans.
+- Updated the report model in project/job-manager/schema/validation-report.schema.json to include a acts section for controller, firmware, identity, signals, and notes.
+- Added fallback logic so report identity and firmware facts are filled from the current Stage 2 inventory when the serial capture window only observes steady-state application output.
+- Regenerated the saved Stage 3 validation reports for the attached Dial and CoreS3 boards in the new report format.
+
+Validation:
+
+- alidate.ps1 -> success after regenerating the saved reports; validated board definitions, device-manager data, Stage 3 job data, 5 validation contracts, and 2 validation reports.
+- alidate-board.ps1 -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -Seconds 3 -> wrote a new structured report with identity, firmware, and GNSS PPS signal evidence; current result is overallPass=false because internal_i2c_configured and internal_i2c_scan failed in that capture window.
+- alidate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Seconds 3 -> wrote a new structured report with identity and live-input signal evidence; current result is overallPass=false because internal_i2c_configured and internal_i2c_scan failed in that capture window.

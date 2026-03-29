@@ -1,11 +1,11 @@
 {
   "reportType": "board-validation-report",
   "schemaVersion": 1,
-  "generatedAt": "2026-03-29T21:08:03.092Z",
+  "generatedAt": "2026-03-29T21:37:02.908Z",
   "contractId": "m5stack_dial_v1_1.validation-contract",
   "identity": {
     "boardId": "m5stack_dial_v1_1",
-    "boardDisplayName": "m5stack_dial_v1_1",
+    "boardDisplayName": "M5Stack Dial V1.1",
     "stableUnitId": "mac:c0:4e:30:13:2b:68",
     "port": "COM3",
     "transportKind": "serial",
@@ -21,19 +21,127 @@
   },
   "source": {
     "kind": "serial-capture",
-    "lineCount": 6
+    "lineCount": 3
   },
   "summary": {
     "overallPass": false,
-    "executedCheckCount": 1,
-    "failingCheckCount": 1,
+    "executedCheckCount": 14,
+    "failingCheckCount": 2,
     "warningCount": 0
   },
   "health": {
-    "lineCount": 6,
+    "lineCount": 3,
     "voltages": [],
     "temperatures": [],
     "warnings": []
+  },
+  "facts": {
+    "controller": {
+      "moduleId": "m5stamps3",
+      "displayName": "M5Stack Dial V1.1",
+      "platformSdk": "esp-idf",
+      "gpioPathReady": null,
+      "gnssPpsSignal": null
+    },
+    "firmware": {
+      "firmwareLine": null,
+      "agentLine": null,
+      "app": "m5stack_dial_demo",
+      "version": "0.1.0-dev",
+      "buildId": "Mar 29 2026 18:22:10",
+      "board": "m5stack_dial_v1_1",
+      "capabilities": [
+        "display",
+        "rfid",
+        "rotaryEncoder",
+        "rtc",
+        "touch",
+        "usb",
+        "wifi"
+      ]
+    },
+    "identity": {
+      "stableUnitId": "mac:c0:4e:30:13:2b:68",
+      "matchedBoardId": "m5stack_dial_v1_1",
+      "chip": "ESP32-S3 (QFN56) (revision v0.2)",
+      "macAddress": "c0:4e:30:13:2b:68",
+      "serialNumber": "7&203f6002&0&0000"
+    },
+    "signals": [
+      {
+        "signalName": "touch_interrupt",
+        "value": 0,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "rfid_interrupt",
+        "value": 0,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "encoder_phase_a",
+        "value": 1,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "encoder_phase_b",
+        "value": 1,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "touch_interrupt",
+        "value": 0,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "rfid_interrupt",
+        "value": 0,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "encoder_phase_a",
+        "value": 1,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "encoder_phase_b",
+        "value": 1,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "touch_interrupt",
+        "value": 0,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "rfid_interrupt",
+        "value": 0,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "encoder_phase_a",
+        "value": 1,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      },
+      {
+        "signalName": "encoder_phase_b",
+        "value": 1,
+        "source": "dial-live",
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
+      }
+    ],
+    "notes": []
   },
   "phases": [
     {
@@ -124,17 +232,14 @@
       "target": "m5stamps3",
       "kind": "controller-identity",
       "description": "Confirm the connected unit reports or probes as the configured controller module and MCU family.",
-      "pass": null,
+      "pass": true,
       "passCriteria": "The matched unit identity agrees with the configured module or MCU family.",
       "evidence": {
-        "source": "board.controller",
-        "config": {
-          "moduleId": "m5stamps3",
-          "moduleName": "M5StampS3",
-          "mcuId": "esp32_s3",
-          "mcuName": "ESP32-S3",
-          "sdk": "esp-idf"
-        }
+        "source": "inventory-and-agent",
+        "matchedBoardId": "m5stack_dial_v1_1",
+        "firmwareBoard": "m5stack_dial_v1_1",
+        "agentBoard": null,
+        "chip": "ESP32-S3 (QFN56) (revision v0.2)"
       },
       "failureNotes": []
     },
@@ -145,11 +250,12 @@
       "target": "m5stamps3",
       "kind": "transport-ready",
       "description": "Confirm the controller transport required for validation is present and usable.",
-      "pass": null,
+      "pass": true,
       "passCriteria": "A transport such as serial, USB-serial/JTAG, or STLink VCP is available for the selected unit.",
       "evidence": {
-        "source": "discovery.transport",
-        "config": {}
+        "source": "inventory.transport",
+        "port": "COM3",
+        "transportKind": "serial"
       },
       "failureNotes": []
     },
@@ -160,18 +266,16 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared UART capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "uart",
-          "declared": [
-            "UART0",
-            "UART1",
-            "LP_UART"
-          ]
-        }
+        "source": "contract.config",
+        "family": "uart",
+        "declared": [
+          "UART0",
+          "UART1",
+          "LP_UART"
+        ]
       },
       "failureNotes": []
     },
@@ -182,17 +286,15 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared I2C capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "i2c",
-          "declared": [
-            "I2C0",
-            "I2C1"
-          ]
-        }
+        "source": "contract.config",
+        "family": "i2c",
+        "declared": [
+          "I2C0",
+          "I2C1"
+        ]
       },
       "failureNotes": []
     },
@@ -203,17 +305,15 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared SPI capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "spi",
-          "declared": [
-            "SPI2",
-            "SPI3"
-          ]
-        }
+        "source": "contract.config",
+        "family": "spi",
+        "declared": [
+          "SPI2",
+          "SPI3"
+        ]
       },
       "failureNotes": []
     },
@@ -224,17 +324,15 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared I2S capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "i2s",
-          "declared": [
-            "I2S0",
-            "I2S1"
-          ]
-        }
+        "source": "contract.config",
+        "family": "i2s",
+        "declared": [
+          "I2S0",
+          "I2S1"
+        ]
       },
       "failureNotes": []
     },
@@ -245,16 +343,14 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared TWAI capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "twai",
-          "declared": [
-            "TWAI0"
-          ]
-        }
+        "source": "contract.config",
+        "family": "twai",
+        "declared": [
+          "TWAI0"
+        ]
       },
       "failureNotes": []
     },
@@ -265,17 +361,15 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared USB capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "usb",
-          "declared": [
-            "USB_SERIAL_JTAG",
-            "USB_OTG"
-          ]
-        }
+        "source": "contract.config",
+        "family": "usb",
+        "declared": [
+          "USB_SERIAL_JTAG",
+          "USB_OTG"
+        ]
       },
       "failureNotes": []
     },
@@ -286,17 +380,15 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared ADC capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "adc",
-          "declared": [
-            "ADC1",
-            "ADC2"
-          ]
-        }
+        "source": "contract.config",
+        "family": "adc",
+        "declared": [
+          "ADC1",
+          "ADC2"
+        ]
       },
       "failureNotes": []
     },
@@ -307,16 +399,14 @@
       "target": "m5stamps3",
       "kind": "controller-peripheral-declared",
       "description": "Confirm the controller exposes the declared PWM capability needed by the board config.",
-      "pass": null,
+      "pass": true,
       "passCriteria": null,
       "evidence": {
-        "source": "mcu.peripherals",
-        "config": {
-          "family": "pwm",
-          "declared": [
-            "LEDC"
-          ]
-        }
+        "source": "contract.config",
+        "family": "pwm",
+        "declared": [
+          "LEDC"
+        ]
       },
       "failureNotes": []
     },
@@ -347,36 +437,13 @@
       "target": "internal_i2c",
       "kind": "bus-configured",
       "description": "Confirm bus internal_i2c is configured on the declared controller peripheral and signal lines.",
-      "pass": null,
+      "pass": false,
       "passCriteria": "The bus can be opened using the declared controller peripheral and line mapping.",
       "evidence": {
-        "source": "board.buses",
-        "config": {
-          "bus": "internal_i2c",
-          "kind": "i2c",
-          "controllerPeripheral": "I2C0",
-          "lines": {
-            "sda": "GPIO11",
-            "scl": "GPIO12"
-          },
-          "expectedDevices": [
-            {
-              "instanceId": "rtc",
-              "partId": "bm8563",
-              "i2cAddress": "0x51"
-            },
-            {
-              "instanceId": "rfid",
-              "partId": "ws1850s",
-              "i2cAddress": "0x28"
-            },
-            {
-              "instanceId": "touch",
-              "partId": "ft3267",
-              "i2cAddress": "0x38"
-            }
-          ]
-        }
+        "source": "contract.config",
+        "bus": "internal_i2c",
+        "observedAddresses": [],
+        "rawLine": null
       },
       "failureNotes": []
     },
@@ -439,51 +506,55 @@
     },
     {
       "phaseId": "device:rtc",
-      "checkId": "rtc_smoke_1",
+      "checkId": "rtc_hook_i2c_ack",
       "level": "device",
       "target": "rtc",
-      "kind": "device-smoke-check",
+      "kind": "device-i2c-ack",
       "description": "Probe the configured I2C address and confirm an ACK is received.",
       "pass": null,
-      "passCriteria": "The device acknowledges on I2C and returns readable register data.",
+      "passCriteria": "The device acknowledges on the configured I2C address.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "i2c_ack",
           "instanceId": "rtc",
           "partId": "bm8563",
           "bus": "internal_i2c",
+          "busKind": "i2c",
           "deviceConfig": {
             "i2cAddress": "0x51"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A missing ACK usually indicates the bus is not powered or the address is wrong.",
-        "Readable but invalid time data should be treated as present but unconfigured."
+        "A missing ACK usually indicates the bus is not powered or the address is wrong."
       ]
     },
     {
       "phaseId": "device:rtc",
-      "checkId": "rtc_smoke_2",
+      "checkId": "rtc_hook_rtc_register_read",
       "level": "device",
       "target": "rtc",
-      "kind": "device-smoke-check",
+      "kind": "device-register-read",
       "description": "Read a known RTC register to verify bus-level communication.",
       "pass": null,
-      "passCriteria": "The device acknowledges on I2C and returns readable register data.",
+      "passCriteria": "The RTC returns readable register data over I2C.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "rtc_register_read",
           "instanceId": "rtc",
           "partId": "bm8563",
           "bus": "internal_i2c",
+          "busKind": "i2c",
           "deviceConfig": {
             "i2cAddress": "0x51"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A missing ACK usually indicates the bus is not powered or the address is wrong.",
         "Readable but invalid time data should be treated as present but unconfigured."
       ]
     },
@@ -516,54 +587,48 @@
     },
     {
       "phaseId": "device:touch",
-      "checkId": "touch_smoke_1",
+      "checkId": "touch_hook_i2c_ack",
       "level": "device",
       "target": "touch",
-      "kind": "device-smoke-check",
+      "kind": "device-i2c-ack",
       "description": "Confirm the controller acknowledges on I2C.",
       "pass": null,
-      "passCriteria": "The controller responds on I2C and the interrupt line can be sampled.",
+      "passCriteria": "The touch controller acknowledges on the configured I2C address.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "i2c_ack",
           "instanceId": "touch",
           "partId": "ft3267",
           "bus": "internal_i2c",
+          "busKind": "i2c",
           "deviceConfig": {
             "i2cAddress": "0x38",
             "interruptSignal": "touch_interrupt"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A quiet interrupt line is not a fault by itself.",
         "No I2C response usually indicates a power, reset, or address mismatch."
       ]
     },
     {
       "phaseId": "device:touch",
-      "checkId": "touch_smoke_2",
+      "checkId": "touch_hook_interrupt_idle_sample",
       "level": "device",
       "target": "touch",
-      "kind": "device-smoke-check",
+      "kind": "device-interrupt-sample",
       "description": "Sample the interrupt line state without requiring a touch event.",
-      "pass": null,
-      "passCriteria": "The controller responds on I2C and the interrupt line can be sampled.",
+      "pass": true,
+      "passCriteria": "The interrupt line can be sampled through the board mapping.",
       "evidence": {
-        "source": "part.smokeTest",
-        "config": {
-          "instanceId": "touch",
-          "partId": "ft3267",
-          "bus": "internal_i2c",
-          "deviceConfig": {
-            "i2cAddress": "0x38",
-            "interruptSignal": "touch_interrupt"
-          }
-        }
+        "source": "dial-live",
+        "sampledValue": 0,
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
       },
       "failureNotes": [
-        "A quiet interrupt line is not a fault by itself.",
-        "No I2C response usually indicates a power, reset, or address mismatch."
+        "A quiet interrupt line is not a fault by itself."
       ]
     },
     {
@@ -596,82 +661,77 @@
     },
     {
       "phaseId": "device:rfid",
-      "checkId": "rfid_smoke_1",
+      "checkId": "rfid_hook_reset_cycle",
       "level": "device",
       "target": "rfid",
-      "kind": "device-smoke-check",
+      "kind": "device-reset-cycle",
       "description": "Assert and release reset if wired.",
       "pass": null,
-      "passCriteria": "The part recovers from reset and responds on I2C.",
+      "passCriteria": "The reset path can be exercised using the configured board signal.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "reset_cycle",
           "instanceId": "rfid",
           "partId": "ws1850s",
           "bus": "internal_i2c",
+          "busKind": "i2c",
           "deviceConfig": {
             "i2cAddress": "0x28",
             "interruptSignal": "rfid_interrupt",
             "resetSignal": "rfid_reset"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A bad reset polarity can keep the device permanently offline.",
-        "Interrupt inactivity alone is not a failure if I2C probe succeeds."
+        "A bad reset polarity can keep the device permanently offline."
       ]
     },
     {
       "phaseId": "device:rfid",
-      "checkId": "rfid_smoke_2",
+      "checkId": "rfid_hook_i2c_ack",
       "level": "device",
       "target": "rfid",
-      "kind": "device-smoke-check",
+      "kind": "device-i2c-ack",
       "description": "Probe the configured I2C address.",
       "pass": null,
-      "passCriteria": "The part recovers from reset and responds on I2C.",
+      "passCriteria": "The part responds on its configured I2C address after reset handling.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "i2c_ack",
           "instanceId": "rfid",
           "partId": "ws1850s",
           "bus": "internal_i2c",
+          "busKind": "i2c",
           "deviceConfig": {
             "i2cAddress": "0x28",
             "interruptSignal": "rfid_interrupt",
             "resetSignal": "rfid_reset"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A bad reset polarity can keep the device permanently offline.",
-        "Interrupt inactivity alone is not a failure if I2C probe succeeds."
+        "A bad reset polarity can keep the device permanently offline."
       ]
     },
     {
       "phaseId": "device:rfid",
-      "checkId": "rfid_smoke_3",
+      "checkId": "rfid_hook_interrupt_idle_sample",
       "level": "device",
       "target": "rfid",
-      "kind": "device-smoke-check",
+      "kind": "device-interrupt-sample",
       "description": "Read the board-mapped interrupt input for a stable idle state.",
-      "pass": null,
-      "passCriteria": "The part recovers from reset and responds on I2C.",
+      "pass": true,
+      "passCriteria": "The interrupt signal can be sampled through the board mapping.",
       "evidence": {
-        "source": "part.smokeTest",
-        "config": {
-          "instanceId": "rfid",
-          "partId": "ws1850s",
-          "bus": "internal_i2c",
-          "deviceConfig": {
-            "i2cAddress": "0x28",
-            "interruptSignal": "rfid_interrupt",
-            "resetSignal": "rfid_reset"
-          }
-        }
+        "source": "dial-live",
+        "sampledValue": 0,
+        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
       },
       "failureNotes": [
-        "A bad reset polarity can keep the device permanently offline.",
         "Interrupt inactivity alone is not a failure if I2C probe succeeds."
       ]
     },
@@ -772,79 +832,85 @@
     },
     {
       "phaseId": "device:display",
-      "checkId": "display_smoke_1",
+      "checkId": "display_hook_spi_path",
       "level": "device",
       "target": "display",
-      "kind": "device-smoke-check",
+      "kind": "device-spi-command-path",
       "description": "Initialize the SPI peripheral for the panel bus.",
       "pass": null,
-      "passCriteria": "The command path completes without transport error and any backlight control responds.",
+      "passCriteria": "The SPI bus is ready for device command traffic.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "spi_path",
           "instanceId": "display",
           "partId": "gc9a01",
           "bus": "display_spi",
+          "busKind": "spi",
           "deviceConfig": {
             "resetSignal": "rfid_reset",
             "backlightSignal": "lcd_backlight"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A passing command-path test does not guarantee pixel rendering is correct.",
-        "Shared reset wiring must be documented if the display reset line is multiplexed."
+        "The bus must be configured before panel commands can be tested."
       ]
     },
     {
       "phaseId": "device:display",
-      "checkId": "display_smoke_2",
+      "checkId": "display_hook_display_command",
       "level": "device",
       "target": "display",
-      "kind": "device-smoke-check",
+      "kind": "device-command-write",
       "description": "Transmit at least one known display command over the command path.",
       "pass": null,
-      "passCriteria": "The command path completes without transport error and any backlight control responds.",
+      "passCriteria": "The command path completes without transport error.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "display_command",
           "instanceId": "display",
           "partId": "gc9a01",
           "bus": "display_spi",
+          "busKind": "spi",
           "deviceConfig": {
             "resetSignal": "rfid_reset",
             "backlightSignal": "lcd_backlight"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A passing command-path test does not guarantee pixel rendering is correct.",
-        "Shared reset wiring must be documented if the display reset line is multiplexed."
+        "A passing command-path test does not guarantee pixel rendering is correct."
       ]
     },
     {
       "phaseId": "device:display",
-      "checkId": "display_smoke_3",
+      "checkId": "display_hook_backlight_toggle",
       "level": "device",
       "target": "display",
-      "kind": "device-smoke-check",
+      "kind": "device-backlight-toggle",
       "description": "Toggle backlight if that signal exists.",
       "pass": null,
-      "passCriteria": "The command path completes without transport error and any backlight control responds.",
+      "passCriteria": "The mapped backlight signal responds when present.",
       "evidence": {
-        "source": "part.smokeTest",
+        "source": "part.validationHooks",
         "config": {
+          "hookId": "backlight_toggle",
           "instanceId": "display",
           "partId": "gc9a01",
           "bus": "display_spi",
+          "busKind": "spi",
           "deviceConfig": {
             "resetSignal": "rfid_reset",
             "backlightSignal": "lcd_backlight"
-          }
+          },
+          "hookConfig": {}
         }
       },
       "failureNotes": [
-        "A passing command-path test does not guarantee pixel rendering is correct.",
         "Shared reset wiring must be documented if the display reset line is multiplexed."
       ]
     },
@@ -871,9 +937,6 @@
   ],
   "rawCapture": {
     "lines": [
-      "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
-      "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
-      "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
       "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
       "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
       "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
