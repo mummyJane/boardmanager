@@ -221,3 +221,6 @@ un, and debug records.
 
 - 2026-03-30 20:30 Europe/London: Stage 4 now has a first served shell under project/web-ui/app, hosted by the Python Stage 4 service at / and /static/....
 - 2026-03-30 20:30 Europe/London: The shell already loads module, board, and project lists from the Python Stage 4 read APIs, while inventory, jobs, and reports are present as reserved navigation targets for the next UI tasks.
+
+- 2026-03-30 20:50 Europe/London: Stage 4 inventory is now backed by /api/stage4/dashboard/inventory, which merges current units, unresolved conflicts, override count, recent validation reports, and recent jobs from the existing Stage 2 and Stage 3 stores.
+- 2026-03-30 20:50 Europe/London: The shell inventory panel now renders real present-unit cards instead of placeholder text, while the preview panel shows bench conflict and recent-validation summary information.

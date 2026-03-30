@@ -51,6 +51,7 @@ Current endpoints:
 - `/api/stage4/projects`
 - `/api/stage4/projects/<projectId>`
 - `/api/stage4/help?path=project/help/parts/bm8563.md`
+- `/api/stage4/dashboard/inventory`
 
 The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.
 ## Web Shell
@@ -76,3 +77,9 @@ The shell is intentionally thin at this stage:
 
 - modules, boards, and projects already load from the Python Stage 4 read APIs
 - inventory, jobs, and reports are reserved navigation targets that will be filled by the next Stage 4 tasks
+The inventory dashboard endpoint merges:
+
+- current Stage 2 inventory data
+- Stage 2 history conflict and override state
+- recent Stage 3 validation reports
+- recent Stage 3 job activity

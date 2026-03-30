@@ -251,3 +251,6 @@
 
 - 2026-03-30 20:30 Europe/London: Use the existing Python Stage 4 server as the first shell host instead of introducing a separate frontend runtime immediately. That keeps Milestone 4 aligned with the Python web-server requirement and reduces early stack sprawl.
 - 2026-03-30 20:30 Europe/London: Treat inventory, jobs, and reports as reserved shell sections now even before their full view logic exists. Locking the navigation shape early makes later UI tasks less disruptive.
+
+- 2026-03-30 20:50 Europe/London: Keep the inventory dashboard as an aggregated Python endpoint instead of making the browser stitch together raw Stage 2 and Stage 3 sources itself. The UI should consume one operator-facing bench summary contract.
+- 2026-03-30 20:50 Europe/London: Validate the inventory dashboard by importing the Python module directly when localhost process-launch checks are blocked by the Windows sandbox. That still proves the payload logic against real repo data without pretending the blocked runner path succeeded.

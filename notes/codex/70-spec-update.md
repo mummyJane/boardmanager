@@ -180,3 +180,5 @@
 - 2026-03-30 20:05 Europe/London: Stage 4 spec updated to require the first Python read-only API surface over the generated tree model, including module, board, project, and linked help-content endpoints. Reason: the web UI now has a Python-hosted read path that matches the user's runtime preference and can serve both tree data and local help pages from one service layer.
 
 - 2026-03-30 20:30 Europe/London: Stage 4 spec updated to call out the first served web shell with top-level navigation for inventory, modules, boards, projects, jobs, and reports. Reason: the Python Stage 4 service now hosts a real browser shell, even though some sections still intentionally point at later Stage 4 tasks.
+
+- 2026-03-30 20:50 Europe/London: Stage 4 spec updated to call out the inventory dashboard as an aggregated bench view over Stage 2 inventory/history plus recent Stage 3 validation and job state. Reason: the first real inventory dashboard now exists and the UI contract should reflect that it is more than a raw unit list.

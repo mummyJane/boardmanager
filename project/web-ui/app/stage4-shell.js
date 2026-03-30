@@ -4,13 +4,14 @@ const state = {
   modules: null,
   boards: null,
   projects: null,
+  inventoryDashboard: null,
 };
 
 const titles = {
   inventory: {
     title: "Inventory",
     eyebrow: "Bench overview",
-    description: "Inventory, jobs, and reports are the next UI slices. This first shell gives them fixed navigation positions now so the layout can settle before deeper workflows land."
+    description: "Current bench units, conflicts, recent validation state, and recent Stage 3 activity."
   },
   modules: {
     title: "Modules",
@@ -68,10 +69,49 @@ function renderList(items) {
   `).join("")}</ul>`;
 }
 
+function inventoryStatusLabel(unit) {
+  if (!unit.health) {
+    return 'no report';
+  }
+  return unit.health.overallPass ? 'pass' : `fail (${unit.health.failingCheckCount ?? 0})`;
+}
+
 function renderPreview(view) {
   const secondaryTitle = document.getElementById("secondary-title");
   const secondaryBody = document.getElementById("secondary-body");
   secondaryTitle.textContent = `${titles[view].title} Preview`;
+
+  if (view === "inventory" && state.inventoryDashboard) {
+    const previewItems = [
+      {
+        title: 'Conflicts',
+        description: `${state.inventoryDashboard.summary.conflictCount} unresolved identity conflicts on the current bench.`,
+        meta: [`overrides ${state.inventoryDashboard.summary.overrideCount}`, `reports ${state.inventoryDashboard.summary.recentReportCount}`]
+      },
+      {
+        title: 'Recent validation',
+        description: `${state.inventoryDashboard.summary.failingRecentReportCount} of the recent validation reports are failing.`,
+        meta: [`healthy units ${state.inventoryDashboard.summary.healthyUnitCount}`, `jobs ${state.inventoryDashboard.summary.recentJobCount}`]
+      }
+    ];
+
+    if (state.inventoryDashboard.conflicts.length) {
+      previewItems.push(...state.inventoryDashboard.conflicts.map((conflict) => ({
+        title: conflict.conflictId ?? 'conflict',
+        description: `Chosen ${conflict.chosenStableKey ?? 'unknown'} over ${conflict.candidateStableKeys.join(', ')}`,
+        meta: [conflict.status ?? 'unknown', conflict.detectedAt ?? '']
+      })));
+    } else {
+      previewItems.push({
+        title: 'No active conflicts',
+        description: 'The current bench inventory has no unresolved identity conflicts.',
+        meta: []
+      });
+    }
+
+    secondaryBody.innerHTML = renderList(previewItems);
+    return;
+  }
 
   if (view === "modules" && state.modules) {
     const sample = state.modules.nodes.slice(0, 4).map((node) => ({
@@ -114,12 +154,18 @@ function renderPrimary(view) {
 
   const primaryBody = document.getElementById("primary-body");
 
-  if (view === "inventory") {
-    primaryBody.innerHTML = `
-      <div class="empty-note">
-        <strong>Inventory shell is reserved.</strong><br>
-        The shell navigation is in place now. The next inventory task will fill this panel from Stage 2 unit history, conflicts, overrides, and recent Stage 3 jobs.
-      </div>`;
+  if (view === "inventory" && state.inventoryDashboard) {
+    const items = state.inventoryDashboard.units.map((unit) => ({
+      title: unit.label || unit.boardId || unit.unitId,
+      description: `${unit.port ?? 'no port'} · ${unit.boardMatchStatus ?? 'unmatched'} · ${unit.firmwareApp ?? 'no firmware id'}`,
+      meta: [
+        unit.unitId,
+        unit.transportKind ?? 'unknown transport',
+        unit.chip ?? 'unknown chip',
+        inventoryStatusLabel(unit)
+      ]
+    }));
+    primaryBody.innerHTML = renderList(items);
     return;
   }
 
@@ -166,18 +212,20 @@ function setActiveView(view) {
 }
 
 async function loadShell() {
-  const [health, tree, modules, boards, projects] = await Promise.all([
+  const [health, tree, modules, boards, projects, inventoryDashboard] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
     fetchJson('/api/stage4/boards?includeChildren=false'),
-    fetchJson('/api/stage4/projects?includeChildren=false')
+    fetchJson('/api/stage4/projects?includeChildren=false'),
+    fetchJson('/api/stage4/dashboard/inventory')
   ]);
 
   state.tree = tree;
   state.modules = modules;
   state.boards = boards;
   state.projects = projects;
+  state.inventoryDashboard = inventoryDashboard;
 
   setText('api-runtime', `runtime: ${health.runtime}`);
   setText('model-stamp', `tree: ${tree.generatedAt}`);

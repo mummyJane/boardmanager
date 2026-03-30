@@ -1554,3 +1554,32 @@ Validation:
 - python -m py_compile project/scripts/stage4-read-api.py -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
 - Live localhost fetch for / and /static/... was attempted but blocked by the Windows sandbox runner with access-denied process-launch restrictions.
+
+## 2026-03-30 20:50 Europe/London
+
+Commands run:
+
+- Get-Content project/device-manager/data/inventory.json -Head 220
+- Get-Content project/device-manager/data/unit-history.json -Head 260
+- Get-Content project/job-manager/data/jobs.json -Head 220
+- Get-ChildItem project/job-manager/reports
+- python -m py_compile project/scripts/stage4-read-api.py
+- python -c importlib load of project/scripts/stage4-read-api.py and build_inventory_dashboard_payload()
+- validate.ps1
+
+Observed issues:
+
+- The Stage 4 shell existed, but the inventory panel still used placeholder text instead of real bench data.
+- Localhost browser-style fetch validation remains blocked by the Windows sandbox runner, so the dashboard endpoint needed a validation path that did not require a temporary served process inside the sandbox.
+
+Actions:
+
+- Extended the Python Stage 4 service with /api/stage4/dashboard/inventory, which merges current inventory, unresolved conflicts, override count, recent validation reports, and recent jobs.
+- Updated the shell JavaScript so the inventory view now renders present units with board match, transport, chip, firmware, and validation status, and the preview panel shows conflict and recent-validation summary information.
+- Updated the Stage 4 spec, plan, task list, context, and web-ui README to mark the inventory dashboard task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- Python import validation of build_inventory_dashboard_payload() -> success; presentUnitCount 5, conflictCount 0, recentReportCount 4, firstUnit mac:c0:4e:30:13:2b:68.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

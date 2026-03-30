@@ -10,6 +10,16 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 REPO_ROOT = PROJECT_ROOT.parent
 TREE_MODEL_PATH = PROJECT_ROOT / "web-ui" / "data" / "stage4-tree-model.json"
 WEB_APP_ROOT = PROJECT_ROOT / "web-ui" / "app"
+DEVICE_MANAGER_DATA_ROOT = PROJECT_ROOT / "device-manager" / "data"
+JOB_MANAGER_DATA_ROOT = PROJECT_ROOT / "job-manager" / "data"
+JOB_MANAGER_REPORTS_ROOT = PROJECT_ROOT / "job-manager" / "reports"
+
+
+def read_json(file_path, fallback):
+    try:
+        return json.loads(file_path.read_text(encoding="utf-8"))
+    except Exception:
+        return fallback
 
 
 def load_tree_model():
@@ -63,6 +73,134 @@ def load_help_text(relative_path):
     if candidate != repo_root and repo_root not in candidate.parents:
         raise FileNotFoundError("help path outside repo")
     return candidate.read_text(encoding="utf-8"), str(candidate.relative_to(REPO_ROOT)).replace("\\", "/")
+
+
+def load_inventory():
+    return read_json(DEVICE_MANAGER_DATA_ROOT / "inventory.json", {"generatedAt": None, "host": {}, "units": []})
+
+
+def load_history():
+    return read_json(DEVICE_MANAGER_DATA_ROOT / "unit-history.json", {"generatedAt": None, "host": {}, "units": [], "families": [], "conflicts": []})
+
+
+def load_jobs():
+    return read_json(JOB_MANAGER_DATA_ROOT / "jobs.json", {"generatedAt": None, "jobs": [], "nextJobSequence": 1})
+
+
+def load_validation_reports():
+    reports = []
+    if not JOB_MANAGER_REPORTS_ROOT.exists():
+        return reports
+    for file_path in sorted(JOB_MANAGER_REPORTS_ROOT.glob("validation-*.json")):
+        report = read_json(file_path, None)
+        if report is None:
+            continue
+        report["__fileName"] = file_path.name
+        reports.append(report)
+    reports.sort(key=lambda item: item.get("generatedAt") or "", reverse=True)
+    return reports
+
+
+def build_inventory_dashboard_payload():
+    inventory = load_inventory()
+    history = load_history()
+    jobs_store = load_jobs()
+    reports = load_validation_reports()
+    report_by_unit = {}
+    for report in reports:
+        stable_unit_id = report.get("identity", {}).get("stableUnitId")
+        if stable_unit_id and stable_unit_id not in report_by_unit:
+            report_by_unit[stable_unit_id] = report
+
+    present_units = list(inventory.get("units", []))
+    unresolved_conflicts = [entry for entry in history.get("conflicts", []) if entry.get("status") != "resolved"]
+    overrides = [entry for entry in history.get("units", []) if (entry.get("manualOverride") or {}).get("boardId") or (entry.get("manualOverride") or {}).get("familyKey")]
+    recent_jobs = sorted(jobs_store.get("jobs", []), key=lambda item: item.get("updatedAt") or item.get("createdAt") or "", reverse=True)[:5]
+    recent_reports = reports[:5]
+
+    units_payload = []
+    for unit in present_units:
+        latest_report = report_by_unit.get(unit.get("unitId")) or report_by_unit.get(unit.get("identity", {}).get("stableKey"))
+        match = unit.get("match", {})
+        annotation = unit.get("annotation", {})
+        observed = unit.get("observed", {})
+        transport = unit.get("transport", {})
+        units_payload.append({
+            "unitId": unit.get("unitId"),
+            "boardId": match.get("boardId"),
+            "boardMatchStatus": match.get("status"),
+            "label": annotation.get("label"),
+            "port": transport.get("port"),
+            "transportKind": transport.get("kind"),
+            "firmwareApp": observed.get("firmwareApp"),
+            "firmwareVersion": observed.get("firmwareVersion"),
+            "chip": observed.get("chip"),
+            "mac": observed.get("mac"),
+            "serialNumber": observed.get("serialNumber"),
+            "health": None if latest_report is None else {
+                "overallPass": latest_report.get("summary", {}).get("overallPass"),
+                "failingCheckCount": latest_report.get("summary", {}).get("failingCheckCount"),
+                "warningCount": latest_report.get("summary", {}).get("warningCount"),
+                "generatedAt": latest_report.get("generatedAt"),
+            }
+        })
+
+    report_payload = []
+    for report in recent_reports:
+        identity = report.get("identity", {})
+        summary = report.get("summary", {})
+        report_payload.append({
+            "fileName": report.get("__fileName"),
+            "generatedAt": report.get("generatedAt"),
+            "boardId": identity.get("boardId"),
+            "stableUnitId": identity.get("stableUnitId"),
+            "overallPass": summary.get("overallPass"),
+            "failingCheckCount": summary.get("failingCheckCount"),
+            "warningCount": summary.get("warningCount"),
+        })
+
+    conflict_payload = []
+    for conflict in unresolved_conflicts[:5]:
+        conflict_payload.append({
+            "conflictId": conflict.get("conflictId"),
+            "status": conflict.get("status"),
+            "chosenStableKey": conflict.get("chosenStableKey"),
+            "candidateStableKeys": conflict.get("candidateStableKeys", []),
+            "detectedAt": conflict.get("detectedAt"),
+        })
+
+    job_payload = []
+    for job in recent_jobs:
+        job_payload.append({
+            "jobId": job.get("jobId"),
+            "action": job.get("action"),
+            "status": job.get("status"),
+            "updatedAt": job.get("updatedAt"),
+            "boardId": (job.get("resolution") or {}).get("boardId"),
+            "unitId": (job.get("resolution") or {}).get("unitId"),
+        })
+
+    failing_reports = sum(1 for report in recent_reports if report.get("summary", {}).get("overallPass") is False)
+    healthy_units = sum(1 for unit in units_payload if unit.get("health") and unit["health"].get("overallPass") is True)
+
+    return {
+        "generatedAt": inventory.get("generatedAt"),
+        "host": inventory.get("host", {}),
+        "summary": {
+            "presentUnitCount": len(present_units),
+            "familyCount": len(history.get("families", [])),
+            "conflictCount": len(unresolved_conflicts),
+            "overrideCount": len(overrides),
+            "recentJobCount": len(recent_jobs),
+            "recentReportCount": len(recent_reports),
+            "failingRecentReportCount": failing_reports,
+            "healthyUnitCount": healthy_units,
+        },
+        "units": units_payload,
+        "conflicts": conflict_payload,
+        "recentJobs": job_payload,
+        "recentReports": report_payload,
+    }
 
 
 class Stage4ReadApiHandler(BaseHTTPRequestHandler):
@@ -119,6 +257,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, {"status": "ok", "runtime": "python"})
                 return
 
+            if parsed.path == "/api/stage4/dashboard/inventory":
+                self._send_json(200, build_inventory_dashboard_payload())
+                return
+
             if parsed.path == "/api/stage4/tree":
                 self._send_json(200, model)
                 return
@@ -161,6 +303,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                     "endpoints": [
                         "/",
                         "/health",
+                        "/api/stage4/dashboard/inventory",
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
