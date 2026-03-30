@@ -167,3 +167,6 @@
 ## 2026-03-30 17:25 Europe/London
 
 - Clarified the Stage 3 service requirement so the service layer explicitly exposes job lists, log tails, parsed reports, and artifact metadata. That is the practical minimum the later web UI needs to show Stage 3 activity without direct filesystem access.
+## 2026-03-30 18:10 Europe/London
+
+- No feature-scope change to Stage 3, but the completion criteria are now satisfied by the local regression suite plus the existing live bench validations. That gives a repeatable gate without making hardware attachment mandatory for every run.

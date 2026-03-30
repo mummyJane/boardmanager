@@ -231,3 +231,4 @@
 
 - Debug-job orchestration will prepare reproducible launch metadata and reports rather than trying to own a long-lived interactive debugger session. This keeps the Stage 3 runner bounded while still giving CLI and IDE consumers the exact commands and settings they need.
 - Stage 3 service APIs will expose log tails and parsed reports rather than arbitrary filesystem reads. This gives the web UI the useful data it needs while keeping the HTTP surface small and stable.
+- Stage 3 regression coverage will stay hardware-free by testing validation parsing and job-store transitions with local fixture data rather than requiring live boards for every test run. Live bench checks remain useful, but they are not the default regression gate.

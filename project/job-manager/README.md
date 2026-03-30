@@ -174,3 +174,14 @@ Current behavior:
 - `/api/job-log` returns the selected log entry plus a text tail for operator and UI views
 - `/api/job-report` returns the parsed JSON report payload for the selected job
 - `/api/job-artifacts` returns artifact metadata including kind, path, size, and existence
+
+## Tests
+
+Use 	est.ps1 to run the local regression suite.
+
+Current Stage 3 coverage includes:
+
+- validation-style parsing for bus-scan evidence and mismatch reporting
+- job-store summary and result assertions
+- service-data reads for job lists, log tails, parsed reports, and artifact metadata
+- cleanup back to an empty local Stage 3 job store after the test run

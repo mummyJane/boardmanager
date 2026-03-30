@@ -200,3 +200,6 @@ un, and debug records.
 
 - Stage 3 now needs service endpoints on top of the local job store so the web UI can read job status, reports, logs, and artifact metadata without touching the filesystem directly.
 
+
+- Milestone 3 now has local regression tests covering Stage 3 validation parsing and Stage 3 job-store service reads without requiring attached hardware.
+

@@ -147,3 +147,6 @@ Initial success criteria:
 
 - extend the shared HTTP service from Stage 2 inventory data into Stage 3 job, log, report, and artifact APIs for the future web UI
 
+
+- Milestone 3 is now closed out with local regression coverage for Stage 3 validation logic and job-state transitions
+

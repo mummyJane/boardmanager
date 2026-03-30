@@ -1390,3 +1390,6 @@ Validation:
 - Live validation: started serve-device-manager.ps1 on 127.0.0.1:8790 after creating one fresh debug job for m5stack_cores3_gnss_v1 on mac:48:27:e2:66:b0:04.
 - Result: /api/jobs?job=job-000001 returned jobCount: 1, /api/job-log?job=job-000001&tail=5 returned 	ailLineCount: 5, /api/job-report?job=job-000001 returned eportKind: debug, and /api/job-artifacts?job=job-000001 returned rtifactCount: 3.
 - Cleanup: stopped the temporary service process, removed temporary service stdout or stderr logs, reset project/job-manager/data/jobs.json, and removed temporary debug job logs and reports.
+- Added project/tests/stage3-validation-and-jobs.test.mjs and extended project/tests/run-device-manager-tests.mjs so the local test suite now covers Stage 3 validation-style parsing and Stage 3 job-store or service-data transitions.
+- Validation: ./test.ps1 passed all 3 test groups and ./validate.ps1 passed with an empty Stage 3 job store.
+- Milestone 3 is now complete.
