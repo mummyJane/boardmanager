@@ -12,7 +12,11 @@ param(
     [string]$Platform,
     [string]$Transport,
     [string]$Reason,
-    [string]$Summary
+    [string]$Summary,
+    [string]$ReportPath,
+    [string]$ExitCode,
+    [ValidateSet('true', 'false')][string]$Pass,
+    [string]$ResultJson
 )
 
 $ErrorActionPreference = 'Stop'
@@ -40,6 +44,10 @@ try {
         if ($PSBoundParameters.ContainsKey('Transport')) { $arguments += @('--transport', $Transport) }
         if ($PSBoundParameters.ContainsKey('Reason')) { $arguments += @('--reason', $Reason) }
         if ($PSBoundParameters.ContainsKey('Summary')) { $arguments += @('--summary', $Summary) }
+        if ($PSBoundParameters.ContainsKey('ReportPath')) { $arguments += @('--report-path', $ReportPath) }
+        if ($PSBoundParameters.ContainsKey('ExitCode')) { $arguments += @('--exit-code', $ExitCode) }
+        if ($PSBoundParameters.ContainsKey('Pass')) { $arguments += @('--pass', $Pass) }
+        if ($PSBoundParameters.ContainsKey('ResultJson')) { $arguments += @('--result-json', $ResultJson) }
         if ($PSBoundParameters.ContainsKey('Format')) { $arguments += @('--format', $Format) }
 
         & node @arguments

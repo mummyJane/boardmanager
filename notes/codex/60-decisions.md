@@ -218,3 +218,7 @@
 - 2026-03-30 00:25 Europe/London: Make per-unit OTA signing mandatory for OTA-capable projects and require per-unit AES encryption only for projects marked secure. This keeps standard OTA and secure OTA as explicit project policy variants on the same board definition.
 
 - 2026-03-30 00:45 Europe/London: Keep framework entrypoints thin and stable, and reserve `board_app_user.c` plus `board_app_user.h` inside each project user-code root for project-local logic. This gives build, run, and later OTA tooling a predictable framework boundary without taking control of user code.
+- 2026-03-30 17:06 Europe/London: Build orchestration should fail through the Stage 3 job model, not only through shell exit codes. Even when a toolchain is unhealthy, the job store must still capture status, summary, log path, and report path.
+- 2026-03-30 17:06 Europe/London: Long-running external tool steps need explicit host-side timeouts in build.ps1. The current Windows environment can hang inside STM32 CMake configure, so bounded timeout handling is preferable to waiting indefinitely for toolchain recovery.
+- 2026-03-30 17:06 Europe/London: Failed build jobs should not advertise stale firmware binaries as produced artifacts. On failure, keep the build directory reference and log/report evidence, but reserve detailed artifact lists for successful runs.
+

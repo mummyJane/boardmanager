@@ -161,7 +161,8 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - the first validation flow should check controller identity first, then buses or IP blocks, then configured attached devices, and should report both expected and unexpected findings
 - Stage 3 reports are expected to capture pass or fail outcomes plus identity and health data such as MAC, serial number, firmware id, firmware version, voltages, and temperatures where the board can expose them
 - Stage 3 should define a protected user-code area and stable board API boundary so generated support code and user firmware can coexist cleanly
-- 2026-03-29 22:25 Europe/London: Stage 3 now has an initial local persisted job store under project/job-manager, with jobs.json, a JSON schema, and a small CLI wrapper at job.ps1 for alidate, uild, program, un, and debug records.
+- 2026-03-29 22:25 Europe/London: Stage 3 now has an initial local persisted job store under project/job-manager, with jobs.json, a JSON schema, and a small CLI wrapper at job.ps1 for alidate, uild, program, 
+un, and debug records.
 - 2026-03-29 22:25 Europe/London: Standard validation now includes Stage 3 job-store validation through project/scripts/validate-job-manager-data.mjs.
 - 2026-03-29 22:40 Europe/London: Stage 3 job creation now resolves requests against the current Stage 2 inventory. Unit-only requests inherit the matched board and family, board-plus-unit requests verify agreement, and board-only requests only resolve automatically when exactly one present unit currently matches the board.
 - 2026-03-29 22:55 Europe/London: Stage 3 now generates board-specific validation contracts under `project/job-manager/contracts`. These plans are derived from `board.bootSequence`, bus wiring, signal metadata, and reusable part smoke-test contracts.
@@ -180,3 +181,7 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-30 00:25 Europe/London: OTA policy is now carried in project metadata: normal OTA projects require per-unit signing by the local root key, while secure projects additionally require per-unit AES encryption for OTA payloads.
 
 - 2026-03-30 00:45 Europe/London: Firmware targets now split into a stable framework entrypoint and a reserved project-local user module. The shared handoff contract is `project/firmware-common/board_user_api.h`, and each current app now keeps user logic in `board_app_user.c` under its declared `userCodeRoot`.
+- 2026-03-30 17:06 Europe/London: Stage 3 build jobs now run through build.ps1 into the persisted job store, with per-job logs under project/job-manager/logs and JSON reports under project/job-manager/reports.
+- 2026-03-30 17:06 Europe/London: Build orchestration now records project resolution, board metadata, build type, selected build directory, log path, and result summary in the job and report model.
+- 2026-03-30 17:06 Europe/London: build.ps1 now enforces explicit configure/build timeouts. A live STM32 validation run against p_nucleo_usb001_f072rb_demo timed out cleanly at cmake configure after 45 seconds, marked the job failed, wrote the log/report, and left no cmake or ninja process running.
+- 2026-03-30 17:06 Europe/London: ESP-IDF build-job validation still fails on this Windows host with PermissionError: [WinError 5] Access is denied inside idf.py subprocess creation, but the failure is now captured as a normal failed build job with a full traceback in the per-job log instead of leaving inconsistent state.

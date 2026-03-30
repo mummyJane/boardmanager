@@ -1292,3 +1292,43 @@ Validation:
 - `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` -> success; rebuilt the attached F072 demo with the new user-module split. Existing newlib syscall warnings remain unchanged.
 - `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1` -> success; rebuilt the CoreS3 demo after fixing the stale include-line defect.
 - final `validate.ps1` -> success after all code and metadata updates.
+
+## 2026-03-30 17:06 Europe/London
+
+Commands run:
+
+- git status --short
+- Get-Content build.ps1
+- Get-Content project/scripts/manage-stage3-jobs.mjs
+- Get-Content job.ps1
+- node project/scripts/manage-stage3-jobs.mjs list --format json
+- validate.ps1
+- build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -BuildTimeoutSeconds 120
+- build.ps1 -Platform stm32 -App p_nucleo_usb001_f072rb_demo -Board p_nucleo_usb001_f072rb_v1 -ConfigureTimeoutSeconds 45 -BuildTimeoutSeconds 120
+- Get-Content project/job-manager/logs/build-job-000001.log
+- Get-Content project/job-manager/reports/build-job-000001.json
+- Get-Process | Where-Object { $_.ProcessName -match ''cmake|ninja|idf|python'' }
+
+Observed issues:
+
+- The in-progress Stage 3 build-task work had left a stale running job record from a timed-out STM32 validation attempt.
+- ESP-IDF builds on this Windows host still fail inside idf.py with PermissionError: [WinError 5] Access is denied while Python asyncio tries to create a subprocess.
+- STM32 CMake configure can hang at compiler ABI detection on this host if no timeout is enforced.
+- The first timeout-cleanup attempt used taskkill, which produced an Access denied path and prevented the build job from being finalized cleanly.
+- Failed build reports initially advertised stale ESP32 binaries from an older successful build directory; artifact reporting needed to be tightened for failed jobs.
+
+Actions:
+
+- Reworked build.ps1 so every build now creates and updates a persisted Stage 3 build job through project/scripts/manage-stage3-jobs.mjs.
+- Added per-job build logs under project/job-manager/logs and JSON build reports under project/job-manager/reports.
+- Added Invoke-LoggedProcess to capture external tool stdout/stderr into the per-job log.
+- Added bounded ConfigureTimeoutSeconds and BuildTimeoutSeconds handling to build.ps1 for external build steps.
+- Simplified timeout cleanup to Stop-Process so timed-out steps fail fast and let the job update path complete.
+- Extended job-update handling so report path, exit code, pass/fail state, logs, artifacts, and result summary can be merged back into the persisted job record.
+- Tightened failed-build artifact reporting so failed jobs keep the build directory reference and logs/report evidence instead of claiming stale firmware outputs as newly produced artifacts.
+
+Validation:
+
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, validation contracts, and validation reports.
+- build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -BuildTimeoutSeconds 120 -> failed as expected on the existing host-specific ESP-IDF WinError 5 subprocess issue, but now produced a normal failed build job with a captured traceback log and JSON report.
+- build.ps1 -Platform stm32 -App p_nucleo_usb001_f072rb_demo -Board p_nucleo_usb001_f072rb_v1 -ConfigureTimeoutSeconds 45 -BuildTimeoutSeconds 120 -> failed as expected after cmake configure timed out at 45 seconds, wrote a failed job record plus log/report, and left no cmake or ninja process running afterward.

@@ -20,7 +20,7 @@ function usage() {
   console.log(`Usage:
   node project/scripts/manage-stage3-jobs.mjs create --action <validate|build|program|run|debug> [--board <id>] [--unit <stableKey>] [--target <name>] [--firmware-target <name>] [--app <projectId|appId>] [--platform <esp32|stm32>] [--transport <serial|stlink|usb-jtag>] [--reason <text>]
   node project/scripts/manage-stage3-jobs.mjs list [--status <status>] [--action <action>] [--format <text|json>]
-  node project/scripts/manage-stage3-jobs.mjs update --job <jobId> --status <queued|running|succeeded|failed|canceled> [--summary <text>]
+  node project/scripts/manage-stage3-jobs.mjs update --job <jobId> --status <queued|running|succeeded|failed|canceled> [--summary <text>] [--report-path <path>] [--exit-code <code>] [--pass <true|false>] [--result-json <path>]
 `);
 }
 
@@ -82,7 +82,6 @@ async function ensureStore() {
     };
   }
 }
-
 async function saveStore(store) {
   store.generatedAt = new Date().toISOString();
   await writeFile(storePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
@@ -228,8 +227,9 @@ function resolveFromUnit(inventoryUnits, historyUnits, unitId, requestedBoardId)
   };
 }
 
-function resolveFromBoardOnly(inventoryUnits, historyUnits, boardId) {
+function resolveFromBoardOnly(inventoryUnits, historyUnits, boardId, options = {}) {
   const matchingUnits = inventoryUnits.filter((unit) => unit.match?.boardId === boardId || unit.manualOverride?.boardId === boardId);
+  const allowMultipleUnits = options.allowMultipleUnits === true;
 
   if (matchingUnits.length === 0) {
     return {
@@ -246,8 +246,22 @@ function resolveFromBoardOnly(inventoryUnits, historyUnits, boardId) {
   }
 
   if (matchingUnits.length > 1) {
-    const unitIds = matchingUnits.map((unit) => unit.identity?.stableKey ?? unit.unitId);
-    throw new Error(`Board '${boardId}' matches multiple present units: ${unitIds.join(", ")}. Select a stable unit id explicitly.`);
+    if (!allowMultipleUnits) {
+      const unitIds = matchingUnits.map((unit) => unit.identity?.stableKey ?? unit.unitId);
+      throw new Error(`Board '${boardId}' matches multiple present units: ${unitIds.join(", ")}. Select a stable unit id explicitly.`);
+    }
+
+    return {
+      matchedBoardId: boardId,
+      matchedUnitId: null,
+      matchedFamilyKey: `board:${boardId}`,
+      matchedProfileId: null,
+      resolvedTransportKind: null,
+      resolvedTransportPort: null,
+      source: "board-only-multi-present-units",
+      present: true,
+      boardCandidates: [boardId],
+    };
   }
 
   const chosenUnit = matchingUnits[0];
@@ -267,6 +281,7 @@ function resolveFromBoardOnly(inventoryUnits, historyUnits, boardId) {
 }
 
 async function resolveRequest(options) {
+  const requestedAction = String(options.action ?? "").trim();
   const requestedApp = options.app ?? null;
   const { inventoryUnits, historyUnits, projectCatalog, appCatalog } = await loadResolutionSources();
   const requestedProject = resolveRequestedProject(requestedApp, projectCatalog, appCatalog);
@@ -275,8 +290,20 @@ async function resolveRequest(options) {
   let baseResolution;
   if (options.unit) {
     baseResolution = resolveFromUnit(inventoryUnits, historyUnits, options.unit, requestedBoardId);
+  } else if (requestedAction === "build" && requestedProject) {
+    baseResolution = {
+      matchedBoardId: requestedProject.boardId,
+      matchedUnitId: null,
+      matchedFamilyKey: `board:${requestedProject.boardId}`,
+      matchedProfileId: null,
+      resolvedTransportKind: null,
+      resolvedTransportPort: null,
+      source: "build-project-only",
+      present: false,
+      boardCandidates: [requestedProject.boardId],
+    };
   } else if (requestedBoardId) {
-    baseResolution = resolveFromBoardOnly(inventoryUnits, historyUnits, requestedBoardId);
+    baseResolution = resolveFromBoardOnly(inventoryUnits, historyUnits, requestedBoardId, { allowMultipleUnits: requestedAction === "build" });
   } else if (requestedProject) {
     baseResolution = {
       matchedBoardId: requestedProject.boardId,
@@ -318,7 +345,6 @@ async function resolveRequest(options) {
 
   return resolution;
 }
-
 async function createJobRecord(store, options) {
   const action = String(options.action ?? "").trim();
   if (!VALID_ACTIONS.has(action)) {
@@ -360,7 +386,7 @@ async function createJobRecord(store, options) {
   };
 }
 
-function updateJobRecord(job, options) {
+async function updateJobRecord(job, options) {
   const status = String(options.status ?? "").trim();
   if (!VALID_STATUSES.has(status)) {
     throw new Error(`Invalid or missing --status. Expected one of: ${Array.from(VALID_STATUSES).join(", ")}`);
@@ -375,13 +401,57 @@ function updateJobRecord(job, options) {
   if (["succeeded", "failed", "canceled"].includes(status)) {
     job.completedAt = now;
   }
+
+  if (options["result-json"]) {
+    const resultPayload = await readJson(options["result-json"], null);
+    if (!resultPayload || typeof resultPayload !== "object") {
+      throw new Error(`Result payload '${options["result-json"]}' could not be read.`);
+    }
+    if (Array.isArray(resultPayload.logs)) {
+      job.logs = resultPayload.logs;
+    }
+    if (Array.isArray(resultPayload.artifacts)) {
+      job.artifacts = resultPayload.artifacts;
+    }
+    if (resultPayload.result && typeof resultPayload.result === "object") {
+      job.result.summary = resultPayload.result.summary ?? job.result.summary;
+      job.result.exitCode = Number.isInteger(resultPayload.result.exitCode) ? resultPayload.result.exitCode : job.result.exitCode;
+      if (typeof resultPayload.result.pass === "boolean") {
+        job.result.pass = resultPayload.result.pass;
+      }
+    }
+    job.result.reportPath = options["report-path"] ?? resultPayload.reportPath ?? job.result.reportPath;
+  }
+
   if (options.summary) {
     job.result.summary = options.summary;
   }
+  if (options["report-path"]) {
+    job.result.reportPath = options["report-path"];
+  }
+  if (options["exit-code"] !== undefined) {
+    const exitCode = Number.parseInt(String(options["exit-code"]), 10);
+    if (!Number.isInteger(exitCode)) {
+      throw new Error(`Invalid --exit-code '${options["exit-code"]}'`);
+    }
+    job.result.exitCode = exitCode;
+  }
+  if (options.pass !== undefined) {
+    const normalizedPass = String(options.pass).toLowerCase();
+    if (!["true", "false"].includes(normalizedPass)) {
+      throw new Error(`Invalid --pass '${options.pass}', expected true or false`);
+    }
+    job.result.pass = normalizedPass === "true";
+  }
+
   if (status === "succeeded") {
-    job.result.pass = true;
-    job.result.exitCode = 0;
-  } else if (status === "failed") {
+    if (job.result.pass === null) {
+      job.result.pass = true;
+    }
+    if (job.result.exitCode === null) {
+      job.result.exitCode = 0;
+    }
+  } else if (status === "failed" && job.result.pass === null) {
     job.result.pass = false;
   }
   return job;
@@ -445,7 +515,7 @@ async function main() {
     if (!job) {
       throw new Error(`Job '${jobId}' was not found`);
     }
-    updateJobRecord(job, options);
+    await updateJobRecord(job, options);
     await saveStore(store);
     console.log(JSON.stringify({ updated: true, job }, null, 2));
     return;
@@ -458,3 +528,6 @@ main().catch((error) => {
   console.error(error.message || error);
   process.exitCode = 1;
 });
+
+
+

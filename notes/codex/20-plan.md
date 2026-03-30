@@ -90,6 +90,7 @@ Initial success criteria:
 - job creation resolves board-only, unit-only, board-plus-unit, and project-app requests against the current bench inventory instead of storing unresolved operator intent only
 - project metadata now allows more than one deployable app profile per board, including per-unit signed OTA policy and secure-project encrypted OTA policy
 - firmware targets now reserve a project-local user-code module behind a shared user-facing API boundary, so board bring-up entrypoints stay stable while user code remains isolated
+- build jobs now run through the Stage 3 job store, capture tool stdout/stderr into per-job logs, emit JSON build reports, and fail cleanly on bounded step timeouts
 
 ### Milestone 4: Web UI Skeleton
 
@@ -117,6 +118,7 @@ Initial success criteria:
 
 
 - 2026-03-29 21:40 Europe/London: Completed Stage 2 test coverage with a local dependency-free Node assertion runner for discovery matching, history transitions, board-candidate enrichment, and service-data filtering.
+
 
 
 
