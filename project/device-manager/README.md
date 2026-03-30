@@ -172,3 +172,12 @@ Example:
 
 - `test.ps1` runs the current local Stage 2 regression checks without extra dependencies.
 - Current coverage exercises discovery matching helpers, identity-conflict detection, family-fingerprint derivation, missing-unit and family transition handling, and the direct service-data filters for inventory, history, and profiles.
+
+## Stage 3 Service APIs
+
+The same HTTP service now also exposes Stage 3 job data:
+
+- GET /api/jobs
+- GET /api/job-log?job=job-000001
+- GET /api/job-report?job=job-000001
+- GET /api/job-artifacts?job=job-000001

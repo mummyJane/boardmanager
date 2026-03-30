@@ -2,6 +2,7 @@ import http from "node:http";
 import { URL } from "node:url";
 import { parseQueryArgs, runQuery } from "./device-manager-query-lib.mjs";
 import { getHistoryPayload, getInventoryPayload, getProfilesPayload } from "./device-manager-service-data.mjs";
+import { getJobArtifactsPayload, getJobLogPayload, getJobReportPayload, getJobsPayload } from "./stage3-job-service-data.mjs";
 
 function parseServiceArgs(argv) {
   const result = {
@@ -54,6 +55,22 @@ async function handleProfiles(requestUrl, response) {
   sendJson(response, 200, await getProfilesPayload(requestUrl.searchParams));
 }
 
+async function handleJobs(requestUrl, response) {
+  sendJson(response, 200, await getJobsPayload(requestUrl.searchParams));
+}
+
+async function handleJobLog(requestUrl, response) {
+  sendJson(response, 200, await getJobLogPayload(requestUrl.searchParams));
+}
+
+async function handleJobReport(requestUrl, response) {
+  sendJson(response, 200, await getJobReportPayload(requestUrl.searchParams));
+}
+
+async function handleJobArtifacts(requestUrl, response) {
+  sendJson(response, 200, await getJobArtifactsPayload(requestUrl.searchParams));
+}
+
 async function main() {
   const args = parseServiceArgs(process.argv.slice(2));
 
@@ -90,6 +107,26 @@ async function main() {
         return;
       }
 
+      if (requestUrl.pathname === "/api/jobs") {
+        await handleJobs(requestUrl, response);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/job-log") {
+        await handleJobLog(requestUrl, response);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/job-report") {
+        await handleJobReport(requestUrl, response);
+        return;
+      }
+
+      if (requestUrl.pathname === "/api/job-artifacts") {
+        await handleJobArtifacts(requestUrl, response);
+        return;
+      }
+
       sendJson(response, 404, {
         error: "not_found",
         endpoints: [
@@ -101,7 +138,11 @@ async function main() {
           "/api/query?view=conflicts",
           "/api/inventory",
           "/api/history",
-          "/api/profiles"
+          "/api/profiles",
+          "/api/jobs",
+          "/api/job-log?job=job-000001",
+          "/api/job-report?job=job-000001",
+          "/api/job-artifacts?job=job-000001"
         ],
       });
     } catch (error) {

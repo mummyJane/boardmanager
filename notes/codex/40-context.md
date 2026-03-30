@@ -197,3 +197,6 @@ un, and debug records.
 
 - Debug jobs will emit launch metadata rather than holding an interactive debug session open from the orchestration script itself.
 
+
+- Stage 3 now needs service endpoints on top of the local job store so the web UI can read job status, reports, logs, and artifact metadata without touching the filesystem directly.
+

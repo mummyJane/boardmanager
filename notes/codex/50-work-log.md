@@ -1384,3 +1384,9 @@ Validation:
 - Result: debug metadata generated successfully for the Nucleo F072 build using local openocd.exe, rm-none-eabi-gdb.exe, and the built ELF plus MAP files.
 - Fix: added fallback build-directory resolution so existing STM32 host builds that were keyed by ppId instead of projectId still resolve correctly for debug metadata.
 - Cleanup: reset project/job-manager/data/jobs.json back to an empty store and removed temporary debug job logs and reports.
+- Started Stage 3 service-API work for the local job store.
+- Added JSON endpoints for job summaries, log tails, parsed reports, and artifact metadata on the existing HTTP service.
+- Planned validation with one live debug job so all new endpoints can be exercised against real Stage 3 data.
+- Live validation: started serve-device-manager.ps1 on 127.0.0.1:8790 after creating one fresh debug job for m5stack_cores3_gnss_v1 on mac:48:27:e2:66:b0:04.
+- Result: /api/jobs?job=job-000001 returned jobCount: 1, /api/job-log?job=job-000001&tail=5 returned 	ailLineCount: 5, /api/job-report?job=job-000001 returned eportKind: debug, and /api/job-artifacts?job=job-000001 returned rtifactCount: 3.
+- Cleanup: stopped the temporary service process, removed temporary service stdout or stderr logs, reset project/job-manager/data/jobs.json, and removed temporary debug job logs and reports.

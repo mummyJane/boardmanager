@@ -144,3 +144,6 @@ Initial success criteria:
 
 - extend Stage 3 from run capture into reproducible debug launch metadata for ESP32 and STM32
 
+
+- extend the shared HTTP service from Stage 2 inventory data into Stage 3 job, log, report, and artifact APIs for the future web UI
+

@@ -141,18 +141,36 @@ Current behavior:
 
 ## Debug Jobs
 
-Use debug.ps1 to prepare reproducible GDB and IDE launch metadata for a selected stable unit.
+Use `debug.ps1` to prepare reproducible GDB and IDE launch metadata for a selected stable unit.
 
 Example:
 
-- ./debug.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04
+- `./debug.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04`
 
 Current behavior:
 
-- the runner creates a debug job in project/job-manager/data/jobs.json
+- the runner creates a `debug` job in `project/job-manager/data/jobs.json`
 - it resolves the selected stable unit id to the matched board, project, and current transport details from Stage 2 inventory
 - it checks that the build artifacts and symbol file already exist
 - it emits an OpenOCD launch command, a GDB launch command, and IDE-friendly metadata
-- it writes a per-job log under project/job-manager/logs
-- it writes a JSON debug report under project/job-manager/reports
-- it supports the current ESP32 and STM32 families using the local toolchain layout already under project/
+- it writes a per-job log under `project/job-manager/logs`
+- it writes a JSON debug report under `project/job-manager/reports`
+- it supports the current ESP32 and STM32 families using the local toolchain layout already under `project/`
+
+## Service APIs
+
+The shared HTTP service now exposes Stage 3 job data for the future web UI and remote callers.
+
+Endpoints:
+
+- `GET /api/jobs`
+- `GET /api/job-log?job=job-000001`
+- `GET /api/job-report?job=job-000001`
+- `GET /api/job-artifacts?job=job-000001`
+
+Current behavior:
+
+- `/api/jobs` returns persisted job summaries with optional `job`, `action`, `status`, and `limit` filters
+- `/api/job-log` returns the selected log entry plus a text tail for operator and UI views
+- `/api/job-report` returns the parsed JSON report payload for the selected job
+- `/api/job-artifacts` returns artifact metadata including kind, path, size, and existence

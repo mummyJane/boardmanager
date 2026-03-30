@@ -164,3 +164,6 @@
 ## 2026-03-30 17:00 Europe/London
 
 - Clarified the Stage 3 debug requirement so the chosen server launch command is part of the persisted debugger metadata. Without that, a symbol path and GDB executable alone are not enough to reproduce a session from the web UI or another client.
+## 2026-03-30 17:25 Europe/London
+
+- Clarified the Stage 3 service requirement so the service layer explicitly exposes job lists, log tails, parsed reports, and artifact metadata. That is the practical minimum the later web UI needs to show Stage 3 activity without direct filesystem access.

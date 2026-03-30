@@ -230,3 +230,4 @@
 - 2026-03-30 17:22 Europe/London: Program jobs should use the same log/report pattern as build jobs, including bounded flash timeouts and normal failed-job records for host-side tool issues. That keeps later service and UI behavior consistent across Stage 3 actions.
 
 - Debug-job orchestration will prepare reproducible launch metadata and reports rather than trying to own a long-lived interactive debugger session. This keeps the Stage 3 runner bounded while still giving CLI and IDE consumers the exact commands and settings they need.
+- Stage 3 service APIs will expose log tails and parsed reports rather than arbitrary filesystem reads. This gives the web UI the useful data it needs while keeping the HTTP surface small and stable.

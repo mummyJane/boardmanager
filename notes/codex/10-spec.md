@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-30 17:00 Europe/London
+Last updated: 2026-03-30 17:25 Europe/London
 
 ## Goal
 
@@ -137,7 +137,7 @@ Requirements:
 - program workflows must resolve the selected stable unit id to the current transport endpoint, capture flash logs, record success or failure as a job result, and bound long-running flash attempts with host-side timeouts
 - run workflows must be able to stream or return firmware console output back to the operator or service caller, and should persist a bounded run log plus a machine-readable run report
 - debug workflows must support command-line GDB launch details plus enough debugger metadata for IDE integration, including transport, symbol path, target selection, and the chosen server launch command
-- job execution for validate, build, program, run, and debug must produce machine-readable status records and human-readable logs for later web UI consumption
+- job execution for validate, build, program, run, and debug must produce machine-readable status records and human-readable logs for later web UI consumption, and the service layer should expose job lists, log tails, parsed reports, and artifact metadata over JSON APIs
 - Stage 3 must persist a local job store for validate, build, program, run, and debug actions, including request parameters, resolved board or unit selection, logs, artifacts, and result summaries
 - Stage 3 job creation must resolve requests against the current Stage 2 inventory so a selected stable unit id and matched board profile are recorded explicitly instead of relying only on raw request parameters
 - project metadata must define the concrete app root, reserved user-code root, stable board API boundary, and firmware entry point for each deployable board app or project profile
@@ -175,6 +175,7 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 
 
