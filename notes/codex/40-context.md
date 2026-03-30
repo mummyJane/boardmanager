@@ -215,3 +215,6 @@ un, and debug records.
 
 - 2026-03-30 19:25 Europe/London: The user wants the Milestone 4 web server to be Python-based. Existing Node.js scripts may still generate and validate Stage 4 tree data, but the long-term HTTP host should move to Python.
 - 2026-03-30 19:25 Europe/London: Stage 4 Task 1 is now represented by a generated tree artifact under project/web-ui, rooted in modules, boards, and projects, so the later Python service can serve a stable UI model instead of rebuilding tree views dynamically.
+
+- 2026-03-30 20:05 Europe/London: Stage 4 now has a first Python-based read-only API host at serve-stage4-read-api.ps1 backed by project/scripts/stage4-read-api.py.
+- 2026-03-30 20:05 Europe/London: The first Python endpoints expose /api/stage4/tree, /api/stage4/modules, /api/stage4/boards, /api/stage4/projects, and /api/stage4/help so the later web UI can browse both tree nodes and linked help content.

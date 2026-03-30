@@ -33,3 +33,23 @@ The current model is intentionally UI-oriented:
 - Generate with `node project/scripts/generate-stage4-tree-model.mjs`
 - Validate with `node project/scripts/validate-stage4-tree-model.mjs`
 - `validate.ps1` now includes Stage 4 tree-model validation in the standard repo validation flow
+## Python Read API
+
+The first Python Stage 4 read-only API is served by:
+
+- `project/scripts/stage4-read-api.py`
+- `serve-stage4-read-api.ps1`
+
+Current endpoints:
+
+- `/health`
+- `/api/stage4/tree`
+- `/api/stage4/modules`
+- `/api/stage4/modules/<moduleId>`
+- `/api/stage4/boards`
+- `/api/stage4/boards/<boardId>`
+- `/api/stage4/projects`
+- `/api/stage4/projects/<projectId>`
+- `/api/stage4/help?path=project/help/parts/bm8563.md`
+
+The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.

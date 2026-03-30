@@ -7,7 +7,7 @@
 
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-30 19:25 Europe/London
+Last updated: 2026-03-30 20:05 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -181,3 +181,5 @@ Planned slices:
 
 - Milestone 3 is now closed out with local regression coverage for Stage 3 validation logic and job-state transitions
 
+
+- 2026-03-30 20:05 Europe/London: Completed the first Python Stage 4 read-only API over the generated tree model, including module, board, project, and help-content endpoints for the later web UI.

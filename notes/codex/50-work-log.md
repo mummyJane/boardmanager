@@ -1479,3 +1479,35 @@ Validation:
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
 
 - Added install/update wrappers for Task_milestone4_tree_model_1 and moved latest to the new Stage 4 tree-model task.
+
+## 2026-03-30 20:05 Europe/London
+
+Commands run:
+
+- python --version
+- Get-Content project/web-ui/data/stage4-tree-model.json -Head 120
+- Get-Content serve-device-manager.ps1
+- Get-Content project/scripts/stage3-job-service-data.mjs -Head 220
+- python -m py_compile project/scripts/stage4-read-api.py
+- python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791 with localhost endpoint checks
+- validate.ps1
+
+Observed issues:
+
+- The existing HTTP service layer was still Node-based and did not expose the new Stage 4 tree model or linked help content through the Python runtime the user requested.
+- The Stage 4 tree model existed, but there was not yet a service endpoint set that a browser UI could call directly.
+
+Actions:
+
+- Added the first Python Stage 4 read-only API host at project/scripts/stage4-read-api.py plus the top-level wrapper serve-stage4-read-api.ps1.
+- Added read endpoints for the full tree, modules, boards, projects, and linked local help-page content.
+- Added python bytecode validation for the new API into the standard validation flow through common.ps1 and validate.ps1.
+- Updated the Stage 4 spec, plan, task list, context, and web-ui README to document the new Python endpoints and mark the read-only API task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- localhost API validation -> success; /health returned runtime python, /api/stage4/modules returned count 13, /api/stage4/boards/m5stack_dial_v1_1 returned title M5Stack Dial V1.1, and /api/stage4/help for bm8563 returned linkedNodeCount 2.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+- Added install/update wrappers for Task_milestone4_python_read_api_1 and moved latest to the new Python read-API task.

@@ -244,3 +244,17 @@ function Invoke-Stage4TreeModelValidator {
         Pop-Location
     }
 }
+function Invoke-Stage4ReadApiValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & python -m py_compile project/scripts/stage4-read-api.py
+        if ($LASTEXITCODE -ne 0) {
+            throw "Stage 4 read API validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
