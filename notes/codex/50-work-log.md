@@ -1,3 +1,10 @@
+## 2026-03-30 00:00 Europe/London
+
+- Started Milestone 3 run-job orchestration.
+- Reused the existing Stage 3 job model and Stage 2 stable unit resolution instead of adding a second ad hoc runner path.
+- Added un.ps1 to capture serial console output through System.IO.Ports.SerialPort with a bounded host-side timeout.
+- Planned live validation against one attached ESP32 board with a short capture window to avoid long silent hangs.
+
 # Work Log
 
 ## 2026-03-28 14:30 Europe/London
@@ -1364,3 +1371,7 @@ Validation:
 - validate.ps1 -> success before and after the program-job changes.
 - program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -ProgramTimeoutSeconds 300 -> success when rerun outside the sandbox; flashed the Dial on COM3 and recorded a succeeded program job.
 - The earlier in-sandbox rerun of the same command failed as expected on the host-specific ESP-IDF subprocess permission issue, but still produced a normal failed program job with log and report output.
+
+- Live validation: ./run.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -RunTimeoutSeconds 5 -NoLiveOutput
+- Result: run job succeeded on COM4 and captured 77 console lines in 5 seconds.
+- Cleanup: reset project/job-manager/data/jobs.json back to an empty store and removed the temporary run log/report artifacts so the repo stays in a clean validation state.

@@ -120,3 +120,21 @@ Current behavior:
 - it writes a JSON program report under `project/job-manager/reports`
 - it records success or failure, exit code, selected board, selected unit, and resolved transport endpoint in the persisted job record
 - ESP32 flashing is wired through `idf.py flash`; STM32 program flow still fails cleanly as scaffolded-not-implemented
+
+## Run Jobs
+
+Use `run.ps1` to capture firmware console output from a selected stable unit through the Stage 3 job model.
+
+Example:
+
+- `./run.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -RunTimeoutSeconds 5`
+
+Current behavior:
+
+- the runner creates a `run` job in `project/job-manager/data/jobs.json`
+- it resolves the selected stable unit id to the current transport port from Stage 2 inventory
+- it captures serial console output for a bounded host-side duration
+- it writes a per-job log under `project/job-manager/logs`
+- it writes a JSON run report under `project/job-manager/reports`
+- it records success or failure, exit code, selected board, selected unit, and captured line count in the persisted job record
+- it streams captured console lines to the caller by default and still persists the same output for later web UI or service use

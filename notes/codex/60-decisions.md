@@ -1,3 +1,7 @@
+## 2026-03-30 00:00 Europe/London
+
+- Run-job orchestration will use PowerShell System.IO.Ports.SerialPort for console capture instead of depending on the ESP-IDF Python environment. This keeps the run path simpler, works for both ESP32 and STM32 virtual COM ports, and avoids another long-running external tool chain in the hot path.
+
 # Decisions
 
 ## 2026-03-28 14:30 Europe/London
@@ -224,3 +228,4 @@
 
 - 2026-03-30 17:22 Europe/London: Program orchestration should resolve and record the current transport port from the stable unit id before flashing. The operator targets the physical unit identity; the transient COM port is derived state that belongs in the job result.
 - 2026-03-30 17:22 Europe/London: Program jobs should use the same log/report pattern as build jobs, including bounded flash timeouts and normal failed-job records for host-side tool issues. That keeps later service and UI behavior consistent across Stage 3 actions.
+

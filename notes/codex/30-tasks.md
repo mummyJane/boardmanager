@@ -91,10 +91,11 @@ Last updated: 2026-03-29 22:36 Europe/London
 - [x] Define the reserved user-code area and stable user-facing board API boundary for firmware targets
 - [x] Add build-job orchestration with captured logs, produced artifacts, and board or target metadata
 - [x] Add program-job orchestration that uses the selected stable unit id and records flash logs and results
-- [ ] Add run-job orchestration that captures firmware console output and returns or streams it to the caller
+- [x] Add run-job orchestration that captures firmware console output and returns or streams it to the caller
 - [ ] Add debug-job orchestration that emits GDB launch details and IDE debugger metadata for supported MCU families
 - [ ] Expose Stage 3 job status, logs, reports, and artifacts through service APIs for later web UI use
 - [ ] Add repeatable local tests for Stage 3 validation logic and job-state transitions
+
 
 
 

@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-29 23:20 Europe/London
+Last updated: 2026-03-30 00:20 Europe/London
 
 ## Goal
 
@@ -135,7 +135,7 @@ Requirements:
 - build workflows must emit a build log, build result, selected board id, selected unit id where relevant, and produced artifacts
 - build workflows must enforce bounded configure/build timeouts and record timeout failures as normal job results instead of hanging indefinitely
 - program workflows must resolve the selected stable unit id to the current transport endpoint, capture flash logs, record success or failure as a job result, and bound long-running flash attempts with host-side timeouts
-- run workflows must be able to stream or return firmware console output back to the operator or service caller
+- run workflows must be able to stream or return firmware console output back to the operator or service caller, and should persist a bounded run log plus a machine-readable run report
 - debug workflows must support command-line GDB launch details plus enough debugger metadata for IDE integration, including transport, symbol path, and target selection
 - job execution for validate, build, program, run, and debug must produce machine-readable status records and human-readable logs for later web UI consumption
 - Stage 3 must persist a local job store for validate, build, program, run, and debug actions, including request parameters, resolved board or unit selection, logs, artifacts, and result summaries
@@ -175,6 +175,7 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
 
 
 

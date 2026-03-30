@@ -1,3 +1,7 @@
+## 2026-03-30 00:20 Europe/London
+
+- Clarified the Stage 3 run-workflow requirement so it explicitly calls for a persisted bounded run log and a machine-readable run report, not only transient console streaming. This matches the job-store direction already used for build and program actions and keeps later web UI work consistent.
+
 # Spec Updates
 
 ## 2026-03-28 14:30 Europe/London
@@ -156,3 +160,4 @@
 - 2026-03-30 00:45 Europe/London: Stage 3 spec updated to require a stable handoff from framework entrypoints into project-local user modules under the reserved user-code root. Reason: generated board support and future orchestration need a predictable non-user-owned entry layer, while application logic still needs a protected area that Board Manager does not overwrite.
 - 2026-03-30 17:06 Europe/London: Stage 3 spec updated to require bounded configure/build timeouts for build jobs. Reason: real toolchain runs on this Windows host can hang during STM32 CMake configure, and the service/UI layer needs a normal failed job record instead of an indefinitely running build.
 - 2026-03-30 17:22 Europe/London: Stage 3 spec updated to require program workflows to resolve stable unit ids to current transport endpoints, capture flash logs, and enforce bounded flash timeouts. Reason: flashing is now executed through the same job model as build, and multi-unit benches need stable-unit targeting rather than raw COM-port-only requests.
+

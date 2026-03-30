@@ -1,3 +1,8 @@
+## 2026-03-30
+
+- Stage 3 now has build and program job orchestration complete and is moving onto run-job orchestration.
+- Run jobs should capture serial console output from the resolved current port for a bounded duration and persist both human-readable logs and a machine-readable run report.
+
 # Context
 
 Last updated: 2026-03-29 23:20 Europe/London
@@ -188,3 +193,4 @@ un, and debug records.
 - 2026-03-30 17:22 Europe/London: Stage 3 program jobs now run through program.ps1 into the persisted job store, with per-job logs under project/job-manager/logs and JSON reports under project/job-manager/reports.
 - 2026-03-30 17:22 Europe/London: Program orchestration resolves the selected stable unit id to the current transport port before flashing. For the attached Dial unit mac:c0:4e:30:13:2b:68, the resolved transport was serial on COM3.
 - 2026-03-30 17:22 Europe/London: A real ESP32 program-job validation on COM3 succeeded when rerun outside the sandbox. The earlier in-sandbox attempt failed with the same host-specific ESP-IDF subprocess permission issue seen in build jobs, but both outcomes were recorded cleanly through the Stage 3 job/report model.
+

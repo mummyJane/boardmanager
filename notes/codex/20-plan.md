@@ -1,3 +1,9 @@
+## Milestone 3 Current Focus
+
+- complete bounded Stage 3 execution flows in order: build, program, run, debug
+- keep each execution flow under the persisted job model with logs, reports, and timeouts
+- make run capture reuse the Stage 2 stable unit resolution so console output can be tied back to one physical unit
+
 # Board Manager Milestone Plan
 
 Last updated: 2026-03-29 23:20 Europe/London
@@ -119,6 +125,7 @@ Initial success criteria:
 
 
 - 2026-03-29 21:40 Europe/London: Completed Stage 2 test coverage with a local dependency-free Node assertion runner for discovery matching, history transitions, board-candidate enrichment, and service-data filtering.
+
 
 
 
