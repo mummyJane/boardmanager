@@ -3,7 +3,11 @@
   "partType": "device",
   "displayName": "WS1850S RFID",
   "vendor": "M5Stack/third-party",
-  "interfaces": ["i2c", "interrupt", "reset"],
+  "interfaces": [
+    "i2c",
+    "interrupt",
+    "reset"
+  ],
   "defaultConfig": {
     "i2cAddress": "0x28",
     "interruptActiveLevel": "low",
@@ -78,8 +82,8 @@
     ]
   },
   "docs": {
-    "datasheet": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
-    "website": "https://docs.m5stack.com/en/core/M5Dial",
+    "datasheet": null,
+    "website": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
     "apiGuide": "project/help/parts/ws1850s.md"
   }
 }

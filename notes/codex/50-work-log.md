@@ -1644,3 +1644,28 @@ Validation:
 - python import validation of build_module_help_payload() -> success for bm8563 and m5_module_gnss.
 - python -m py_compile project/scripts/stage4-read-api.py -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-30 22:00 Europe/London
+
+Commands run:
+
+- Get-Content project/parts/devices/*.json for doc-link audit
+- Get-Content project/help/parts/ws1850s.md
+- Get-Content project/help/parts/m5_module_gnss.md
+- node project/scripts/generate-stage4-tree-model.mjs
+- python import validation of build_module_help_payload() for m5_module_gnss and ws1850s
+- validate.ps1
+
+Observed issues:
+
+- The module help pages exposed wrong datasheet links because two source part definitions used product or board pages in the docs.datasheet field instead of a real datasheet URL.
+
+Actions:
+
+- Corrected project/parts/devices/m5_module_gnss.json and project/parts/devices/ws1850s.json so those modules no longer advertise a bogus datasheet link.
+- Regenerated the Stage 4 tree model so the Python API and web shell stop exposing those incorrect datasheet references.
+
+Validation:
+
+- build_module_help_payload() now returns only apiGuide and website references for m5_module_gnss and ws1850s.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-03-30T18:37:22.641Z",
+  "generatedAt": "2026-03-30T19:57:43.593Z",
   "preferredWebRuntime": "python",
   "summary": {
     "moduleCount": 13,
@@ -418,8 +418,8 @@
               ]
             },
             "docs": {
-              "datasheet": "https://docs.m5stack.com/en/products/sku/M135",
-              "website": "https://docs.m5stack.com/en/module/GNSS%20Module",
+              "datasheet": null,
+              "website": "https://docs.m5stack.com/en/products/sku/M135",
               "apiGuide": "project/help/parts/m5_module_gnss.md"
             }
           },
@@ -436,24 +436,13 @@
               "children": []
             },
             {
-              "nodeId": "module:m5_module_gnss:datasheet",
-              "nodeKind": "help-reference",
-              "title": "Datasheet",
-              "sourcePath": null,
-              "metadata": {
-                "kind": "datasheet",
-                "href": "https://docs.m5stack.com/en/products/sku/M135"
-              },
-              "children": []
-            },
-            {
               "nodeId": "module:m5_module_gnss:website",
               "nodeKind": "help-reference",
               "title": "Website",
               "sourcePath": null,
               "metadata": {
                 "kind": "website",
-                "href": "https://docs.m5stack.com/en/module/GNSS%20Module"
+                "href": "https://docs.m5stack.com/en/products/sku/M135"
               },
               "children": []
             }
@@ -728,8 +717,8 @@
               ]
             },
             "docs": {
-              "datasheet": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
-              "website": "https://docs.m5stack.com/en/core/M5Dial",
+              "datasheet": null,
+              "website": "https://docs.m5stack.com/en/core/M5Dial%20V1.1",
               "apiGuide": "project/help/parts/ws1850s.md"
             }
           },
@@ -746,24 +735,13 @@
               "children": []
             },
             {
-              "nodeId": "module:ws1850s:datasheet",
-              "nodeKind": "help-reference",
-              "title": "Datasheet",
-              "sourcePath": null,
-              "metadata": {
-                "kind": "datasheet",
-                "href": "https://docs.m5stack.com/en/core/M5Dial%20V1.1"
-              },
-              "children": []
-            },
-            {
               "nodeId": "module:ws1850s:website",
               "nodeKind": "help-reference",
               "title": "Website",
               "sourcePath": null,
               "metadata": {
                 "kind": "website",
-                "href": "https://docs.m5stack.com/en/core/M5Dial"
+                "href": "https://docs.m5stack.com/en/core/M5Dial%20V1.1"
               },
               "children": []
             }

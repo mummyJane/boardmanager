@@ -3,7 +3,12 @@
   "partType": "device",
   "displayName": "M5Stack Module GNSS",
   "vendor": "M5Stack",
-  "interfaces": ["uart", "i2c", "pps", "m5-bus"],
+  "interfaces": [
+    "uart",
+    "i2c",
+    "pps",
+    "m5-bus"
+  ],
   "composition": {
     "gnssReceiverPartId": "neo_m9n",
     "imu": "BMI270",
@@ -55,8 +60,8 @@
     ]
   },
   "docs": {
-    "datasheet": "https://docs.m5stack.com/en/products/sku/M135",
-    "website": "https://docs.m5stack.com/en/module/GNSS%20Module",
+    "datasheet": null,
+    "website": "https://docs.m5stack.com/en/products/sku/M135",
     "apiGuide": "project/help/parts/m5_module_gnss.md"
   }
 }

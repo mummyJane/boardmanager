@@ -258,3 +258,5 @@
 - 2026-03-30 21:20 Europe/London: Keep the module catalog as an aggregated Python endpoint instead of making the browser derive vendor, role, help-reference, and composition summaries from the raw tree model itself. This keeps the Modules view thin and gives later write flows one stable read contract for catalog-focused UI work.
 
 - 2026-03-30 21:45 Europe/London: Keep module help as a per-module Python payload that bundles references, declared high-level API, default config, and local markdown content. This keeps the shell simple and lets later editors reuse one stable read contract for module detail views.
+
+- 2026-03-30 22:00 Europe/London: If a module does not have one defensible datasheet URL, omit the datasheet reference instead of pointing the datasheet field at a product or board page. Wrong links are worse than an intentionally missing datasheet entry in the Stage 4 help UI.
