@@ -138,3 +138,21 @@ Current behavior:
 - it writes a JSON run report under `project/job-manager/reports`
 - it records success or failure, exit code, selected board, selected unit, and captured line count in the persisted job record
 - it streams captured console lines to the caller by default and still persists the same output for later web UI or service use
+
+## Debug Jobs
+
+Use debug.ps1 to prepare reproducible GDB and IDE launch metadata for a selected stable unit.
+
+Example:
+
+- ./debug.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04
+
+Current behavior:
+
+- the runner creates a debug job in project/job-manager/data/jobs.json
+- it resolves the selected stable unit id to the matched board, project, and current transport details from Stage 2 inventory
+- it checks that the build artifacts and symbol file already exist
+- it emits an OpenOCD launch command, a GDB launch command, and IDE-friendly metadata
+- it writes a per-job log under project/job-manager/logs
+- it writes a JSON debug report under project/job-manager/reports
+- it supports the current ESP32 and STM32 families using the local toolchain layout already under project/

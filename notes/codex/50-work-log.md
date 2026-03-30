@@ -1375,3 +1375,12 @@ Validation:
 - Live validation: ./run.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04 -RunTimeoutSeconds 5 -NoLiveOutput
 - Result: run job succeeded on COM4 and captured 77 console lines in 5 seconds.
 - Cleanup: reset project/job-manager/data/jobs.json back to an empty store and removed the temporary run log/report artifacts so the repo stays in a clean validation state.
+- Started Milestone 3 debug-job orchestration.
+- Implemented debug.ps1 to resolve the selected stable unit, verify symbol artifacts, and emit OpenOCD plus GDB launch details instead of trying to keep an interactive debug session open.
+- Planned validation against one ESP32 unit and one STM32 unit so both supported MCU families have concrete launch metadata.
+- Live validation: ./debug.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1 -Unit mac:48:27:e2:66:b0:04
+- Result: debug metadata generated successfully for the CoreS3 GNSS build using local openocd.exe, xtensa-esp32s3-elf-gdb.exe, and the ESP-IDF-generated gdbinit file.
+- Live validation: ./debug.ps1 -Platform stm32 -App p_nucleo_usb001_f072rb_demo -Board p_nucleo_usb001_f072rb_v1 -Unit usb:USB\VID_0483&PID_374B&MI_02\8&2379FC3D&0&0002
+- Result: debug metadata generated successfully for the Nucleo F072 build using local openocd.exe, rm-none-eabi-gdb.exe, and the built ELF plus MAP files.
+- Fix: added fallback build-directory resolution so existing STM32 host builds that were keyed by ppId instead of projectId still resolve correctly for debug metadata.
+- Cleanup: reset project/job-manager/data/jobs.json back to an empty store and removed temporary debug job logs and reports.

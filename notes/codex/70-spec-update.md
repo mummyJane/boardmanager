@@ -161,3 +161,6 @@
 - 2026-03-30 17:06 Europe/London: Stage 3 spec updated to require bounded configure/build timeouts for build jobs. Reason: real toolchain runs on this Windows host can hang during STM32 CMake configure, and the service/UI layer needs a normal failed job record instead of an indefinitely running build.
 - 2026-03-30 17:22 Europe/London: Stage 3 spec updated to require program workflows to resolve stable unit ids to current transport endpoints, capture flash logs, and enforce bounded flash timeouts. Reason: flashing is now executed through the same job model as build, and multi-unit benches need stable-unit targeting rather than raw COM-port-only requests.
 
+## 2026-03-30 17:00 Europe/London
+
+- Clarified the Stage 3 debug requirement so the chosen server launch command is part of the persisted debugger metadata. Without that, a symbol path and GDB executable alone are not enough to reproduce a session from the web UI or another client.

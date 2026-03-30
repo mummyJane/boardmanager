@@ -141,3 +141,6 @@ Initial success criteria:
 
 
 
+
+- extend Stage 3 from run capture into reproducible debug launch metadata for ESP32 and STM32
+
