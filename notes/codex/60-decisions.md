@@ -246,3 +246,5 @@
 
 - 2026-03-30 20:05 Europe/London: Put the first Stage 4 read-only API on Python now instead of extending the Node HTTP service again. That aligns the implementation path with the user's stated runtime preference before the web UI is built on top.
 - 2026-03-30 20:05 Europe/London: Serve linked local help content through the same Python API surface as the module, board, and project trees. The later web UI should not need a second filesystem-specific path just to render part and board help pages.
+
+- 2026-03-30 20:15 Europe/London: Ignore Python cache folders and .pyc files repo-wide now that Stage 4 includes Python tooling. These are runtime byproducts, not tracked project state.

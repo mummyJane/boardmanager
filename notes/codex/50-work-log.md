@@ -1511,3 +1511,19 @@ Validation:
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
 
 - Added install/update wrappers for Task_milestone4_python_read_api_1 and moved latest to the new Python read-API task.
+
+## 2026-03-30 20:15 Europe/London
+
+Commands run:
+
+- Remove-Item -Recurse -Force project/scripts/__pycache__
+- Updated .gitignore with Python cache rules
+
+Observed issues:
+
+- Python validation created a local __pycache__ directory under project/scripts, which left the repo dirty after the Stage 4 Python read-API task.
+
+Actions:
+
+- Added repo-wide Python cache ignore rules for __pycache__/ and *.pyc.
+- Removed the generated project/scripts/__pycache__ directory so the working tree stays clean after Python validation runs.
