@@ -19,6 +19,8 @@ PARTS_DEVICES_ROOT = PROJECT_ROOT / "parts" / "devices"
 HELP_PARTS_ROOT = PROJECT_ROOT / "help" / "parts"
 STAGE4_GENERATOR_PATH = PROJECT_ROOT / "scripts" / "generate-stage4-tree-model.mjs"
 MODULE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
+INTERFACE_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_\\-]*$")
+API_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
 
 
 def read_json(file_path, fallback):
@@ -345,6 +347,93 @@ def validate_composed_module_children(module_id, children, model):
         raise ValueError("compositionChildren cannot include the module being created or updated")
 
 
+def validate_module_payload(payload, existing_module_id=None):
+    model = load_tree_model()
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    module_nodes = list(modules_root.get("children", []))
+    module_ids = {child.get("metadata", {}).get("moduleId") for child in module_nodes}
+
+    try:
+        if payload.get("compositionChildren"):
+            normalized = normalize_composed_module_payload(payload)
+            module_kind = "composed"
+            validate_composed_module_children(normalized["moduleId"], normalized["compositionChildren"], model)
+        else:
+            normalized = normalize_leaf_module_payload(payload)
+            module_kind = "leaf"
+    except ValueError as error:
+        return {
+            "valid": False,
+            "moduleKind": "unknown",
+            "errors": [str(error)],
+            "warnings": [],
+            "normalized": None,
+        }
+
+    errors = []
+    warnings = []
+
+    if existing_module_id is not None and normalized["moduleId"] != existing_module_id:
+        errors.append("moduleId in payload must match the module id in the request path")
+
+    if existing_module_id is None and normalized["moduleId"] in module_ids:
+        errors.append(f"module '{normalized['moduleId']}' already exists")
+
+    if len(normalized["displayName"]) < 3:
+        errors.append("displayName must be at least 3 characters long")
+
+    if len(normalized["vendor"]) < 2:
+        errors.append("vendor must be at least 2 characters long")
+
+    invalid_interfaces = [entry for entry in normalized["interfaces"] if not INTERFACE_NAME_PATTERN.match(entry)]
+    if invalid_interfaces:
+        errors.append(f"interfaces contain invalid names: {', '.join(sorted(invalid_interfaces))}")
+
+    api_names = []
+    duplicate_api_names = set()
+    for entry in normalized["api"]:
+        name = entry["name"]
+        if not API_NAME_PATTERN.match(name):
+            errors.append(f"api entry '{name}' has an invalid name")
+        if name in api_names:
+            duplicate_api_names.add(name)
+        api_names.append(name)
+    if duplicate_api_names:
+        errors.append(f"api contains duplicate names: {', '.join(sorted(duplicate_api_names))}")
+
+    docs = normalized["docs"]
+    if docs["website"] and not re.match(r"^https?://", docs["website"], re.IGNORECASE):
+        errors.append("docs.website must be an absolute http or https URL")
+    if docs["datasheet"] and not re.match(r"^https?://", docs["datasheet"], re.IGNORECASE):
+        errors.append("docs.datasheet must be an absolute http or https URL")
+
+    help_markdown = normalized["helpMarkdown"]
+    if help_markdown and not help_markdown.lstrip().startswith("# "):
+        warnings.append("helpMarkdown should start with a top-level '# ' heading")
+    if not help_markdown:
+        warnings.append("helpMarkdown is empty; a generated help page will be used")
+
+    default_config = normalized["defaultConfig"]
+    if "i2c" in normalized["interfaces"] and "i2cAddress" not in default_config and module_kind == "leaf":
+        warnings.append("leaf modules using i2c should usually declare defaultConfig.i2cAddress")
+
+    if module_kind == "composed":
+        children = normalized["compositionChildren"]
+        if len(children) < 2:
+            warnings.append("composed modules usually contain more than one child module")
+        child_roles = [child.get("role") for child in children if child.get("role")]
+        if len(child_roles) != len(set(child_roles)):
+            warnings.append("compositionChildren reuse one or more role labels")
+
+    return {
+        "valid": len(errors) == 0,
+        "moduleKind": module_kind,
+        "errors": errors,
+        "warnings": warnings,
+        "normalized": normalized,
+    }
+
+
 def build_composed_module_help_markdown(payload):
     lines = [
         f"# {payload['displayName']}",
@@ -397,12 +486,10 @@ def build_composed_module_definition(payload):
 
 
 def create_composed_module(payload):
-    normalized = normalize_composed_module_payload(payload)
-    model = load_tree_model()
-    modules_root = find_root(model, "modules-root") or {"children": []}
-    if find_node_by_id(modules_root, normalize_id("module:", normalized["moduleId"])) is not None:
-        raise FileExistsError(f"module '{normalized['moduleId']}' already exists")
-    validate_composed_module_children(normalized["moduleId"], normalized["compositionChildren"], model)
+    validation = validate_module_payload(payload)
+    if not validation["valid"]:
+        raise ValueError("; ".join(validation["errors"]))
+    normalized = validation["normalized"]
 
     paths = module_paths(normalized["moduleId"])
     if paths["part"].exists() or paths["help"].exists():
@@ -496,11 +583,10 @@ def build_leaf_module_definition(payload):
 
 
 def create_leaf_module(payload):
-    normalized = normalize_leaf_module_payload(payload)
-    model = load_tree_model()
-    modules_root = find_root(model, "modules-root") or {"children": []}
-    if find_node_by_id(modules_root, normalize_id("module:", normalized["moduleId"])) is not None:
-        raise FileExistsError(f"module '{normalized['moduleId']}' already exists")
+    validation = validate_module_payload(payload)
+    if not validation["valid"]:
+        raise ValueError("; ".join(validation["errors"]))
+    normalized = validation["normalized"]
 
     paths = module_paths(normalized["moduleId"])
     if paths["part"].exists() or paths["help"].exists():
@@ -540,9 +626,10 @@ def build_module_edit_payload(model, module_id):
 
 def update_leaf_module(module_id, payload):
     loaded = assert_user_owned_module(module_id)
-    normalized = normalize_leaf_module_payload(payload)
-    if normalized["moduleId"] != module_id:
-        raise ValueError("moduleId in payload must match the module id in the request path")
+    validation = validate_module_payload(payload, existing_module_id=module_id)
+    if not validation["valid"]:
+        raise ValueError("; ".join(validation["errors"]))
+    normalized = validation["normalized"]
     help_markdown = normalized["helpMarkdown"] or build_leaf_module_help_markdown(normalized)
     definition = build_leaf_module_definition(normalized)
     write_module_files(module_id, definition, help_markdown)
@@ -551,11 +638,10 @@ def update_leaf_module(module_id, payload):
 
 def update_composed_module(module_id, payload):
     assert_user_owned_module(module_id)
-    normalized = normalize_composed_module_payload(payload)
-    if normalized["moduleId"] != module_id:
-        raise ValueError("moduleId in payload must match the module id in the request path")
-    model = load_tree_model()
-    validate_composed_module_children(module_id, normalized["compositionChildren"], model)
+    validation = validate_module_payload(payload, existing_module_id=module_id)
+    if not validation["valid"]:
+        raise ValueError("; ".join(validation["errors"]))
+    normalized = validation["normalized"]
     help_markdown = normalized["helpMarkdown"] or build_composed_module_help_markdown(normalized)
     definition = build_composed_module_definition(normalized)
     write_module_files(module_id, definition, help_markdown)
@@ -836,6 +922,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             parsed = urlparse(self.path)
+            if parsed.path == "/api/stage4/module-validate":
+                payload = self._read_json_body()
+                self._send_json(200, validate_module_payload(payload))
+                return
             if parsed.path == "/api/stage4/module-create":
                 payload = self._read_json_body()
                 self._send_json(201, create_leaf_module(payload))
@@ -962,6 +1052,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/modules/<moduleId>",
                         "/api/stage4/module-help/<moduleId>",
                         "/api/stage4/module-edit/<moduleId>",
+                        "POST /api/stage4/module-validate",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/projects",

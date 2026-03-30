@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-30 23:40 Europe/London
+Last updated: 2026-03-31 00:05 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -107,7 +107,7 @@ Last updated: 2026-03-30 23:40 Europe/London
 - [x] Add a module create flow for user-defined leaf modules
 - [x] Add a composed-module editor so one module can be defined from child modules and local configuration
 - [x] Add service write APIs for creating and updating module definitions safely
-- [ ] Add validation for user-created module definitions before they are persisted
+- [x] Add validation for user-created module definitions before they are persisted
 - [ ] Add a board catalog view that shows board assemblies, module trees, buses, signals, IO, boot order, and generated API references
 - [ ] Add a board create flow that starts from a newly discovered unit and produces a first-guess board definition from observed identity and known-family evidence
 - [ ] Add a manual board create flow that starts from a blank or template definition without discovery first

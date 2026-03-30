@@ -48,6 +48,7 @@ Current endpoints:
 - `/api/stage4/modules/<moduleId>`
 - `/api/stage4/module-help/<moduleId>`
 - `/api/stage4/module-edit/<moduleId>`
+- `POST /api/stage4/module-validate`
 - `POST /api/stage4/module-create`
 - `POST /api/stage4/module-compose`
 - `PUT /api/stage4/modules/<moduleId>`
@@ -107,6 +108,16 @@ The first generic-safe module update layer is now available through:
 
 - `GET /api/stage4/module-edit/<moduleId>` for a write-oriented editable payload
 - `PUT /api/stage4/modules/<moduleId>` for guarded updates
+
+Module validation now has a dedicated preflight endpoint:
+
+- `POST /api/stage4/module-validate`
+
+Validation behavior:
+
+- validates both leaf-module and composed-module payloads
+- returns `valid`, `errors`, `warnings`, `moduleKind`, and the normalized payload shape
+- is reused by create and update flows before any files are written
 
 Safety rules:
 

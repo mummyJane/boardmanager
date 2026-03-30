@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-30 23:40 Europe/London
+Last updated: 2026-03-31 00:05 Europe/London
 
 ## Goal
 
@@ -170,6 +170,7 @@ Requirements:
 - the first module-create flow should support user-defined leaf device modules through the Python service and write both the part definition and its local help page
 - the first composed-module flow should support user-defined composed modules through the Python service, including child-module selection and local default configuration, and should write both the composed module definition and its local help page
 - the first module write API layer should support safe updates for user-owned modules through the Python service, should reject edits to catalog-owned modules, and should regenerate the Stage 4 tree after successful writes
+- user-created module definitions should be validated through a reusable service-side preflight before they are persisted, and the web UI should be able to surface validation errors and warnings without attempting a write first
 - board creation must support two entry paths:
   - start from a newly discovered unit and generate a first-guess board profile from its observed identity, buses, devices, and prior family history
   - start from a manual blank or template board definition without requiring the hardware to be discovered first

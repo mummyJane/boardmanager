@@ -414,8 +414,14 @@ async function handleModuleComposeSubmit(form) {
     helpMarkdown: String(formData.get('helpMarkdown') || '').trim(),
   };
 
+  const validation = await postJson('/api/stage4/module-validate', payload);
+  if (!validation.valid) {
+    throw new Error(validation.errors.join('; '));
+  }
+
   const result = await postJson('/api/stage4/module-compose', payload);
-  state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}` };
+  const warningText = (validation.warnings ?? []).length ? ` Warnings: ${(validation.warnings || []).join(' | ')}` : '';
+  state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}.${warningText}` };
   state.moduleComposeMode = false;
   await loadShell(result.created.moduleId);
   renderPreview('modules');
@@ -441,8 +447,14 @@ async function handleModuleCreateSubmit(form) {
     payload.defaultConfig.i2cAddress = i2cAddress;
   }
 
+  const validation = await postJson('/api/stage4/module-validate', payload);
+  if (!validation.valid) {
+    throw new Error(validation.errors.join('; '));
+  }
+
   const result = await postJson('/api/stage4/module-create', payload);
-  state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}` };
+  const warningText = (validation.warnings ?? []).length ? ` Warnings: ${(validation.warnings || []).join(' | ')}` : '';
+  state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}.${warningText}` };
   state.moduleCreateMode = false;
   state.moduleComposeMode = false;
   await loadShell(result.created.moduleId);

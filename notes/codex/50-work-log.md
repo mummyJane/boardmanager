@@ -1770,3 +1770,35 @@ Validation:
 - python -m py_compile project/scripts/stage4-read-api.py -> success.
 - build_module_edit_payload() for m5_module_gnss -> success; returned editable false, supportsComposition true, compositionCount 4.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-31 00:05 Europe/London
+
+Commands run:
+
+- Get-Content project/scripts/stage4-read-api.py
+- Get-Content project/web-ui/README.md
+- Get-Content notes/codex/30-tasks.md
+- python -m py_compile project/scripts/stage4-read-api.py
+- python import validation of validate_module_payload() for valid and invalid module payloads
+- node --check project/web-ui/app/stage4-shell.js
+- validate.ps1
+
+Observed issues:
+
+- The Stage 4 write API still relied on write-time exceptions from create/update calls. There was no reusable preflight endpoint the browser could call before attempting a module write.
+- The current Windows host is still sensitive to longer inline Python runs, so validation needed to stay short and avoid temporary script files.
+
+Actions:
+
+- Added `validate_module_payload()` in the Python Stage 4 service so leaf and composed module payloads are normalized and checked in one shared path.
+- Added `POST /api/stage4/module-validate` so the browser and later editors can request validation errors and warnings without performing a write.
+- Updated create and update flows to reuse the same validation logic before persisting any module files.
+- Updated the Modules shell so both leaf and composed create forms call the validation endpoint first and surface returned errors before write attempts.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the module-validation task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+- direct longer inline Python validation round-trip remains risky on this host, so the validation set stayed on syntax checks and repo validation rather than temp-file-backed service tests.
