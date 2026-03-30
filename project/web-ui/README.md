@@ -47,6 +47,7 @@ Current endpoints:
 - `/api/stage4/modules`
 - `/api/stage4/modules/<moduleId>`
 - `/api/stage4/module-help/<moduleId>`
+- `POST /api/stage4/module-create`
 - `/api/stage4/boards`
 - `/api/stage4/boards/<boardId>`
 - `/api/stage4/projects`
@@ -89,3 +90,5 @@ The inventory dashboard endpoint merges:
 The module catalog endpoint merges the generated tree model into a module-focused view with vendor counts, role counts, help-reference coverage, composition coverage, and per-module summary rows for the shell Modules tab.
 
 The module-help endpoint returns one module-focused detail payload with linked references, declared high-level API entries, default config, and any local markdown help documents so the shell can render help content without rebuilding it from raw tree nodes.
+
+The first write flow is intentionally narrow: `POST /api/stage4/module-create` accepts a user-defined leaf module payload, writes the new device definition plus its local help page, regenerates the Stage 4 tree, and returns the created module detail back to the shell.

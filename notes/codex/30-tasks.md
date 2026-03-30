@@ -104,7 +104,7 @@ Last updated: 2026-03-30 20:50 Europe/London
 - [x] Add an inventory dashboard view that shows current units, history highlights, conflicts, overrides, and recent job activity
 - [x] Add a module catalog view that lists known modules, composed modules, and attached help/man-page references
 - [x] Add module help pages in the web UI with manufacturer links, API references, and test-script references
-- [ ] Add a module create flow for user-defined leaf modules
+- [x] Add a module create flow for user-defined leaf modules
 - [ ] Add a composed-module editor so one module can be defined from child modules and local configuration
 - [ ] Add service write APIs for creating and updating module definitions safely
 - [ ] Add validation for user-created module definitions before they are persisted

@@ -260,3 +260,5 @@
 - 2026-03-30 21:45 Europe/London: Keep module help as a per-module Python payload that bundles references, declared high-level API, default config, and local markdown content. This keeps the shell simple and lets later editors reuse one stable read contract for module detail views.
 
 - 2026-03-30 22:00 Europe/London: If a module does not have one defensible datasheet URL, omit the datasheet reference instead of pointing the datasheet field at a product or board page. Wrong links are worse than an intentionally missing datasheet entry in the Stage 4 help UI.
+
+- 2026-03-30 22:25 Europe/London: Start Stage 4 write support with one narrow module-create action rather than a generic module CRUD API. That keeps the current task bounded while still making the browser flow real and leaves broader update safety rules for the next service-write task.

@@ -8,6 +8,8 @@ const state = {
   moduleCatalog: null,
   selectedModuleId: null,
   moduleHelp: null,
+  moduleCreateMode: false,
+  moduleCreateStatus: null,
 };
 
 const titles = {
@@ -19,7 +21,7 @@ const titles = {
   modules: {
     title: "Modules",
     eyebrow: "Catalog",
-    description: "Reusable modules and device catalog entries with vendor, help, and composition coverage from the Stage 4 catalog endpoint."
+    description: "Reusable modules and device catalog entries with vendor, help, composition coverage, and user-defined leaf-module creation."
   },
   boards: {
     title: "Boards",
@@ -49,6 +51,19 @@ async function fetchJson(url) {
     throw new Error(`${url} -> ${response.status}`);
   }
   return response.json();
+}
+
+async function postJson(url, payload) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || `${url} -> ${response.status}`);
+  }
+  return data;
 }
 
 function setText(id, value) {
@@ -153,6 +168,66 @@ function renderModuleCard(module) {
     </li>`;
 }
 
+function renderModuleToolbar() {
+  return `
+    <div class="action-row">
+      <button class="action-button" type="button" id="module-create-toggle">${state.moduleCreateMode ? 'Back to help' : 'New leaf module'}</button>
+      ${state.selectedModuleId ? `<span class="status-chip">selected ${escapeHtml(state.selectedModuleId)}</span>` : ''}
+    </div>`;
+}
+
+function renderModuleStatus() {
+  if (!state.moduleCreateStatus) {
+    return '';
+  }
+  return `<div class="status-banner ${state.moduleCreateStatus.kind}">${escapeHtml(state.moduleCreateStatus.message)}</div>`;
+}
+
+function renderModuleCreatePanel() {
+  return `
+    <form id="module-create-form" class="form-stack">
+      <div class="eyebrow">Create module</div>
+      <div class="form-grid">
+        <label class="field-label">Module id
+          <input class="text-input" name="moduleId" placeholder="user_temp_sensor" required pattern="[a-z][a-z0-9_]*">
+        </label>
+        <label class="field-label">Display name
+          <input class="text-input" name="displayName" placeholder="User Temp Sensor" required>
+        </label>
+        <label class="field-label">Vendor
+          <input class="text-input" name="vendor" placeholder="User or vendor" required>
+        </label>
+        <label class="field-label">Interfaces
+          <input class="text-input" name="interfaces" placeholder="i2c, interrupt">
+        </label>
+        <label class="field-label">I2C address
+          <input class="text-input" name="i2cAddress" placeholder="0x48">
+        </label>
+        <label class="field-label">Website
+          <input class="text-input" name="website" placeholder="https://example.com/module">
+        </label>
+        <label class="field-label">Datasheet
+          <input class="text-input" name="datasheet" placeholder="https://example.com/module.pdf">
+        </label>
+      </div>
+      <label class="field-label">High-level API entries
+        <textarea class="text-area" name="apiEntries" rows="4" placeholder="read_value|Read the current sensor value
+configure_rate|Apply a sampling rate"></textarea>
+      </label>
+      <label class="field-label">Help markdown
+        <textarea class="text-area" name="helpMarkdown" rows="10" placeholder="# Module name
+
+## Summary
+
+Describe the module and any usage notes."></textarea>
+      </label>
+      <div class="action-row">
+        <button class="action-button primary" type="submit">Create module</button>
+        <span class="empty-inline">This creates a user-defined leaf device under the existing parts catalog.</span>
+      </div>
+    </form>`;
+}
+
 function renderModuleHelpPanel() {
   if (!state.moduleHelp) {
     return `<div class="empty-note">Select a module to load help content.</div>`;
@@ -199,8 +274,24 @@ function renderModuleHelpPanel() {
     </div>`;
 }
 
+function parseApiEntries(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name, ...rest] = line.split('|');
+      return {
+        name: (name || '').trim(),
+        description: rest.join('|').trim(),
+      };
+    })
+    .filter((entry) => entry.name);
+}
+
 async function selectModule(moduleId) {
   state.selectedModuleId = moduleId;
+  state.moduleCreateMode = false;
   renderPrimary('modules');
   const helpPayload = await fetchJson(`/api/stage4/module-help/${encodeURIComponent(moduleId)}`);
   if (state.selectedModuleId !== moduleId) {
@@ -208,6 +299,57 @@ async function selectModule(moduleId) {
   }
   state.moduleHelp = helpPayload;
   renderPreview('modules');
+}
+
+async function handleModuleCreateSubmit(form) {
+  const formData = new FormData(form);
+  const payload = {
+    moduleId: String(formData.get('moduleId') || '').trim(),
+    displayName: String(formData.get('displayName') || '').trim(),
+    vendor: String(formData.get('vendor') || '').trim(),
+    interfaces: String(formData.get('interfaces') || '').split(',').map((entry) => entry.trim()).filter(Boolean),
+    defaultConfig: {},
+    docs: {
+      website: String(formData.get('website') || '').trim() || null,
+      datasheet: String(formData.get('datasheet') || '').trim() || null,
+    },
+    api: parseApiEntries(formData.get('apiEntries')),
+    helpMarkdown: String(formData.get('helpMarkdown') || '').trim(),
+  };
+  const i2cAddress = String(formData.get('i2cAddress') || '').trim();
+  if (i2cAddress) {
+    payload.defaultConfig.i2cAddress = i2cAddress;
+  }
+
+  const result = await postJson('/api/stage4/module-create', payload);
+  state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}` };
+  state.moduleCreateMode = false;
+  await loadShell(result.created.moduleId);
+  renderPreview('modules');
+}
+
+function bindModulePreviewActions() {
+  document.getElementById('module-create-toggle')?.addEventListener('click', () => {
+    state.moduleCreateMode = !state.moduleCreateMode;
+    state.moduleCreateStatus = null;
+    renderPreview('modules');
+  });
+
+  const form = document.getElementById('module-create-form');
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.moduleCreateStatus = { kind: 'info', message: 'Creating module...' };
+        renderPreview('modules');
+        await handleModuleCreateSubmit(form);
+      } catch (error) {
+        state.moduleCreateStatus = { kind: 'error', message: error.message };
+        state.moduleCreateMode = true;
+        renderPreview('modules');
+      }
+    });
+  }
 }
 
 function renderPreview(view) {
@@ -248,8 +390,9 @@ function renderPreview(view) {
   }
 
   if (view === "modules" && state.moduleCatalog) {
-    secondaryTitle.textContent = state.moduleHelp ? `${state.moduleHelp.module.title} Help` : `${titles[view].title} Preview`;
-    secondaryBody.innerHTML = renderModuleHelpPanel();
+    secondaryTitle.textContent = state.moduleCreateMode ? 'Create module' : (state.moduleHelp ? `${state.moduleHelp.module.title} Help` : `${titles[view].title} Preview`);
+    secondaryBody.innerHTML = `${renderModuleToolbar()}${renderModuleStatus()}${state.moduleCreateMode ? renderModuleCreatePanel() : renderModuleHelpPanel()}`;
+    bindModulePreviewActions();
     return;
   }
 
@@ -343,7 +486,7 @@ function setActiveView(view) {
   renderPreview(view);
 }
 
-async function loadShell() {
+async function loadShell(preferredModuleId = null) {
   const [health, tree, modules, boards, projects, inventoryDashboard, moduleCatalog] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
@@ -360,7 +503,7 @@ async function loadShell() {
   state.projects = projects;
   state.inventoryDashboard = inventoryDashboard;
   state.moduleCatalog = moduleCatalog;
-  state.selectedModuleId = moduleCatalog.modules[0]?.moduleId ?? null;
+  state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
 
   setText('api-runtime', `runtime: ${health.runtime}`);
   setText('model-stamp', `tree: ${tree.generatedAt}`);
@@ -370,7 +513,7 @@ async function loadShell() {
   setText('project-count', String(tree.summary.projectCount));
 
   document.querySelectorAll('.nav-item').forEach((button) => {
-    button.addEventListener('click', () => setActiveView(button.dataset.view));
+    button.onclick = () => setActiveView(button.dataset.view);
   });
 
   if (state.selectedModuleId) {

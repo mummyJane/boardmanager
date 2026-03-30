@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-30 21:45 Europe/London
+Last updated: 2026-03-30 22:25 Europe/London
 
 ## Goal
 
@@ -167,6 +167,7 @@ Requirements:
   - a project describes the build/run target, combining user code, SDK code, third-party component code, and module code for one selected board
 - module definitions must carry help-page metadata including manufacturer links, API references, and test-script references
 - the web layer must let the user create new modules, new boards, and new projects without editing raw JSON by hand
+- the first module-create flow should support user-defined leaf device modules through the Python service and write both the part definition and its local help page
 - board creation must support two entry paths:
   - start from a newly discovered unit and generate a first-guess board profile from its observed identity, buses, devices, and prior family history
   - start from a manual blank or template board definition without requiring the hardware to be discovered first

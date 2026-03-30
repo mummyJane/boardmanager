@@ -329,3 +329,92 @@ button {
   margin-top: 8px;
   color: var(--muted);
 }
+
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.action-button {
+  border: 1px solid var(--line);
+  background: #fffdf8;
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, #fff1e1 0%, #f7d7bd 100%);
+  border-color: var(--accent);
+}
+
+.action-button:hover,
+.action-button:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.status-banner {
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+}
+
+.status-banner.success {
+  background: #eef7ea;
+  border-color: #8eb37a;
+  color: #2d5a27;
+}
+
+.status-banner.error {
+  background: #fff1ee;
+  border-color: #c6745d;
+  color: #8e2f1a;
+}
+
+.status-banner.info {
+  background: #f7f1e3;
+  border-color: #c8b184;
+  color: #6f5a22;
+}
+
+.form-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field-label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.text-input,
+.text-area {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font: inherit;
+}
+
+.text-input:focus,
+.text-area:focus {
+  outline: 2px solid rgba(180, 75, 42, 0.18);
+  border-color: var(--accent);
+}

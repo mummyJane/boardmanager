@@ -1669,3 +1669,35 @@ Validation:
 
 - build_module_help_payload() now returns only apiGuide and website references for m5_module_gnss and ws1850s.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-30 22:25 Europe/London
+
+Commands run:
+
+- Get-Content project/scripts/stage4-read-api.py
+- Get-Content project/web-ui/app/stage4-shell.js
+- Get-Content project/scripts/validate-definitions.mjs
+- python -m py_compile project/scripts/stage4-read-api.py
+- node --check project/web-ui/app/stage4-shell.js
+- python import validation of create_leaf_module() with a temporary user_temp_leaf_validation module followed by cleanup and tree regeneration
+- validate.ps1
+
+Observed issues:
+
+- The Modules view had browsing and help, but no actual create flow for user-defined leaf modules.
+- Writing the Python and browser files through the local PowerShell/Python bridge initially introduced broken newline escapes in both files and needed cleanup before the final validation pass.
+
+Actions:
+
+- Added a narrow POST /api/stage4/module-create path to the Python Stage 4 service plus reusable create_leaf_module() helpers.
+- The service now writes a new leaf device part definition under project/parts/devices, writes a local help page under project/help/parts, regenerates the Stage 4 tree model, and returns the created module payload.
+- Updated the shell Modules preview so it can switch between module help and a create form, submit the new module to the service, and refresh the catalog on success.
+- Added shell styling for the module-create form and status banners.
+- Restored the generated Stage 4 tree file after the temporary validation cycle so the task commit only carries real flow changes.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- Temporary create_leaf_module() validation -> success; created module user_temp_leaf_validation, returned helpDocumentCount 1, then removed the temp files and regenerated the tree.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

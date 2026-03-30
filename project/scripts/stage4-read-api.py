@@ -1,5 +1,7 @@
 import argparse
 import json
+import re
+import subprocess
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -13,6 +15,10 @@ WEB_APP_ROOT = PROJECT_ROOT / "web-ui" / "app"
 DEVICE_MANAGER_DATA_ROOT = PROJECT_ROOT / "device-manager" / "data"
 JOB_MANAGER_DATA_ROOT = PROJECT_ROOT / "job-manager" / "data"
 JOB_MANAGER_REPORTS_ROOT = PROJECT_ROOT / "job-manager" / "reports"
+PARTS_DEVICES_ROOT = PROJECT_ROOT / "parts" / "devices"
+HELP_PARTS_ROOT = PROJECT_ROOT / "help" / "parts"
+STAGE4_GENERATOR_PATH = PROJECT_ROOT / "scripts" / "generate-stage4-tree-model.mjs"
+MODULE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 def read_json(file_path, fallback):
@@ -99,6 +105,219 @@ def load_validation_reports():
         reports.append(report)
     reports.sort(key=lambda item: item.get("generatedAt") or "", reverse=True)
     return reports
+
+
+def module_paths(module_id):
+    return {
+        "part": PARTS_DEVICES_ROOT / f"{module_id}.json",
+        "help": HELP_PARTS_ROOT / f"{module_id}.md",
+    }
+
+
+def regenerate_stage4_tree_model():
+    result = subprocess.run(
+        ["node", str(STAGE4_GENERATOR_PATH)],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError((result.stderr or result.stdout or "stage4 tree generation failed").strip())
+    return result.stdout.strip()
+
+
+def normalize_leaf_module_payload(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("module payload must be a JSON object")
+
+    module_id = str(payload.get("moduleId") or "").strip()
+    if not MODULE_ID_PATTERN.match(module_id):
+        raise ValueError("moduleId must match ^[a-z][a-z0-9_]*$")
+
+    display_name = str(payload.get("displayName") or "").strip()
+    if not display_name:
+        raise ValueError("displayName is required")
+
+    vendor = str(payload.get("vendor") or "").strip()
+    if not vendor:
+        raise ValueError("vendor is required")
+
+    interfaces = []
+    for value in payload.get("interfaces") or []:
+        entry = str(value or "").strip()
+        if entry and entry not in interfaces:
+            interfaces.append(entry)
+
+    default_config = {}
+    raw_default_config = payload.get("defaultConfig") or {}
+    if not isinstance(raw_default_config, dict):
+        raise ValueError("defaultConfig must be an object")
+    for key, value in raw_default_config.items():
+        config_key = str(key or "").strip()
+        if not config_key:
+            continue
+        if not isinstance(value, (str, int, float, bool)) and value is not None:
+            raise ValueError(f"defaultConfig '{config_key}' must be a scalar value")
+        default_config[config_key] = value
+
+    raw_docs = payload.get("docs") or {}
+    if not isinstance(raw_docs, dict):
+        raise ValueError("docs must be an object")
+    website = str(raw_docs.get("website") or "").strip() or None
+    datasheet = str(raw_docs.get("datasheet") or "").strip() or None
+
+    api_entries = []
+    raw_api = payload.get("api") or []
+    if not isinstance(raw_api, list):
+        raise ValueError("api must be an array")
+    for entry in raw_api:
+        if not isinstance(entry, dict):
+            raise ValueError("api entries must be objects")
+        name = str(entry.get("name") or "").strip()
+        description = str(entry.get("description") or "").strip()
+        if not name:
+            continue
+        api_entries.append({"name": name, "description": description})
+
+    help_markdown = str(payload.get("helpMarkdown") or "").strip()
+
+    return {
+        "moduleId": module_id,
+        "displayName": display_name,
+        "vendor": vendor,
+        "interfaces": interfaces,
+        "defaultConfig": default_config,
+        "docs": {
+            "website": website,
+            "datasheet": datasheet,
+            "apiGuide": f"project/help/parts/{module_id}.md",
+        },
+        "api": api_entries,
+        "helpMarkdown": help_markdown,
+    }
+
+
+def build_leaf_module_help_markdown(payload):
+    lines = [
+        f"# {payload['displayName']}",
+        "",
+        "## Summary",
+        "",
+        f"`{payload['moduleId']}` is a user-defined leaf module created through the Board Manager Stage 4 web flow.",
+        "",
+        "## Interface",
+        "",
+    ]
+    if payload["interfaces"]:
+        lines.extend([f"- interface: `{entry}`" for entry in payload["interfaces"]])
+    else:
+        lines.append("- no interfaces declared yet")
+
+    lines.extend(["", "## Default Config", ""])
+    if payload["defaultConfig"]:
+        lines.extend([f"- `{key}`: `{value}`" for key, value in payload["defaultConfig"].items()])
+    else:
+        lines.append("- no default config declared")
+
+    lines.extend(["", "## High-Level API Usage", ""])
+    if payload["api"]:
+        lines.extend([f"- `{entry['name']}`: {entry['description'] or 'user-defined API entry'}" for entry in payload["api"]])
+    else:
+        lines.append("- add project-local API notes here")
+
+    lines.extend(["", "## References", ""])
+    if payload["docs"]["website"]:
+        lines.append(f"- Website: [{payload['displayName']}]({payload['docs']['website']})")
+    if payload["docs"]["datasheet"]:
+        lines.append(f"- Datasheet: [Reference PDF]({payload['docs']['datasheet']})")
+    if not payload["docs"]["website"] and not payload["docs"]["datasheet"]:
+        lines.append("- add vendor and datasheet links here")
+
+    return "\n".join(lines) + "\n"
+
+
+def build_leaf_module_definition(payload):
+    init_steps = []
+    smoke_checks = []
+    if payload["interfaces"]:
+        init_steps.append("Initialize or bind the declared module interfaces before higher-level use.")
+        smoke_checks.append("Confirm the declared interfaces can be reached through the selected board mapping.")
+    if "i2c" in payload["interfaces"] and payload["defaultConfig"].get("i2cAddress"):
+        init_steps.append("Probe the configured I2C address before enabling higher-level features.")
+        smoke_checks.append("Probe the configured I2C address and confirm the module acknowledges.")
+    if not init_steps:
+        init_steps.append("Apply any module-local setup required before higher-level use.")
+    if not smoke_checks:
+        smoke_checks.append("Confirm the module can be reached through its declared interface path.")
+
+    return {
+        "partId": payload["moduleId"],
+        "partType": "device",
+        "displayName": payload["displayName"],
+        "vendor": payload["vendor"],
+        "origin": "user",
+        "interfaces": payload["interfaces"],
+        "defaultConfig": payload["defaultConfig"],
+        "initContract": {
+            "preconditions": [
+                "The board-level interface mapping must already be configured before module setup."
+            ],
+            "steps": init_steps,
+        },
+        "smokeTest": {
+            "checks": smoke_checks,
+            "passCriteria": "The module responds on its declared interface path.",
+            "failureNotes": [
+                "Update the module definition with more specific checks once the hardware behavior is better understood."
+            ],
+        },
+        "api": {
+            "highLevel": payload["api"],
+        },
+        "docs": payload["docs"],
+    }
+
+
+def create_leaf_module(payload):
+    normalized = normalize_leaf_module_payload(payload)
+    model = load_tree_model()
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    if find_node_by_id(modules_root, normalize_id("module:", normalized["moduleId"])) is not None:
+        raise FileExistsError(f"module '{normalized['moduleId']}' already exists")
+
+    paths = module_paths(normalized["moduleId"])
+    if paths["part"].exists() or paths["help"].exists():
+        raise FileExistsError(f"module '{normalized['moduleId']}' already exists on disk")
+
+    help_markdown = normalized["helpMarkdown"] or build_leaf_module_help_markdown(normalized)
+    definition = build_leaf_module_definition(normalized)
+
+    created = []
+    try:
+        paths["part"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
+        created.append(paths["part"])
+        paths["help"].write_text(help_markdown, encoding="utf-8")
+        created.append(paths["help"])
+        regenerate_stage4_tree_model()
+    except Exception:
+        for file_path in reversed(created):
+            if file_path.exists():
+                file_path.unlink()
+        regenerate_stage4_tree_model()
+        raise
+
+    refreshed_model = load_tree_model()
+    return {
+        "created": {
+            "moduleId": normalized["moduleId"],
+            "partPath": str(paths["part"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpPath": str(paths["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        },
+        "moduleCatalog": build_module_catalog_payload(refreshed_model),
+        "moduleHelp": build_module_help_payload(refreshed_model, normalized["moduleId"]),
+        "treeSummary": refreshed_model.get("summary", {}),
+    }
 
 
 
@@ -347,6 +566,31 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
+    def _read_json_body(self):
+        content_length = int(self.headers.get("Content-Length", "0") or "0")
+        if content_length <= 0:
+            raise ValueError("request body is required")
+        raw = self.rfile.read(content_length)
+        try:
+            return json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError as error:
+            raise ValueError(f"invalid JSON body: {error.msg}") from error
+
+    def do_POST(self):
+        try:
+            parsed = urlparse(self.path)
+            if parsed.path == "/api/stage4/module-create":
+                payload = self._read_json_body()
+                self._send_json(201, create_leaf_module(payload))
+                return
+            self._send_json(404, {"error": "not_found"})
+        except FileExistsError as error:
+            self._send_json(409, {"error": "already_exists", "message": str(error)})
+        except ValueError as error:
+            self._send_json(400, {"error": "invalid_request", "message": str(error)})
+        except Exception as error:
+            self._send_json(500, {"error": "internal_error", "message": str(error)})
+
     def do_GET(self):
         try:
             parsed = urlparse(self.path)
@@ -431,6 +675,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/projects",
                         "/api/stage4/projects/<projectId>",
                         "/api/stage4/help?path=project/help/parts/bm8563.md",
+                        "POST /api/stage4/module-create",
                     ],
                 },
             )

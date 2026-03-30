@@ -228,3 +228,5 @@ un, and debug records.
 - 2026-03-30 21:20 Europe/London: The Python Stage 4 service now exposes /api/stage4/dashboard/modules as an aggregated module-catalog payload over the generated Stage 4 tree model, and the shell Modules view now renders vendor, role, help-reference, and composition coverage from that endpoint.
 
 - 2026-03-30 21:45 Europe/London: The Python Stage 4 service now exposes /api/stage4/module-help/<moduleId> so the shell Modules view can show one selected module's references, high-level API, default config, and local help markdown without reconstructing that bundle in the browser.
+
+- 2026-03-30 22:25 Europe/London: The Stage 4 Python service now supports a narrow POST /api/stage4/module-create flow for user-defined leaf device modules. It writes a new part definition under project/parts/devices, writes a local help page under project/help/parts, regenerates the tree model, and returns the created module detail payload to the shell.
