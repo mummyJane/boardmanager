@@ -15,6 +15,7 @@ try {
     Invoke-JobManagerValidator -Paths $paths
     Invoke-ValidationContractsValidator -Paths $paths
     Invoke-ValidationReportsValidator -Paths $paths
+    Invoke-Stage4TreeModelValidator -Paths $paths
 }
 finally {
     Restore-BoardManagerEnv -Snapshot $snapshot

@@ -1446,3 +1446,36 @@ Actions:
 Validation:
 
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, and 4 validation reports.
+
+## 2026-03-30 19:25 Europe/London
+
+Commands run:
+
+- Get-Content notes/codex/10-spec.md -Tail 80
+- Get-Content notes/codex/30-tasks.md -Tail 50
+- Get-ChildItem project/scripts
+- Get-Content project/scripts/device-manager-service.mjs -Head 220
+- Get-Content project/boards/m5stack_dial_v1_1.json
+- Get-Content project/projects/m5stack_dial_demo.json
+- Get-Content project/parts/modules/m5stamps3.json
+- Get-Content project/parts/devices/bm8563.json
+- node project/scripts/generate-stage4-tree-model.mjs
+- validate.ps1
+
+Observed issues:
+
+- Milestone 4 had no generated tree model yet, so the later web layer would have had to reconstruct module/board/project views directly from multiple raw JSON sources.
+- The current HTTP service is still Node-based, but the user wants the Milestone 4 web server to be Python-based.
+
+Actions:
+
+- Added the first Stage 4 tree-model workspace under project/web-ui with a README, schema, generated data snapshot, generator script, validator script, and top-level generation wrapper.
+- Wired Stage 4 tree-model validation into validate.ps1 through common.ps1.
+- Updated the Stage 4 spec, plan, context, and task list to state that the long-term web server should be Python-based and that Task 1 is now complete.
+
+Validation:
+
+- node project/scripts/generate-stage4-tree-model.mjs -> success; generated project/web-ui/data/stage4-tree-model.json.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+- Added install/update wrappers for Task_milestone4_tree_model_1 and moved latest to the new Stage 4 tree-model task.

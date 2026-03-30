@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "board-manager/stage4-tree-model.schema.json",
+  "title": "Board Manager Stage 4 Tree Model",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "preferredWebRuntime",
+    "summary",
+    "roots"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "preferredWebRuntime": { "type": "string" },
+    "summary": {
+      "type": "object",
+      "required": ["moduleCount", "boardCount", "projectCount"],
+      "additionalProperties": true,
+      "properties": {
+        "moduleCount": { "type": "integer", "minimum": 0 },
+        "boardCount": { "type": "integer", "minimum": 0 },
+        "projectCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "roots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/treeNode" }
+    }
+  },
+  "$defs": {
+    "treeNode": {
+      "type": "object",
+      "required": ["nodeId", "nodeKind", "title", "metadata", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "nodeId": { "type": "string" },
+        "nodeKind": { "type": "string" },
+        "title": { "type": "string" },
+        "sourcePath": { "type": ["string", "null"] },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/treeNode" }
+        }
+      }
+    }
+  }
+}

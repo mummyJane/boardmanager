@@ -159,6 +159,7 @@ Deliverables:
 Requirements:
 
 - UI must talk to a service layer, not directly to firmware tools
+- the Stage 4 web server and HTTP API host should be Python-based, even if some generation and validation helpers remain Node.js scripts during the transition
 - the service layer must also support remote calls from another system, not only the local browser UI
 - the Stage 4 data model must stay tree-based:
   - a module may be a reusable leaf module or a composed module made from other modules
@@ -193,6 +194,7 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+- prefer Python for the Milestone 4 web server and service host, while keeping definition generators and validators dependency-light
 
 
 

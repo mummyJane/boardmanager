@@ -3,10 +3,11 @@
 - turn the Stage 1-3 data and service layers into the first browser-facing operator workflow
 - keep the UI tree-based around modules, boards, and projects instead of flattening everything into raw files
 - reuse the existing Stage 2 and Stage 3 services wherever possible before adding new write APIs
+- put new Stage 4 web-serving work on a Python-based service host rather than extending the current Node HTTP service as the long-term UI server
 
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-30 18:45 Europe/London
+Last updated: 2026-03-30 19:25 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -123,15 +124,17 @@ Initial success criteria:
 
 Planned slices:
 
-- Slice 1: define the Stage 4 UI/domain model and add read APIs for tree views over modules, boards, projects, and help pages
-- Slice 2: scaffold the web app shell with inventory, module, board, and project navigation
-- Slice 3: add module catalog management, module help pages, and composed-module editing
-- Slice 4: add board create/edit flows, including discovery-assisted first guess and manual create
-- Slice 5: add board-config validation views and hardware test/report integration
-- Slice 6: add project/build/run pages that sit on top of the Stage 3 job APIs
-- Slice 7: add service write APIs and persistence workflows for user-created modules, boards, and projects
+- Slice 1: define the Stage 4 UI/domain model and generate a stable tree artifact for modules, boards, projects, and help pages
+- Slice 2: add Python-based read APIs for tree views over modules, boards, projects, and help pages
+- Slice 3: scaffold the web app shell with inventory, module, board, and project navigation
+- Slice 4: add module catalog management, module help pages, and composed-module editing
+- Slice 5: add board create/edit flows, including discovery-assisted first guess and manual create
+- Slice 6: add board-config validation views and hardware test/report integration
+- Slice 7: add project/build/run pages that sit on top of the Stage 3 job APIs
+- Slice 8: add service write APIs and persistence workflows for user-created modules, boards, and projects
 
 - 2026-03-30 18:45 Europe/London: Milestone 4 planning now treats the UI as three connected areas: module config, board config, and build/run. The shared model is tree-based, with module composition feeding board assembly and board selection feeding project execution.
+- 2026-03-30 19:25 Europe/London: Milestone 4 planning now also reserves the long-term web-serving role for a Python-based service host, while current Node scripts remain acceptable for generation and validation work.
 
 
 

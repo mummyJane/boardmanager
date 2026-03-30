@@ -229,3 +229,18 @@ function Invoke-ValidationReportsValidator {
         Pop-Location
     }
 }
+
+function Invoke-Stage4TreeModelValidator {
+    param([hashtable]$Paths)
+
+    Push-Location $Paths.RepoRoot
+    try {
+        & node project/scripts/validate-stage4-tree-model.mjs
+        if ($LASTEXITCODE -ne 0) {
+            throw "Stage 4 tree-model validation failed with exit code $LASTEXITCODE"
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}

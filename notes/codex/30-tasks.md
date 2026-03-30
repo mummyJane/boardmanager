@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-30 18:45 Europe/London
+Last updated: 2026-03-30 19:25 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -98,8 +98,8 @@ Last updated: 2026-03-30 18:45 Europe/London
 
 ## Stage 4 Next Tasks
 
-- [ ] Define the Stage 4 domain model for modules, composed modules, boards, and projects as a tree-based UI model on top of the current JSON definitions
-- [ ] Add read-only service APIs for module, board, and project trees plus linked help-page metadata
+- [x] Define the Stage 4 domain model for modules, composed modules, boards, and projects as a tree-based UI model on top of the current JSON definitions
+- [ ] Add Python-based read-only service APIs for module, board, and project trees plus linked help-page metadata
 - [ ] Add a first web app shell with navigation for inventory, modules, boards, projects, jobs, and reports
 - [ ] Add an inventory dashboard view that shows current units, history highlights, conflicts, overrides, and recent job activity
 - [ ] Add a module catalog view that lists known modules, composed modules, and attached help/man-page references
