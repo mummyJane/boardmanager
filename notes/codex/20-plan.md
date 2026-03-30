@@ -1,12 +1,12 @@
-## Milestone 3 Current Focus
+## Milestone 4 Current Focus
 
-- complete bounded Stage 3 execution flows in order: build, program, run, debug
-- keep each execution flow under the persisted job model with logs, reports, and timeouts
-- make run capture reuse the Stage 2 stable unit resolution so console output can be tied back to one physical unit
+- turn the Stage 1-3 data and service layers into the first browser-facing operator workflow
+- keep the UI tree-based around modules, boards, and projects instead of flattening everything into raw files
+- reuse the existing Stage 2 and Stage 3 services wherever possible before adding new write APIs
 
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-29 23:20 Europe/London
+Last updated: 2026-03-30 18:45 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -99,11 +99,39 @@ Initial success criteria:
 - build jobs now run through the Stage 3 job store, capture tool stdout/stderr into per-job logs, emit JSON build reports, and fail cleanly on bounded step timeouts
 - program jobs now run through the same Stage 3 job store, resolve stable unit ids to current transport ports, capture flash logs, and produce JSON program reports
 
-### Milestone 4: Web UI Skeleton
+### Milestone 4: Web Interface And Configuration Workflows
 
-- scaffold dashboard app
-- add inventory and board definition views
-- wire to service APIs
+Objective:
+Add the first real web interface and supporting service APIs around the existing discovery, board-definition, and job-execution stack. The UI should let operators browse known modules and boards, create or edit module/board/project definitions, and drive build/program/run/debug workflows against discovered hardware.
+
+Status:
+Planning started on 2026-03-30 from the current Milestone 1-3 foundation.
+
+Initial success criteria:
+
+- a browser UI shell exists and talks only to the local service layer
+- the UI can show the current bench inventory, per-unit history, validation status, and recent Stage 3 job activity
+- modules are represented as a tree, including both leaf modules and composed modules made from child modules
+- each module has a help/documentation view with manufacturer links, API references, and test-script references
+- boards are represented as module assemblies with local wiring/config data and are editable through the UI
+- board creation works both from a discovered unit with first-guess detection and from a manual blank/template flow
+- the system can test a board config against attached hardware where possible and report config mismatches
+- projects are represented as board-targeted build/run definitions that combine user code, SDK code, third-party components, and module code
+- the build/run area can start or inspect validate, build, program, run, and debug jobs through the existing service layer
+- a persistent known-module catalog exists and can be seeded from operator-provided module inventories such as M5Stack module lists
+- write APIs exist for the web UI to create and update modules, boards, and projects safely
+
+Planned slices:
+
+- Slice 1: define the Stage 4 UI/domain model and add read APIs for tree views over modules, boards, projects, and help pages
+- Slice 2: scaffold the web app shell with inventory, module, board, and project navigation
+- Slice 3: add module catalog management, module help pages, and composed-module editing
+- Slice 4: add board create/edit flows, including discovery-assisted first guess and manual create
+- Slice 5: add board-config validation views and hardware test/report integration
+- Slice 6: add project/build/run pages that sit on top of the Stage 3 job APIs
+- Slice 7: add service write APIs and persistence workflows for user-created modules, boards, and projects
+
+- 2026-03-30 18:45 Europe/London: Milestone 4 planning now treats the UI as three connected areas: module config, board config, and build/run. The shared model is tree-based, with module composition feeding board assembly and board selection feeding project execution.
 
 
 

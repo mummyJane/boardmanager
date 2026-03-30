@@ -232,3 +232,8 @@
 - Debug-job orchestration will prepare reproducible launch metadata and reports rather than trying to own a long-lived interactive debugger session. This keeps the Stage 3 runner bounded while still giving CLI and IDE consumers the exact commands and settings they need.
 - Stage 3 service APIs will expose log tails and parsed reports rather than arbitrary filesystem reads. This gives the web UI the useful data it needs while keeping the HTTP surface small and stable.
 - Stage 3 regression coverage will stay hardware-free by testing validation parsing and job-store transitions with local fixture data rather than requiring live boards for every test run. Live bench checks remain useful, but they are not the default regression gate.
+
+- 2026-03-30 18:45 Europe/London: Structure Milestone 4 around three operator areas: module config, board config, and build/run. That matches the user's workflow better than a generic dashboard-first plan.
+- 2026-03-30 18:45 Europe/London: Keep the Stage 4 model explicitly tree-based across the UI and service layer. Modules can contain modules, boards compose modules with local wiring/config, and projects sit on top of one selected board.
+- 2026-03-30 18:45 Europe/London: Treat discovery-assisted board creation and manual board creation as equal first-class flows. The system should help with first guesses, but it must not force hardware discovery before a board can be modeled.
+- 2026-03-30 18:45 Europe/London: Reuse the existing Stage 2 and Stage 3 APIs where possible, then add targeted write APIs for modules, boards, and projects. The UI should not invent a second separate state model if the service layer can carry it.

@@ -203,3 +203,8 @@ un, and debug records.
 
 - Milestone 3 now has local regression tests covering Stage 3 validation parsing and Stage 3 job-store service reads without requiring attached hardware.
 
+
+- 2026-03-30 18:45 Europe/London: Milestone 4 is now defined around three operator areas in the web layer: module config, board config, and build/run.
+- 2026-03-30 18:45 Europe/London: The Stage 4 model should stay tree-based. Modules may be leaf modules or composed modules, boards are assemblies of modules with local bindings, and projects target a selected board while combining user code, SDK code, third-party component code, and module code.
+- 2026-03-30 18:45 Europe/London: Board creation must support both discovery-assisted first-guess creation from a newly seen unit and manual blank/template creation without prior discovery.
+- 2026-03-30 18:45 Europe/London: The known-module catalog is expected to be seeded from operator-provided module inventories, starting with future M5Stack module lists from the user.

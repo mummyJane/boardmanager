@@ -149,18 +149,34 @@ Requirements:
 
 Deliverables:
 
-- browser-based dashboard
-- board inventory view
-- board definition browser
-- build/flash/debug job controls
-- status, logs, and recent activity views
+- browser-based dashboard and operator shell
+- tree-based module catalog and module help browser
+- board inventory, history, and board-definition views
+- board create/edit flows for discovered and manual boards
+- project/build/program/run/debug job controls
+- status, logs, validation reports, and recent activity views
 
 Requirements:
 
 - UI must talk to a service layer, not directly to firmware tools
 - the service layer must also support remote calls from another system, not only the local browser UI
-- the initial web UI may consume the Stage 2 query service directly until richer job-control APIs are added
-- UI must be able to inspect board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part help/man pages including datasheet, website, and API usage references
+- the Stage 4 data model must stay tree-based:
+  - a module may be a reusable leaf module or a composed module made from other modules
+  - a board config describes how modules are joined together, wired, and configured
+  - a project describes the build/run target, combining user code, SDK code, third-party component code, and module code for one selected board
+- module definitions must carry help-page metadata including manufacturer links, API references, and test-script references
+- the web layer must let the user create new modules, new boards, and new projects without editing raw JSON by hand
+- board creation must support two entry paths:
+  - start from a newly discovered unit and generate a first-guess board profile from its observed identity, buses, devices, and prior family history
+  - start from a manual blank or template board definition without requiring the hardware to be discovered first
+- board editing must let the operator add, remove, reorder, and reconfigure modules plus board-local settings, signals, buses, and bindings
+- where hardware is present, the system should test the current board config against the selected unit and report mismatches, missing devices, extra observed devices, and other validation problems
+- the UI must be able to inspect module trees, board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part/per-module help pages including datasheet, website, API usage, and local test references
+- the build/run area must let the operator select a project, board, and stable unit id, then start or inspect build, program, run, validate, and debug jobs through the service layer
+- build and run views must surface captured logs, reports, artifacts, and job state from the existing Stage 3 service APIs instead of reading local files directly
+- the system must preserve a database of seen boards and units, including logs, serial numbers, MAC addresses, transport identity, history, and board-family/profile evidence, and expose that data to the UI
+- the initial web UI may consume the existing Stage 2 and Stage 3 JSON service endpoints directly, but Stage 4 must grow the missing write APIs needed for module, board, and project editing
+- the known-module catalog must be seedable from operator-provided module lists such as M5Stack module inventories, while still allowing later editing and refinement through the UI
 
 ## Non-Goals For Initial Milestone
 

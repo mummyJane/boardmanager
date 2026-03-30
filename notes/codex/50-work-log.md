@@ -1393,3 +1393,34 @@ Validation:
 - Added project/tests/stage3-validation-and-jobs.test.mjs and extended project/tests/run-device-manager-tests.mjs so the local test suite now covers Stage 3 validation-style parsing and Stage 3 job-store or service-data transitions.
 - Validation: ./test.ps1 passed all 3 test groups and ./validate.ps1 passed with an empty Stage 3 job store.
 - Milestone 3 is now complete.
+
+## 2026-03-30 18:45 Europe/London
+
+Commands run:
+
+- Get-Content notes/codex/10-spec.md -Tail 120
+- Get-Content notes/codex/20-plan.md -Tail 160
+- Get-Content notes/codex/30-tasks.md -Tail 200
+- Get-Content notes/codex/40-context.md -Tail 120
+- Get-Content notes/codex/50-work-log.md -Tail 120
+- Get-Content notes/codex/60-decisions.md -Tail 120
+- Get-Content notes/codex/70-spec-update.md -Tail 120
+- Get-Content install/install_latest.ps1
+- Get-Content update/update_latest.ps1
+
+Observed issues:
+
+- Milestone 4 existed only as a thin web-UI placeholder in the spec and plan, which was not enough to guide implementation.
+- The current notes already had several appended milestone bullet fragments, so the next planning update needed to consolidate the user's Milestone 4 description into a cleaner staged backlog instead of adding more loose notes.
+
+Actions:
+
+- Expanded the Stage 4 spec from a generic dashboard placeholder into a tree-based web interface milestone covering module config, board config, and build/run workflows.
+- Added a concrete Milestone 4 section to the plan with objective, success criteria, and staged slices.
+- Added the first Stage 4 task backlog covering read APIs, write APIs, web views, create/edit flows, validation views, and module-catalog seeding.
+- Updated the tracked context so later Milestone 4 work starts from the user's clarified tree model and discovery-assisted board-create requirements.
+
+Validation:
+
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, and 4 validation reports.
+- Updated install/update wrappers for Task_milestone4_planning_1 and moved latest to the new planning release wrapper.

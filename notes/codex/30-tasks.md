@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-29 22:36 Europe/London
+Last updated: 2026-03-30 18:45 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -95,6 +95,32 @@ Last updated: 2026-03-29 22:36 Europe/London
 - [x] Add debug-job orchestration that emits GDB launch details and IDE debugger metadata for supported MCU families
 - [x] Expose Stage 3 job status, logs, reports, and artifacts through service APIs for later web UI use
 - [x] Add repeatable local tests for Stage 3 validation logic and job-state transitions
+
+## Stage 4 Next Tasks
+
+- [ ] Define the Stage 4 domain model for modules, composed modules, boards, and projects as a tree-based UI model on top of the current JSON definitions
+- [ ] Add read-only service APIs for module, board, and project trees plus linked help-page metadata
+- [ ] Add a first web app shell with navigation for inventory, modules, boards, projects, jobs, and reports
+- [ ] Add an inventory dashboard view that shows current units, history highlights, conflicts, overrides, and recent job activity
+- [ ] Add a module catalog view that lists known modules, composed modules, and attached help/man-page references
+- [ ] Add module help pages in the web UI with manufacturer links, API references, and test-script references
+- [ ] Add a module create flow for user-defined leaf modules
+- [ ] Add a composed-module editor so one module can be defined from child modules and local configuration
+- [ ] Add service write APIs for creating and updating module definitions safely
+- [ ] Add validation for user-created module definitions before they are persisted
+- [ ] Add a board catalog view that shows board assemblies, module trees, buses, signals, IO, boot order, and generated API references
+- [ ] Add a board create flow that starts from a newly discovered unit and produces a first-guess board definition from observed identity and known-family evidence
+- [ ] Add a manual board create flow that starts from a blank or template definition without discovery first
+- [ ] Add a board editor that lets the user add, remove, and reconfigure modules, buses, signals, and local board settings
+- [ ] Add service write APIs for creating and updating board definitions safely
+- [ ] Add board-config validation actions in the UI that run the Stage 3 validation flow and show mismatches between configured and observed hardware
+- [ ] Add a project catalog view that shows board-targeted projects, app roots, user-code roots, SDK targets, OTA policy, and security policy
+- [ ] Add a project create/edit flow for user-defined projects, including SDK code, third-party component code, module code, and selected board target
+- [ ] Add service write APIs for creating and updating project definitions safely
+- [ ] Add build/run/program/debug pages that launch and monitor Stage 3 jobs for the selected project, board, and unit
+- [ ] Add job-log, report, and artifact views to the web UI on top of the existing Stage 3 APIs
+- [ ] Add a known-module seeding flow so operator-provided module lists such as M5Stack inventories can be imported into the catalog
+- [ ] Add tests for Stage 4 read APIs, write APIs, tree transforms, and first-guess board creation logic
 
 
 

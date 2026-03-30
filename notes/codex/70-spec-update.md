@@ -170,3 +170,5 @@
 ## 2026-03-30 18:10 Europe/London
 
 - No feature-scope change to Stage 3, but the completion criteria are now satisfied by the local regression suite plus the existing live bench validations. That gives a repeatable gate without making hardware attachment mandatory for every run.
+
+- 2026-03-30 18:45 Europe/London: Expanded Stage 4 from a generic web-UI placeholder into a tree-based web interface milestone with module config, board config, and build/run as the three main operator areas. Reason: the user clarified that the UI must model composed modules, discovery-assisted or manual board creation, project build/run targeting, and a module help/catalog system rather than only showing inventory and job buttons.
