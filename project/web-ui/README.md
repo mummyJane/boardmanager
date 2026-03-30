@@ -153,3 +153,7 @@ The first manual board-create flow supports two modes:
 - template-backed creation cloned from an existing board definition
 
 The manual options endpoint returns available board templates plus controller-module choices for the blank-board path.
+
+- `/api/stage4/board-edit/<boardId>` returns the persisted board-definition fields plus controller/module options for the Boards-tab editor.
+- `PUT /api/stage4/boards/<boardId>` updates the board definition and local help markdown, then regenerates the Stage 4 tree.
+- The Boards tab now includes a first board editor for board-local metadata, controller selection, capabilities, power, signals, buses, connectors, boot sequence, sources, and help markdown.

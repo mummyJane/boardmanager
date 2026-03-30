@@ -1358,6 +1358,148 @@ def build_board_detail_payload(model, board_id):
     }
 
 
+
+
+def build_board_edit_payload(model, board_id):
+    detail = build_board_detail_payload(model, board_id)
+    loaded = load_board_definition(board_id)
+    definition = loaded["definition"]
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    controller_options = []
+    module_options = []
+
+    for node in modules_root.get("children", []):
+        metadata = node.get("metadata", {})
+        entry = {
+            "moduleId": metadata.get("moduleId"),
+            "title": node.get("title"),
+            "vendor": metadata.get("vendor"),
+            "catalogRole": metadata.get("catalogRole"),
+            "partType": metadata.get("partType"),
+        }
+        module_options.append(entry)
+        if metadata.get("catalogRole") == "controller":
+            controller_options.append(entry)
+
+    controller_options.sort(key=lambda item: item.get("title") or "")
+    module_options.sort(key=lambda item: item.get("title") or "")
+
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "board": {
+            "boardId": definition.get("boardId") or board_id,
+            "displayName": definition.get("displayName") or detail["board"]["title"],
+            "vendor": definition.get("vendor"),
+            "revision": definition.get("revision"),
+            "productSku": definition.get("productSku"),
+            "controllerModuleId": (definition.get("controller") or {}).get("moduleId"),
+            "capabilities": definition.get("capabilities") or {},
+            "power": definition.get("power") or {},
+            "signals": definition.get("signals") or [],
+            "buses": definition.get("buses") or [],
+            "connectors": definition.get("connectors") or [],
+            "bootSequence": definition.get("bootSequence") or [],
+            "sources": definition.get("sources") or [],
+            "sourcePath": str(loaded["path"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpPath": str(loaded["helpPath"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpMarkdown": loaded.get("helpMarkdown") or "",
+            "editable": True,
+        },
+        "options": {
+            "controllers": controller_options,
+            "modules": module_options,
+        },
+    }
+
+
+def normalize_board_update_payload(payload, existing_board_id=None):
+    if not isinstance(payload, dict):
+        raise ValueError("board payload must be a JSON object")
+    board_id = str(payload.get("boardId") or existing_board_id or "").strip()
+    if not MODULE_ID_PATTERN.match(board_id):
+        raise ValueError("boardId must match ^[a-z][a-z0-9_]*$")
+    if existing_board_id and board_id != existing_board_id:
+        raise ValueError("boardId cannot be changed during board update")
+    display_name = str(payload.get("displayName") or "").strip()
+    if not display_name:
+        raise ValueError("displayName is required")
+    vendor = str(payload.get("vendor") or "").strip()
+    if not vendor:
+        raise ValueError("vendor is required")
+    revision = str(payload.get("revision") or "").strip() or "1.0"
+    controller_module_id = str(payload.get("controllerModuleId") or "").strip()
+    if not controller_module_id:
+        raise ValueError("controllerModuleId is required")
+
+    def ensure_object(name):
+        value = payload.get(name)
+        if value is None:
+            return {}
+        if not isinstance(value, dict):
+            raise ValueError(f"{name} must be a JSON object")
+        return value
+
+    def ensure_array(name):
+        value = payload.get(name)
+        if value is None:
+            return []
+        if not isinstance(value, list):
+            raise ValueError(f"{name} must be a JSON array")
+        return value
+
+    sources = []
+    for source in ensure_array("sources"):
+        text = str(source).strip()
+        if text:
+            sources.append(text)
+
+    return {
+        "boardId": board_id,
+        "displayName": display_name,
+        "vendor": vendor,
+        "revision": revision,
+        "productSku": str(payload.get("productSku") or "").strip(),
+        "controllerModuleId": controller_module_id,
+        "capabilities": ensure_object("capabilities"),
+        "power": ensure_object("power"),
+        "signals": ensure_array("signals"),
+        "buses": ensure_array("buses"),
+        "connectors": ensure_array("connectors"),
+        "bootSequence": ensure_array("bootSequence"),
+        "sources": sources,
+        "helpMarkdown": str(payload.get("helpMarkdown") or "").strip(),
+    }
+
+
+def build_updated_board_definition(existing_definition, normalized):
+    definition = json.loads(json.dumps(existing_definition))
+    definition["boardId"] = normalized["boardId"]
+    definition["displayName"] = normalized["displayName"]
+    definition["vendor"] = normalized["vendor"]
+    definition["revision"] = normalized["revision"]
+    if normalized.get("productSku"):
+        definition["productSku"] = normalized["productSku"]
+    elif "productSku" in definition:
+        definition.pop("productSku", None)
+    definition["controller"] = {"moduleId": normalized["controllerModuleId"]}
+    definition["capabilities"] = normalized["capabilities"]
+    definition["power"] = normalized["power"]
+    definition["signals"] = normalized["signals"]
+    definition["buses"] = normalized["buses"]
+    definition["connectors"] = normalized["connectors"]
+    definition["bootSequence"] = normalized["bootSequence"]
+    definition["sources"] = normalized["sources"]
+    return definition
+
+
+def update_board(board_id, payload):
+    loaded = load_board_definition(board_id)
+    normalized = normalize_board_update_payload(payload, existing_board_id=board_id)
+    definition = build_updated_board_definition(loaded["definition"], normalized)
+    help_markdown = normalized["helpMarkdown"] or loaded.get("helpMarkdown") or ""
+    write_board_files(board_id, definition, help_markdown)
+    return build_board_write_result(board_id, "updated")
+
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
     history = load_history()
@@ -1552,6 +1694,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 else:
                     self._send_json(200, update_leaf_module(module_id, payload))
                 return
+            if parsed.path.startswith("/api/stage4/boards/"):
+                board_id = parsed.path.rsplit("/", 1)[-1]
+                payload = self._read_json_body()
+                self._send_json(200, update_board(board_id, payload))
+                return
             self._send_json(404, {"error": "not_found"})
         except ValueError as error:
             self._send_json(400, {"error": "invalid_request", "message": str(error)})
@@ -1639,6 +1786,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_module_edit_payload(model, module_id))
                 return
 
+            if parsed.path.startswith("/api/stage4/board-edit/"):
+                board_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_board_edit_payload(model, board_id))
+                return
+
             if parsed.path == "/api/stage4/boards":
                 self._handle_root_collection(model, "boards-root", query)
                 return
@@ -1683,6 +1835,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/modules/<moduleId>",
                         "/api/stage4/module-help/<moduleId>",
                         "/api/stage4/board-detail/<boardId>",
+                        "/api/stage4/board-edit/<boardId>",
                         "/api/stage4/board-create-guess/<unitId>",
                         "/api/stage4/module-edit/<moduleId>",
                         "POST /api/stage4/module-validate",
@@ -1696,6 +1849,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "POST /api/stage4/module-create",
                         "POST /api/stage4/module-compose",
                         "PUT /api/stage4/modules/<moduleId>",
+                        "PUT /api/stage4/boards/<boardId>",
                     ],
                 },
             )

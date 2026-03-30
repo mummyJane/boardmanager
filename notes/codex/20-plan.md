@@ -195,3 +195,5 @@ Planned slices:
 - 2026-03-30 20:30 Europe/London: Completed the first served Stage 4 web shell with top-level navigation for inventory, modules, boards, projects, jobs, and reports, hosted from the Python Stage 4 service.
 
 - 2026-03-30 20:50 Europe/London: Completed the first inventory dashboard view, backed by a Python endpoint that merges Stage 2 inventory/history with recent Stage 3 validation reports and job activity.
+
+- 2026-03-30 22:28 Europe/London: Stage 4 board editor and board update write path complete. Boards view now loads a persisted board-edit payload and saves board-local metadata, controller, capabilities, power, signals, buses, connectors, boot sequence, sources, and help markdown through the Python service.

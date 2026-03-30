@@ -276,3 +276,6 @@
 - 2026-03-31 01:05 Europe/London: When a discovered unit already matches a known board or has a strong candidate board, seed the draft by cloning that board definition. Only fall back to a minimal generic board skeleton when no known board shape exists.
 - 2026-03-31 01:25 Europe/London: Keep manual board creation as two narrow paths: blank-board plus controller selection, or template-backed cloning from an existing board definition. This satisfies the manual-create requirement without pre-solving the later full board-editor task.
 - 2026-03-31 01:25 Europe/London: Require a controller module for blank manual boards so the resulting draft always starts from a valid board skeleton with a usable boot-sequence root.
+
+- 2026-03-30 22:28 Europe/London: The first board editor will edit the persisted board JSON fields directly rather than introducing a second board-edit model. This keeps Stage 4 board edits aligned with Stage 1/3 generation and validation contracts.
+- 2026-03-30 22:28 Europe/London: The first board editor uses JSON text areas for board-local arrays and objects so operators can add, remove, and reorder buses, signals, connectors, and boot steps without waiting for a richer structured sub-editor.

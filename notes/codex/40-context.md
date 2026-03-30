@@ -247,3 +247,7 @@ un, and debug records.
 - 2026-03-31 01:25 Europe/London: The Stage 4 Python service now exposes `/api/stage4/board-create-manual-options` and `POST /api/stage4/board-create-manual` for manual board creation.
 - 2026-03-31 01:25 Europe/London: The manual board-create flow supports two modes: blank-board creation with a selected controller module, and template-backed creation that clones an existing board definition before applying the new board id, name, vendor, and revision.
 - 2026-03-31 01:25 Europe/London: Controlled create-and-cleanup validation succeeded for both blank and template manual board creation, producing one empty-signal blank board and one template-seeded board with eight signals before cleanup and tree regeneration.
+
+- 2026-03-30 22:28 Europe/London: Stage 4 board editor added through Python service payload `GET /api/stage4/board-edit/<boardId>` and write path `PUT /api/stage4/boards/<boardId>`.
+- 2026-03-30 22:28 Europe/London: Boards view now edits persisted board fields directly: displayName, vendor, revision, productSku, controller module, capabilities, power, signals, buses, connectors, bootSequence, sources, and help markdown.
+- 2026-03-30 22:28 Europe/London: Controlled validation created a temporary manual board, updated it through the board editor path, confirmed the edited display name and signal count, then cleaned up and regenerated the tree.

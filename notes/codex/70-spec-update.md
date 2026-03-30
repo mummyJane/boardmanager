@@ -199,3 +199,5 @@
 - 2026-03-31 01:05 Europe/London: Stage 4 spec updated to call out the first discovery-assisted board-create flow, including candidate-unit listing, first-guess draft generation, and Python-side board/help file creation. Reason: the Boards tab now has a real create path from Stage 2 hardware evidence instead of only a future requirement.
 
 - 2026-03-31 01:25 Europe/London: Stage 4 spec updated to call out the first manual board-create flow, including blank-board creation with a selected controller and template-backed creation cloned from an existing board definition. Reason: the Boards tab now supports manual creation without requiring prior discovery.
+
+- 2026-03-30 22:28 Europe/London: Updated Stage 4 spec to call out the first board editor and board update API path. Reason: the manual/discovery board-create flows now need a persisted edit surface so board config can be refined in the web UI without direct JSON edits.

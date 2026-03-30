@@ -12,6 +12,8 @@ const state = {
   selectedBoardId: null,
   moduleHelp: null,
   boardDetail: null,
+  boardEditMode: false,
+  boardEditPayload: null,
   boardCreateMode: false,
   boardCreateKind: 'unit',
   boardCreateStatus: null,
@@ -66,6 +68,19 @@ async function fetchJson(url) {
 async function postJson(url, payload) {
   const response = await fetch(url, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || `${url} -> ${response.status}`);
+  }
+  return data;
+}
+
+async function putJson(url, payload) {
+  const response = await fetch(url, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
@@ -198,6 +213,7 @@ function renderBoardCard(board) {
 function renderBoardToolbar() {
   return `
     <div class="action-row">
+      <button class="action-button" type="button" id="board-edit-toggle">${state.boardEditMode ? 'Back to detail' : 'Edit board'}</button>
       <button class="action-button" type="button" id="board-create-toggle">${state.boardCreateMode && state.boardCreateKind === 'unit' ? 'Back to detail' : 'Create from unit'}</button>
       <button class="action-button" type="button" id="board-manual-toggle">${state.boardCreateMode && state.boardCreateKind === 'manual' ? 'Back to detail' : 'Create manual'}</button>
       ${state.selectedBoardId ? `<span class="status-chip">selected ${escapeHtml(state.selectedBoardId)}</span>` : ''}
@@ -209,6 +225,72 @@ function renderBoardStatus() {
     return '';
   }
   return `<div class="status-banner ${state.boardCreateStatus.kind}">${escapeHtml(state.boardCreateStatus.message)}</div>`;
+}
+
+function renderBoardEditPanel() {
+  if (!state.boardEditPayload) {
+    return `<div class="empty-note">Load a board to edit its board-local config.</div>`;
+  }
+
+  const board = state.boardEditPayload.board;
+  const controllerOptions = (state.boardEditPayload.options?.controllers ?? []).map((entry) => `<option value="${escapeHtml(entry.moduleId)}" ${entry.moduleId === board.controllerModuleId ? 'selected' : ''}>${escapeHtml(entry.title)} (${escapeHtml(entry.moduleId)})</option>`).join('');
+  const sourcesText = (board.sources ?? []).join('\n');
+  const jsonText = (value) => JSON.stringify(value ?? (Array.isArray(value) ? [] : {}), null, 2);
+  return `
+    <form id="board-edit-form" class="form-stack">
+      <div class="eyebrow">Edit board config</div>
+      <div class="form-grid">
+        <label class="field-label">Board id
+          <input class="text-input" name="boardId" value="${escapeHtml(board.boardId)}" readonly>
+        </label>
+        <label class="field-label">Display name
+          <input class="text-input" name="displayName" value="${escapeHtml(board.displayName ?? '')}" required>
+        </label>
+        <label class="field-label">Vendor
+          <input class="text-input" name="vendor" value="${escapeHtml(board.vendor ?? '')}" required>
+        </label>
+        <label class="field-label">Revision
+          <input class="text-input" name="revision" value="${escapeHtml(board.revision ?? '1.0')}" required>
+        </label>
+        <label class="field-label">Product SKU
+          <input class="text-input" name="productSku" value="${escapeHtml(board.productSku ?? '')}">
+        </label>
+        <label class="field-label">Controller module
+          <select class="text-input" name="controllerModuleId" required>
+            <option value="">Select controller</option>
+            ${controllerOptions}
+          </select>
+        </label>
+      </div>
+      <label class="field-label">Capabilities JSON
+        <textarea class="text-area" name="capabilities" rows="8">${escapeHtml(jsonText(board.capabilities ?? {}))}</textarea>
+      </label>
+      <label class="field-label">Power JSON
+        <textarea class="text-area" name="power" rows="8">${escapeHtml(jsonText(board.power ?? {}))}</textarea>
+      </label>
+      <label class="field-label">Signals JSON
+        <textarea class="text-area" name="signals" rows="12">${escapeHtml(jsonText(board.signals ?? []))}</textarea>
+      </label>
+      <label class="field-label">Buses JSON
+        <textarea class="text-area" name="buses" rows="14">${escapeHtml(jsonText(board.buses ?? []))}</textarea>
+      </label>
+      <label class="field-label">Connectors JSON
+        <textarea class="text-area" name="connectors" rows="10">${escapeHtml(jsonText(board.connectors ?? []))}</textarea>
+      </label>
+      <label class="field-label">Boot sequence JSON
+        <textarea class="text-area" name="bootSequence" rows="10">${escapeHtml(jsonText(board.bootSequence ?? []))}</textarea>
+      </label>
+      <label class="field-label">Sources
+        <textarea class="text-area" name="sources" rows="6" placeholder="One source URL per line">${escapeHtml(sourcesText)}</textarea>
+      </label>
+      <label class="field-label">Help markdown
+        <textarea class="text-area" name="helpMarkdown" rows="12">${escapeHtml(board.helpMarkdown ?? '')}</textarea>
+      </label>
+      <div class="action-row">
+        <button class="action-button primary" type="submit">Save board config</button>
+        <span class="empty-inline">Edit board-local metadata and JSON arrays for signals, buses, connectors, and boot order.</span>
+      </div>
+    </form>`;
 }
 
 function renderBoardManualCreatePanel() {
@@ -583,12 +665,23 @@ async function selectModule(moduleId) {
 async function selectBoard(boardId) {
   state.selectedBoardId = boardId;
   state.boardCreateMode = false;
+  state.boardEditMode = false;
+  state.boardEditPayload = null;
   renderPrimary('boards');
   const detailPayload = await fetchJson(`/api/stage4/board-detail/${encodeURIComponent(boardId)}`);
   if (state.selectedBoardId !== boardId) {
     return;
   }
   state.boardDetail = detailPayload;
+  renderPreview('boards');
+}
+
+async function loadBoardEdit(boardId) {
+  const payload = await fetchJson(`/api/stage4/board-edit/${encodeURIComponent(boardId)}`);
+  if (state.selectedBoardId !== boardId) {
+    return;
+  }
+  state.boardEditPayload = payload;
   renderPreview('boards');
 }
 
@@ -632,6 +725,40 @@ async function handleBoardManualCreateSubmit(form) {
   state.boardCreateStatus = { kind: 'success', message: `Created ${result.created.boardId}` };
   state.boardCreateMode = false;
   await loadShell(state.selectedModuleId, result.created.boardId);
+  renderPreview('boards');
+}
+
+async function handleBoardEditSubmit(form) {
+  const formData = new FormData(form);
+  const parseJsonField = (name) => {
+    const raw = String(formData.get(name) || '').trim();
+    return raw ? JSON.parse(raw) : (name === 'capabilities' || name === 'power' ? {} : []);
+  };
+  const sources = String(formData.get('sources') || '')
+    .split(/\r?\n/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  const payload = {
+    boardId: String(formData.get('boardId') || '').trim(),
+    displayName: String(formData.get('displayName') || '').trim(),
+    vendor: String(formData.get('vendor') || '').trim(),
+    revision: String(formData.get('revision') || '').trim(),
+    productSku: String(formData.get('productSku') || '').trim(),
+    controllerModuleId: String(formData.get('controllerModuleId') || '').trim(),
+    capabilities: parseJsonField('capabilities'),
+    power: parseJsonField('power'),
+    signals: parseJsonField('signals'),
+    buses: parseJsonField('buses'),
+    connectors: parseJsonField('connectors'),
+    bootSequence: parseJsonField('bootSequence'),
+    sources,
+    helpMarkdown: String(formData.get('helpMarkdown') || ''),
+  };
+  const result = await putJson(`/api/stage4/boards/${encodeURIComponent(payload.boardId)}`, payload);
+  state.boardCreateStatus = { kind: 'success', message: `Updated ${result.updated.boardId}` };
+  state.boardEditMode = false;
+  state.boardEditPayload = null;
+  await loadShell(state.selectedModuleId, result.updated.boardId);
   renderPreview('boards');
 }
 
@@ -700,7 +827,34 @@ async function handleModuleCreateSubmit(form) {
 }
 
 function bindBoardPreviewActions() {
+  document.getElementById('board-edit-toggle')?.addEventListener('click', () => {
+    const nextMode = !state.boardEditMode;
+    state.boardEditMode = nextMode;
+    state.boardCreateMode = false;
+    state.boardCreateStatus = null;
+    if (!nextMode) {
+      state.boardEditPayload = null;
+      renderPreview('boards');
+      return;
+    }
+    if (!state.selectedBoardId) {
+      state.boardCreateStatus = { kind: 'error', message: 'Select a board first.' };
+      state.boardEditMode = false;
+      renderPreview('boards');
+      return;
+    }
+    state.boardCreateStatus = { kind: 'info', message: 'Loading board editor...' };
+    renderPreview('boards');
+    loadBoardEdit(state.selectedBoardId).catch((error) => {
+      state.boardCreateStatus = { kind: 'error', message: error.message };
+      state.boardEditMode = false;
+      renderPreview('boards');
+    });
+  });
+
   document.getElementById('board-create-toggle')?.addEventListener('click', () => {
+    state.boardEditMode = false;
+    state.boardEditPayload = null;
     state.boardCreateMode = !(state.boardCreateMode && state.boardCreateKind === 'unit');
     state.boardCreateKind = 'unit';
     state.boardCreateStatus = null;
@@ -708,6 +862,8 @@ function bindBoardPreviewActions() {
   });
 
   document.getElementById('board-manual-toggle')?.addEventListener('click', () => {
+    state.boardEditMode = false;
+    state.boardEditPayload = null;
     state.boardCreateMode = !(state.boardCreateMode && state.boardCreateKind === 'manual');
     state.boardCreateKind = 'manual';
     state.boardCreateStatus = null;
@@ -751,6 +907,22 @@ function bindBoardPreviewActions() {
         state.boardCreateStatus = { kind: 'error', message: error.message };
         state.boardCreateMode = true;
         state.boardCreateKind = 'manual';
+        renderPreview('boards');
+      }
+    });
+  }
+
+  const editForm = document.getElementById('board-edit-form');
+  if (editForm) {
+    editForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.boardCreateStatus = { kind: 'info', message: 'Saving board config...' };
+        renderPreview('boards');
+        await handleBoardEditSubmit(editForm);
+      } catch (error) {
+        state.boardCreateStatus = { kind: 'error', message: error.message };
+        state.boardEditMode = true;
         renderPreview('boards');
       }
     });
@@ -854,10 +1026,12 @@ function renderPreview(view) {
   }
 
   if (view === "boards" && state.boardCatalog) {
-    secondaryTitle.textContent = state.boardCreateMode
-      ? state.boardCreateKind === 'manual' ? 'Create board manually' : 'Create board from unit'
-      : state.boardDetail ? `${state.boardDetail.board.title} Detail` : `${titles[view].title} Preview`;
-    secondaryBody.innerHTML = `${renderBoardToolbar()}${renderBoardStatus()}${state.boardCreateMode ? (state.boardCreateKind === 'manual' ? renderBoardManualCreatePanel() : renderBoardCreatePanel()) : renderBoardDetailPanel()}`;
+    secondaryTitle.textContent = state.boardEditMode
+      ? 'Edit board config'
+      : state.boardCreateMode
+        ? state.boardCreateKind === 'manual' ? 'Create board manually' : 'Create board from unit'
+        : state.boardDetail ? `${state.boardDetail.board.title} Detail` : `${titles[view].title} Preview`;
+    secondaryBody.innerHTML = `${renderBoardToolbar()}${renderBoardStatus()}${state.boardEditMode ? renderBoardEditPanel() : (state.boardCreateMode ? (state.boardCreateKind === 'manual' ? renderBoardManualCreatePanel() : renderBoardCreatePanel()) : renderBoardDetailPanel())}`;
     bindBoardPreviewActions();
     return;
   }

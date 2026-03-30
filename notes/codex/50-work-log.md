@@ -1902,3 +1902,11 @@ Validation:
 - build_manual_board_create_options() -> success with 5 templates and 5 controller modules.
 - controlled create_board_manual() validation -> success for both blank and template-backed manual boards, then removed the files and regenerated the Stage 4 tree.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-30 22:28 Europe/London
+- Task: Stage 4 board editor and board update write API.
+- Updated `project/scripts/stage4-read-api.py` to add `build_board_edit_payload()`, `normalize_board_update_payload()`, `update_board()`, `GET /api/stage4/board-edit/<boardId>`, and `PUT /api/stage4/boards/<boardId>`.
+- Updated `project/web-ui/app/stage4-shell.js` to add the Boards-tab editor UI, load the board-edit payload, and save board config back through the Python service.
+- Validation: `python -m py_compile project/scripts/stage4-read-api.py` passed after fixing one escaped backslash literal in generated path strings.
+- Validation: `node --check project/web-ui/app/stage4-shell.js` passed after fixing escaped newline handling in the editor sources field.
+- Validation: inline Python create-edit-cleanup cycle created `editor_validation_board`, updated it through `update_board()`, confirmed `displayName=Editor Validation Board Updated`, `signalCount=1`, then removed the temporary board/help files and regenerated the Stage 4 tree.
