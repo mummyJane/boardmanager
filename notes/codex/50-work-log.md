@@ -2,7 +2,8 @@
 
 - Started Milestone 3 run-job orchestration.
 - Reused the existing Stage 3 job model and Stage 2 stable unit resolution instead of adding a second ad hoc runner path.
-- Added un.ps1 to capture serial console output through System.IO.Ports.SerialPort with a bounded host-side timeout.
+- Added 
+un.ps1 to capture serial console output through System.IO.Ports.SerialPort with a bounded host-side timeout.
 - Planned live validation against one attached ESP32 board with a short capture window to avoid long silent hangs.
 
 # Work Log
@@ -1388,7 +1389,8 @@ Validation:
 - Added JSON endpoints for job summaries, log tails, parsed reports, and artifact metadata on the existing HTTP service.
 - Planned validation with one live debug job so all new endpoints can be exercised against real Stage 3 data.
 - Live validation: started serve-device-manager.ps1 on 127.0.0.1:8790 after creating one fresh debug job for m5stack_cores3_gnss_v1 on mac:48:27:e2:66:b0:04.
-- Result: /api/jobs?job=job-000001 returned jobCount: 1, /api/job-log?job=job-000001&tail=5 returned 	ailLineCount: 5, /api/job-report?job=job-000001 returned eportKind: debug, and /api/job-artifacts?job=job-000001 returned rtifactCount: 3.
+- Result: /api/jobs?job=job-000001 returned jobCount: 1, /api/job-log?job=job-000001&tail=5 returned 	ailLineCount: 5, /api/job-report?job=job-000001 returned 
+eportKind: debug, and /api/job-artifacts?job=job-000001 returned rtifactCount: 3.
 - Cleanup: stopped the temporary service process, removed temporary service stdout or stderr logs, reset project/job-manager/data/jobs.json, and removed temporary debug job logs and reports.
 - Added project/tests/stage3-validation-and-jobs.test.mjs and extended project/tests/run-device-manager-tests.mjs so the local test suite now covers Stage 3 validation-style parsing and Stage 3 job-store or service-data transitions.
 - Validation: ./test.ps1 passed all 3 test groups and ./validate.ps1 passed with an empty Stage 3 job store.
@@ -1582,4 +1584,32 @@ Validation:
 
 - python -m py_compile project/scripts/stage4-read-api.py -> success.
 - Python import validation of build_inventory_dashboard_payload() -> success; presentUnitCount 5, conflictCount 0, recentReportCount 4, firstUnit mac:c0:4e:30:13:2b:68.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-30 21:20 Europe/London
+
+Commands run:
+
+- Get-Content project/scripts/stage4-read-api.py
+- Get-Content project/web-ui/app/stage4-shell.js
+- python import validation of project/scripts/stage4-read-api.py and build_module_catalog_payload()
+- python -m py_compile project/scripts/stage4-read-api.py
+- validate.ps1
+
+Observed issues:
+
+- The Stage 4 shell had a Modules tab, but it still used generic tree data instead of a catalog-focused summary for vendor coverage, help coverage, and composition support.
+- An intermediate edit accidentally left literal `r`n text in the Python endpoint list and shell state block, and the shell fetch list temporarily duplicated the new module dashboard request.
+
+Actions:
+
+- Added build_module_catalog_payload() and the /api/stage4/dashboard/modules endpoint to the Python Stage 4 service.
+- Updated the Modules view in the Stage 4 shell so the main panel lists module catalog entries and the preview panel shows catalog coverage, role counts, and top vendors.
+- Corrected the intermediate newline and duplicate-fetch defects before final validation.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the module catalog task complete.
+
+Validation:
+
+- python import validation of build_module_catalog_payload() -> success; moduleCount 13, vendorCount 9, helpBackedCount 8, composedCount 0, firstModule axp2101.
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

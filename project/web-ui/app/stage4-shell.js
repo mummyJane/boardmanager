@@ -5,6 +5,7 @@ const state = {
   boards: null,
   projects: null,
   inventoryDashboard: null,
+  moduleCatalog: null,
 };
 
 const titles = {
@@ -16,7 +17,7 @@ const titles = {
   modules: {
     title: "Modules",
     eyebrow: "Catalog",
-    description: "Reusable modules and device catalog entries from the current Stage 4 tree model."
+    description: "Reusable modules and device catalog entries with vendor, help, and composition coverage from the Stage 4 catalog endpoint."
   },
   boards: {
     title: "Boards",
@@ -113,13 +114,28 @@ function renderPreview(view) {
     return;
   }
 
-  if (view === "modules" && state.modules) {
-    const sample = state.modules.nodes.slice(0, 4).map((node) => ({
-      title: node.title,
-      description: `${node.metadata.catalogRole} from ${node.metadata.vendor ?? "unknown vendor"}`,
-      meta: [node.metadata.partType ?? "unknown", node.metadata.moduleId ?? node.nodeId]
+  if (view === "modules" && state.moduleCatalog) {
+    const summary = state.moduleCatalog.summary;
+    const previewItems = [
+      {
+        title: 'Catalog coverage',
+        description: `${summary.moduleCount} modules across ${summary.vendorCount} vendors.`,
+        meta: [`help ${summary.helpBackedCount}`, `composed ${summary.composedCount}`]
+      },
+      {
+        title: 'Role split',
+        description: `Controller ${summary.roleCounts.controller ?? 0} · Device ${summary.roleCounts.device ?? 0}`,
+        meta: Object.entries(summary.roleCounts).map(([key, value]) => `${key} ${value}`)
+      }
+    ];
+
+    const topVendors = Object.entries(summary.vendorCounts).slice(0, 3).map(([vendor, count]) => ({
+      title: vendor,
+      description: `${count} catalog entries`,
+      meta: []
     }));
-    secondaryBody.innerHTML = renderList(sample);
+
+    secondaryBody.innerHTML = renderList([...previewItems, ...topVendors]);
     return;
   }
 
@@ -169,11 +185,16 @@ function renderPrimary(view) {
     return;
   }
 
-  if (view === "modules" && state.modules) {
-    const items = state.modules.nodes.map((node) => ({
-      title: node.title,
-      description: `${node.metadata.catalogRole} entry with ${node.children?.length ?? 0} linked references`,
-      meta: [node.metadata.vendor ?? "unknown vendor", node.metadata.moduleId ?? node.nodeId]
+  if (view === "modules" && state.moduleCatalog) {
+    const items = state.moduleCatalog.modules.map((module) => ({
+      title: module.title,
+      description: `${module.catalogRole} · ${module.helpReferenceCount} help refs · ${module.interfaceCount} interfaces`,
+      meta: [
+        module.vendor,
+        module.moduleId,
+        module.partType ?? 'unknown',
+        module.supportsComposition ? 'composed-capable' : 'leaf-only'
+      ]
     }));
     primaryBody.innerHTML = renderList(items);
     return;
@@ -212,13 +233,14 @@ function setActiveView(view) {
 }
 
 async function loadShell() {
-  const [health, tree, modules, boards, projects, inventoryDashboard] = await Promise.all([
+  const [health, tree, modules, boards, projects, inventoryDashboard, moduleCatalog] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
     fetchJson('/api/stage4/boards?includeChildren=false'),
     fetchJson('/api/stage4/projects?includeChildren=false'),
-    fetchJson('/api/stage4/dashboard/inventory')
+    fetchJson('/api/stage4/dashboard/inventory'),
+    fetchJson('/api/stage4/dashboard/modules')
   ]);
 
   state.tree = tree;
@@ -226,6 +248,7 @@ async function loadShell() {
   state.boards = boards;
   state.projects = projects;
   state.inventoryDashboard = inventoryDashboard;
+  state.moduleCatalog = moduleCatalog;
 
   setText('api-runtime', `runtime: ${health.runtime}`);
   setText('model-stamp', `tree: ${tree.generatedAt}`);

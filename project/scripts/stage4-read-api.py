@@ -101,6 +101,65 @@ def load_validation_reports():
     return reports
 
 
+
+def build_module_catalog_payload(model):
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    modules = list(modules_root.get("children", []))
+
+    vendor_counts = {}
+    role_counts = {}
+    help_backed_count = 0
+    composed_count = 0
+    module_items = []
+
+    for module in modules:
+        metadata = module.get("metadata", {})
+        vendor = metadata.get("vendor") or "unknown"
+        role = metadata.get("catalogRole") or "unknown"
+        vendor_counts[vendor] = vendor_counts.get(vendor, 0) + 1
+        role_counts[role] = role_counts.get(role, 0) + 1
+
+        help_refs = [child for child in module.get("children", []) if child.get("nodeKind") == "help-reference"]
+        if help_refs:
+            help_backed_count += 1
+        if metadata.get("supportsComposition"):
+            composed_count += 1
+
+        module_items.append({
+            "moduleId": metadata.get("moduleId") or module.get("nodeId"),
+            "title": module.get("title"),
+            "vendor": vendor,
+            "catalogRole": role,
+            "partType": metadata.get("partType"),
+            "interfaceCount": len(metadata.get("interfaces") or []),
+            "helpReferenceCount": len(help_refs),
+            "supportsComposition": bool(metadata.get("supportsComposition")),
+            "sourcePath": module.get("sourcePath"),
+            "helpReferences": [
+                {
+                    "title": child.get("title"),
+                    "kind": (child.get("metadata") or {}).get("kind"),
+                    "href": (child.get("metadata") or {}).get("href"),
+                    "path": (child.get("metadata") or {}).get("path"),
+                }
+                for child in help_refs
+            ]
+        })
+
+    module_items.sort(key=lambda item: item.get("title") or "")
+
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "summary": {
+            "moduleCount": len(modules),
+            "vendorCount": len(vendor_counts),
+            "helpBackedCount": help_backed_count,
+            "composedCount": composed_count,
+            "roleCounts": role_counts,
+            "vendorCounts": dict(sorted(vendor_counts.items(), key=lambda entry: entry[0].lower())),
+        },
+        "modules": module_items,
+    }
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
     history = load_history()
@@ -261,6 +320,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_inventory_dashboard_payload())
                 return
 
+            if parsed.path == "/api/stage4/dashboard/modules":
+                self._send_json(200, build_module_catalog_payload(model))
+                return
+
             if parsed.path == "/api/stage4/tree":
                 self._send_json(200, model)
                 return
@@ -304,6 +367,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/",
                         "/health",
                         "/api/stage4/dashboard/inventory",
+                        "/api/stage4/dashboard/modules",
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",

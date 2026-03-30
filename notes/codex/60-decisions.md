@@ -254,3 +254,5 @@
 
 - 2026-03-30 20:50 Europe/London: Keep the inventory dashboard as an aggregated Python endpoint instead of making the browser stitch together raw Stage 2 and Stage 3 sources itself. The UI should consume one operator-facing bench summary contract.
 - 2026-03-30 20:50 Europe/London: Validate the inventory dashboard by importing the Python module directly when localhost process-launch checks are blocked by the Windows sandbox. That still proves the payload logic against real repo data without pretending the blocked runner path succeeded.
+
+- 2026-03-30 21:20 Europe/London: Keep the module catalog as an aggregated Python endpoint instead of making the browser derive vendor, role, help-reference, and composition summaries from the raw tree model itself. This keeps the Modules view thin and gives later write flows one stable read contract for catalog-focused UI work.

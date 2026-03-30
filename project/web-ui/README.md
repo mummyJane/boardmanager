@@ -52,6 +52,7 @@ Current endpoints:
 - `/api/stage4/projects/<projectId>`
 - `/api/stage4/help?path=project/help/parts/bm8563.md`
 - `/api/stage4/dashboard/inventory`
+- `/api/stage4/dashboard/modules`
 
 The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.
 ## Web Shell
@@ -83,3 +84,5 @@ The inventory dashboard endpoint merges:
 - Stage 2 history conflict and override state
 - recent Stage 3 validation reports
 - recent Stage 3 job activity
+
+The module catalog endpoint merges the generated tree model into a module-focused view with vendor counts, role counts, help-reference coverage, composition coverage, and per-module summary rows for the shell Modules tab.

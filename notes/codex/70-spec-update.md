@@ -182,3 +182,5 @@
 - 2026-03-30 20:30 Europe/London: Stage 4 spec updated to call out the first served web shell with top-level navigation for inventory, modules, boards, projects, jobs, and reports. Reason: the Python Stage 4 service now hosts a real browser shell, even though some sections still intentionally point at later Stage 4 tasks.
 
 - 2026-03-30 20:50 Europe/London: Stage 4 spec updated to call out the inventory dashboard as an aggregated bench view over Stage 2 inventory/history plus recent Stage 3 validation and job state. Reason: the first real inventory dashboard now exists and the UI contract should reflect that it is more than a raw unit list.
+
+- 2026-03-30 21:20 Europe/London: Stage 4 spec updated to call out the module catalog view as an aggregated web-facing catalog over the tree model, including vendor, help-reference, role, and composition-coverage summaries. Reason: the Python service and shell now expose a real module catalog contract instead of only a raw modules tree listing.

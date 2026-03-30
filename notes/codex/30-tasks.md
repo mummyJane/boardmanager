@@ -102,7 +102,7 @@ Last updated: 2026-03-30 20:50 Europe/London
 - [x] Add Python-based read-only service APIs for module, board, and project trees plus linked help-page metadata
 - [x] Add a first web app shell with navigation for inventory, modules, boards, projects, jobs, and reports
 - [x] Add an inventory dashboard view that shows current units, history highlights, conflicts, overrides, and recent job activity
-- [ ] Add a module catalog view that lists known modules, composed modules, and attached help/man-page references
+- [x] Add a module catalog view that lists known modules, composed modules, and attached help/man-page references
 - [ ] Add module help pages in the web UI with manufacturer links, API references, and test-script references
 - [ ] Add a module create flow for user-defined leaf modules
 - [ ] Add a composed-module editor so one module can be defined from child modules and local configuration
