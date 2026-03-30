@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-30 21:20 Europe/London
+Last updated: 2026-03-30 21:45 Europe/London
 
 ## Goal
 

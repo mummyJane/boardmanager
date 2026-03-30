@@ -160,6 +160,55 @@ def build_module_catalog_payload(model):
         },
         "modules": module_items,
     }
+
+
+def build_module_help_payload(model, module_id):
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    node = find_node_by_id(modules_root, normalize_id("module:", module_id))
+    if node is None:
+        raise FileNotFoundError(f"module '{module_id}' not found")
+
+    metadata = node.get("metadata", {})
+    help_refs = [child for child in node.get("children", []) if child.get("nodeKind") == "help-reference"]
+    documents = []
+    for ref in help_refs:
+        ref_meta = ref.get("metadata") or {}
+        path = ref_meta.get("path")
+        if not path:
+            continue
+        text, normalized_path = load_help_text(path)
+        documents.append({
+            "title": ref.get("title"),
+            "kind": ref_meta.get("kind"),
+            "path": normalized_path,
+            "markdown": text,
+        })
+
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "module": {
+            "moduleId": metadata.get("moduleId") or node.get("nodeId"),
+            "title": node.get("title"),
+            "vendor": metadata.get("vendor") or "unknown",
+            "catalogRole": metadata.get("catalogRole") or "unknown",
+            "partType": metadata.get("partType"),
+            "interfaces": metadata.get("interfaces") or [],
+            "defaultConfig": metadata.get("defaultConfig") or {},
+            "supportsComposition": bool(metadata.get("supportsComposition")),
+            "sourcePath": node.get("sourcePath"),
+            "api": (metadata.get("api") or {}).get("highLevel") or [],
+        },
+        "references": [
+            {
+                "title": ref.get("title"),
+                "kind": (ref.get("metadata") or {}).get("kind"),
+                "href": (ref.get("metadata") or {}).get("href"),
+                "path": (ref.get("metadata") or {}).get("path"),
+            }
+            for ref in help_refs
+        ],
+        "documents": documents,
+    }
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
     history = load_history()
@@ -332,6 +381,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._handle_root_collection(model, "modules-root", query)
                 return
 
+            if parsed.path.startswith("/api/stage4/module-help/"):
+                module_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_module_help_payload(model, module_id))
+                return
+
             if parsed.path == "/api/stage4/boards":
                 self._handle_root_collection(model, "boards-root", query)
                 return
@@ -371,6 +425,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
+                        "/api/stage4/module-help/<moduleId>",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/projects",

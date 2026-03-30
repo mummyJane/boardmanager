@@ -226,3 +226,5 @@ un, and debug records.
 - 2026-03-30 20:50 Europe/London: The shell inventory panel now renders real present-unit cards instead of placeholder text, while the preview panel shows bench conflict and recent-validation summary information.
 
 - 2026-03-30 21:20 Europe/London: The Python Stage 4 service now exposes /api/stage4/dashboard/modules as an aggregated module-catalog payload over the generated Stage 4 tree model, and the shell Modules view now renders vendor, role, help-reference, and composition coverage from that endpoint.
+
+- 2026-03-30 21:45 Europe/London: The Python Stage 4 service now exposes /api/stage4/module-help/<moduleId> so the shell Modules view can show one selected module's references, high-level API, default config, and local help markdown without reconstructing that bundle in the browser.

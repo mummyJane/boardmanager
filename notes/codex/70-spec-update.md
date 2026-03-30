@@ -184,3 +184,5 @@
 - 2026-03-30 20:50 Europe/London: Stage 4 spec updated to call out the inventory dashboard as an aggregated bench view over Stage 2 inventory/history plus recent Stage 3 validation and job state. Reason: the first real inventory dashboard now exists and the UI contract should reflect that it is more than a raw unit list.
 
 - 2026-03-30 21:20 Europe/London: Stage 4 spec updated to call out the module catalog view as an aggregated web-facing catalog over the tree model, including vendor, help-reference, role, and composition-coverage summaries. Reason: the Python service and shell now expose a real module catalog contract instead of only a raw modules tree listing.
+
+- 2026-03-30 21:45 Europe/London: Stage 4 spec updated to call out module help pages as a real shell detail view backed by a per-module API payload with references, declared API entries, default config, and local help markdown. Reason: the Modules view now exposes documentation detail in the web UI instead of only listing catalog rows.

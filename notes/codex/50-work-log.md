@@ -1613,3 +1613,34 @@ Validation:
 - python import validation of build_module_catalog_payload() -> success; moduleCount 13, vendorCount 9, helpBackedCount 8, composedCount 0, firstModule axp2101.
 - python -m py_compile project/scripts/stage4-read-api.py -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-30 21:45 Europe/London
+
+Commands run:
+
+- Get-Content project/scripts/stage4-read-api.py
+- Get-Content project/web-ui/app/stage4-shell.js
+- Get-Content project/help/parts/bm8563.md
+- node --check project/web-ui/app/stage4-shell.js
+- python import validation of build_module_help_payload() for bm8563 and m5_module_gnss
+- python -m py_compile project/scripts/stage4-read-api.py
+- validate.ps1
+
+Observed issues:
+
+- The Modules tab showed catalog rows but did not yet let the operator open module help content, API references, or manufacturer links in the shell itself.
+- The first browser-side markdown helper write left a broken multiline split regex in stage4-shell.js and needed one cleanup pass before final validation.
+
+Actions:
+
+- Added build_module_help_payload() and the /api/stage4/module-help/<moduleId> endpoint to the Python Stage 4 service.
+- Updated the Modules view so the main panel remains the module catalog while the preview panel becomes the selected module help view with references, default config, high-level API entries, and local help markdown.
+- Added shell styling for selectable module cards and inline help-document rendering.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the module help task complete.
+
+Validation:
+
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- python import validation of build_module_help_payload() -> success for bm8563 and m5_module_gnss.
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

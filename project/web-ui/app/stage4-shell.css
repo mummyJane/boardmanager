@@ -256,3 +256,76 @@ button {
     flex-direction: column;
   }
 }
+
+.selectable-card {
+  padding: 0;
+}
+
+.selectable-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(180, 75, 42, 0.12);
+}
+
+.card-button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 14px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.card-button:hover,
+.card-button:focus-visible {
+  outline: none;
+  background: linear-gradient(135deg, #fff8ef 0%, #fdf0e3 100%);
+}
+
+.detail-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.detail-stack h4,
+.help-doc h4,
+.help-doc h5 {
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.help-doc {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+}
+
+.help-doc p,
+.help-doc ul,
+.inline-list {
+  margin: 8px 0;
+}
+
+.help-doc ul,
+.inline-list {
+  padding-left: 20px;
+}
+
+.help-doc a,
+.inline-list a {
+  color: var(--accent);
+}
+
+.help-doc code,
+.inline-list code {
+  background: #f6ecdf;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1px 5px;
+}
+
+.empty-inline {
+  margin-top: 8px;
+  color: var(--muted);
+}

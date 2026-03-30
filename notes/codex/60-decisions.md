@@ -256,3 +256,5 @@
 - 2026-03-30 20:50 Europe/London: Validate the inventory dashboard by importing the Python module directly when localhost process-launch checks are blocked by the Windows sandbox. That still proves the payload logic against real repo data without pretending the blocked runner path succeeded.
 
 - 2026-03-30 21:20 Europe/London: Keep the module catalog as an aggregated Python endpoint instead of making the browser derive vendor, role, help-reference, and composition summaries from the raw tree model itself. This keeps the Modules view thin and gives later write flows one stable read contract for catalog-focused UI work.
+
+- 2026-03-30 21:45 Europe/London: Keep module help as a per-module Python payload that bundles references, declared high-level API, default config, and local markdown content. This keeps the shell simple and lets later editors reuse one stable read contract for module detail views.

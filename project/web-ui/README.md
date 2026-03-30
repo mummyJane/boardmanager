@@ -46,6 +46,7 @@ Current endpoints:
 - `/api/stage4/tree`
 - `/api/stage4/modules`
 - `/api/stage4/modules/<moduleId>`
+- `/api/stage4/module-help/<moduleId>`
 - `/api/stage4/boards`
 - `/api/stage4/boards/<boardId>`
 - `/api/stage4/projects`
@@ -86,3 +87,5 @@ The inventory dashboard endpoint merges:
 - recent Stage 3 job activity
 
 The module catalog endpoint merges the generated tree model into a module-focused view with vendor counts, role counts, help-reference coverage, composition coverage, and per-module summary rows for the shell Modules tab.
+
+The module-help endpoint returns one module-focused detail payload with linked references, declared high-level API entries, default config, and any local markdown help documents so the shell can render help content without rebuilding it from raw tree nodes.

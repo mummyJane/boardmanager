@@ -7,7 +7,7 @@
 
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-30 21:20 Europe/London
+Last updated: 2026-03-30 21:45 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -114,7 +114,7 @@ Initial success criteria:
 - the UI can show the current bench inventory, per-unit history, validation status, and recent Stage 3 job activity
 - the UI can show a module catalog view with vendor, role, help-reference, and composition-coverage summaries
 - modules are represented as a tree, including both leaf modules and composed modules made from child modules
-- each module has a help/documentation view with manufacturer links, API references, and test-script references
+- each module has a help/documentation view with manufacturer links, API references, local help content, and test-script references
 - boards are represented as module assemblies with local wiring/config data and are editable through the UI
 - board creation works both from a discovered unit with first-guess detection and from a manual blank/template flow
 - the system can test a board config against attached hardware where possible and report config mismatches
