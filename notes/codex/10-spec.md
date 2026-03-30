@@ -31,7 +31,7 @@ Requirements:
 - reusable parts own the init/setup contract, smoke-test contract, reusable high-level API shape, and help/man references for that part class; boards only bind and configure instances of those parts
 - each board control or status signal must define board-level semantic name, direction, logical function, and its mapping through module/package/MCU signals
 - definitions must be able to describe board buses such as I2C and SPI plus exposed connectors and expansion ports
-- project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target
+- project-level configuration must be able to override or extend reusable part settings for a specific board or firmware target, and a board may have more than one project or app profile with different deployment policy
 - board definitions must be able to declare boot/setup order so the generated board init function can call controller, bus, device, and signal setup in sequence
 - stacked or attached accessory modules may be represented as concrete board assemblies until the schema gains first-class nested subassembly support
 - ESP32-family targets use `esp-idf` as the chip-level SDK; STM32-family targets use `stm32cube`
@@ -119,18 +119,28 @@ Requirements:
 - programming tools must be pluggable by MCU family
 - debug support must capture enough metadata to reproduce the session
 - Stage 3 validation must start from a selected physical unit and its matched board profile from Stage 2
-- board validation must verify the controller first, then controller-owned buses or IP blocks, then configured attached devices in dependency order`r`n- the validation contract should be generated into a machine-readable board-specific plan so later validation runners and reports consume a stable phase and check structure
+- board validation must verify the controller first, then controller-owned buses or IP blocks, then configured attached devices in dependency order
+- the validation contract should be generated into a machine-readable board-specific plan so later validation runners and reports consume a stable phase and check structure
 - reusable part definitions should be able to contribute machine-readable validation hooks so Stage 3 device checks reuse shared part knowledge before falling back to free-text smoke-test contracts
 - validation must compare observed hardware against the Stage 1 board config and report both missing configured items and unexpected observed items
-- for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config`r`n- validation runners may consume structured serial or board-agent scan output such as `BoardManagerI2CScan:` lines as the first transport for bus-level scan evidence
-- validation should gather self-reported or probed unit facts where available, including chip type, MAC address, serial number, firmware id, firmware version, build id, voltages, temperatures, and similar health or identity data`r`n- validation runners should merge current Stage 2 identity data with captured serial or board-agent evidence into one board-validation report, so operator-visible reports still carry useful identity and firmware facts even when the capture window only sees steady-state logs
-- validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators`r`n- structured validation reports must include unit and board identity, summary status, per-check evidence, and space for health metrics such as voltages and temperatures when available
+- for I2C-style buses, validation must perform a scan where possible, confirm configured addresses, and report extra observed addresses that are not declared in the board config
+- validation runners may consume structured serial or board-agent scan output such as `BoardManagerI2CScan:` lines as the first transport for bus-level scan evidence
+- validation should gather self-reported or probed unit facts where available, including chip type, MAC address, serial number, firmware id, firmware version, build id, voltages, temperatures, and similar health or identity data
+- validation runners should merge current Stage 2 identity data with captured serial or board-agent evidence into one board-validation report, so operator-visible reports still carry useful identity and firmware facts even when the capture window only sees steady-state logs
+- validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators
+- structured validation reports must include unit and board identity, summary status, per-check evidence, and space for health metrics such as voltages and temperatures when available
 - Stage 3 must define a reserved user-code area per board or firmware target so generated board support and operator tooling do not overwrite user application code
 - generated or shared firmware APIs must define the stable boundary that user code calls for board-level functions and part-level services
 - build workflows must emit a build log, build result, selected board id, selected unit id where relevant, and produced artifacts
 - run workflows must be able to stream or return firmware console output back to the operator or service caller
 - debug workflows must support command-line GDB launch details plus enough debugger metadata for IDE integration, including transport, symbol path, and target selection
-- job execution for validate, build, program, run, and debug must produce machine-readable status records and human-readable logs for later web UI consumption`r`n- Stage 3 must persist a local job store for validate, build, program, run, and debug actions, including request parameters, resolved board or unit selection, logs, artifacts, and result summaries`r`n- Stage 3 job creation must resolve requests against the current Stage 2 inventory so a selected stable unit id and matched board profile are recorded explicitly instead of relying only on raw request parameters
+- job execution for validate, build, program, run, and debug must produce machine-readable status records and human-readable logs for later web UI consumption
+- Stage 3 must persist a local job store for validate, build, program, run, and debug actions, including request parameters, resolved board or unit selection, logs, artifacts, and result summaries
+- Stage 3 job creation must resolve requests against the current Stage 2 inventory so a selected stable unit id and matched board profile are recorded explicitly instead of relying only on raw request parameters
+- project metadata must define the concrete app root, reserved user-code root, stable board API boundary, and firmware entry point for each deployable board app or project profile
+- a board may have more than one project or app profile, and Stage 3 job resolution must preserve candidate project ids when more than one deployable profile targets the same board
+- OTA-capable projects must declare per-unit signing policy rooted in the local root signer so update jobs can resolve the correct signing path per physical unit
+- secure projects or units must declare encrypted OTA policy so later update flows know that payloads require per-unit AES encryption in addition to signing
 
 ### Stage 4: Web Interface
 
@@ -162,6 +172,8 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
+
 
 
 

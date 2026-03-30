@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,13 +11,14 @@ const storePath = path.join(dataRoot, "jobs.json");
 const deviceManagerRoot = path.join(projectRoot, "device-manager");
 const inventoryPath = path.join(deviceManagerRoot, "data", "inventory.json");
 const historyPath = path.join(deviceManagerRoot, "data", "unit-history.json");
+const projectsRoot = path.join(projectRoot, "projects");
 
 const VALID_ACTIONS = new Set(["validate", "build", "program", "run", "debug"]);
 const VALID_STATUSES = new Set(["queued", "running", "succeeded", "failed", "canceled"]);
 
 function usage() {
   console.log(`Usage:
-  node project/scripts/manage-stage3-jobs.mjs create --action <validate|build|program|run|debug> [--board <id>] [--unit <stableKey>] [--target <name>] [--firmware-target <name>] [--app <id>] [--platform <esp32|stm32>] [--transport <serial|stlink|usb-jtag>] [--reason <text>]
+  node project/scripts/manage-stage3-jobs.mjs create --action <validate|build|program|run|debug> [--board <id>] [--unit <stableKey>] [--target <name>] [--firmware-target <name>] [--app <projectId|appId>] [--platform <esp32|stm32>] [--transport <serial|stlink|usb-jtag>] [--reason <text>]
   node project/scripts/manage-stage3-jobs.mjs list [--status <status>] [--action <action>] [--format <text|json>]
   node project/scripts/manage-stage3-jobs.mjs update --job <jobId> --status <queued|running|succeeded|failed|canceled> [--summary <text>]
 `);
@@ -52,6 +53,22 @@ async function readJson(filePath, fallback) {
   }
 }
 
+async function loadJsonFiles(rootDir) {
+  const entries = await readdir(rootDir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const fullPath = path.join(rootDir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await loadJsonFiles(fullPath));
+      continue;
+    }
+    if (entry.name.endsWith(".json")) {
+      files.push(fullPath);
+    }
+  }
+  return files.sort();
+}
+
 async function ensureStore() {
   await mkdir(dataRoot, { recursive: true });
   try {
@@ -71,15 +88,34 @@ async function saveStore(store) {
   await writeFile(storePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
 }
 
+async function loadProjectCatalog() {
+  const files = await loadJsonFiles(projectsRoot);
+  const projectCatalog = new Map();
+  const appCatalog = new Map();
+
+  for (const file of files) {
+    const project = JSON.parse(await readFile(file, "utf8"));
+    if (project.projectId) {
+      projectCatalog.set(project.projectId, project);
+    }
+    if (project.app?.appId) {
+      appCatalog.set(project.app.appId, project);
+    }
+  }
+
+  return { projectCatalog, appCatalog };
+}
+
 async function loadResolutionSources() {
-  const [inventory, history] = await Promise.all([
+  const [inventory, history, projects] = await Promise.all([
     readJson(inventoryPath, { units: [] }),
     readJson(historyPath, { units: [] }),
+    loadProjectCatalog(),
   ]);
 
   const inventoryUnits = Array.isArray(inventory.units) ? inventory.units : [];
   const historyUnits = Array.isArray(history.units) ? history.units : [];
-  return { inventoryUnits, historyUnits };
+  return { inventoryUnits, historyUnits, ...projects };
 }
 
 function findInventoryUnit(inventoryUnits, stableKey) {
@@ -98,6 +134,67 @@ function collectBoardIds(inventoryUnit, historyUnit) {
     if (boardId) boardIds.add(boardId);
   }
   return Array.from(boardIds);
+}
+
+function summarizeOtaPolicy(project) {
+  if (!project?.deployment) return null;
+  return {
+    transports: project.deployment.transports ?? [],
+    otaSupported: project.deployment.ota?.supported ?? false,
+    otaSigning: project.deployment.ota?.signing ?? "none",
+    otaSignedBy: project.deployment.ota?.signedBy ?? "none",
+    otaEncryption: project.deployment.ota?.encryption ?? "none",
+    securityClassification: project.deployment.security?.classification ?? "standard",
+  };
+}
+
+function collectProjectsForBoard(projectCatalog, boardId) {
+  return Array.from(projectCatalog.values())
+    .filter((project) => project.boardId === boardId)
+    .sort((left, right) => String(left.projectId).localeCompare(String(right.projectId)));
+}
+
+function resolveRequestedProject(requestedApp, projectCatalog, appCatalog) {
+  if (!requestedApp) return null;
+  const byProjectId = projectCatalog.get(requestedApp);
+  if (byProjectId) return byProjectId;
+  const byAppId = appCatalog.get(requestedApp);
+  if (byAppId) return byAppId;
+  throw new Error(`Project or app '${requestedApp}' was not found in project metadata.`);
+}
+
+function inferPlatformFromFamily(family) {
+  const normalized = String(family ?? "").toLowerCase();
+  if (normalized.includes("esp")) return "esp32";
+  if (normalized.includes("stm32")) return "stm32";
+  return null;
+}
+
+function applyProjectResolution(baseResolution, boardId, requestedProject, projectCatalog) {
+  const boardProjects = boardId ? collectProjectsForBoard(projectCatalog, boardId) : [];
+  const candidateProjectIds = boardProjects.map((project) => project.projectId);
+
+  if (requestedProject && boardId && requestedProject.boardId !== boardId) {
+    throw new Error(`Project '${requestedProject.projectId}' targets board '${requestedProject.boardId}', not '${boardId}'.`);
+  }
+
+  let matchedProject = requestedProject;
+  if (!matchedProject && boardProjects.length === 1) {
+    matchedProject = boardProjects[0];
+  }
+
+  return {
+    ...baseResolution,
+    matchedProjectId: matchedProject?.projectId ?? null,
+    resolvedAppId: matchedProject?.app?.appId ?? null,
+    resolvedAppRoot: matchedProject?.app?.appRoot ?? null,
+    resolvedUserCodeRoot: matchedProject?.app?.userCodeRoot ?? null,
+    resolvedStableApi: matchedProject?.app?.stableApi ?? null,
+    resolvedFirmwareFamily: matchedProject?.firmwareTarget?.family ?? null,
+    resolvedEntryPoint: matchedProject?.firmwareTarget?.entryPoint ?? null,
+    otaPolicy: summarizeOtaPolicy(matchedProject),
+    candidateProjectIds,
+  };
 }
 
 function resolveFromUnit(inventoryUnits, historyUnits, unitId, requestedBoardId) {
@@ -170,29 +267,56 @@ function resolveFromBoardOnly(inventoryUnits, historyUnits, boardId) {
 }
 
 async function resolveRequest(options) {
-  const requestedBoardId = options.board ?? null;
-  const requestedUnitId = options.unit ?? null;
-  const { inventoryUnits, historyUnits } = await loadResolutionSources();
+  const requestedApp = options.app ?? null;
+  const { inventoryUnits, historyUnits, projectCatalog, appCatalog } = await loadResolutionSources();
+  const requestedProject = resolveRequestedProject(requestedApp, projectCatalog, appCatalog);
+  const requestedBoardId = options.board ?? requestedProject?.boardId ?? null;
 
-  if (requestedUnitId) {
-    return resolveFromUnit(inventoryUnits, historyUnits, requestedUnitId, requestedBoardId);
+  let baseResolution;
+  if (options.unit) {
+    baseResolution = resolveFromUnit(inventoryUnits, historyUnits, options.unit, requestedBoardId);
+  } else if (requestedBoardId) {
+    baseResolution = resolveFromBoardOnly(inventoryUnits, historyUnits, requestedBoardId);
+  } else if (requestedProject) {
+    baseResolution = {
+      matchedBoardId: requestedProject.boardId,
+      matchedUnitId: null,
+      matchedFamilyKey: `board:${requestedProject.boardId}`,
+      matchedProfileId: null,
+      resolvedTransportKind: null,
+      resolvedTransportPort: null,
+      source: "project-only",
+      present: false,
+      boardCandidates: [requestedProject.boardId],
+    };
+  } else {
+    baseResolution = {
+      matchedBoardId: null,
+      matchedUnitId: null,
+      matchedFamilyKey: null,
+      matchedProfileId: null,
+      resolvedTransportKind: null,
+      resolvedTransportPort: null,
+      source: "request-only",
+      present: false,
+      boardCandidates: [],
+    };
   }
 
-  if (requestedBoardId) {
-    return resolveFromBoardOnly(inventoryUnits, historyUnits, requestedBoardId);
+  const resolution = applyProjectResolution(baseResolution, baseResolution.matchedBoardId ?? requestedBoardId, requestedProject, projectCatalog);
+
+  if (options.platform) {
+    const resolvedPlatform = inferPlatformFromFamily(resolution.resolvedFirmwareFamily);
+    if (resolvedPlatform && resolvedPlatform !== options.platform) {
+      throw new Error(`Requested platform '${options.platform}' conflicts with project firmware family '${resolution.resolvedFirmwareFamily}'.`);
+    }
   }
 
-  return {
-    matchedBoardId: null,
-    matchedUnitId: null,
-    matchedFamilyKey: null,
-    matchedProfileId: null,
-    resolvedTransportKind: null,
-    resolvedTransportPort: null,
-    source: "request-only",
-    present: false,
-    boardCandidates: [],
-  };
+  if (options["firmware-target"] && resolution.resolvedFirmwareFamily && options["firmware-target"] !== resolution.resolvedFirmwareFamily) {
+    throw new Error(`Requested firmware target '${options["firmware-target"]}' conflicts with project firmware family '${resolution.resolvedFirmwareFamily}'.`);
+  }
+
+  return resolution;
 }
 
 async function createJobRecord(store, options) {
@@ -270,7 +394,8 @@ function formatTextJobs(jobs) {
 
   return jobs.map((job) => {
     const target = job.resolution?.matchedUnitId ?? job.resolution?.matchedBoardId ?? job.request.target ?? "unresolved-target";
-    return `${job.jobId} ${job.action} ${job.status} ${target}`;
+    const project = job.resolution?.matchedProjectId ? ` ${job.resolution.matchedProjectId}` : "";
+    return `${job.jobId} ${job.action}${project} ${job.status} ${target}`;
   }).join("\n");
 }
 

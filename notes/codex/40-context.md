@@ -175,3 +175,7 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-29 22:48 Europe/London: COM7 remains unmatched to an exact Stage 1 board definition, but discovery and direct probing identify it as an ESP32-D0WD-V3 / WROOM-32-class board behind a Silicon Labs CP210x bridge with MAC c8:2e:18:f0:47:74 and 4MB flash.
 - 2026-03-29 22:55 Europe/London: Ran a full bench sweep across the five attached cards. COM3, COM4, COM5, and COM6 each now have fresh Stage 3 validation reports under project/job-manager/reports/, while COM7 was refreshed through discovery-only identification because it still has no exact board-definition match.
 - 2026-03-29 22:55 Europe/London: Current sweep status is fail for both Dial units, the CoreS3+GNSS unit, and the Nucleo board on their bus-scan checks; the unresolved COM7 board remains positively identified as an ESP32/WROOM-32-class card but unmatched to a board definition.
+
+- 2026-03-30 00:25 Europe/London: Project metadata now supports more than one deployable app profile per board. The Dial board now has both a standard demo profile and a secure OTA profile, and Stage 3 job resolution preserves per-board candidate project ids when a board has multiple deployable profiles.
+- 2026-03-30 00:25 Europe/London: OTA policy is now carried in project metadata: normal OTA projects require per-unit signing by the local root key, while secure projects additionally require per-unit AES encryption for OTA payloads.
+

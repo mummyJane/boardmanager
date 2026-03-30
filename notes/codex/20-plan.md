@@ -52,7 +52,10 @@ Initial success criteria:
 - the model reserves a per-unit security binding for an AES key and an asymmetric keypair stored under `keys/`
 - the first query layer is reusable by operators now and by the future web UI and remote systems later
 - the first HTTP service endpoint exposes that same query contract for local and remote consumers
-- discovery persists a compact run ledger and can diff the latest two runs for added, removed, or changed units and families`n- operators can export the current bench snapshot and cumulative history as stable JSON report files under project/device-manager/reports`r`n- discovery and annotation flows synchronize the persisted Stage 2 model into project/device-manager/data/device-manager.sqlite for normalized table access`r`n- the standard validation flow also checks device-manager data files and family profiles against their schemas`r`n- local key-management tooling now maintains a root signer plus per-unit AES and identity keys under keys/ for the currently attached units
+- discovery persists a compact run ledger and can diff the latest two runs for added, removed, or changed units and families`n- operators can export the current bench snapshot and cumulative history as stable JSON report files under project/device-manager/reports
+- discovery and annotation flows synchronize the persisted Stage 2 model into project/device-manager/data/device-manager.sqlite for normalized table access
+- the standard validation flow also checks device-manager data files and family profiles against their schemas
+- local key-management tooling now maintains a root signer plus per-unit AES and identity keys under keys/ for the currently attached units
 - STM32-family matching uses registry-backed USB identity fields instead of only STLink transport naming
 - known USB-to-UART bridges can be probed non-destructively for MCU identity so unknown ESP-class boards can be promoted to MAC-based units and richer draft profiles
 - the current unknown COM7 board is promoted from a generic CP210x bridge record to an ESP32-based draft family with captured MAC, chip, flash size, and boot-banner evidence
@@ -69,16 +72,23 @@ Turn the Stage 1 board definitions and Stage 2 unit inventory into operator-faci
 Initial success criteria:
 
 - a selected physical unit can be matched to a board profile and used as the input to Stage 3 jobs
-- board validation walks controller, buses or IP blocks, and attached devices in dependency order`r`n- generated machine-readable validation contracts exist per board and drive the ordered validation phases and checks`r`n- the first validation runner now compares live or captured `BoardManagerI2CScan:` serial output against the contract and persists a JSON validation report
+- board validation walks controller, buses or IP blocks, and attached devices in dependency order
+- generated machine-readable validation contracts exist per board and drive the ordered validation phases and checks
+- the first validation runner now compares live or captured `BoardManagerI2CScan:` serial output against the contract and persists a JSON validation report
 - validation compares observed hardware against configured board expectations and records missing or unexpected items
 - validation reports identity and health facts such as MAC, serial, firmware id, firmware version, build id, voltages, and temperatures where available
-- validation produces a machine-readable report plus a human-readable summary with pass and fail results`r`n- the first structured validation report schema now captures identity, summary, health, ordered phases, per-check evidence, and raw capture lines
-- generated validation contracts now reuse machine-readable part validation hooks where shared devices define them, instead of duplicating board-local device probe wording`r`n- the validation runner now merges Stage 2 identity and firmware facts with live serial evidence into one structured report and records controller facts, signal samples, and health metrics where they are available
+- validation produces a machine-readable report plus a human-readable summary with pass and fail results
+- the first structured validation report schema now captures identity, summary, health, ordered phases, per-check evidence, and raw capture lines
+- generated validation contracts now reuse machine-readable part validation hooks where shared devices define them, instead of duplicating board-local device probe wording
+- the validation runner now merges Stage 2 identity and firmware facts with live serial evidence into one structured report and records controller facts, signal samples, and health metrics where they are available
 - build orchestration is tied to a board profile and firmware target and emits artifacts plus captured build logs
 - run orchestration can capture and return console output from the selected unit
 - programming is tied to the selected physical unit so identical boards can be targeted safely
 - debug orchestration emits reproducible GDB and IDE session metadata
-- job records are exposed in a service-friendly form for later Milestone 4 UI work`r`n- an initial local job store exists for queued or completed validate, build, program, run, and debug actions`r`n- job creation resolves board-only, unit-only, and board-plus-unit requests against the current bench inventory instead of storing unresolved operator intent only
+- job records are exposed in a service-friendly form for later Milestone 4 UI work
+- an initial local job store exists for queued or completed validate, build, program, run, and debug actions
+- job creation resolves board-only, unit-only, board-plus-unit, and project-app requests against the current bench inventory instead of storing unresolved operator intent only
+- project metadata now allows more than one deployable app profile per board, including per-unit signed OTA policy and secure-project encrypted OTA policy
 
 ### Milestone 4: Web UI Skeleton
 
@@ -106,6 +116,8 @@ Initial success criteria:
 
 
 - 2026-03-29 21:40 Europe/London: Completed Stage 2 test coverage with a local dependency-free Node assertion runner for discovery matching, history transitions, board-candidate enrichment, and service-data filtering.
+
+
 
 
 

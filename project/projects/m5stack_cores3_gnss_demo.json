@@ -2,9 +2,28 @@
   "projectId": "m5stack_cores3_gnss_demo",
   "displayName": "M5Stack CoreS3 GNSS Demo",
   "boardId": "m5stack_cores3_gnss_v1",
+  "app": {
+    "appId": "m5stack_cores3_gnss_demo",
+    "appRoot": "apps/m5stack_cores3_gnss_demo",
+    "userCodeRoot": "apps/m5stack_cores3_gnss_demo/main",
+    "generatedSupportRoot": "generated",
+    "stableApi": "firmware-common/board_api.h"
+  },
   "firmwareTarget": {
     "family": "esp-idf",
     "entryPoint": "main/app_main.c"
+  },
+  "deployment": {
+    "transports": ["usb", "ota"],
+    "ota": {
+      "supported": true,
+      "signing": "per-unit",
+      "signedBy": "root",
+      "encryption": "none"
+    },
+    "security": {
+      "classification": "standard"
+    }
   },
   "partOverrides": {
     "pmu": {

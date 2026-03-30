@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -60,6 +60,15 @@ function inferPlatformFromFamily(family) {
   if (normalized.includes("ESP32")) return "esp-idf";
   if (normalized.includes("STM32")) return "stm32cube";
   return "generic";
+}
+
+async function pathExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function validatePart(file, part, partCatalog, errors) {
@@ -211,7 +220,64 @@ function validateBoard(file, board, partCatalog, errors) {
   }
 }
 
-function validateProject(file, project, boardCatalog, partCatalog, errors) {
+function validateProjectDeployment(file, project, errors) {
+  const deployment = project.deployment ?? null;
+  if (!deployment) {
+    errors.push(`${file}: project '${project.projectId}' missing deployment metadata`);
+    return;
+  }
+
+  const transports = Array.isArray(deployment.transports) ? deployment.transports : [];
+  if (transports.length === 0) {
+    errors.push(`${file}: project '${project.projectId}' must declare at least one deployment transport`);
+  }
+
+  const transportSet = new Set();
+  for (const transport of transports) {
+    if (transportSet.has(transport)) {
+      errors.push(`${file}: project '${project.projectId}' has duplicate deployment transport '${transport}'`);
+    }
+    transportSet.add(transport);
+  }
+
+  const ota = deployment.ota ?? {};
+  const security = deployment.security ?? {};
+  const otaSupported = ota.supported === true;
+  const otaSigning = ota.signing ?? "none";
+  const otaSignedBy = ota.signedBy ?? "none";
+  const otaEncryption = ota.encryption ?? "none";
+  const classification = security.classification ?? "standard";
+
+  if (otaSupported && !transportSet.has("ota")) {
+    errors.push(`${file}: project '${project.projectId}' enables OTA but does not include 'ota' in deployment.transports`);
+  }
+
+  if (!otaSupported && (otaSigning !== "none" || otaSignedBy !== "none" || otaEncryption !== "none")) {
+    errors.push(`${file}: project '${project.projectId}' declares OTA signing or encryption while OTA is disabled`);
+  }
+
+  if (otaSupported && otaSigning !== "per-unit") {
+    errors.push(`${file}: project '${project.projectId}' OTA updates must use per-unit signing`);
+  }
+
+  if (otaSupported && otaSignedBy !== "root") {
+    errors.push(`${file}: project '${project.projectId}' OTA updates must be signed by the local root key`);
+  }
+
+  if (classification === "secure" && otaEncryption === "none") {
+    errors.push(`${file}: secure project '${project.projectId}' must require OTA encryption`);
+  }
+
+  if (otaEncryption !== "none" && classification !== "secure") {
+    errors.push(`${file}: project '${project.projectId}' enables OTA encryption but is not marked as a secure project`);
+  }
+
+  if (otaEncryption !== "none" && otaSigning === "none") {
+    errors.push(`${file}: project '${project.projectId}' cannot enable OTA encryption without OTA signing`);
+  }
+}
+
+async function validateProject(file, project, boardCatalog, partCatalog, errors) {
   if (!project.projectId) errors.push(`${file}: missing projectId`);
   if (!project.boardId) {
     errors.push(`${file}: project '${project.projectId ?? "unknown"}' missing boardId`);
@@ -222,6 +288,55 @@ function validateProject(file, project, boardCatalog, partCatalog, errors) {
     errors.push(`${file}: project '${project.projectId ?? "unknown"}' references unknown boardId '${project.boardId}'`);
     return;
   }
+
+  if (!project.app?.appId) {
+    errors.push(`${file}: project '${project.projectId}' missing app.appId`);
+  }
+  if (!project.app?.appRoot) {
+    errors.push(`${file}: project '${project.projectId}' missing app.appRoot`);
+  }
+  if (!project.app?.userCodeRoot) {
+    errors.push(`${file}: project '${project.projectId}' missing app.userCodeRoot`);
+  }
+  if (!project.app?.stableApi) {
+    errors.push(`${file}: project '${project.projectId}' missing app.stableApi`);
+  }
+  if (!project.firmwareTarget?.family) {
+    errors.push(`${file}: project '${project.projectId}' missing firmwareTarget.family`);
+  }
+  if (!project.firmwareTarget?.entryPoint) {
+    errors.push(`${file}: project '${project.projectId}' missing firmwareTarget.entryPoint`);
+  }
+
+  if (project.app?.appRoot) {
+    const appRootPath = path.join(projectRoot, project.app.appRoot);
+    if (!await pathExists(appRootPath)) {
+      errors.push(`${file}: project '${project.projectId}' app.appRoot '${project.app.appRoot}' does not exist`);
+    }
+  }
+
+  if (project.app?.userCodeRoot) {
+    const userCodeRootPath = path.join(projectRoot, project.app.userCodeRoot);
+    if (!await pathExists(userCodeRootPath)) {
+      errors.push(`${file}: project '${project.projectId}' app.userCodeRoot '${project.app.userCodeRoot}' does not exist`);
+    }
+  }
+
+  if (project.app?.stableApi) {
+    const stableApiPath = path.join(projectRoot, project.app.stableApi);
+    if (!await pathExists(stableApiPath)) {
+      errors.push(`${file}: project '${project.projectId}' app.stableApi '${project.app.stableApi}' does not exist`);
+    }
+  }
+
+  if (project.app?.appRoot && project.firmwareTarget?.entryPoint) {
+    const entryPointPath = path.join(projectRoot, project.app.appRoot, project.firmwareTarget.entryPoint);
+    if (!await pathExists(entryPointPath)) {
+      errors.push(`${file}: project '${project.projectId}' firmware entryPoint '${project.firmwareTarget.entryPoint}' does not exist under '${project.app.appRoot}'`);
+    }
+  }
+
+  validateProjectDeployment(file, project, errors);
 
   const boardData = board.data;
   const signalNames = new Set((boardData.signals ?? boardData.io ?? []).map((signal) => signal.name));
@@ -267,9 +382,25 @@ async function main() {
   }
 
   const projectFiles = await loadJsonFiles(projectsDir);
+  const projectCatalog = new Map();
+  const appIds = new Map();
   for (const file of projectFiles) {
     const project = await loadJson(file);
-    validateProject(file, project, boardCatalog, partCatalog, errors);
+    if (project.projectId) {
+      if (projectCatalog.has(project.projectId)) {
+        errors.push(`${file}: duplicate projectId '${project.projectId}'`);
+      } else {
+        projectCatalog.set(project.projectId, file);
+      }
+    }
+    if (project.app?.appId) {
+      if (appIds.has(project.app.appId)) {
+        errors.push(`${file}: duplicate app.appId '${project.app.appId}' also used by ${appIds.get(project.app.appId)}`);
+      } else {
+        appIds.set(project.app.appId, file);
+      }
+    }
+    await validateProject(file, project, boardCatalog, partCatalog, errors);
   }
 
   if (errors.length > 0) {

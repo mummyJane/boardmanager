@@ -49,12 +49,67 @@
           },
           "resolution": {
             "type": "object",
-            "required": ["matchedBoardId", "matchedUnitId", "matchedFamilyKey"],
+            "required": [
+              "matchedBoardId",
+              "matchedUnitId",
+              "matchedFamilyKey",
+              "matchedProfileId",
+              "resolvedTransportKind",
+              "resolvedTransportPort",
+              "source",
+              "present",
+              "boardCandidates",
+              "matchedProjectId",
+              "resolvedAppId",
+              "resolvedAppRoot",
+              "resolvedUserCodeRoot",
+              "resolvedStableApi",
+              "resolvedFirmwareFamily",
+              "resolvedEntryPoint",
+              "otaPolicy",
+              "candidateProjectIds"
+            ],
             "additionalProperties": false,
             "properties": {
               "matchedBoardId": { "type": ["string", "null"] },
               "matchedUnitId": { "type": ["string", "null"] },
-              "matchedFamilyKey": { "type": ["string", "null"] }
+              "matchedFamilyKey": { "type": ["string", "null"] },
+              "matchedProfileId": { "type": ["string", "null"] },
+              "resolvedTransportKind": { "type": ["string", "null"] },
+              "resolvedTransportPort": { "type": ["string", "null"] },
+              "source": { "type": "string" },
+              "present": { "type": "boolean" },
+              "boardCandidates": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "matchedProjectId": { "type": ["string", "null"] },
+              "resolvedAppId": { "type": ["string", "null"] },
+              "resolvedAppRoot": { "type": ["string", "null"] },
+              "resolvedUserCodeRoot": { "type": ["string", "null"] },
+              "resolvedStableApi": { "type": ["string", "null"] },
+              "resolvedFirmwareFamily": { "type": ["string", "null"] },
+              "resolvedEntryPoint": { "type": ["string", "null"] },
+              "otaPolicy": {
+                "type": ["object", "null"],
+                "required": ["transports", "otaSupported", "otaSigning", "otaSignedBy", "otaEncryption", "securityClassification"],
+                "additionalProperties": false,
+                "properties": {
+                  "transports": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "otaSupported": { "type": "boolean" },
+                  "otaSigning": { "type": "string" },
+                  "otaSignedBy": { "type": "string" },
+                  "otaEncryption": { "type": "string" },
+                  "securityClassification": { "type": "string" }
+                }
+              },
+              "candidateProjectIds": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
             }
           },
           "logs": {

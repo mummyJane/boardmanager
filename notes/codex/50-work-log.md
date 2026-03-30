@@ -1235,3 +1235,30 @@ Validation:
 - `validate-board.ps1 ... COM5` -> report written; result failed on `internal_i2c_configured` and `internal_i2c_scan`.
 - `validate-board.ps1 ... COM6` -> report written; result failed on `usbpd_i2c_configured` and `usbpd_i2c_scan` with no observed addresses.
 - `validate.ps1` -> success after the sweep; validated board definitions, device-manager data, Stage 3 job data, 5 validation contracts, and 4 validation reports.
+## 2026-03-30 00:25 Europe/London
+
+Commands run:
+
+- `validate.ps1`
+- `job.ps1 -Command create -Action build -App m5stack_dial_secure_ota -Unit mac:c0:4e:30:13:2b:68 -Reason "Resolve secure OTA project" -Format json`
+- `job.ps1 -Command create -Action build -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Reason "Resolve multi-project board without explicit app" -Format json`
+- reset `project/job-manager/data/jobs.json` to the empty store shape
+- `validate.ps1`
+
+Observed issues:
+
+- The Windows apply_patch path hit a sandbox refresh failure on this machine, so the file edits for this task were completed through small PowerShell writes instead of the normal patch tool.
+
+Actions:
+
+- Expanded project metadata so each deployable app profile now declares app root, user-code root, stable API path, firmware entry point, and deployment policy.
+- Added a second Dial project profile, `m5stack_dial_secure_ota`, to prove that one board can carry more than one deployable project.
+- Added OTA policy metadata so OTA-capable projects require per-unit signing by the local root key, while secure projects additionally require per-unit AES encryption.
+- Extended Stage 3 job resolution so `-App` resolves project metadata first and multi-project boards return `candidateProjectIds` instead of guessing a project when none is selected explicitly.
+
+Validation:
+
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 4 projects plus the existing Stage 2 and Stage 3 persisted data.
+- `job.ps1 ... -App m5stack_dial_secure_ota ...` -> success; resolved the secure Dial project, inherited board `m5stack_dial_v1_1`, and exposed OTA policy `per-unit` signing with `per-unit-aes` encryption.
+- `job.ps1 ... -Board m5stack_dial_v1_1 -Unit ...` -> success; left `matchedProjectId` unset and returned `candidateProjectIds` for the two Dial deployment profiles, which is the intended safe behavior for a multi-project board.
+- final `validate.ps1` -> success after resetting the temporary job store to zero jobs.

@@ -1,9 +1,9 @@
 {
-  "projectId": "m5stack_dial_demo",
-  "displayName": "M5Stack Dial Demo",
+  "projectId": "m5stack_dial_secure_ota",
+  "displayName": "M5Stack Dial Secure OTA",
   "boardId": "m5stack_dial_v1_1",
   "app": {
-    "appId": "m5stack_dial_demo",
+    "appId": "m5stack_dial_secure_ota",
     "appRoot": "apps/m5stack_dial_demo",
     "userCodeRoot": "apps/m5stack_dial_demo/main",
     "generatedSupportRoot": "generated",
@@ -19,10 +19,10 @@
       "supported": true,
       "signing": "per-unit",
       "signedBy": "root",
-      "encryption": "none"
+      "encryption": "per-unit-aes"
     },
     "security": {
-      "classification": "standard"
+      "classification": "secure"
     }
   },
   "partOverrides": {

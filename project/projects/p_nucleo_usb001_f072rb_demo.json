@@ -2,9 +2,28 @@
   "projectId": "p_nucleo_usb001_f072rb_demo",
   "displayName": "P-NUCLEO-USB001 Demo",
   "boardId": "p_nucleo_usb001_f072rb_v1",
+  "app": {
+    "appId": "p_nucleo_usb001_demo",
+    "appRoot": "apps/p_nucleo_usb001_demo",
+    "userCodeRoot": "apps/p_nucleo_usb001_demo/main",
+    "generatedSupportRoot": "generated",
+    "stableApi": "firmware-common/board_api.h"
+  },
   "firmwareTarget": {
     "family": "stm32cube",
     "entryPoint": "main/main.c"
+  },
+  "deployment": {
+    "transports": ["usb"],
+    "ota": {
+      "supported": false,
+      "signing": "none",
+      "signedBy": "none",
+      "encryption": "none"
+    },
+    "security": {
+      "classification": "standard"
+    }
   },
   "partOverrides": {
     "usb_pd_controller": {
