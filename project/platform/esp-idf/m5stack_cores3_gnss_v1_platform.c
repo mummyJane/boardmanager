@@ -1,5 +1,5 @@
-#include "m5stack_cores3_gnss_v1.h"`r`n#include "m5stack_cores3_gnss_v1_platform.h"
-
+#include "m5stack_cores3_gnss_v1.h"
+#include "m5stack_cores3_gnss_v1_platform.h"
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
 #include "driver/uart.h"

@@ -27,6 +27,7 @@ set(LINKER_SCRIPT "${APP_DIR}/stm32f072rbtx_flash.ld")
 
 add_executable(${PROJECT_NAME}
     main/main.c
+    main/board_app_user.c
     ${GENERATED_DIR}/p_nucleo_usb001_f072rb_v1.c
     ${PLATFORM_DIR}/p_nucleo_usb001_f072rb_v1_platform.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal.c

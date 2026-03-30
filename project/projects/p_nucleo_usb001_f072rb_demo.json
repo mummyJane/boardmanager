@@ -7,14 +7,16 @@
     "appRoot": "apps/p_nucleo_usb001_demo",
     "userCodeRoot": "apps/p_nucleo_usb001_demo/main",
     "generatedSupportRoot": "generated",
-    "stableApi": "firmware-common/board_api.h"
+    "stableApi": "firmware-common/board_user_api.h"
   },
   "firmwareTarget": {
     "family": "stm32cube",
     "entryPoint": "main/main.c"
   },
   "deployment": {
-    "transports": ["usb"],
+    "transports": [
+      "usb"
+    ],
     "ota": {
       "supported": false,
       "signing": "none",

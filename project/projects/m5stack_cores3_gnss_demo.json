@@ -7,14 +7,17 @@
     "appRoot": "apps/m5stack_cores3_gnss_demo",
     "userCodeRoot": "apps/m5stack_cores3_gnss_demo/main",
     "generatedSupportRoot": "generated",
-    "stableApi": "firmware-common/board_api.h"
+    "stableApi": "firmware-common/board_user_api.h"
   },
   "firmwareTarget": {
     "family": "esp-idf",
     "entryPoint": "main/app_main.c"
   },
   "deployment": {
-    "transports": ["usb", "ota"],
+    "transports": [
+      "usb",
+      "ota"
+    ],
     "ota": {
       "supported": true,
       "signing": "per-unit",

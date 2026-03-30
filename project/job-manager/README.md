@@ -47,7 +47,20 @@ Current resolution behavior:
 - `-Board <boardId>` resolves to a unit only when exactly one present unit currently matches that board; otherwise job creation fails and the operator must choose the stable unit id explicitly
 - when one board has more than one project profile, the resolution keeps `candidateProjectIds` so later build, run, and update flows can require an explicit project instead of guessing
 
-The first pass is intentionally local and dependency-free. Later Milestone 3 tasks will add report payloads, build logs, run logs, debug metadata, and service APIs on top of this store.
+## User-Code Boundary
+
+Current project metadata now reserves:
+
+- `app.userCodeRoot`: the directory where project-local user logic should live
+- `app.stableApi`: the shared header that user code should treat as the stable boundary
+
+Current firmware targets use a simple pattern:
+
+- framework entry file such as `app_main.c` or `main.c`
+- shared stable API in `project/firmware-common/board_user_api.h`
+- reserved user module in `board_app_user.c` and `board_app_user.h`
+
+That keeps generated board support and host tooling away from the user module while still giving later build, run, and OTA flows one stable place to hook into.
 
 ## Validation Contracts
 

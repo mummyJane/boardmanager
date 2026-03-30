@@ -19,4 +19,11 @@ A project can:
 - override per-device config for reused parts
 - override per-signal defaults for board-local behavior
 
+Reserved user-code rules:
+
+- `app.userCodeRoot` is the area where board-specific user logic lives and should be edited
+- framework entry files such as `app_main.c` or `main.c` are now thin handoff layers and should stay stable
+- the stable user-facing API boundary is `firmware-common/board_user_api.h`
+- per-project user code should expose `board_manager_user_app_start()` from files such as `board_app_user.c` and `board_app_user.h`
+
 A board may have more than one project or app profile. Use the project metadata to tell apart bench demos, factory images, field builds, and secure OTA deployments that share the same board definition.

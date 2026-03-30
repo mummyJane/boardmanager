@@ -179,3 +179,4 @@ Board Manager is a new project intended to manage hardware boards based on ESP32
 - 2026-03-30 00:25 Europe/London: Project metadata now supports more than one deployable app profile per board. The Dial board now has both a standard demo profile and a secure OTA profile, and Stage 3 job resolution preserves per-board candidate project ids when a board has multiple deployable profiles.
 - 2026-03-30 00:25 Europe/London: OTA policy is now carried in project metadata: normal OTA projects require per-unit signing by the local root key, while secure projects additionally require per-unit AES encryption for OTA payloads.
 
+- 2026-03-30 00:45 Europe/London: Firmware targets now split into a stable framework entrypoint and a reserved project-local user module. The shared handoff contract is `project/firmware-common/board_user_api.h`, and each current app now keeps user logic in `board_app_user.c` under its declared `userCodeRoot`.

@@ -319,6 +319,15 @@ async function validateProject(file, project, boardCatalog, partCatalog, errors)
     const userCodeRootPath = path.join(projectRoot, project.app.userCodeRoot);
     if (!await pathExists(userCodeRootPath)) {
       errors.push(`${file}: project '${project.projectId}' app.userCodeRoot '${project.app.userCodeRoot}' does not exist`);
+    } else {
+      const userSourcePath = path.join(userCodeRootPath, "board_app_user.c");
+      const userHeaderPath = path.join(userCodeRootPath, "board_app_user.h");
+      if (!await pathExists(userSourcePath)) {
+        errors.push(`${file}: project '${project.projectId}' reserved user source 'board_app_user.c' is missing from '${project.app.userCodeRoot}'`);
+      }
+      if (!await pathExists(userHeaderPath)) {
+        errors.push(`${file}: project '${project.projectId}' reserved user header 'board_app_user.h' is missing from '${project.app.userCodeRoot}'`);
+      }
     }
   }
 
@@ -418,3 +427,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

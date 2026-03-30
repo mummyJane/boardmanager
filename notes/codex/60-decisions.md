@@ -217,3 +217,4 @@
 - 2026-03-30 00:25 Europe/London: Treat deployable apps as project metadata, not just app-folder names. One board can legitimately host more than one project profile, and Stage 3 job resolution should carry project and OTA policy explicitly instead of guessing from the board alone.
 - 2026-03-30 00:25 Europe/London: Make per-unit OTA signing mandatory for OTA-capable projects and require per-unit AES encryption only for projects marked secure. This keeps standard OTA and secure OTA as explicit project policy variants on the same board definition.
 
+- 2026-03-30 00:45 Europe/London: Keep framework entrypoints thin and stable, and reserve `board_app_user.c` plus `board_app_user.h` inside each project user-code root for project-local logic. This gives build, run, and later OTA tooling a predictable framework boundary without taking control of user code.

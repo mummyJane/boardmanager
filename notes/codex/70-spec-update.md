@@ -153,3 +153,4 @@
 
 - 2026-03-30 00:25 Europe/London: Stage 3 spec updated to require project-level app roots, user-code roots, stable API boundaries, multi-project-per-board resolution, and explicit OTA signing/encryption policy. Reason: the same physical board can now host multiple deployable app profiles, and later update jobs need to know whether the payload must be per-unit signed only or both signed and encrypted.
 
+- 2026-03-30 00:45 Europe/London: Stage 3 spec updated to require a stable handoff from framework entrypoints into project-local user modules under the reserved user-code root. Reason: generated board support and future orchestration need a predictable non-user-owned entry layer, while application logic still needs a protected area that Board Manager does not overwrite.

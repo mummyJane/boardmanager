@@ -130,6 +130,7 @@ Requirements:
 - validation output must be emitted as a structured pass or fail report that can be stored, queried later, and shown directly to operators
 - structured validation reports must include unit and board identity, summary status, per-check evidence, and space for health metrics such as voltages and temperatures when available
 - Stage 3 must define a reserved user-code area per board or firmware target so generated board support and operator tooling do not overwrite user application code
+- the stable user-facing firmware boundary should be a shared header or contract that hands control from framework entrypoints into project-local user modules under the reserved user-code root
 - generated or shared firmware APIs must define the stable boundary that user code calls for board-level functions and part-level services
 - build workflows must emit a build log, build result, selected board id, selected unit id where relevant, and produced artifacts
 - run workflows must be able to stream or return firmware console output back to the operator or service caller
@@ -172,6 +173,8 @@ Requirements:
 - use Node.js scripts with no third-party dependencies for initial artifact generation
 - generate C headers and C source stubs as the firmware integration point
 - keep web and host tooling modular so later milestones can evolve independently
+
+
 
 
 

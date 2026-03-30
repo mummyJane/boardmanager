@@ -1262,3 +1262,33 @@ Validation:
 - `job.ps1 ... -App m5stack_dial_secure_ota ...` -> success; resolved the secure Dial project, inherited board `m5stack_dial_v1_1`, and exposed OTA policy `per-unit` signing with `per-unit-aes` encryption.
 - `job.ps1 ... -Board m5stack_dial_v1_1 -Unit ...` -> success; left `matchedProjectId` unset and returned `candidateProjectIds` for the two Dial deployment profiles, which is the intended safe behavior for a multi-project board.
 - final `validate.ps1` -> success after resetting the temporary job store to zero jobs.
+## 2026-03-30 00:45 Europe/London
+
+Commands run:
+
+- `validate.ps1`
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1`
+- `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1`
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1`
+- `validate.ps1`
+
+Observed issues:
+
+- The existing CoreS3 platform source had an embedded literal `` `r`n `` in its first include line, which produced a compiler warning during the first rebuilt ESP32 CoreS3 app.
+- The Windows `apply_patch` path is still unreliable on this machine, so the app-entrypoint and user-module edits were again done through small PowerShell file writes.
+
+Actions:
+
+- Added `project/firmware-common/board_user_api.h` as the stable user-facing handoff contract for firmware apps.
+- Split each current app into a thin framework-owned entrypoint plus a reserved user module in `board_app_user.c` and `board_app_user.h` under the declared `userCodeRoot`.
+- Updated project metadata so `app.stableApi` now points at `firmware-common/board_user_api.h`.
+- Extended definition validation so each project must keep `board_app_user.c` and `board_app_user.h` inside its reserved `userCodeRoot`.
+- Fixed the stale formatting defect in `project/platform/esp-idf/m5stack_cores3_gnss_v1_platform.c` so the CoreS3 build is warning-clean again.
+
+Validation:
+
+- `validate.ps1` -> success; validated 22 parts, 5 boards, and 4 projects plus the existing Stage 2 and Stage 3 persisted data.
+- `build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1` -> success; rebuilt the Dial demo with the new user-module split.
+- `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` -> success; rebuilt the attached F072 demo with the new user-module split. Existing newlib syscall warnings remain unchanged.
+- `build.ps1 -Platform esp32 -App m5stack_cores3_gnss_demo -Board m5stack_cores3_gnss_v1` -> success; rebuilt the CoreS3 demo after fixing the stale include-line defect.
+- final `validate.ps1` -> success after all code and metadata updates.
