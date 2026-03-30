@@ -345,6 +345,124 @@ def normalize_board_create_payload(payload):
     }
 
 
+def normalize_manual_board_create_payload(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("board payload must be a JSON object")
+    board_id = str(payload.get("boardId") or "").strip()
+    if not MODULE_ID_PATTERN.match(board_id):
+        raise ValueError("boardId must match ^[a-z][a-z0-9_]*$")
+    display_name = str(payload.get("displayName") or "").strip()
+    if not display_name:
+        raise ValueError("displayName is required")
+    vendor = str(payload.get("vendor") or "").strip()
+    if not vendor:
+        raise ValueError("vendor is required")
+    revision = str(payload.get("revision") or "").strip() or "1.0"
+    template_board_id = str(payload.get("templateBoardId") or "").strip() or None
+    controller_module_id = str(payload.get("controllerModuleId") or "").strip() or None
+    if not template_board_id and not controller_module_id:
+        raise ValueError("controllerModuleId is required when no template board is selected")
+    return {
+        "boardId": board_id,
+        "displayName": display_name,
+        "vendor": vendor,
+        "revision": revision,
+        "templateBoardId": template_board_id,
+        "controllerModuleId": controller_module_id,
+    }
+
+
+def build_manual_board_create_options(model):
+    boards_root = find_root(model, "boards-root") or {"children": []}
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    templates = []
+    for node in boards_root.get("children", []):
+        metadata = node.get("metadata", {})
+        templates.append({
+            "boardId": metadata.get("boardId") or node.get("nodeId"),
+            "title": node.get("title"),
+            "vendor": metadata.get("vendor"),
+            "revision": metadata.get("revision"),
+            "controllerModuleId": metadata.get("controllerModuleId"),
+        })
+    templates.sort(key=lambda item: item.get("title") or "")
+
+    controllers = []
+    for node in modules_root.get("children", []):
+        metadata = node.get("metadata", {})
+        if metadata.get("catalogRole") != "controller":
+            continue
+        controllers.append({
+            "moduleId": metadata.get("moduleId"),
+            "title": node.get("title"),
+            "vendor": metadata.get("vendor"),
+            "partType": metadata.get("partType"),
+        })
+    controllers.sort(key=lambda item: item.get("title") or "")
+
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "templates": templates,
+        "controllers": controllers,
+    }
+
+
+def build_manual_board_definition(normalized):
+    template_board_id = normalized.get("templateBoardId")
+    if template_board_id:
+        definition = json.loads(json.dumps(load_board_definition(template_board_id)["definition"]))
+    else:
+        definition = {
+            "boardId": normalized["boardId"],
+            "displayName": normalized["displayName"],
+            "revision": normalized["revision"],
+            "vendor": normalized["vendor"],
+            "controller": {"moduleId": normalized.get("controllerModuleId")},
+            "capabilities": {},
+            "signals": [],
+            "buses": [],
+            "bootSequence": [{"name": "controller", "kind": "module"}],
+            "connectors": [],
+            "sources": [],
+        }
+    definition["boardId"] = normalized["boardId"]
+    definition["displayName"] = normalized["displayName"]
+    definition["revision"] = normalized["revision"]
+    definition["vendor"] = normalized["vendor"]
+    if not template_board_id:
+        definition["controller"] = {"moduleId": normalized.get("controllerModuleId")}
+    return definition
+
+
+def build_manual_board_help_markdown(board_definition, normalized):
+    lines = [
+        f"# {board_definition.get('displayName')}",
+        "",
+        "## Summary",
+        "",
+        f"`{board_definition.get('boardId')}` is a user-created board draft generated through the Stage 4 manual board-create flow.",
+        "",
+        "## Creation Mode",
+        "",
+    ]
+    if normalized.get("templateBoardId"):
+        lines.append(f"- Seeded from template board `{normalized.get('templateBoardId')}`")
+    else:
+        lines.append(f"- Started from a blank board skeleton with controller module `{normalized.get('controllerModuleId')}`")
+    return '\n'.join(lines) + '\n'
+
+
+def create_board_manual(payload):
+    normalized = normalize_manual_board_create_payload(payload)
+    paths = board_paths(normalized["boardId"])
+    if paths["board"].exists() or paths["help"].exists():
+        raise FileExistsError(f"board '{normalized['boardId']}' already exists")
+    board_definition = build_manual_board_definition(normalized)
+    help_markdown = build_manual_board_help_markdown(board_definition, normalized)
+    write_board_files(normalized["boardId"], board_definition, help_markdown)
+    return build_board_write_result(normalized["boardId"], "created")
+
+
 def build_board_guess_payload(unit_id):
     unit = find_inventory_unit(unit_id)
     history = load_history()
@@ -1399,6 +1517,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 payload = self._read_json_body()
                 self._send_json(201, create_board_from_unit(payload))
                 return
+            if parsed.path == "/api/stage4/board-create-manual":
+                payload = self._read_json_body()
+                self._send_json(201, create_board_manual(payload))
+                return
             if parsed.path == "/api/stage4/module-create":
                 payload = self._read_json_body()
                 self._send_json(201, create_leaf_module(payload))
@@ -1485,6 +1607,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, {"generatedAt": inventory.get("generatedAt"), "units": candidates})
                 return
 
+            if parsed.path == "/api/stage4/board-create-manual-options":
+                self._send_json(200, build_manual_board_create_options(model))
+                return
+
             if parsed.path == "/api/stage4/tree":
                 self._send_json(200, model)
                 return
@@ -1551,6 +1677,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/dashboard/modules",
                         "/api/stage4/dashboard/boards",
                         "/api/stage4/board-create-candidates",
+                        "/api/stage4/board-create-manual-options",
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
@@ -1560,6 +1687,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/module-edit/<moduleId>",
                         "POST /api/stage4/module-validate",
                         "POST /api/stage4/board-create-from-unit",
+                        "POST /api/stage4/board-create-manual",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/projects",

@@ -197,3 +197,5 @@
 - 2026-03-31 00:35 Europe/London: Stage 4 spec updated to call out the board catalog as a Python-served board-facing contract with assembly detail, boot order, generated artifacts, and linked help. Reason: the Boards tab now has a real read view and should not be described as a future placeholder anymore.
 
 - 2026-03-31 01:05 Europe/London: Stage 4 spec updated to call out the first discovery-assisted board-create flow, including candidate-unit listing, first-guess draft generation, and Python-side board/help file creation. Reason: the Boards tab now has a real create path from Stage 2 hardware evidence instead of only a future requirement.
+
+- 2026-03-31 01:25 Europe/London: Stage 4 spec updated to call out the first manual board-create flow, including blank-board creation with a selected controller and template-backed creation cloned from an existing board definition. Reason: the Boards tab now supports manual creation without requiring prior discovery.

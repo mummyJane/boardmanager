@@ -13,8 +13,10 @@ const state = {
   moduleHelp: null,
   boardDetail: null,
   boardCreateMode: false,
+  boardCreateKind: 'unit',
   boardCreateStatus: null,
   boardCreateGuess: null,
+  boardManualOptions: null,
   moduleCreateMode: false,
   moduleComposeMode: false,
   moduleCreateStatus: null,
@@ -196,7 +198,8 @@ function renderBoardCard(board) {
 function renderBoardToolbar() {
   return `
     <div class="action-row">
-      <button class="action-button" type="button" id="board-create-toggle">${state.boardCreateMode ? 'Back to detail' : 'Create from unit'}</button>
+      <button class="action-button" type="button" id="board-create-toggle">${state.boardCreateMode && state.boardCreateKind === 'unit' ? 'Back to detail' : 'Create from unit'}</button>
+      <button class="action-button" type="button" id="board-manual-toggle">${state.boardCreateMode && state.boardCreateKind === 'manual' ? 'Back to detail' : 'Create manual'}</button>
       ${state.selectedBoardId ? `<span class="status-chip">selected ${escapeHtml(state.selectedBoardId)}</span>` : ''}
     </div>`;
 }
@@ -206,6 +209,47 @@ function renderBoardStatus() {
     return '';
   }
   return `<div class="status-banner ${state.boardCreateStatus.kind}">${escapeHtml(state.boardCreateStatus.message)}</div>`;
+}
+
+function renderBoardManualCreatePanel() {
+  const templates = state.boardManualOptions?.templates ?? [];
+  const controllers = state.boardManualOptions?.controllers ?? [];
+  const templateOptions = templates.map((entry) => `<option value="${escapeHtml(entry.boardId)}">${escapeHtml(entry.title)} (${escapeHtml(entry.boardId)})</option>`).join('');
+  const controllerOptions = controllers.map((entry) => `<option value="${escapeHtml(entry.moduleId)}">${escapeHtml(entry.title)} (${escapeHtml(entry.moduleId)})</option>`).join('');
+  return `
+    <form id="board-manual-form" class="form-stack">
+      <div class="eyebrow">Create board manually</div>
+      <div class="form-grid">
+        <label class="field-label">Template board
+          <select class="text-input" name="templateBoardId">
+            <option value="">Blank board</option>
+            ${templateOptions}
+          </select>
+        </label>
+        <label class="field-label">Controller module
+          <select class="text-input" name="controllerModuleId">
+            <option value="">Select controller for blank board</option>
+            ${controllerOptions}
+          </select>
+        </label>
+        <label class="field-label">Board id
+          <input class="text-input" name="boardId" placeholder="user_new_board" required pattern="[a-z][a-z0-9_]*">
+        </label>
+        <label class="field-label">Display name
+          <input class="text-input" name="displayName" placeholder="User New Board" required>
+        </label>
+        <label class="field-label">Vendor
+          <input class="text-input" name="vendor" placeholder="Vendor" required>
+        </label>
+        <label class="field-label">Revision
+          <input class="text-input" name="revision" value="1.0" required>
+        </label>
+      </div>
+      <div class="action-row">
+        <button class="action-button primary" type="submit">Create manual board</button>
+        <span class="empty-inline">Choose a template to clone, or leave it blank and pick a controller module.</span>
+      </div>
+    </form>`;
 }
 
 function renderBoardCreatePanel() {
@@ -574,6 +618,23 @@ async function handleBoardCreateSubmit(form) {
   renderPreview('boards');
 }
 
+async function handleBoardManualCreateSubmit(form) {
+  const formData = new FormData(form);
+  const payload = {
+    templateBoardId: String(formData.get('templateBoardId') || '').trim() || null,
+    controllerModuleId: String(formData.get('controllerModuleId') || '').trim() || null,
+    boardId: String(formData.get('boardId') || '').trim(),
+    displayName: String(formData.get('displayName') || '').trim(),
+    vendor: String(formData.get('vendor') || '').trim(),
+    revision: String(formData.get('revision') || '').trim(),
+  };
+  const result = await postJson('/api/stage4/board-create-manual', payload);
+  state.boardCreateStatus = { kind: 'success', message: `Created ${result.created.boardId}` };
+  state.boardCreateMode = false;
+  await loadShell(state.selectedModuleId, result.created.boardId);
+  renderPreview('boards');
+}
+
 async function handleModuleComposeSubmit(form) {
   const formData = new FormData(form);
   const payload = {
@@ -640,7 +701,15 @@ async function handleModuleCreateSubmit(form) {
 
 function bindBoardPreviewActions() {
   document.getElementById('board-create-toggle')?.addEventListener('click', () => {
-    state.boardCreateMode = !state.boardCreateMode;
+    state.boardCreateMode = !(state.boardCreateMode && state.boardCreateKind === 'unit');
+    state.boardCreateKind = 'unit';
+    state.boardCreateStatus = null;
+    renderPreview('boards');
+  });
+
+  document.getElementById('board-manual-toggle')?.addEventListener('click', () => {
+    state.boardCreateMode = !(state.boardCreateMode && state.boardCreateKind === 'manual');
+    state.boardCreateKind = 'manual';
     state.boardCreateStatus = null;
     renderPreview('boards');
   });
@@ -664,6 +733,24 @@ function bindBoardPreviewActions() {
       } catch (error) {
         state.boardCreateStatus = { kind: 'error', message: error.message };
         state.boardCreateMode = true;
+        state.boardCreateKind = 'unit';
+        renderPreview('boards');
+      }
+    });
+  }
+
+  const manualForm = document.getElementById('board-manual-form');
+  if (manualForm) {
+    manualForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.boardCreateStatus = { kind: 'info', message: 'Creating manual board...' };
+        renderPreview('boards');
+        await handleBoardManualCreateSubmit(manualForm);
+      } catch (error) {
+        state.boardCreateStatus = { kind: 'error', message: error.message };
+        state.boardCreateMode = true;
+        state.boardCreateKind = 'manual';
         renderPreview('boards');
       }
     });
@@ -768,9 +855,9 @@ function renderPreview(view) {
 
   if (view === "boards" && state.boardCatalog) {
     secondaryTitle.textContent = state.boardCreateMode
-      ? 'Create board from unit'
+      ? state.boardCreateKind === 'manual' ? 'Create board manually' : 'Create board from unit'
       : state.boardDetail ? `${state.boardDetail.board.title} Detail` : `${titles[view].title} Preview`;
-    secondaryBody.innerHTML = `${renderBoardToolbar()}${renderBoardStatus()}${state.boardCreateMode ? renderBoardCreatePanel() : renderBoardDetailPanel()}`;
+    secondaryBody.innerHTML = `${renderBoardToolbar()}${renderBoardStatus()}${state.boardCreateMode ? (state.boardCreateKind === 'manual' ? renderBoardManualCreatePanel() : renderBoardCreatePanel()) : renderBoardDetailPanel()}`;
     bindBoardPreviewActions();
     return;
   }
@@ -858,7 +945,7 @@ function setActiveView(view) {
 }
 
 async function loadShell(preferredModuleId = null, preferredBoardId = null) {
-  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, boardCreateCandidates] = await Promise.all([
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, boardCreateCandidates, boardManualOptions] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
@@ -866,7 +953,8 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
     fetchJson('/api/stage4/dashboard/inventory'),
     fetchJson('/api/stage4/dashboard/modules'),
     fetchJson('/api/stage4/dashboard/boards'),
-    fetchJson('/api/stage4/board-create-candidates')
+    fetchJson('/api/stage4/board-create-candidates'),
+    fetchJson('/api/stage4/board-create-manual-options')
   ]);
 
   state.tree = tree;
@@ -876,6 +964,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
   state.moduleCatalog = moduleCatalog;
   state.boardCatalog = boardCatalog;
   state.boardCreateCandidates = boardCreateCandidates;
+  state.boardManualOptions = boardManualOptions;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
 

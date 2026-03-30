@@ -1868,3 +1868,37 @@ Validation:
 - controlled create_board_from_unit() validation -> success; created temporary draft_validation_board, then removed the files and regenerated the Stage 4 tree.
 - node --check project/web-ui/app/stage4-shell.js -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-31 01:25 Europe/London
+
+Commands run:
+
+- Get-Content project/scripts/stage4-read-api.py
+- Get-Content project/web-ui/app/stage4-shell.js
+- python -m py_compile project/scripts/stage4-read-api.py
+- node --check project/web-ui/app/stage4-shell.js
+- python inline validation of build_manual_board_create_options()
+- python inline validation of create_board_manual() for blank and template-backed boards followed by cleanup and tree regeneration
+- validate.ps1
+
+Observed issues:
+
+- The new board-create area only supported discovery-assisted creation. There was no flow for creating a board manually without attached hardware.
+- The blank-board path still needed a minimal contract so it produced a valid controller-based board skeleton instead of an ad hoc empty file.
+
+Actions:
+
+- Added manual board-create helpers to the Python Stage 4 service.
+- Added `/api/stage4/board-create-manual-options` and `POST /api/stage4/board-create-manual`.
+- Added blank-board creation with a required controller module when no template is selected.
+- Added template-backed board creation that clones an existing board definition before applying the new board metadata.
+- Updated the Boards tab so operators can switch between discovery-assisted creation and manual creation.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the manual board-create task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- build_manual_board_create_options() -> success with 5 templates and 5 controller modules.
+- controlled create_board_manual() validation -> success for both blank and template-backed manual boards, then removed the files and regenerated the Stage 4 tree.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

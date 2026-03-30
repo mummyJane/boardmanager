@@ -64,6 +64,8 @@ Current endpoints:
 - `/api/stage4/board-create-candidates`
 - `/api/stage4/board-create-guess/<unitId>`
 - `POST /api/stage4/board-create-from-unit`
+- `/api/stage4/board-create-manual-options`
+- `POST /api/stage4/board-create-manual`
 
 The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.
 ## Web Shell
@@ -144,3 +146,10 @@ The first board-create flow is discovery-assisted:
 - `POST /api/stage4/board-create-from-unit` writes a new board definition and local help page, then regenerates the Stage 4 tree
 
 The first guess clones an exact or candidate board definition when possible, and otherwise falls back to a minimal generic board skeleton based on the observed chip family.
+
+The first manual board-create flow supports two modes:
+
+- blank-board creation with a selected controller module
+- template-backed creation cloned from an existing board definition
+
+The manual options endpoint returns available board templates plus controller-module choices for the blank-board path.

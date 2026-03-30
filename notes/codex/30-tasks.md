@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-31 01:05 Europe/London
+Last updated: 2026-03-31 01:25 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -110,7 +110,7 @@ Last updated: 2026-03-31 01:05 Europe/London
 - [x] Add validation for user-created module definitions before they are persisted
 - [x] Add a board catalog view that shows board assemblies, module trees, buses, signals, IO, boot order, and generated API references
 - [x] Add a board create flow that starts from a newly discovered unit and produces a first-guess board definition from observed identity and known-family evidence
-- [ ] Add a manual board create flow that starts from a blank or template definition without discovery first
+- [x] Add a manual board create flow that starts from a blank or template definition without discovery first
 - [ ] Add a board editor that lets the user add, remove, and reconfigure modules, buses, signals, and local board settings
 - [ ] Add service write APIs for creating and updating board definitions safely
 - [ ] Add board-config validation actions in the UI that run the Stage 3 validation flow and show mismatches between configured and observed hardware
