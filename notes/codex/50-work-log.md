@@ -1802,3 +1802,34 @@ Validation:
 - node --check project/web-ui/app/stage4-shell.js -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
 - direct longer inline Python validation round-trip remains risky on this host, so the validation set stayed on syntax checks and repo validation rather than temp-file-backed service tests.
+
+## 2026-03-31 00:35 Europe/London
+
+Commands run:
+
+- Get-Content project/web-ui/app/stage4-shell.js
+- Get-Content project/scripts/generate-stage4-tree-model.mjs
+- Get-Content project/scripts/stage4-read-api.py
+- python -m py_compile project/scripts/stage4-read-api.py
+- python import validation of build_board_catalog_payload() and build_board_detail_payload() for m5stack_dial_v1_1
+- node --check project/web-ui/app/stage4-shell.js
+- validate.ps1
+
+Observed issues:
+
+- The Boards tab was still placeholder-driven from the raw tree-root payload and did not expose board assembly detail, boot order, or generated API artifact references in a board-focused contract.
+- One injected Python string for generated-artifact path normalization escaped badly on the first pass and needed a direct repair before the final validation run.
+
+Actions:
+
+- Added aggregated board-catalog and board-detail payload builders to the Python Stage 4 service.
+- Added `/api/stage4/dashboard/boards` and `/api/stage4/board-detail/<boardId>` endpoints.
+- Updated the Boards tab so the primary panel shows selectable board cards and the preview panel shows assembly detail, buses, signals, connectors, boot order, generated artifacts, references, and local help content.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the board-catalog task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- python import validation of build_board_catalog_payload() and build_board_detail_payload() -> success with 5 boards and 2 generated artifacts for m5stack_dial_v1_1.
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

@@ -239,3 +239,5 @@ un, and debug records.
 - 2026-03-30 23:40 Europe/London: Module updates are intentionally restricted to user-owned modules with `origin: user`; catalog-owned modules such as the seeded M5Stack entries return a forbidden response instead of being edited through the web write API.
 - 2026-03-31 00:05 Europe/London: The Stage 4 Python service now exposes `POST /api/stage4/module-validate` so module payloads can be checked before write attempts.
 - 2026-03-31 00:05 Europe/London: The module validator returns normalized payload shape, errors, warnings, and module kind. The shell now calls this preflight endpoint before both leaf-module and composed-module create actions, so invalid definitions fail before any files are written.
+- 2026-03-31 00:35 Europe/London: The Stage 4 Python service now exposes `/api/stage4/dashboard/boards` for catalog summaries and `/api/stage4/board-detail/<boardId>` for board assembly details.
+- 2026-03-31 00:35 Europe/London: The Boards tab now shows selectable board cards and a detail panel with module instances, buses, signals, connectors, boot order, generated board artifacts, and linked board help content.

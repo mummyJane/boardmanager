@@ -59,6 +59,8 @@ Current endpoints:
 - `/api/stage4/help?path=project/help/parts/bm8563.md`
 - `/api/stage4/dashboard/inventory`
 - `/api/stage4/dashboard/modules`
+- `/api/stage4/dashboard/boards`
+- `/api/stage4/board-detail/<boardId>`
 
 The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.
 ## Web Shell
@@ -124,3 +126,10 @@ Safety rules:
 - only modules with `origin: user` are editable through the update API
 - catalog-owned modules remain readable but reject write attempts
 - successful writes always regenerate the Stage 4 tree before returning updated module data
+
+The Boards view now consumes two board-focused read contracts:
+
+- `/api/stage4/dashboard/boards` for the board catalog summary
+- `/api/stage4/board-detail/<boardId>` for one board assembly detail payload
+
+The board detail payload includes module instances, buses, signals, connectors, boot order, generated board artifact paths, references, and linked local help markdown.

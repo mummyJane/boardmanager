@@ -6,8 +6,11 @@ const state = {
   projects: null,
   inventoryDashboard: null,
   moduleCatalog: null,
+  boardCatalog: null,
   selectedModuleId: null,
+  selectedBoardId: null,
   moduleHelp: null,
+  boardDetail: null,
   moduleCreateMode: false,
   moduleComposeMode: false,
   moduleCreateStatus: null,
@@ -167,6 +170,85 @@ function renderModuleCard(module) {
         </div>
       </button>
     </li>`;
+}
+
+function renderBoardCard(board) {
+  const selected = state.selectedBoardId === board.boardId;
+  return `
+    <li class="data-card selectable-card${selected ? ' is-selected' : ''}">
+      <button class="card-button" data-board-id="${board.boardId}" type="button">
+        <h4>${board.title}</h4>
+        <div>${board.controllerModuleId ?? 'no controller'} · ${board.busCount} buses · ${board.signalCount} signals</div>
+        <div class="meta-row">
+          <span class="meta-chip">${board.boardId}</span>
+          <span class="meta-chip">${board.revision ?? 'unknown rev'}</span>
+          <span class="meta-chip">${board.connectorCount} connectors</span>
+          <span class="meta-chip">${board.projectIds.length} projects</span>
+        </div>
+      </button>
+    </li>`;
+}
+
+function renderBoardDetailPanel() {
+  if (!state.boardDetail) {
+    return `<div class="empty-note">Select a board to inspect its assembly, buses, signals, and boot order.</div>`;
+  }
+
+  const detail = state.boardDetail;
+  const board = detail.board;
+  const refs = detail.references ?? [];
+  const docs = detail.documents ?? [];
+  const moduleInstances = detail.moduleInstances ?? [];
+  const buses = detail.buses ?? [];
+  const signals = detail.signals ?? [];
+  const connectors = detail.connectors ?? [];
+  const bootSequence = detail.bootSequence ?? [];
+  const artifacts = board.generatedArtifacts ?? [];
+
+  return `
+    <div class="detail-stack">
+      <div>
+        <div class="eyebrow">Selected board</div>
+        <h4>${board.title}</h4>
+        <div class="meta-row">
+          <span class="meta-chip">${board.boardId}</span>
+          <span class="meta-chip">${board.revision ?? 'unknown rev'}</span>
+          <span class="meta-chip">${board.controllerModuleId ?? 'no controller'}</span>
+        </div>
+      </div>
+      <div>
+        <strong>Module instances</strong>
+        ${moduleInstances.length ? `<ul class="inline-list">${moduleInstances.map((entry) => `<li><code>${escapeHtml(entry.instanceId || 'unknown')}</code> -> <code>${escapeHtml(entry.moduleId || 'unknown')}</code>${entry.busName ? ` on ${escapeHtml(entry.busName)}` : ''}</li>`).join('')}</ul>` : '<div class="empty-inline">No module instances declared.</div>'}
+      </div>
+      <div>
+        <strong>Buses</strong>
+        ${buses.length ? `<ul class="inline-list">${buses.map((bus) => `<li><code>${escapeHtml(bus.name || 'unknown')}</code>: ${escapeHtml(bus.kind || 'unknown')} via ${escapeHtml(bus.controllerPeripheral || 'unknown')}</li>`).join('')}</ul>` : '<div class="empty-inline">No buses declared.</div>'}
+      </div>
+      <div>
+        <strong>Signals</strong>
+        ${signals.length ? `<ul class="inline-list">${signals.map((signal) => `<li><code>${escapeHtml(signal.name || 'unknown')}</code>: ${escapeHtml(signal.kind || 'unknown')}</li>`).join('')}</ul>` : '<div class="empty-inline">No signals declared.</div>'}
+      </div>
+      <div>
+        <strong>Connectors</strong>
+        ${connectors.length ? `<ul class="inline-list">${connectors.map((connector) => `<li><code>${escapeHtml(connector.name || 'unknown')}</code>: ${(connector.pins || []).length} pins</li>`).join('')}</ul>` : '<div class="empty-inline">No connectors declared.</div>'}
+      </div>
+      <div>
+        <strong>Boot order</strong>
+        ${bootSequence.length ? `<ol class="inline-list">${bootSequence.map((step) => `<li><code>${escapeHtml(step.kind || 'unknown')}</code>${step.bus ? ` ${escapeHtml(step.bus)}` : ''}${step.instanceId ? ` ${escapeHtml(step.instanceId)}` : ''}${step.signal ? ` ${escapeHtml(step.signal)}` : ''}</li>`).join('')}</ol>` : '<div class="empty-inline">No boot sequence declared.</div>'}
+      </div>
+      <div>
+        <strong>Generated API artifacts</strong>
+        ${artifacts.length ? `<ul class="inline-list">${artifacts.map((entry) => `<li><code>${escapeHtml(entry)}</code></li>`).join('')}</ul>` : '<div class="empty-inline">No generated board artifacts found.</div>'}
+      </div>
+      <div>
+        <strong>References</strong>
+        ${refs.length ? `<ul class="inline-list">${refs.map((ref) => `<li>${escapeHtml(ref.title)}: ${ref.href ? `<a href="${ref.href}" target="_blank" rel="noreferrer">open</a>` : `<code>${escapeHtml(ref.path ?? 'local')}</code>`}</li>`).join('')}</ul>` : '<div class="empty-inline">No linked references.</div>'}
+      </div>
+      <div>
+        <strong>Help content</strong>
+        ${docs.length ? docs.map((doc) => `<article class="help-doc"><div class="eyebrow">${escapeHtml(doc.title ?? doc.kind ?? 'document')}</div>${markdownToHtml(doc.markdown)}</article>`).join('') : '<div class="empty-inline">No local help document linked for this board.</div>'}
+      </div>
+    </div>`;
 }
 
 function renderModuleToolbar() {
@@ -397,6 +479,17 @@ async function selectModule(moduleId) {
   renderPreview('modules');
 }
 
+async function selectBoard(boardId) {
+  state.selectedBoardId = boardId;
+  renderPrimary('boards');
+  const detailPayload = await fetchJson(`/api/stage4/board-detail/${encodeURIComponent(boardId)}`);
+  if (state.selectedBoardId !== boardId) {
+    return;
+  }
+  state.boardDetail = detailPayload;
+  renderPreview('boards');
+}
+
 async function handleModuleComposeSubmit(form) {
   const formData = new FormData(form);
   const payload = {
@@ -557,13 +650,9 @@ function renderPreview(view) {
     return;
   }
 
-  if (view === "boards" && state.boards) {
-    const sample = state.boards.nodes.slice(0, 4).map((node) => ({
-      title: node.title,
-      description: `Controller ${node.metadata.controllerModuleId ?? "unknown"}`,
-      meta: [node.metadata.boardId ?? node.nodeId, `${(node.metadata.projectIds ?? []).length} projects`]
-    }));
-    secondaryBody.innerHTML = renderList(sample);
+  if (view === "boards" && state.boardCatalog) {
+    secondaryTitle.textContent = state.boardDetail ? `${state.boardDetail.board.title} Detail` : `${titles[view].title} Preview`;
+    secondaryBody.innerHTML = renderBoardDetailPanel();
     return;
   }
 
@@ -615,13 +704,15 @@ function renderPrimary(view) {
     return;
   }
 
-  if (view === "boards" && state.boards) {
-    const items = state.boards.nodes.map((node) => ({
-      title: node.title,
-      description: `Capabilities: ${(node.metadata.capabilityKeys ?? []).join(", ") || "none declared"}`,
-      meta: [node.metadata.boardId ?? node.nodeId, node.metadata.revision ?? "unknown rev"]
-    }));
-    primaryBody.innerHTML = renderList(items);
+  if (view === "boards" && state.boardCatalog) {
+    primaryBody.innerHTML = `<ul class="data-list">${state.boardCatalog.boards.map(renderBoardCard).join('')}</ul>`;
+    document.querySelectorAll('[data-board-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectBoard(button.dataset.boardId).catch((error) => {
+          document.getElementById('secondary-body').innerHTML = `<div class="empty-note">${escapeHtml(error.message)}</div>`;
+        });
+      });
+    });
     return;
   }
 
@@ -647,24 +738,25 @@ function setActiveView(view) {
   renderPreview(view);
 }
 
-async function loadShell(preferredModuleId = null) {
-  const [health, tree, modules, boards, projects, inventoryDashboard, moduleCatalog] = await Promise.all([
+async function loadShell(preferredModuleId = null, preferredBoardId = null) {
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
-    fetchJson('/api/stage4/boards?includeChildren=false'),
     fetchJson('/api/stage4/projects?includeChildren=false'),
     fetchJson('/api/stage4/dashboard/inventory'),
-    fetchJson('/api/stage4/dashboard/modules')
+    fetchJson('/api/stage4/dashboard/modules'),
+    fetchJson('/api/stage4/dashboard/boards')
   ]);
 
   state.tree = tree;
   state.modules = modules;
-  state.boards = boards;
   state.projects = projects;
   state.inventoryDashboard = inventoryDashboard;
   state.moduleCatalog = moduleCatalog;
+  state.boardCatalog = boardCatalog;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
+  state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
 
   setText('api-runtime', `runtime: ${health.runtime}`);
   setText('model-stamp', `tree: ${tree.generatedAt}`);
@@ -679,6 +771,9 @@ async function loadShell(preferredModuleId = null) {
 
   if (state.selectedModuleId) {
     state.moduleHelp = await fetchJson(`/api/stage4/module-help/${encodeURIComponent(state.selectedModuleId)}`);
+  }
+  if (state.selectedBoardId) {
+    state.boardDetail = await fetchJson(`/api/stage4/board-detail/${encodeURIComponent(state.selectedBoardId)}`);
   }
 
   setActiveView(state.currentView);

@@ -17,6 +17,7 @@ JOB_MANAGER_DATA_ROOT = PROJECT_ROOT / "job-manager" / "data"
 JOB_MANAGER_REPORTS_ROOT = PROJECT_ROOT / "job-manager" / "reports"
 PARTS_DEVICES_ROOT = PROJECT_ROOT / "parts" / "devices"
 HELP_PARTS_ROOT = PROJECT_ROOT / "help" / "parts"
+GENERATED_ROOT = PROJECT_ROOT / "generated"
 STAGE4_GENERATOR_PATH = PROJECT_ROOT / "scripts" / "generate-stage4-tree-model.mjs"
 MODULE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 INTERFACE_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_\\-]*$")
@@ -164,6 +165,21 @@ def load_module_definition(module_id):
     return {
         "paths": paths,
         "definition": definition,
+        "helpMarkdown": help_text,
+    }
+
+
+def load_board_definition(board_id):
+    board_path = PROJECT_ROOT / "boards" / f"{board_id}.json"
+    if not board_path.exists():
+        raise FileNotFoundError(f"board '{board_id}' not found")
+    definition = json.loads(board_path.read_text(encoding="utf-8"))
+    help_path = PROJECT_ROOT / "help" / "boards" / f"{board_id}.md"
+    help_text = help_path.read_text(encoding="utf-8") if help_path.exists() else ""
+    return {
+        "path": board_path,
+        "definition": definition,
+        "helpPath": help_path,
         "helpMarkdown": help_text,
     }
 
@@ -771,6 +787,158 @@ def build_module_help_payload(model, module_id):
         ],
         "documents": documents,
     }
+def build_board_catalog_payload(model):
+    boards_root = find_root(model, "boards-root") or {"children": []}
+    boards = list(boards_root.get("children", []))
+
+    vendor_counts = {}
+    help_backed_count = 0
+    board_items = []
+    total_bus_count = 0
+    total_signal_count = 0
+    total_connector_count = 0
+
+    for board in boards:
+        metadata = board.get("metadata", {})
+        vendor = metadata.get("vendor") or "unknown"
+        vendor_counts[vendor] = vendor_counts.get(vendor, 0) + 1
+
+        buses = [child for child in board.get("children", []) if child.get("nodeKind") == "bus"]
+        signals = [child for child in board.get("children", []) if child.get("nodeKind") == "signal"]
+        connectors = [child for child in board.get("children", []) if child.get("nodeKind") == "connector"]
+        help_refs = [child for child in board.get("children", []) if child.get("nodeKind") == "help-reference"]
+
+        if help_refs:
+            help_backed_count += 1
+
+        total_bus_count += len(buses)
+        total_signal_count += len(signals)
+        total_connector_count += len(connectors)
+
+        board_items.append({
+            "boardId": metadata.get("boardId") or board.get("nodeId"),
+            "title": board.get("title"),
+            "vendor": vendor,
+            "revision": metadata.get("revision"),
+            "controllerModuleId": metadata.get("controllerModuleId"),
+            "capabilityKeys": metadata.get("capabilityKeys") or [],
+            "projectIds": metadata.get("projectIds") or [],
+            "busCount": len(buses),
+            "signalCount": len(signals),
+            "connectorCount": len(connectors),
+            "helpReferenceCount": len(help_refs),
+            "sourcePath": board.get("sourcePath"),
+        })
+
+    board_items.sort(key=lambda item: item.get("title") or "")
+
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "summary": {
+            "boardCount": len(boards),
+            "vendorCount": len(vendor_counts),
+            "helpBackedCount": help_backed_count,
+            "totalBusCount": total_bus_count,
+            "totalSignalCount": total_signal_count,
+            "totalConnectorCount": total_connector_count,
+            "vendorCounts": dict(sorted(vendor_counts.items(), key=lambda entry: entry[0].lower())),
+        },
+        "boards": board_items,
+    }
+
+
+def build_board_detail_payload(model, board_id):
+    boards_root = find_root(model, "boards-root") or {"children": []}
+    node = find_node_by_id(boards_root, normalize_id("board:", board_id))
+    if node is None:
+        raise FileNotFoundError(f"board '{board_id}' not found")
+
+    metadata = node.get("metadata", {})
+    loaded = load_board_definition(board_id)
+    board = loaded["definition"]
+
+    help_refs = [child for child in node.get("children", []) if child.get("nodeKind") == "help-reference"]
+    documents = []
+    for ref in help_refs:
+        ref_meta = ref.get("metadata") or {}
+        path = ref_meta.get("path")
+        if not path:
+            continue
+        text, normalized_path = load_help_text(path)
+        documents.append({
+            "title": ref.get("title"),
+            "kind": ref_meta.get("kind"),
+            "path": normalized_path,
+            "markdown": text,
+        })
+
+    module_instances = []
+    if board.get("controller", {}).get("moduleId"):
+        module_instances.append({
+            "instanceId": "controller",
+            "moduleId": board["controller"].get("moduleId"),
+            "role": "controller",
+            "busName": None,
+            "config": {},
+        })
+
+    buses = []
+    for bus in board.get("buses", []) or []:
+        bus_devices = []
+        for device in bus.get("devices", []) or []:
+            entry = {
+                "instanceId": device.get("instanceId"),
+                "moduleId": device.get("partId"),
+                "busName": bus.get("name"),
+                "config": device.get("config") or {},
+            }
+            module_instances.append({**entry, "role": "device"})
+            bus_devices.append(entry)
+        buses.append({
+            "name": bus.get("name"),
+            "kind": bus.get("kind"),
+            "controllerPeripheral": bus.get("controllerPeripheral"),
+            "lines": bus.get("lines") or {},
+            "devices": bus_devices,
+        })
+
+    generated_artifacts = []
+    for suffix in (".h", ".c"):
+        artifact = GENERATED_ROOT / f"{board_id}{suffix}"
+        if artifact.exists():
+            generated_artifacts.append(str(artifact.relative_to(REPO_ROOT)).replace("\\", "/"))
+
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "board": {
+            "boardId": metadata.get("boardId") or board_id,
+            "title": node.get("title"),
+            "vendor": metadata.get("vendor") or board.get("vendor"),
+            "revision": metadata.get("revision") or board.get("revision"),
+            "controllerModuleId": metadata.get("controllerModuleId") or board.get("controller", {}).get("moduleId"),
+            "capabilityKeys": metadata.get("capabilityKeys") or [],
+            "projectIds": metadata.get("projectIds") or [],
+            "sourcePath": node.get("sourcePath"),
+            "generatedArtifacts": generated_artifacts,
+        },
+        "moduleInstances": module_instances,
+        "buses": buses,
+        "signals": board.get("signals") or [],
+        "connectors": board.get("connectors") or [],
+        "bootSequence": board.get("bootSequence") or [],
+        "references": [
+            {
+                "title": ref.get("title"),
+                "kind": (ref.get("metadata") or {}).get("kind"),
+                "href": (ref.get("metadata") or {}).get("href"),
+                "path": (ref.get("metadata") or {}).get("path"),
+            }
+            for ref in help_refs
+        ],
+        "documents": documents,
+    }
+
+
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
     history = load_history()
@@ -993,6 +1161,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_module_catalog_payload(model))
                 return
 
+            if parsed.path == "/api/stage4/dashboard/boards":
+                self._send_json(200, build_board_catalog_payload(model))
+                return
+
             if parsed.path == "/api/stage4/tree":
                 self._send_json(200, model)
                 return
@@ -1004,6 +1176,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
             if parsed.path.startswith("/api/stage4/module-help/"):
                 module_id = parsed.path.rsplit("/", 1)[-1]
                 self._send_json(200, build_module_help_payload(model, module_id))
+                return
+
+            if parsed.path.startswith("/api/stage4/board-detail/"):
+                board_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_board_detail_payload(model, board_id))
                 return
 
             if parsed.path.startswith("/api/stage4/module-edit/"):
@@ -1047,10 +1224,12 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/health",
                         "/api/stage4/dashboard/inventory",
                         "/api/stage4/dashboard/modules",
+                        "/api/stage4/dashboard/boards",
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
                         "/api/stage4/module-help/<moduleId>",
+                        "/api/stage4/board-detail/<boardId>",
                         "/api/stage4/module-edit/<moduleId>",
                         "POST /api/stage4/module-validate",
                         "/api/stage4/boards",
