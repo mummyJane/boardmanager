@@ -191,3 +191,4 @@
 
 
 - 2026-03-30 23:15 Europe/London: Stage 4 spec updated to call out the first composed-module editor flow, including child-module composition and local default configuration through the Python service. Reason: the Modules view now supports composed-module creation as a real browser workflow and the spec should distinguish that from the earlier leaf-module create path.
+- 2026-03-30 23:40 Europe/London: Stage 4 spec updated to call out the first guarded module update API for user-owned modules plus a write-oriented edit payload endpoint. Reason: module create alone was not enough for later UI editing work, but the first safe update layer should not expose write access to seeded catalog modules.

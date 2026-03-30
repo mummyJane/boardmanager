@@ -1740,3 +1740,33 @@ Validation:
 - build_module_help_payload() for m5_module_gnss -> success with supportsComposition true and compositionCount 4.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
 - direct create_composed_module() cleanup validation -> blocked by Windows `Access is denied` after the AV changes.
+
+## 2026-03-30 23:40 Europe/London
+
+Commands run:
+
+- Get-Content project/scripts/stage4-read-api.py
+- Get-Content project/web-ui/README.md
+- Get-Content notes/codex/10-spec.md
+- python -m py_compile project/scripts/stage4-read-api.py
+- python import validation of build_module_edit_payload() for m5_module_gnss
+- validate.ps1
+
+Observed issues:
+
+- The Stage 4 module write surface still only covered create flows. There was no safe update path for existing user-owned modules, and no service payload that exposed the current editable module fields.
+- The current repo has no committed user-owned module to round-trip through a non-temporary update test without creating extra files on this AV-sensitive host.
+
+Actions:
+
+- Added a guarded `PUT /api/stage4/modules/<moduleId>` update path to the Python Stage 4 service.
+- Added `/api/stage4/module-edit/<moduleId>` so later UI work can load a write-oriented editable payload instead of rebuilding it from the help view.
+- Added shared write helpers for rollback-safe module file writes plus tree regeneration.
+- Restricted module updates to user-owned modules with `origin: user`; catalog-owned modules now reject write attempts through the Stage 4 API.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the module write API task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- build_module_edit_payload() for m5_module_gnss -> success; returned editable false, supportsComposition true, compositionCount 4.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.

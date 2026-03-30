@@ -153,6 +153,72 @@ def normalize_composition_children(composition):
     return children
 
 
+def load_module_definition(module_id):
+    paths = module_paths(module_id)
+    if not paths["part"].exists():
+        raise FileNotFoundError(f"module '{module_id}' not found")
+    definition = json.loads(paths["part"].read_text(encoding="utf-8"))
+    help_text = paths["help"].read_text(encoding="utf-8") if paths["help"].exists() else ""
+    return {
+        "paths": paths,
+        "definition": definition,
+        "helpMarkdown": help_text,
+    }
+
+
+def assert_user_owned_module(module_id):
+    loaded = load_module_definition(module_id)
+    definition = loaded["definition"]
+    if definition.get("origin") != "user":
+        raise PermissionError(f"module '{module_id}' is not editable through the Stage 4 write API")
+    return loaded
+
+
+def write_module_files(module_id, definition, help_markdown):
+    paths = module_paths(module_id)
+    previous_part = paths["part"].read_text(encoding="utf-8") if paths["part"].exists() else None
+    previous_help = paths["help"].read_text(encoding="utf-8") if paths["help"].exists() else None
+    had_help = paths["help"].exists()
+
+    try:
+        paths["part"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
+        paths["help"].write_text(help_markdown, encoding="utf-8")
+        regenerate_stage4_tree_model()
+    except Exception:
+        if previous_part is None:
+            if paths["part"].exists():
+                paths["part"].unlink()
+        else:
+            paths["part"].write_text(previous_part, encoding="utf-8")
+
+        if previous_help is None:
+            if paths["help"].exists():
+                paths["help"].unlink()
+        else:
+            paths["help"].write_text(previous_help, encoding="utf-8")
+
+        if not had_help and paths["help"].exists() and previous_help is None:
+            paths["help"].unlink()
+
+        regenerate_stage4_tree_model()
+        raise
+
+
+def build_module_write_result(module_id, action):
+    refreshed_model = load_tree_model()
+    paths = module_paths(module_id)
+    return {
+        action: {
+            "moduleId": module_id,
+            "partPath": str(paths["part"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpPath": str(paths["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        },
+        "moduleCatalog": build_module_catalog_payload(refreshed_model),
+        "moduleHelp": build_module_help_payload(refreshed_model, module_id),
+        "treeSummary": refreshed_model.get("summary", {}),
+    }
+
+
 def normalize_leaf_module_payload(payload):
     if not isinstance(payload, dict):
         raise ValueError("module payload must be a JSON object")
@@ -266,6 +332,19 @@ def normalize_composed_module_payload(payload):
     return normalized
 
 
+def validate_composed_module_children(module_id, children, model):
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    existing_module_ids = {
+        child.get("metadata", {}).get("moduleId")
+        for child in modules_root.get("children", [])
+    }
+    missing = [child["partId"] for child in children if child["partId"] not in existing_module_ids]
+    if missing:
+        raise ValueError(f"unknown composition child ids: {', '.join(sorted(missing))}")
+    if any(child["partId"] == module_id for child in children):
+        raise ValueError("compositionChildren cannot include the module being created or updated")
+
+
 def build_composed_module_help_markdown(payload):
     lines = [
         f"# {payload['displayName']}",
@@ -323,11 +402,7 @@ def create_composed_module(payload):
     modules_root = find_root(model, "modules-root") or {"children": []}
     if find_node_by_id(modules_root, normalize_id("module:", normalized["moduleId"])) is not None:
         raise FileExistsError(f"module '{normalized['moduleId']}' already exists")
-
-    existing_module_ids = {child.get("metadata", {}).get("moduleId") for child in modules_root.get("children", [])}
-    missing = [child["partId"] for child in normalized["compositionChildren"] if child["partId"] not in existing_module_ids]
-    if missing:
-        raise ValueError(f"unknown composition child ids: {', '.join(sorted(missing))}")
+    validate_composed_module_children(normalized["moduleId"], normalized["compositionChildren"], model)
 
     paths = module_paths(normalized["moduleId"])
     if paths["part"].exists() or paths["help"].exists():
@@ -335,32 +410,8 @@ def create_composed_module(payload):
 
     help_markdown = normalized["helpMarkdown"] or build_composed_module_help_markdown(normalized)
     definition = build_composed_module_definition(normalized)
-
-    created = []
-    try:
-        paths["part"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
-        created.append(paths["part"])
-        paths["help"].write_text(help_markdown, encoding="utf-8")
-        created.append(paths["help"])
-        regenerate_stage4_tree_model()
-    except Exception:
-        for file_path in reversed(created):
-            if file_path.exists():
-                file_path.unlink()
-        regenerate_stage4_tree_model()
-        raise
-
-    refreshed_model = load_tree_model()
-    return {
-        "created": {
-            "moduleId": normalized["moduleId"],
-            "partPath": str(paths["part"].relative_to(REPO_ROOT)).replace("\\", "/"),
-            "helpPath": str(paths["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
-        },
-        "moduleCatalog": build_module_catalog_payload(refreshed_model),
-        "moduleHelp": build_module_help_payload(refreshed_model, normalized["moduleId"]),
-        "treeSummary": refreshed_model.get("summary", {}),
-    }
+    write_module_files(normalized["moduleId"], definition, help_markdown)
+    return build_module_write_result(normalized["moduleId"], "created")
 
 
 def build_leaf_module_help_markdown(payload):
@@ -457,32 +508,58 @@ def create_leaf_module(payload):
 
     help_markdown = normalized["helpMarkdown"] or build_leaf_module_help_markdown(normalized)
     definition = build_leaf_module_definition(normalized)
+    write_module_files(normalized["moduleId"], definition, help_markdown)
+    return build_module_write_result(normalized["moduleId"], "created")
 
-    created = []
-    try:
-        paths["part"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
-        created.append(paths["part"])
-        paths["help"].write_text(help_markdown, encoding="utf-8")
-        created.append(paths["help"])
-        regenerate_stage4_tree_model()
-    except Exception:
-        for file_path in reversed(created):
-            if file_path.exists():
-                file_path.unlink()
-        regenerate_stage4_tree_model()
-        raise
 
-    refreshed_model = load_tree_model()
+def build_module_edit_payload(model, module_id):
+    loaded = load_module_definition(module_id)
+    definition = loaded["definition"]
+    node = find_node_by_id(find_root(model, "modules-root") or {"children": []}, normalize_id("module:", module_id))
+    composition_children = normalize_composition_children(definition.get("composition"))
     return {
-        "created": {
-            "moduleId": normalized["moduleId"],
-            "partPath": str(paths["part"].relative_to(REPO_ROOT)).replace("\\", "/"),
-            "helpPath": str(paths["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        "generatedAt": model.get("generatedAt"),
+        "module": {
+            "moduleId": definition.get("partId") or module_id,
+            "displayName": definition.get("displayName") or (node or {}).get("title"),
+            "vendor": definition.get("vendor") or ((node or {}).get("metadata") or {}).get("vendor"),
+            "interfaces": definition.get("interfaces") or [],
+            "defaultConfig": definition.get("defaultConfig") or {},
+            "docs": definition.get("docs") or {},
+            "api": ((definition.get("api") or {}).get("highLevel")) or [],
+            "origin": definition.get("origin"),
+            "sourcePath": str(loaded["paths"]["part"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpPath": str(loaded["paths"]["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpMarkdown": loaded.get("helpMarkdown") or "",
+            "supportsComposition": bool(composition_children),
+            "compositionChildren": composition_children,
+            "editable": definition.get("origin") == "user",
         },
-        "moduleCatalog": build_module_catalog_payload(refreshed_model),
-        "moduleHelp": build_module_help_payload(refreshed_model, normalized["moduleId"]),
-        "treeSummary": refreshed_model.get("summary", {}),
     }
+
+
+def update_leaf_module(module_id, payload):
+    loaded = assert_user_owned_module(module_id)
+    normalized = normalize_leaf_module_payload(payload)
+    if normalized["moduleId"] != module_id:
+        raise ValueError("moduleId in payload must match the module id in the request path")
+    help_markdown = normalized["helpMarkdown"] or build_leaf_module_help_markdown(normalized)
+    definition = build_leaf_module_definition(normalized)
+    write_module_files(module_id, definition, help_markdown)
+    return build_module_write_result(module_id, "updated")
+
+
+def update_composed_module(module_id, payload):
+    assert_user_owned_module(module_id)
+    normalized = normalize_composed_module_payload(payload)
+    if normalized["moduleId"] != module_id:
+        raise ValueError("moduleId in payload must match the module id in the request path")
+    model = load_tree_model()
+    validate_composed_module_children(module_id, normalized["compositionChildren"], model)
+    help_markdown = normalized["helpMarkdown"] or build_composed_module_help_markdown(normalized)
+    definition = build_composed_module_definition(normalized)
+    write_module_files(module_id, definition, help_markdown)
+    return build_module_write_result(module_id, "updated")
 
 
 
@@ -772,6 +849,31 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
             self._send_json(409, {"error": "already_exists", "message": str(error)})
         except ValueError as error:
             self._send_json(400, {"error": "invalid_request", "message": str(error)})
+        except PermissionError as error:
+            self._send_json(403, {"error": "forbidden", "message": str(error)})
+        except FileNotFoundError as error:
+            self._send_json(404, {"error": "not_found", "message": str(error)})
+        except Exception as error:
+            self._send_json(500, {"error": "internal_error", "message": str(error)})
+
+    def do_PUT(self):
+        try:
+            parsed = urlparse(self.path)
+            if parsed.path.startswith("/api/stage4/modules/"):
+                module_id = parsed.path.rsplit("/", 1)[-1]
+                payload = self._read_json_body()
+                if payload.get("compositionChildren"):
+                    self._send_json(200, update_composed_module(module_id, payload))
+                else:
+                    self._send_json(200, update_leaf_module(module_id, payload))
+                return
+            self._send_json(404, {"error": "not_found"})
+        except ValueError as error:
+            self._send_json(400, {"error": "invalid_request", "message": str(error)})
+        except PermissionError as error:
+            self._send_json(403, {"error": "forbidden", "message": str(error)})
+        except FileNotFoundError as error:
+            self._send_json(404, {"error": "not_found", "message": str(error)})
         except Exception as error:
             self._send_json(500, {"error": "internal_error", "message": str(error)})
 
@@ -814,6 +916,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_module_help_payload(model, module_id))
                 return
 
+            if parsed.path.startswith("/api/stage4/module-edit/"):
+                module_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_module_edit_payload(model, module_id))
+                return
+
             if parsed.path == "/api/stage4/boards":
                 self._handle_root_collection(model, "boards-root", query)
                 return
@@ -854,6 +961,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
                         "/api/stage4/module-help/<moduleId>",
+                        "/api/stage4/module-edit/<moduleId>",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/projects",
@@ -861,6 +969,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/help?path=project/help/parts/bm8563.md",
                         "POST /api/stage4/module-create",
                         "POST /api/stage4/module-compose",
+                        "PUT /api/stage4/modules/<moduleId>",
                     ],
                 },
             )

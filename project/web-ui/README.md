@@ -47,8 +47,10 @@ Current endpoints:
 - `/api/stage4/modules`
 - `/api/stage4/modules/<moduleId>`
 - `/api/stage4/module-help/<moduleId>`
+- `/api/stage4/module-edit/<moduleId>`
 - `POST /api/stage4/module-create`
 - `POST /api/stage4/module-compose`
+- `PUT /api/stage4/modules/<moduleId>`
 - `/api/stage4/boards`
 - `/api/stage4/boards/<boardId>`
 - `/api/stage4/projects`
@@ -100,3 +102,14 @@ The Modules view now has two narrow write flows:
 - `POST /api/stage4/module-compose` for user-defined composed modules with child-module rows and module-level default config
 
 Existing composed catalog entries also normalize older composition metadata into child-module rows so the shell can browse them consistently.
+
+The first generic-safe module update layer is now available through:
+
+- `GET /api/stage4/module-edit/<moduleId>` for a write-oriented editable payload
+- `PUT /api/stage4/modules/<moduleId>` for guarded updates
+
+Safety rules:
+
+- only modules with `origin: user` are editable through the update API
+- catalog-owned modules remain readable but reject write attempts
+- successful writes always regenerate the Stage 4 tree before returning updated module data

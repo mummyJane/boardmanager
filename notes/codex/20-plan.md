@@ -131,6 +131,7 @@ Planned slices:
 - Slice 4: add module catalog management, module help pages, and composed-module editing
   - leaf-module create flow complete
   - composed-module editor complete with child-module composition and local default config
+  - safe module write APIs now include create, compose, edit-payload readout, and guarded update for user-owned modules
 - Slice 5: add board create/edit flows, including discovery-assisted first guess and manual create
 - Slice 6: add board-config validation views and hardware test/report integration
 - Slice 7: add project/build/run pages that sit on top of the Stage 3 job APIs
