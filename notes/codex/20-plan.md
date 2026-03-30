@@ -7,7 +7,7 @@
 
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-30 22:25 Europe/London
+Last updated: 2026-03-30 23:15 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -129,6 +129,8 @@ Planned slices:
 - Slice 2: add Python-based read APIs for tree views over modules, boards, projects, and help pages
 - Slice 3: scaffold the web app shell with inventory, module, board, and project navigation
 - Slice 4: add module catalog management, module help pages, and composed-module editing
+  - leaf-module create flow complete
+  - composed-module editor complete with child-module composition and local default config
 - Slice 5: add board create/edit flows, including discovery-assisted first guess and manual create
 - Slice 6: add board-config validation views and hardware test/report integration
 - Slice 7: add project/build/run pages that sit on top of the Stage 3 job APIs

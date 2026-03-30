@@ -1701,3 +1701,42 @@ Validation:
 - node --check project/web-ui/app/stage4-shell.js -> success.
 - Temporary create_leaf_module() validation -> success; created module user_temp_leaf_validation, returned helpDocumentCount 1, then removed the temp files and regenerated the tree.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+
+## 2026-03-30 23:15 Europe/London
+
+Commands run:
+
+- git status --short
+- git diff -- project/scripts/generate-stage4-tree-model.mjs
+- git diff -- project/scripts/stage4-read-api.py
+- git diff -- project/web-ui/app/stage4-shell.js
+- git diff -- project/web-ui/data/stage4-tree-model.json
+- node --check project/web-ui/app/stage4-shell.js
+- python -m py_compile project/scripts/stage4-read-api.py
+- python import validation of build_module_help_payload() for m5_module_gnss
+- validate.ps1
+- python inline validation of create_composed_module() with cleanup attempt
+
+Observed issues:
+
+- The composed-module task had survived in the working tree after the AV interruption, but the docs, task tracker, and release wrappers had not been updated yet.
+- The composed-module form initially hardcoded defaultConfig to an empty object, which did not meet the local-config requirement for the task.
+- A direct in-process create/cleanup validation attempt ended with `Access is denied` on this Windows host, so the final validation set had to stay on syntax checks, tree regeneration, help-payload inspection, and the standard repo validation pass.
+
+Actions:
+
+- Normalized composed-module children in the Stage 4 tree generator so older composition metadata shapes are exposed as real child-module references.
+- Added Python service support for `POST /api/stage4/module-compose`, including payload normalization, composed-module definition generation, help-page generation, duplicate checks, and tree regeneration.
+- Updated the Modules shell so operators can switch between leaf-module creation, composed-module creation, and help browsing.
+- Added composed-module child display in the module help panel and added module-level default-config input parsing for the composed-module form.
+- Regenerated the Stage 4 tree so existing composed modules such as `m5_module_gnss` now surface their child modules correctly.
+- Updated the Stage 4 spec, plan, task list, context, README, and install/update wrappers to mark the composed-module task complete.
+
+Validation:
+
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- build_module_help_payload() for m5_module_gnss -> success with supportsComposition true and compositionCount 4.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+- direct create_composed_module() cleanup validation -> blocked by Windows `Access is denied` after the AV changes.

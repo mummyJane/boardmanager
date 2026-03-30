@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "generatedAt": "2026-03-30T19:57:43.593Z",
+  "generatedAt": "2026-03-30T20:23:37.965Z",
   "preferredWebRuntime": "python",
   "summary": {
     "moduleCount": 13,
@@ -400,7 +400,7 @@
               "sensorI2cAddress": "0x69",
               "barometerI2cAddress": "0x76"
             },
-            "supportsComposition": false,
+            "supportsComposition": true,
             "api": {
               "highLevel": [
                 {
@@ -432,6 +432,58 @@
               "metadata": {
                 "kind": "apiGuide",
                 "path": "project/help/parts/m5_module_gnss.md"
+              },
+              "children": []
+            },
+            {
+              "nodeId": "module:m5_module_gnss:composition:1",
+              "nodeKind": "module-reference",
+              "title": "BMI270",
+              "sourcePath": null,
+              "metadata": {
+                "role": "imu",
+                "partId": "bmi270",
+                "moduleId": "bmi270",
+                "config": {}
+              },
+              "children": []
+            },
+            {
+              "nodeId": "module:m5_module_gnss:composition:2",
+              "nodeKind": "module-reference",
+              "title": "BMM150",
+              "sourcePath": null,
+              "metadata": {
+                "role": "magnetometer",
+                "partId": "bmm150",
+                "moduleId": "bmm150",
+                "config": {}
+              },
+              "children": []
+            },
+            {
+              "nodeId": "module:m5_module_gnss:composition:3",
+              "nodeKind": "module-reference",
+              "title": "BMP280",
+              "sourcePath": null,
+              "metadata": {
+                "role": "barometer",
+                "partId": "bmp280",
+                "moduleId": "bmp280",
+                "config": {}
+              },
+              "children": []
+            },
+            {
+              "nodeId": "module:m5_module_gnss:composition:0",
+              "nodeKind": "module-reference",
+              "title": "neo_m9n",
+              "sourcePath": null,
+              "metadata": {
+                "role": "gnssReceiver",
+                "partId": "neo_m9n",
+                "moduleId": "neo_m9n",
+                "config": {}
               },
               "children": []
             },

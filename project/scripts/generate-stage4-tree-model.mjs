@@ -78,6 +78,49 @@ function makeDocChildren(docRefs) {
   return children;
 }
 
+function normalizeCompositionChildren(part) {
+  const composition = part.composition ?? null;
+  if (!composition) {
+    return [];
+  }
+
+  if (Array.isArray(composition.children)) {
+    return composition.children;
+  }
+
+  const children = [];
+  if (composition.gnssReceiverPartId) {
+    children.push({
+      partId: composition.gnssReceiverPartId,
+      role: "gnssReceiver",
+      displayName: composition.gnssReceiverPartId,
+    });
+  }
+  if (composition.imu) {
+    children.push({
+      partId: composition.imu.toLowerCase(),
+      role: "imu",
+      displayName: composition.imu,
+    });
+  }
+  if (composition.magnetometer) {
+    children.push({
+      partId: composition.magnetometer.toLowerCase(),
+      role: "magnetometer",
+      displayName: composition.magnetometer,
+    });
+  }
+  if (composition.barometer) {
+    children.push({
+      partId: composition.barometer.toLowerCase(),
+      role: "barometer",
+      displayName: composition.barometer,
+    });
+  }
+  return children;
+}
+
+
 async function buildModuleNodes() {
   const files = [
     ...(await loadJsonFiles(partsModulesRoot)),
@@ -97,21 +140,20 @@ async function buildModuleNodes() {
       apiGuide: helpGuide,
     });
 
-    const compositionChildren = Array.isArray(part.composition?.children)
-      ? part.composition.children.map((child, index) => ({
-          nodeId: `module:${part.partId}:composition:${index}`,
-          nodeKind: "module-reference",
-          title: child.displayName ?? child.partId ?? child.moduleId ?? `child-${index}`,
-          sourcePath: null,
-          metadata: {
-            role: child.role ?? null,
-            partId: child.partId ?? null,
-            moduleId: child.moduleId ?? null,
-            config: child.config ?? {}
-          },
-          children: []
-        }))
-      : [];
+    const compositionChildren = normalizeCompositionChildren(part)
+      .map((child, index) => ({
+        nodeId: `module:${part.partId}:composition:${index}`,
+        nodeKind: "module-reference",
+        title: child.displayName ?? child.partId ?? child.moduleId ?? `child-${index}`,
+        sourcePath: null,
+        metadata: {
+          role: child.role ?? null,
+          partId: child.partId ?? null,
+          moduleId: child.moduleId ?? child.partId ?? null,
+          config: child.config ?? {}
+        },
+        children: []
+      }));
 
     nodes.push({
       nodeId: `module:${part.partId}`,

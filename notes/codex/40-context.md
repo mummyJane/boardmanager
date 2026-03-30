@@ -230,3 +230,8 @@ un, and debug records.
 - 2026-03-30 21:45 Europe/London: The Python Stage 4 service now exposes /api/stage4/module-help/<moduleId> so the shell Modules view can show one selected module's references, high-level API, default config, and local help markdown without reconstructing that bundle in the browser.
 
 - 2026-03-30 22:25 Europe/London: The Stage 4 Python service now supports a narrow POST /api/stage4/module-create flow for user-defined leaf device modules. It writes a new part definition under project/parts/devices, writes a local help page under project/help/parts, regenerates the tree model, and returns the created module detail payload to the shell.
+
+
+- 2026-03-30 23:15 Europe/London: The Stage 4 Modules view now supports composed-module creation through the Python service, including child-module rows, module-level default config, and automatic regeneration of the Stage 4 tree model.
+- 2026-03-30 23:15 Europe/London: Existing composed-module metadata is now normalized when older parts use composition fields such as `gnssReceiverPartId`, `imu`, `magnetometer`, and `barometer` instead of an explicit `composition.children` array. The current M5 Module GNSS entry now surfaces four child modules correctly in the tree and help payload.
+- 2026-03-30 23:15 Europe/London: A direct in-process composed-module create/cleanup validation path hit `Access is denied` on this Windows host after the AV changes, so final task validation stayed on syntax checks, tree regeneration, help-payload inspection, and the standard repo validation flow.

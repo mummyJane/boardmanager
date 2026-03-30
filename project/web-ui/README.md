@@ -48,6 +48,7 @@ Current endpoints:
 - `/api/stage4/modules/<moduleId>`
 - `/api/stage4/module-help/<moduleId>`
 - `POST /api/stage4/module-create`
+- `POST /api/stage4/module-compose`
 - `/api/stage4/boards`
 - `/api/stage4/boards/<boardId>`
 - `/api/stage4/projects`
@@ -92,3 +93,10 @@ The module catalog endpoint merges the generated tree model into a module-focuse
 The module-help endpoint returns one module-focused detail payload with linked references, declared high-level API entries, default config, and any local markdown help documents so the shell can render help content without rebuilding it from raw tree nodes.
 
 The first write flow is intentionally narrow: `POST /api/stage4/module-create` accepts a user-defined leaf module payload, writes the new device definition plus its local help page, regenerates the Stage 4 tree, and returns the created module detail back to the shell.
+
+The Modules view now has two narrow write flows:
+
+- `POST /api/stage4/module-create` for user-defined leaf modules
+- `POST /api/stage4/module-compose` for user-defined composed modules with child-module rows and module-level default config
+
+Existing composed catalog entries also normalize older composition metadata into child-module rows so the shell can browse them consistently.

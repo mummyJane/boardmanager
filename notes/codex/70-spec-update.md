@@ -188,3 +188,6 @@
 - 2026-03-30 21:45 Europe/London: Stage 4 spec updated to call out module help pages as a real shell detail view backed by a per-module API payload with references, declared API entries, default config, and local help markdown. Reason: the Modules view now exposes documentation detail in the web UI instead of only listing catalog rows.
 
 - 2026-03-30 22:25 Europe/London: Stage 4 spec updated to call out the first narrow module-create flow for user-defined leaf modules, including service-side creation of both the part definition and local help page. Reason: the web UI now has a real create path before the broader safe module write API task is finished.
+
+
+- 2026-03-30 23:15 Europe/London: Stage 4 spec updated to call out the first composed-module editor flow, including child-module composition and local default configuration through the Python service. Reason: the Modules view now supports composed-module creation as a real browser workflow and the spec should distinguish that from the earlier leaf-module create path.

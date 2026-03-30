@@ -9,6 +9,7 @@ const state = {
   selectedModuleId: null,
   moduleHelp: null,
   moduleCreateMode: false,
+  moduleComposeMode: false,
   moduleCreateStatus: null,
 };
 
@@ -21,7 +22,7 @@ const titles = {
   modules: {
     title: "Modules",
     eyebrow: "Catalog",
-    description: "Reusable modules and device catalog entries with vendor, help, composition coverage, and user-defined leaf-module creation."
+    description: "Reusable modules and device catalog entries with vendor, help, composition coverage, and user-defined leaf or composed-module creation."
   },
   boards: {
     title: "Boards",
@@ -172,6 +173,7 @@ function renderModuleToolbar() {
   return `
     <div class="action-row">
       <button class="action-button" type="button" id="module-create-toggle">${state.moduleCreateMode ? 'Back to help' : 'New leaf module'}</button>
+      <button class="action-button" type="button" id="module-compose-toggle">${state.moduleComposeMode ? 'Back to help' : 'New composed module'}</button>
       ${state.selectedModuleId ? `<span class="status-chip">selected ${escapeHtml(state.selectedModuleId)}</span>` : ''}
     </div>`;
 }
@@ -228,6 +230,56 @@ Describe the module and any usage notes."></textarea>
     </form>`;
 }
 
+function renderModuleComposePanel() {
+  return `
+    <form id="module-compose-form" class="form-stack">
+      <div class="eyebrow">Compose module</div>
+      <div class="form-grid">
+        <label class="field-label">Module id
+          <input class="text-input" name="moduleId" placeholder="user_gnss_stack" required pattern="[a-z][a-z0-9_]*">
+        </label>
+        <label class="field-label">Display name
+          <input class="text-input" name="displayName" placeholder="User GNSS Stack" required>
+        </label>
+        <label class="field-label">Vendor
+          <input class="text-input" name="vendor" placeholder="User or vendor" required>
+        </label>
+        <label class="field-label">Interfaces
+          <input class="text-input" name="interfaces" placeholder="uart, i2c, pps">
+        </label>
+        <label class="field-label">Default config
+          <textarea class="text-area" name="defaultConfig" rows="4" placeholder="baud=9600
+scanWindowMs=250"></textarea>
+        </label>
+        <label class="field-label">Website
+          <input class="text-input" name="website" placeholder="https://example.com/module">
+        </label>
+        <label class="field-label">Datasheet
+          <input class="text-input" name="datasheet" placeholder="https://example.com/module.pdf">
+        </label>
+      </div>
+      <label class="field-label">Child modules
+        <textarea class="text-area" name="compositionChildren" rows="6" placeholder="neo_m9n|gnssReceiver|NEO-M9N
+bm8563|rtc|BM8563 RTC"></textarea>
+      </label>
+      <label class="field-label">High-level API entries
+        <textarea class="text-area" name="apiEntries" rows="4" placeholder="get_fix|Return the composed module fix state
+read_health|Return composed submodule health"></textarea>
+      </label>
+      <label class="field-label">Help markdown
+        <textarea class="text-area" name="helpMarkdown" rows="10" placeholder="# Module name
+
+## Summary
+
+Describe the composed module and child relationships."></textarea>
+      </label>
+      <div class="action-row">
+        <button class="action-button primary" type="submit">Create composed module</button>
+        <span class="empty-inline">Child rows use <code>moduleId|role|display name</code>.</span>
+      </div>
+    </form>`;
+}
+
 function renderModuleHelpPanel() {
   if (!state.moduleHelp) {
     return `<div class="empty-note">Select a module to load help content.</div>`;
@@ -238,6 +290,7 @@ function renderModuleHelpPanel() {
   const docs = detail.documents ?? [];
   const api = detail.module.api ?? [];
   const configEntries = Object.entries(detail.module.defaultConfig ?? {});
+  const compositionChildren = detail.module.compositionChildren ?? [];
 
   return `
     <div class="detail-stack">
@@ -260,6 +313,10 @@ function renderModuleHelpPanel() {
         ${configEntries.length ? `<div class="meta-row">${configEntries.map(([key, value]) => `<span class="meta-chip">${key} ${value}</span>`).join('')}</div>` : '<div class="empty-inline">No default config declared.</div>'}
       </div>
       <div>
+        <strong>Child modules</strong>
+        ${compositionChildren.length ? `<ul class="inline-list">${compositionChildren.map((child) => `<li><code>${escapeHtml(child.partId || child.moduleId || 'unknown')}</code>${child.role ? `: ${escapeHtml(child.role)}` : ''}</li>`).join('')}</ul>` : '<div class="empty-inline">No child modules declared.</div>'}
+      </div>
+      <div>
         <strong>High-level API</strong>
         ${api.length ? `<ul class="inline-list">${api.map((entry) => `<li><code>${escapeHtml(entry.name)}</code>: ${escapeHtml(entry.description ?? '')}</li>`).join('')}</ul>` : '<div class="empty-inline">No high-level API entries declared.</div>'}
       </div>
@@ -272,6 +329,24 @@ function renderModuleHelpPanel() {
         ${docs.length ? docs.map((doc) => `<article class="help-doc"><div class="eyebrow">${escapeHtml(doc.title ?? doc.kind ?? 'document')}</div>${markdownToHtml(doc.markdown)}</article>`).join('') : '<div class="empty-inline">No local help document linked for this module.</div>'}
       </div>
     </div>`;
+}
+
+function parseCompositionChildren(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [partId, role, displayName] = line.split('|').map((entry) => entry.trim());
+      return {
+        partId,
+        moduleId: partId,
+        role: role || null,
+        displayName: displayName || partId,
+        config: {},
+      };
+    })
+    .filter((entry) => entry.partId);
 }
 
 function parseApiEntries(value) {
@@ -289,15 +364,60 @@ function parseApiEntries(value) {
     .filter((entry) => entry.name);
 }
 
+function parseScalarConfig(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .reduce((config, line) => {
+      const separatorIndex = line.indexOf('=');
+      if (separatorIndex <= 0) {
+        return config;
+      }
+      const key = line.slice(0, separatorIndex).trim();
+      const rawValue = line.slice(separatorIndex + 1).trim();
+      if (!key) {
+        return config;
+      }
+      config[key] = rawValue;
+      return config;
+    }, {});
+}
+
 async function selectModule(moduleId) {
   state.selectedModuleId = moduleId;
   state.moduleCreateMode = false;
+  state.moduleComposeMode = false;
   renderPrimary('modules');
   const helpPayload = await fetchJson(`/api/stage4/module-help/${encodeURIComponent(moduleId)}`);
   if (state.selectedModuleId !== moduleId) {
     return;
   }
   state.moduleHelp = helpPayload;
+  renderPreview('modules');
+}
+
+async function handleModuleComposeSubmit(form) {
+  const formData = new FormData(form);
+  const payload = {
+    moduleId: String(formData.get('moduleId') || '').trim(),
+    displayName: String(formData.get('displayName') || '').trim(),
+    vendor: String(formData.get('vendor') || '').trim(),
+    interfaces: String(formData.get('interfaces') || '').split(',').map((entry) => entry.trim()).filter(Boolean),
+    defaultConfig: parseScalarConfig(formData.get('defaultConfig')),
+    docs: {
+      website: String(formData.get('website') || '').trim() || null,
+      datasheet: String(formData.get('datasheet') || '').trim() || null,
+    },
+    api: parseApiEntries(formData.get('apiEntries')),
+    compositionChildren: parseCompositionChildren(formData.get('compositionChildren')),
+    helpMarkdown: String(formData.get('helpMarkdown') || '').trim(),
+  };
+
+  const result = await postJson('/api/stage4/module-compose', payload);
+  state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}` };
+  state.moduleComposeMode = false;
+  await loadShell(result.created.moduleId);
   renderPreview('modules');
 }
 
@@ -324,6 +444,7 @@ async function handleModuleCreateSubmit(form) {
   const result = await postJson('/api/stage4/module-create', payload);
   state.moduleCreateStatus = { kind: 'success', message: `Created ${result.created.moduleId}` };
   state.moduleCreateMode = false;
+  state.moduleComposeMode = false;
   await loadShell(result.created.moduleId);
   renderPreview('modules');
 }
@@ -331,21 +452,45 @@ async function handleModuleCreateSubmit(form) {
 function bindModulePreviewActions() {
   document.getElementById('module-create-toggle')?.addEventListener('click', () => {
     state.moduleCreateMode = !state.moduleCreateMode;
+    state.moduleComposeMode = false;
     state.moduleCreateStatus = null;
     renderPreview('modules');
   });
 
-  const form = document.getElementById('module-create-form');
-  if (form) {
-    form.addEventListener('submit', async (event) => {
+  document.getElementById('module-compose-toggle')?.addEventListener('click', () => {
+    state.moduleComposeMode = !state.moduleComposeMode;
+    state.moduleCreateMode = false;
+    state.moduleCreateStatus = null;
+    renderPreview('modules');
+  });
+
+  const createForm = document.getElementById('module-create-form');
+  if (createForm) {
+    createForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       try {
         state.moduleCreateStatus = { kind: 'info', message: 'Creating module...' };
         renderPreview('modules');
-        await handleModuleCreateSubmit(form);
+        await handleModuleCreateSubmit(createForm);
       } catch (error) {
         state.moduleCreateStatus = { kind: 'error', message: error.message };
         state.moduleCreateMode = true;
+        renderPreview('modules');
+      }
+    });
+  }
+
+  const composeForm = document.getElementById('module-compose-form');
+  if (composeForm) {
+    composeForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.moduleCreateStatus = { kind: 'info', message: 'Creating composed module...' };
+        renderPreview('modules');
+        await handleModuleComposeSubmit(composeForm);
+      } catch (error) {
+        state.moduleCreateStatus = { kind: 'error', message: error.message };
+        state.moduleComposeMode = true;
         renderPreview('modules');
       }
     });
@@ -390,8 +535,12 @@ function renderPreview(view) {
   }
 
   if (view === "modules" && state.moduleCatalog) {
-    secondaryTitle.textContent = state.moduleCreateMode ? 'Create module' : (state.moduleHelp ? `${state.moduleHelp.module.title} Help` : `${titles[view].title} Preview`);
-    secondaryBody.innerHTML = `${renderModuleToolbar()}${renderModuleStatus()}${state.moduleCreateMode ? renderModuleCreatePanel() : renderModuleHelpPanel()}`;
+    secondaryTitle.textContent = state.moduleCreateMode
+      ? 'Create module'
+      : state.moduleComposeMode
+        ? 'Compose module'
+        : (state.moduleHelp ? `${state.moduleHelp.module.title} Help` : `${titles[view].title} Preview`);
+    secondaryBody.innerHTML = `${renderModuleToolbar()}${renderModuleStatus()}${state.moduleCreateMode ? renderModuleCreatePanel() : state.moduleComposeMode ? renderModuleComposePanel() : renderModuleHelpPanel()}`;
     bindModulePreviewActions();
     return;
   }

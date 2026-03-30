@@ -127,6 +127,32 @@ def regenerate_stage4_tree_model():
     return result.stdout.strip()
 
 
+def normalize_composition_children(composition):
+    if not composition:
+        return []
+    if isinstance(composition, dict) and isinstance(composition.get("children"), list):
+        return composition["children"]
+
+    children = []
+    if isinstance(composition, dict):
+        if composition.get("gnssReceiverPartId"):
+            children.append({
+                "partId": composition["gnssReceiverPartId"],
+                "role": "gnssReceiver",
+                "displayName": composition["gnssReceiverPartId"],
+                "config": {},
+            })
+        for key, role in (("imu", "imu"), ("magnetometer", "magnetometer"), ("barometer", "barometer")):
+            if composition.get(key):
+                children.append({
+                    "partId": str(composition[key]).lower(),
+                    "role": role,
+                    "displayName": composition[key],
+                    "config": {},
+                })
+    return children
+
+
 def normalize_leaf_module_payload(payload):
     if not isinstance(payload, dict):
         raise ValueError("module payload must be a JSON object")
@@ -195,6 +221,145 @@ def normalize_leaf_module_payload(payload):
         },
         "api": api_entries,
         "helpMarkdown": help_markdown,
+    }
+
+
+def normalize_composed_module_payload(payload):
+    normalized = normalize_leaf_module_payload(payload)
+    raw_children = payload.get("compositionChildren") or []
+    if not isinstance(raw_children, list) or not raw_children:
+        raise ValueError("compositionChildren must be a non-empty array")
+
+    children = []
+    seen_ids = set()
+    for entry in raw_children:
+        if not isinstance(entry, dict):
+            raise ValueError("compositionChildren entries must be objects")
+        child_id = str(entry.get("partId") or entry.get("moduleId") or "").strip()
+        if not child_id:
+            raise ValueError("each composition child must define partId or moduleId")
+        if child_id in seen_ids:
+            raise ValueError(f"duplicate composition child '{child_id}'")
+        seen_ids.add(child_id)
+        role = str(entry.get("role") or "").strip() or None
+        display_name = str(entry.get("displayName") or child_id).strip()
+        raw_config = entry.get("config") or {}
+        if not isinstance(raw_config, dict):
+            raise ValueError(f"composition child '{child_id}' config must be an object")
+        child_config = {}
+        for key, value in raw_config.items():
+            config_key = str(key or "").strip()
+            if not config_key:
+                continue
+            if not isinstance(value, (str, int, float, bool)) and value is not None:
+                raise ValueError(f"composition child '{child_id}' config '{config_key}' must be a scalar value")
+            child_config[config_key] = value
+        children.append({
+            "partId": child_id,
+            "moduleId": child_id,
+            "role": role,
+            "displayName": display_name,
+            "config": child_config,
+        })
+
+    normalized["compositionChildren"] = children
+    return normalized
+
+
+def build_composed_module_help_markdown(payload):
+    lines = [
+        f"# {payload['displayName']}",
+        "",
+        "## Summary",
+        "",
+        f"`{payload['moduleId']}` is a user-defined composed module created through the Board Manager Stage 4 web flow.",
+        "",
+        "## Child Modules",
+        "",
+    ]
+    for child in payload["compositionChildren"]:
+        role = f" ({child['role']})" if child.get("role") else ""
+        lines.append(f"- `{child['partId']}`{role}")
+    lines.extend(["", "## Interfaces", ""])
+    if payload["interfaces"]:
+        lines.extend([f"- interface: `{entry}`" for entry in payload["interfaces"]])
+    else:
+        lines.append("- no top-level interfaces declared yet")
+    lines.extend(["", "## High-Level API Usage", ""])
+    if payload["api"]:
+        lines.extend([f"- `{entry['name']}`: {entry['description'] or 'user-defined API entry'}" for entry in payload["api"]])
+    else:
+        lines.append("- add project-local composed-module API notes here")
+    lines.extend(["", "## References", ""])
+    if payload["docs"]["website"]:
+        lines.append(f"- Website: [{payload['displayName']}]({payload['docs']['website']})")
+    if payload["docs"]["datasheet"]:
+        lines.append(f"- Datasheet: [Reference PDF]({payload['docs']['datasheet']})")
+    if not payload["docs"]["website"] and not payload["docs"]["datasheet"]:
+        lines.append("- add vendor and datasheet links here")
+    return "\n".join(lines) + "\n"
+
+
+def build_composed_module_definition(payload):
+    definition = build_leaf_module_definition(payload)
+    definition["composition"] = {
+        "children": [
+            {
+                "partId": child["partId"],
+                "moduleId": child.get("moduleId") or child["partId"],
+                "role": child.get("role"),
+                "displayName": child.get("displayName"),
+                "config": child.get("config") or {},
+            }
+            for child in payload["compositionChildren"]
+        ]
+    }
+    return definition
+
+
+def create_composed_module(payload):
+    normalized = normalize_composed_module_payload(payload)
+    model = load_tree_model()
+    modules_root = find_root(model, "modules-root") or {"children": []}
+    if find_node_by_id(modules_root, normalize_id("module:", normalized["moduleId"])) is not None:
+        raise FileExistsError(f"module '{normalized['moduleId']}' already exists")
+
+    existing_module_ids = {child.get("metadata", {}).get("moduleId") for child in modules_root.get("children", [])}
+    missing = [child["partId"] for child in normalized["compositionChildren"] if child["partId"] not in existing_module_ids]
+    if missing:
+        raise ValueError(f"unknown composition child ids: {', '.join(sorted(missing))}")
+
+    paths = module_paths(normalized["moduleId"])
+    if paths["part"].exists() or paths["help"].exists():
+        raise FileExistsError(f"module '{normalized['moduleId']}' already exists on disk")
+
+    help_markdown = normalized["helpMarkdown"] or build_composed_module_help_markdown(normalized)
+    definition = build_composed_module_definition(normalized)
+
+    created = []
+    try:
+        paths["part"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
+        created.append(paths["part"])
+        paths["help"].write_text(help_markdown, encoding="utf-8")
+        created.append(paths["help"])
+        regenerate_stage4_tree_model()
+    except Exception:
+        for file_path in reversed(created):
+            if file_path.exists():
+                file_path.unlink()
+        regenerate_stage4_tree_model()
+        raise
+
+    refreshed_model = load_tree_model()
+    return {
+        "created": {
+            "moduleId": normalized["moduleId"],
+            "partPath": str(paths["part"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpPath": str(paths["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        },
+        "moduleCatalog": build_module_catalog_payload(refreshed_model),
+        "moduleHelp": build_module_help_payload(refreshed_model, normalized["moduleId"]),
+        "treeSummary": refreshed_model.get("summary", {}),
     }
 
 
@@ -403,6 +568,20 @@ def build_module_help_payload(model, module_id):
             "markdown": text,
         })
 
+    composition_children = normalize_composition_children(metadata.get("composition"))
+    if not composition_children:
+        composition_children = [
+            {
+                "partId": (child.get("metadata") or {}).get("partId") or (child.get("metadata") or {}).get("moduleId"),
+                "moduleId": (child.get("metadata") or {}).get("moduleId") or (child.get("metadata") or {}).get("partId"),
+                "role": (child.get("metadata") or {}).get("role"),
+                "displayName": child.get("title"),
+                "config": (child.get("metadata") or {}).get("config") or {},
+            }
+            for child in node.get("children", [])
+            if child.get("nodeKind") == "module-reference"
+        ]
+
     return {
         "generatedAt": model.get("generatedAt"),
         "module": {
@@ -414,6 +593,7 @@ def build_module_help_payload(model, module_id):
             "interfaces": metadata.get("interfaces") or [],
             "defaultConfig": metadata.get("defaultConfig") or {},
             "supportsComposition": bool(metadata.get("supportsComposition")),
+            "compositionChildren": composition_children,
             "sourcePath": node.get("sourcePath"),
             "api": (metadata.get("api") or {}).get("highLevel") or [],
         },
@@ -583,6 +763,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 payload = self._read_json_body()
                 self._send_json(201, create_leaf_module(payload))
                 return
+            if parsed.path == "/api/stage4/module-compose":
+                payload = self._read_json_body()
+                self._send_json(201, create_composed_module(payload))
+                return
             self._send_json(404, {"error": "not_found"})
         except FileExistsError as error:
             self._send_json(409, {"error": "already_exists", "message": str(error)})
@@ -676,6 +860,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/projects/<projectId>",
                         "/api/stage4/help?path=project/help/parts/bm8563.md",
                         "POST /api/stage4/module-create",
+                        "POST /api/stage4/module-compose",
                     ],
                 },
             )

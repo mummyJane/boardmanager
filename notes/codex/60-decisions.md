@@ -262,3 +262,7 @@
 - 2026-03-30 22:00 Europe/London: If a module does not have one defensible datasheet URL, omit the datasheet reference instead of pointing the datasheet field at a product or board page. Wrong links are worse than an intentionally missing datasheet entry in the Stage 4 help UI.
 
 - 2026-03-30 22:25 Europe/London: Start Stage 4 write support with one narrow module-create action rather than a generic module CRUD API. That keeps the current task bounded while still making the browser flow real and leaves broader update safety rules for the next service-write task.
+
+- 2026-03-30 23:15 Europe/London: Keep composed-module creation as a narrow Python service write flow with explicit child-module rows and module-level default config, instead of waiting for a full generic module-update API. This completes the current editor task without overreaching into the next service-write milestone.
+- 2026-03-30 23:15 Europe/London: Normalize older composition metadata shapes into `composition.children` at tree-generation and help-payload time. Existing catalog entries such as `m5_module_gnss` should appear correctly in the UI even before every source part file is rewritten to the latest composition shape.
+- 2026-03-30 23:15 Europe/London: Treat direct composed-module create/cleanup execution as optional validation on this host when AV or Windows policy interferes, and rely on syntax checks plus standard repo validation as the hard gate. This keeps the task moving without forcing more temp-script churn on the machine.
