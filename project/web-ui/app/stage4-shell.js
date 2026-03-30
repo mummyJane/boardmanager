@@ -14,6 +14,7 @@ const state = {
   boardDetail: null,
   boardEditMode: false,
   boardEditPayload: null,
+  boardValidationStatus: null,
   boardCreateMode: false,
   boardCreateKind: 'unit',
   boardCreateStatus: null,
@@ -216,15 +217,17 @@ function renderBoardToolbar() {
       <button class="action-button" type="button" id="board-edit-toggle">${state.boardEditMode ? 'Back to detail' : 'Edit board'}</button>
       <button class="action-button" type="button" id="board-create-toggle">${state.boardCreateMode && state.boardCreateKind === 'unit' ? 'Back to detail' : 'Create from unit'}</button>
       <button class="action-button" type="button" id="board-manual-toggle">${state.boardCreateMode && state.boardCreateKind === 'manual' ? 'Back to detail' : 'Create manual'}</button>
+      <button class="action-button" type="button" id="board-validation-toggle">Validate board</button>
       ${state.selectedBoardId ? `<span class="status-chip">selected ${escapeHtml(state.selectedBoardId)}</span>` : ''}
     </div>`;
 }
 
 function renderBoardStatus() {
-  if (!state.boardCreateStatus) {
+  const status = state.boardValidationStatus || state.boardCreateStatus;
+  if (!status) {
     return '';
   }
-  return `<div class="status-banner ${state.boardCreateStatus.kind}">${escapeHtml(state.boardCreateStatus.message)}</div>`;
+  return `<div class="status-banner ${status.kind}">${escapeHtml(status.message)}</div>`;
 }
 
 function renderBoardEditPanel() {
@@ -387,6 +390,13 @@ function renderBoardDetailPanel() {
   const connectors = detail.connectors ?? [];
   const bootSequence = detail.bootSequence ?? [];
   const artifacts = board.generatedArtifacts ?? [];
+  const validation = detail.validation ?? {};
+  const validationCandidates = validation.candidates ?? [];
+  const latestValidation = validation.latest ?? null;
+  const candidateOptions = validationCandidates.map((entry) => `<option value="${escapeHtml(entry.unitId)}">${escapeHtml(entry.label || entry.unitId)}${entry.port ? ` (${escapeHtml(entry.port)})` : ''}</option>`).join('');
+  const latestValidationSummary = !latestValidation
+    ? '<div class="empty-inline">No validation report captured for this board yet.</div>'
+    : `<div class="meta-row"><span class="meta-chip">${latestValidation.summary?.overallPass ? 'pass' : 'fail'}</span><span class="meta-chip">failing ${latestValidation.summary?.failingCheckCount ?? 0}</span><span class="meta-chip">warnings ${latestValidation.summary?.warningCount ?? 0}</span><span class="meta-chip">${escapeHtml(latestValidation.generatedAt ?? '')}</span></div>${(latestValidation.failingChecks ?? []).length ? `<ul class="inline-list">${latestValidation.failingChecks.map((entry) => `<li><code>${escapeHtml(entry.checkId || 'check')}</code>${entry.notes?.length ? `: ${escapeHtml(entry.notes.join(' | '))}` : ''}</li>`).join('')}</ul>` : '<div class="empty-inline">No failing checks in the latest report.</div>'}`;
 
   return `
     <div class="detail-stack">
@@ -422,6 +432,28 @@ function renderBoardDetailPanel() {
       <div>
         <strong>Generated API artifacts</strong>
         ${artifacts.length ? `<ul class="inline-list">${artifacts.map((entry) => `<li><code>${escapeHtml(entry)}</code></li>`).join('')}</ul>` : '<div class="empty-inline">No generated board artifacts found.</div>'}
+      </div>
+      <div>
+        <strong>Board validation</strong>
+        <form id="board-validation-form" class="form-stack">
+          <div class="form-grid">
+            <label class="field-label">Attached unit
+              <select class="text-input" name="unitId" required>
+                <option value="">Select unit</option>
+                ${candidateOptions}
+              </select>
+            </label>
+            <label class="field-label">Capture seconds
+              <input class="text-input" name="seconds" value="4" type="number" min="1" max="30" required>
+            </label>
+          </div>
+          <div class="action-row">
+            <button class="action-button primary" type="submit">Run validation</button>
+            <span class="empty-inline">Compares the current board config against the selected attached unit using the Stage 3 validation runner.</span>
+          </div>
+        </form>
+        ${validationCandidates.length ? `<ul class="inline-list">${validationCandidates.map((entry) => `<li><code>${escapeHtml(entry.unitId)}</code>${entry.port ? ` on ${escapeHtml(entry.port)}` : ''}${entry.latestValidation ? ` · ${entry.latestValidation.overallPass ? 'pass' : `fail (${entry.latestValidation.failingCheckCount ?? 0})`}` : ' · no report yet'}</li>`).join('')}</ul>` : '<div class="empty-inline">No attached units currently match this board.</div>'}
+        <div class="detail-stack">${latestValidationSummary}</div>
       </div>
       <div>
         <strong>References</strong>
@@ -586,6 +618,28 @@ function renderModuleHelpPanel() {
         ${api.length ? `<ul class="inline-list">${api.map((entry) => `<li><code>${escapeHtml(entry.name)}</code>: ${escapeHtml(entry.description ?? '')}</li>`).join('')}</ul>` : '<div class="empty-inline">No high-level API entries declared.</div>'}
       </div>
       <div>
+        <strong>Board validation</strong>
+        <form id="board-validation-form" class="form-stack">
+          <div class="form-grid">
+            <label class="field-label">Attached unit
+              <select class="text-input" name="unitId" required>
+                <option value="">Select unit</option>
+                ${candidateOptions}
+              </select>
+            </label>
+            <label class="field-label">Capture seconds
+              <input class="text-input" name="seconds" value="4" type="number" min="1" max="30" required>
+            </label>
+          </div>
+          <div class="action-row">
+            <button class="action-button primary" type="submit">Run validation</button>
+            <span class="empty-inline">Compares the current board config against the selected attached unit using the Stage 3 validation runner.</span>
+          </div>
+        </form>
+        ${validationCandidates.length ? `<ul class="inline-list">${validationCandidates.map((entry) => `<li><code>${escapeHtml(entry.unitId)}</code>${entry.port ? ` on ${escapeHtml(entry.port)}` : ''}${entry.latestValidation ? ` · ${entry.latestValidation.overallPass ? 'pass' : `fail (${entry.latestValidation.failingCheckCount ?? 0})`}` : ' · no report yet'}</li>`).join('')}</ul>` : '<div class="empty-inline">No attached units currently match this board.</div>'}
+        <div class="detail-stack">${latestValidationSummary}</div>
+      </div>
+      <div>
         <strong>References</strong>
         ${refs.length ? `<ul class="inline-list">${refs.map((ref) => `<li>${escapeHtml(ref.title)}: ${ref.href ? `<a href="${ref.href}" target="_blank" rel="noreferrer">open</a>` : `<code>${escapeHtml(ref.path ?? 'local')}</code>`}</li>`).join('')}</ul>` : '<div class="empty-inline">No linked references.</div>'}
       </div>
@@ -706,6 +760,7 @@ async function handleBoardCreateSubmit(form) {
   };
   const result = await postJson('/api/stage4/board-create-from-unit', payload);
   state.boardCreateStatus = { kind: 'success', message: `Created ${result.created.boardId}` };
+  state.boardValidationStatus = null;
   state.boardCreateMode = false;
   await loadShell(state.selectedModuleId, result.created.boardId);
   renderPreview('boards');
@@ -723,8 +778,32 @@ async function handleBoardManualCreateSubmit(form) {
   };
   const result = await postJson('/api/stage4/board-create-manual', payload);
   state.boardCreateStatus = { kind: 'success', message: `Created ${result.created.boardId}` };
+  state.boardValidationStatus = null;
   state.boardCreateMode = false;
   await loadShell(state.selectedModuleId, result.created.boardId);
+  renderPreview('boards');
+}
+
+async function handleBoardValidationSubmit(form) {
+  if (!state.selectedBoardId) {
+    throw new Error('Select a board first.');
+  }
+  const formData = new FormData(form);
+  const payload = {
+    boardId: state.selectedBoardId,
+    unitId: String(formData.get('unitId') || '').trim(),
+    seconds: Number(String(formData.get('seconds') || '4').trim() || '4'),
+  };
+  const result = await postJson('/api/stage4/board-validate', payload);
+  const latest = result.latest ?? {};
+  const overallPass = latest.summary?.overallPass;
+  state.boardValidationStatus = {
+    kind: overallPass ? 'success' : 'error',
+    message: overallPass
+      ? `Validation passed for ${payload.unitId}`
+      : `Validation reported ${latest.summary?.failingCheckCount ?? 0} failing checks for ${payload.unitId}`,
+  };
+  await loadShell(state.selectedModuleId, state.selectedBoardId);
   renderPreview('boards');
 }
 
@@ -756,6 +835,7 @@ async function handleBoardEditSubmit(form) {
   };
   const result = await putJson(`/api/stage4/boards/${encodeURIComponent(payload.boardId)}`, payload);
   state.boardCreateStatus = { kind: 'success', message: `Updated ${result.updated.boardId}` };
+  state.boardValidationStatus = null;
   state.boardEditMode = false;
   state.boardEditPayload = null;
   await loadShell(state.selectedModuleId, result.updated.boardId);
@@ -832,6 +912,7 @@ function bindBoardPreviewActions() {
     state.boardEditMode = nextMode;
     state.boardCreateMode = false;
     state.boardCreateStatus = null;
+    state.boardValidationStatus = null;
     if (!nextMode) {
       state.boardEditPayload = null;
       renderPreview('boards');
@@ -855,6 +936,7 @@ function bindBoardPreviewActions() {
   document.getElementById('board-create-toggle')?.addEventListener('click', () => {
     state.boardEditMode = false;
     state.boardEditPayload = null;
+    state.boardValidationStatus = null;
     state.boardCreateMode = !(state.boardCreateMode && state.boardCreateKind === 'unit');
     state.boardCreateKind = 'unit';
     state.boardCreateStatus = null;
@@ -864,10 +946,21 @@ function bindBoardPreviewActions() {
   document.getElementById('board-manual-toggle')?.addEventListener('click', () => {
     state.boardEditMode = false;
     state.boardEditPayload = null;
+    state.boardValidationStatus = null;
     state.boardCreateMode = !(state.boardCreateMode && state.boardCreateKind === 'manual');
     state.boardCreateKind = 'manual';
     state.boardCreateStatus = null;
     renderPreview('boards');
+  });
+
+  document.getElementById('board-validation-toggle')?.addEventListener('click', () => {
+    const form = document.getElementById('board-validation-form');
+    if (!form) {
+      state.boardValidationStatus = { kind: 'error', message: 'Select a board with validation candidates first.' };
+      renderPreview('boards');
+      return;
+    }
+    form.requestSubmit();
   });
 
   document.getElementById('board-load-guess')?.addEventListener('click', () => {
@@ -877,6 +970,22 @@ function bindBoardPreviewActions() {
       renderPreview('boards');
     });
   });
+
+
+  const validationForm = document.getElementById('board-validation-form');
+  if (validationForm) {
+    validationForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.boardValidationStatus = { kind: 'info', message: 'Running board validation...' };
+        renderPreview('boards');
+        await handleBoardValidationSubmit(validationForm);
+      } catch (error) {
+        state.boardValidationStatus = { kind: 'error', message: error.message };
+        renderPreview('boards');
+      }
+    });
+  }
 
   const form = document.getElementById('board-create-form');
   if (form) {

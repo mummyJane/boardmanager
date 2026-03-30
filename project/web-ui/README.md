@@ -157,3 +157,6 @@ The manual options endpoint returns available board templates plus controller-mo
 - `/api/stage4/board-edit/<boardId>` returns the persisted board-definition fields plus controller/module options for the Boards-tab editor.
 - `PUT /api/stage4/boards/<boardId>` updates the board definition and local help markdown, then regenerates the Stage 4 tree.
 - The Boards tab now includes a first board editor for board-local metadata, controller selection, capabilities, power, signals, buses, connectors, boot sequence, sources, and help markdown.
+
+- `POST /api/stage4/board-validate` runs the existing Stage 3 board validation flow for a selected board/unit pair and returns the latest summarized report.
+- Board detail payloads now include attached-unit validation candidates, the latest validation summary, and failing-check details so the Boards tab can show mismatches directly.

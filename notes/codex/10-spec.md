@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-30 22:28 Europe/London
+Last updated: 2026-03-30 22:43 Europe/London
 
 ## Goal
 
@@ -178,6 +178,7 @@ Requirements:
 - the first manual board-create flow should support both blank-board creation with a selected controller module and template-backed board creation cloned from an existing board definition through the Python service
 - the first board editor should expose the persisted board-definition fields directly, including metadata, controller selection, capabilities, power, signals, buses, connectors, boot sequence, sources, and local help markdown
 - the first board update API should support safe in-place board writes through the Python service and regenerate the Stage 4 tree after successful updates
+- the first board-validation UI flow should run the existing Stage 3 validation contract against a selected attached unit through the Python service and surface the latest mismatches, missing configured devices, extra observed devices, and recent pass/fail status inside the Boards tab
 - board editing must let the operator add, remove, reorder, and reconfigure modules plus board-local settings, signals, buses, and bindings
 - where hardware is present, the system should test the current board config against the selected unit and report mismatches, missing devices, extra observed devices, and other validation problems
 - the UI must be able to inspect module trees, board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part/per-module help pages including datasheet, website, API usage, and local test references

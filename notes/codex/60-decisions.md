@@ -279,3 +279,6 @@
 
 - 2026-03-30 22:28 Europe/London: The first board editor will edit the persisted board JSON fields directly rather than introducing a second board-edit model. This keeps Stage 4 board edits aligned with Stage 1/3 generation and validation contracts.
 - 2026-03-30 22:28 Europe/London: The first board editor uses JSON text areas for board-local arrays and objects so operators can add, remove, and reorder buses, signals, connectors, and boot steps without waiting for a richer structured sub-editor.
+
+- 2026-03-30 22:43 Europe/London: Stage 4 board validation will reuse the existing Stage 3 validation runner and reports instead of creating a second validation format for the web layer. The Boards tab should surface Stage 3 evidence directly.
+- 2026-03-30 22:43 Europe/London: Board detail payloads should include both candidate attached units and the latest board-level validation summary so the UI can show current mismatches without forcing a fresh run every time the board is opened.

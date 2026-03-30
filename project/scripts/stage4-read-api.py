@@ -113,6 +113,70 @@ def load_validation_reports():
     return reports
 
 
+def find_latest_validation_report(board_id=None, stable_unit_id=None):
+    for report in load_validation_reports():
+        identity = report.get("identity", {})
+        if board_id and identity.get("boardId") != board_id:
+            continue
+        if stable_unit_id and identity.get("stableUnitId") != stable_unit_id:
+            continue
+        return report
+    return None
+
+
+def build_board_validation_candidates(board_id):
+    inventory = load_inventory()
+    candidates = []
+    for unit in inventory.get("units", []):
+        match = unit.get("match") or {}
+        override = unit.get("manualOverride") or {}
+        effective_board_id = override.get("boardId") or match.get("boardId")
+        if effective_board_id != board_id:
+            continue
+        transport = unit.get("transport") or {}
+        observed = unit.get("observed") or {}
+        latest_report = find_latest_validation_report(board_id=board_id, stable_unit_id=unit.get("unitId"))
+        candidates.append({
+            "unitId": unit.get("unitId"),
+            "label": (unit.get("annotation") or {}).get("label"),
+            "port": transport.get("port"),
+            "transportKind": transport.get("kind"),
+            "chip": observed.get("chip"),
+            "firmwareApp": observed.get("firmwareApp"),
+            "latestValidation": None if latest_report is None else {
+                "generatedAt": latest_report.get("generatedAt"),
+                "overallPass": (latest_report.get("summary") or {}).get("overallPass"),
+                "failingCheckCount": (latest_report.get("summary") or {}).get("failingCheckCount"),
+                "warningCount": (latest_report.get("summary") or {}).get("warningCount"),
+            },
+        })
+    return sorted(candidates, key=lambda item: (item.get("label") or item.get("unitId") or ""))
+
+
+def summarize_validation_report(report):
+    if report is None:
+        return None
+    summary = report.get("summary") or {}
+    checks = report.get("checks") or []
+    failing_checks = []
+    for entry in checks:
+        if entry.get("pass") is False:
+            failing_checks.append({
+                "checkId": entry.get("checkId"),
+                "title": entry.get("title") or entry.get("checkId"),
+                "notes": entry.get("notes") or [],
+                "evidence": entry.get("evidence") or {},
+            })
+    return {
+        "generatedAt": report.get("generatedAt"),
+        "summary": summary,
+        "identity": report.get("identity") or {},
+        "health": report.get("health") or {},
+        "failingChecks": failing_checks,
+        "reportFile": report.get("__fileName"),
+    }
+
+
 def load_profiles():
     profiles = []
     if not DEVICE_MANAGER_PROFILES_ROOT.exists():
@@ -1345,6 +1409,10 @@ def build_board_detail_payload(model, board_id):
         "signals": board.get("signals") or [],
         "connectors": board.get("connectors") or [],
         "bootSequence": board.get("bootSequence") or [],
+        "validation": {
+            "candidates": build_board_validation_candidates(board_id),
+            "latest": summarize_validation_report(find_latest_validation_report(board_id=board_id)),
+        },
         "references": [
             {
                 "title": ref.get("title"),
@@ -1499,6 +1567,77 @@ def update_board(board_id, payload):
     help_markdown = normalized["helpMarkdown"] or loaded.get("helpMarkdown") or ""
     write_board_files(board_id, definition, help_markdown)
     return build_board_write_result(board_id, "updated")
+
+def run_board_validation(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("validation payload must be a JSON object")
+    board_id = str(payload.get("boardId") or "").strip()
+    unit_id = str(payload.get("unitId") or "").strip()
+    if not board_id:
+        raise ValueError("boardId is required")
+    if not unit_id:
+        raise ValueError("unitId is required")
+    seconds = int(payload.get("seconds") or 4)
+    if seconds < 1 or seconds > 30:
+        raise ValueError("seconds must be between 1 and 30")
+
+    unit = find_inventory_unit(unit_id)
+    port = ((unit.get("transport") or {}).get("port") or "").strip()
+    if not port:
+        raise ValueError(f"unit '{unit_id}' does not expose a serial port for validation")
+
+    result = subprocess.run(
+        [
+            "node",
+            str(PROJECT_ROOT / "scripts" / "run-stage3-validation.mjs"),
+            "--board",
+            board_id,
+            "--unit",
+            unit_id,
+            "--port",
+            port,
+            "--seconds",
+            str(seconds),
+        ],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    stdout_text = (result.stdout or "").strip()
+    stderr_text = (result.stderr or "").strip()
+    payload_data = None
+    if stdout_text:
+        try:
+            payload_data = json.loads(stdout_text)
+        except json.JSONDecodeError:
+            payload_data = None
+
+    if payload_data is None:
+        message = stderr_text or stdout_text or f"validation runner exited with code {result.returncode}"
+        raise RuntimeError(message)
+
+    report_path = Path(payload_data.get("reportPath") or "")
+    if not report_path.exists():
+        raise FileNotFoundError("validation report was not written")
+    report = read_json(report_path, None)
+    if report is None:
+        raise RuntimeError("validation report could not be parsed")
+    report["__fileName"] = report_path.name
+
+    return {
+        "executed": {
+            "boardId": board_id,
+            "unitId": unit_id,
+            "port": port,
+            "seconds": seconds,
+            "exitCode": result.returncode,
+        },
+        "latest": summarize_validation_report(report),
+        "raw": payload_data,
+    }
+
 
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
@@ -1662,6 +1801,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
             if parsed.path == "/api/stage4/board-create-manual":
                 payload = self._read_json_body()
                 self._send_json(201, create_board_manual(payload))
+                return
+            if parsed.path == "/api/stage4/board-validate":
+                payload = self._read_json_body()
+                self._send_json(200, run_board_validation(payload))
                 return
             if parsed.path == "/api/stage4/module-create":
                 payload = self._read_json_body()
@@ -1841,6 +1984,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "POST /api/stage4/module-validate",
                         "POST /api/stage4/board-create-from-unit",
                         "POST /api/stage4/board-create-manual",
+                        "POST /api/stage4/board-validate",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/projects",

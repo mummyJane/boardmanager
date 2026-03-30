@@ -1910,3 +1910,13 @@ Validation:
 - Validation: `python -m py_compile project/scripts/stage4-read-api.py` passed after fixing one escaped backslash literal in generated path strings.
 - Validation: `node --check project/web-ui/app/stage4-shell.js` passed after fixing escaped newline handling in the editor sources field.
 - Validation: inline Python create-edit-cleanup cycle created `editor_validation_board`, updated it through `update_board()`, confirmed `displayName=Editor Validation Board Updated`, `signalCount=1`, then removed the temporary board/help files and regenerated the Stage 4 tree.
+
+## 2026-03-30 22:43 Europe/London
+- Task: Stage 4 board-config validation UI flow.
+- Updated `project/scripts/stage4-read-api.py` to add validation helpers, embed validation candidates/latest report into board detail payloads, and expose `POST /api/stage4/board-validate`.
+- Updated `project/web-ui/app/stage4-shell.js` so the Boards tab can launch validation, show candidate attached units, and surface the latest failing checks in the board detail panel.
+- Validation: `python -m py_compile project/scripts/stage4-read-api.py` passed.
+- Validation: `node --check project/web-ui/app/stage4-shell.js` passed.
+- Validation: in-sandbox direct `run_board_validation()` call hit `spawn EPERM` when Python tried to launch the Node validation runner.
+- Validation: reran one live validation outside the sandbox with `validate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Seconds 2`; it produced the expected report and two failing checks (`internal_i2c_configured`, `internal_i2c_scan`) for the Dial.
+- Validation: `validate.ps1` passed after the Stage 4 board-validation changes.

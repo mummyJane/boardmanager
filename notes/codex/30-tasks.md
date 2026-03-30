@@ -1,6 +1,6 @@
 # Task Tracker
 
-Last updated: 2026-03-30 22:28 Europe/London
+Last updated: 2026-03-30 22:43 Europe/London
 
 - [x] Create required `notes/codex` source-of-truth documents
 - [x] Create initial repository structure for project, install, update, and keys
@@ -113,7 +113,7 @@ Last updated: 2026-03-30 22:28 Europe/London
 - [x] Add a manual board create flow that starts from a blank or template definition without discovery first
 - [x] Add a board editor that lets the user add, remove, and reconfigure modules, buses, signals, and local board settings
 - [x] Add service write APIs for creating and updating board definitions safely
-- [ ] Add board-config validation actions in the UI that run the Stage 3 validation flow and show mismatches between configured and observed hardware
+- [x] Add board-config validation actions in the UI that run the Stage 3 validation flow and show mismatches between configured and observed hardware
 - [ ] Add a project catalog view that shows board-targeted projects, app roots, user-code roots, SDK targets, OTA policy, and security policy
 - [ ] Add a project create/edit flow for user-defined projects, including SDK code, third-party component code, module code, and selected board target
 - [ ] Add service write APIs for creating and updating project definitions safely

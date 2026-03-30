@@ -1,7 +1,7 @@
 {
   "reportType": "board-validation-report",
   "schemaVersion": 1,
-  "generatedAt": "2026-03-29T21:47:13.997Z",
+  "generatedAt": "2026-03-30T21:38:37.251Z",
   "contractId": "m5stack_dial_v1_1.validation-contract",
   "identity": {
     "boardId": "m5stack_dial_v1_1",
@@ -21,7 +21,7 @@
   },
   "source": {
     "kind": "serial-capture",
-    "lineCount": 3
+    "lineCount": 2
   },
   "summary": {
     "overallPass": false,
@@ -30,7 +30,7 @@
     "warningCount": 0
   },
   "health": {
-    "lineCount": 3,
+    "lineCount": 2,
     "voltages": [],
     "temperatures": [],
     "warnings": []
@@ -68,30 +68,6 @@
       "serialNumber": "7&203f6002&0&0000"
     },
     "signals": [
-      {
-        "signalName": "touch_interrupt",
-        "value": 0,
-        "source": "dial-live",
-        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
-      },
-      {
-        "signalName": "rfid_interrupt",
-        "value": 0,
-        "source": "dial-live",
-        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
-      },
-      {
-        "signalName": "encoder_phase_a",
-        "value": 1,
-        "source": "dial-live",
-        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
-      },
-      {
-        "signalName": "encoder_phase_b",
-        "value": 1,
-        "source": "dial-live",
-        "rawLine": "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
-      },
       {
         "signalName": "touch_interrupt",
         "value": 0,
@@ -937,7 +913,6 @@
   ],
   "rawCapture": {
     "lines": [
-      "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
       "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1",
       "Live inputs: touch_irq=0 rfid_irq=0 enc_a=1 enc_b=1"
     ]

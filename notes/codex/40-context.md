@@ -251,3 +251,7 @@ un, and debug records.
 - 2026-03-30 22:28 Europe/London: Stage 4 board editor added through Python service payload `GET /api/stage4/board-edit/<boardId>` and write path `PUT /api/stage4/boards/<boardId>`.
 - 2026-03-30 22:28 Europe/London: Boards view now edits persisted board fields directly: displayName, vendor, revision, productSku, controller module, capabilities, power, signals, buses, connectors, bootSequence, sources, and help markdown.
 - 2026-03-30 22:28 Europe/London: Controlled validation created a temporary manual board, updated it through the board editor path, confirmed the edited display name and signal count, then cleaned up and regenerated the tree.
+
+- 2026-03-30 22:43 Europe/London: Stage 4 board detail payload now carries validation candidates from current inventory plus the latest validation summary for the board.
+- 2026-03-30 22:43 Europe/London: Python service now exposes `POST /api/stage4/board-validate`, which runs the existing Stage 3 validation runner for a selected board/unit pair and returns the latest report summary.
+- 2026-03-30 22:43 Europe/London: Boards tab now shows attached validation candidates, latest pass/fail summary, failing checks, and a validate action in the board detail panel.
