@@ -103,3 +103,20 @@ Current validation reports include:
 - per-check results with pass state, criteria, evidence, and failure notes
 - raw captured lines for operator review and later parser improvements
 - parsed controller, firmware, identity, and signal facts gathered from the board-agent, firmware, and diagnostic output
+
+## Program Runs
+
+Use `program.ps1` to flash a selected stable unit through the Stage 3 job model.
+
+Example:
+
+- `./program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68`
+
+Current behavior:
+
+- the runner creates a `program` job in `project/job-manager/data/jobs.json`
+- it resolves the selected stable unit id to the current transport kind and port from Stage 2 inventory
+- it captures flash tool stdout and stderr into a per-job log under `project/job-manager/logs`
+- it writes a JSON program report under `project/job-manager/reports`
+- it records success or failure, exit code, selected board, selected unit, and resolved transport endpoint in the persisted job record
+- ESP32 flashing is wired through `idf.py flash`; STM32 program flow still fails cleanly as scaffolded-not-implemented

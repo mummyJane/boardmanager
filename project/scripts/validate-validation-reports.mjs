@@ -60,7 +60,10 @@ function validateValue(schema, value, context, errors) {
 async function main() {
   const schema = JSON.parse(await readFile(schemaPath, "utf8"));
   const entries = await readdir(reportsRoot, { withFileTypes: true });
-  const files = entries.filter((entry) => entry.isFile() && entry.name.endsWith('.json')).map((entry) => entry.name).sort();
+  const files = entries
+    .filter((entry) => entry.isFile() && entry.name.startsWith("validation-") && entry.name.endsWith(".json"))
+    .map((entry) => entry.name)
+    .sort();
   const errors = [];
   for (const file of files) {
     const filePath = path.join(reportsRoot, file);

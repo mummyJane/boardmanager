@@ -1332,3 +1332,35 @@ Validation:
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, validation contracts, and validation reports.
 - build.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -BuildTimeoutSeconds 120 -> failed as expected on the existing host-specific ESP-IDF WinError 5 subprocess issue, but now produced a normal failed build job with a captured traceback log and JSON report.
 - build.ps1 -Platform stm32 -App p_nucleo_usb001_f072rb_demo -Board p_nucleo_usb001_f072rb_v1 -ConfigureTimeoutSeconds 45 -BuildTimeoutSeconds 120 -> failed as expected after cmake configure timed out at 45 seconds, wrote a failed job record plus log/report, and left no cmake or ninja process running afterward.
+
+## 2026-03-30 17:22 Europe/London
+
+Commands run:
+
+- validate.ps1
+- program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -ProgramTimeoutSeconds 300
+- Get-Content project/job-manager/data/jobs.json
+- Get-Content project/job-manager/logs/program-job-000001.log
+- Get-Content project/job-manager/logs/program-job-000002.log
+- Get-Content project/job-manager/reports/program-job-000001.json
+- Get-Content project/job-manager/reports/program-job-000002.json
+- validate.ps1 after tightening validation-report filtering
+
+Observed issues:
+
+- The first in-sandbox ESP32 flash attempt failed with the same host-specific ESP-IDF subprocess permission problem already seen in build jobs.
+- The initial validation-report validator treated every JSON file in project/job-manager/reports as a board-validation report, so the new program-job reports caused validate.ps1 to fail until the filter was narrowed.
+
+Actions:
+
+- Reworked program.ps1 so flashing now creates and updates a persisted Stage 3 program job through project/scripts/manage-stage3-jobs.mjs.
+- Added per-job program logs under project/job-manager/logs and JSON program reports under project/job-manager/reports.
+- Reused Stage 3 resolution so a stable unit id is resolved to the current transport kind and port before flashing.
+- Added bounded ProgramTimeoutSeconds handling and normal failed-job reporting for flash-tool errors.
+- Updated project/scripts/validate-validation-reports.mjs so validate.ps1 only validates validation-*.json files and no longer treats program-job reports as board-validation reports.
+
+Validation:
+
+- validate.ps1 -> success before and after the program-job changes.
+- program.ps1 -Platform esp32 -App m5stack_dial_demo -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -ProgramTimeoutSeconds 300 -> success when rerun outside the sandbox; flashed the Dial on COM3 and recorded a succeeded program job.
+- The earlier in-sandbox rerun of the same command failed as expected on the host-specific ESP-IDF subprocess permission issue, but still produced a normal failed program job with log and report output.

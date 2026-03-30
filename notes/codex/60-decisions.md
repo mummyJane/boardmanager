@@ -222,3 +222,5 @@
 - 2026-03-30 17:06 Europe/London: Long-running external tool steps need explicit host-side timeouts in build.ps1. The current Windows environment can hang inside STM32 CMake configure, so bounded timeout handling is preferable to waiting indefinitely for toolchain recovery.
 - 2026-03-30 17:06 Europe/London: Failed build jobs should not advertise stale firmware binaries as produced artifacts. On failure, keep the build directory reference and log/report evidence, but reserve detailed artifact lists for successful runs.
 
+- 2026-03-30 17:22 Europe/London: Program orchestration should resolve and record the current transport port from the stable unit id before flashing. The operator targets the physical unit identity; the transient COM port is derived state that belongs in the job result.
+- 2026-03-30 17:22 Europe/London: Program jobs should use the same log/report pattern as build jobs, including bounded flash timeouts and normal failed-job records for host-side tool issues. That keeps later service and UI behavior consistent across Stage 3 actions.
