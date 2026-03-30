@@ -177,6 +177,8 @@ Requirements:
 - the system must preserve a database of seen boards and units, including logs, serial numbers, MAC addresses, transport identity, history, and board-family/profile evidence, and expose that data to the UI
 - the initial web UI may consume the existing Stage 2 and Stage 3 JSON service endpoints directly, but Stage 4 must grow the missing write APIs needed for module, board, and project editing
 - the known-module catalog must be seedable from operator-provided module lists such as M5Stack module inventories, while still allowing later editing and refinement through the UI
+- the first known-module seed set should capture the user-provided examples, including M5Stack families such as CoreS3, Cardputer Adv Version, M5Stack Dial, RFID 2 Unit, 4-Relay Unit, GPS/BDS Unit v1.1, I/O Hub 1 to 6 Expansion Unit, IMU and accelerometer units, encoder/servo/button/switch units, M5GO Battery Bottom2, Goplus2, 4IN8OUT, GNSS Module, Tough, and Crypto Authentication Unit, plus known-board examples such as Waveshare ESP32-P4-WIFI6 and ESP32S3-Touch-LCD-7B
+- the catalog model must allow some entries to exist as standalone boards, some as reusable modules, and some as either depending on how they are assembled in a board definition
 
 ## Non-Goals For Initial Milestone
 

@@ -1424,3 +1424,25 @@ Validation:
 
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, and 4 validation reports.
 - Updated install/update wrappers for Task_milestone4_planning_1 and moved latest to the new planning release wrapper.
+
+## 2026-03-30 19:00 Europe/London
+
+Commands run:
+
+- Select-String notes/codex/10-spec.md -Pattern 'known-module catalog' -Context 2,3
+- Get-Content notes/codex/30-tasks.md -Tail 40
+- Get-Content notes/codex/40-context.md -Tail 30
+
+Observed issues:
+
+- The Stage 4 seed-catalog requirement existed, but it did not yet name any concrete starting module or board families.
+- Several of the user-provided examples can act as standalone boards, reusable modules, or attached units depending on context, so the seeding task needs to preserve role flexibility rather than flattening everything into one type.
+
+Actions:
+
+- Recorded the supplied M5Stack and Waveshare examples in the Stage 4 spec and context as the first known-module/known-board seed set.
+- Tightened the Stage 4 backlog so the seeding task explicitly includes the supplied M5Stack inventory and a follow-on task to normalize aliases, chip families, and board-vs-module role.
+
+Validation:
+
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, and 4 validation reports.

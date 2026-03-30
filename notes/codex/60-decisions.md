@@ -237,3 +237,6 @@
 - 2026-03-30 18:45 Europe/London: Keep the Stage 4 model explicitly tree-based across the UI and service layer. Modules can contain modules, boards compose modules with local wiring/config, and projects sit on top of one selected board.
 - 2026-03-30 18:45 Europe/London: Treat discovery-assisted board creation and manual board creation as equal first-class flows. The system should help with first guesses, but it must not force hardware discovery before a board can be modeled.
 - 2026-03-30 18:45 Europe/London: Reuse the existing Stage 2 and Stage 3 APIs where possible, then add targeted write APIs for modules, boards, and projects. The UI should not invent a second separate state model if the service layer can carry it.
+
+- 2026-03-30 19:00 Europe/London: Treat the user-provided M5Stack and Waveshare examples as the first explicit Stage 4 seed set for the known catalog. That gives the catalog and editor work a concrete starting target instead of an abstract import requirement.
+- 2026-03-30 19:00 Europe/London: Keep catalog role flexible for the seed data. Some entries should be modeled as standalone boards, some as reusable modules, and some as either depending on assembly context rather than forcing one global type too early.
