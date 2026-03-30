@@ -7,10 +7,14 @@ const state = {
   inventoryDashboard: null,
   moduleCatalog: null,
   boardCatalog: null,
+  boardCreateCandidates: null,
   selectedModuleId: null,
   selectedBoardId: null,
   moduleHelp: null,
   boardDetail: null,
+  boardCreateMode: false,
+  boardCreateStatus: null,
+  boardCreateGuess: null,
   moduleCreateMode: false,
   moduleComposeMode: false,
   moduleCreateStatus: null,
@@ -187,6 +191,59 @@ function renderBoardCard(board) {
         </div>
       </button>
     </li>`;
+}
+
+function renderBoardToolbar() {
+  return `
+    <div class="action-row">
+      <button class="action-button" type="button" id="board-create-toggle">${state.boardCreateMode ? 'Back to detail' : 'Create from unit'}</button>
+      ${state.selectedBoardId ? `<span class="status-chip">selected ${escapeHtml(state.selectedBoardId)}</span>` : ''}
+    </div>`;
+}
+
+function renderBoardStatus() {
+  if (!state.boardCreateStatus) {
+    return '';
+  }
+  return `<div class="status-banner ${state.boardCreateStatus.kind}">${escapeHtml(state.boardCreateStatus.message)}</div>`;
+}
+
+function renderBoardCreatePanel() {
+  const units = state.boardCreateCandidates?.units ?? [];
+  const options = units.map((unit) => `<option value="${escapeHtml(unit.unitId)}">${escapeHtml(unit.label || unit.boardId || unit.unitId)} ${unit.port ? `(${escapeHtml(unit.port)})` : ''}</option>`).join('');
+  const guess = state.boardCreateGuess?.guess ?? {};
+  return `
+    <form id="board-create-form" class="form-stack">
+      <div class="eyebrow">Create board from discovered unit</div>
+      <div class="form-grid">
+        <label class="field-label">Discovered unit
+          <select class="text-input" name="unitId" id="board-create-unit" required>
+            <option value="">Select unit</option>
+            ${options}
+          </select>
+        </label>
+        <label class="field-label">Board id
+          <input class="text-input" name="boardId" value="${escapeHtml(guess.boardId || '')}" placeholder="draft_new_board" required pattern="[a-z][a-z0-9_]*">
+        </label>
+        <label class="field-label">Display name
+          <input class="text-input" name="displayName" value="${escapeHtml(guess.displayName || '')}" placeholder="Discovered Board" required>
+        </label>
+        <label class="field-label">Vendor
+          <input class="text-input" name="vendor" value="${escapeHtml(guess.vendor || '')}" placeholder="Vendor" required>
+        </label>
+        <label class="field-label">Revision
+          <input class="text-input" name="revision" value="${escapeHtml(guess.revision || '1.0')}" placeholder="1.0" required>
+        </label>
+      </div>
+      <div>
+        <strong>Guess notes</strong>
+        ${(guess.notes ?? []).length ? `<ul class="inline-list">${guess.notes.map((note) => `<li>${escapeHtml(note)}</li>`).join('')}</ul>` : '<div class="empty-inline">Load a unit to inspect the guessed board shape.</div>'}
+      </div>
+      <div class="action-row">
+        <button class="action-button" type="button" id="board-load-guess">Load guess</button>
+        <button class="action-button primary" type="submit">Create board draft</button>
+      </div>
+    </form>`;
 }
 
 function renderBoardDetailPanel() {
@@ -481,12 +538,39 @@ async function selectModule(moduleId) {
 
 async function selectBoard(boardId) {
   state.selectedBoardId = boardId;
+  state.boardCreateMode = false;
   renderPrimary('boards');
   const detailPayload = await fetchJson(`/api/stage4/board-detail/${encodeURIComponent(boardId)}`);
   if (state.selectedBoardId !== boardId) {
     return;
   }
   state.boardDetail = detailPayload;
+  renderPreview('boards');
+}
+
+async function loadBoardGuess(unitId) {
+  if (!unitId) {
+    state.boardCreateGuess = null;
+    renderPreview('boards');
+    return;
+  }
+  state.boardCreateGuess = await fetchJson(`/api/stage4/board-create-guess/${encodeURIComponent(unitId)}`);
+  renderPreview('boards');
+}
+
+async function handleBoardCreateSubmit(form) {
+  const formData = new FormData(form);
+  const payload = {
+    unitId: String(formData.get('unitId') || '').trim(),
+    boardId: String(formData.get('boardId') || '').trim(),
+    displayName: String(formData.get('displayName') || '').trim(),
+    vendor: String(formData.get('vendor') || '').trim(),
+    revision: String(formData.get('revision') || '').trim(),
+  };
+  const result = await postJson('/api/stage4/board-create-from-unit', payload);
+  state.boardCreateStatus = { kind: 'success', message: `Created ${result.created.boardId}` };
+  state.boardCreateMode = false;
+  await loadShell(state.selectedModuleId, result.created.boardId);
   renderPreview('boards');
 }
 
@@ -552,6 +636,38 @@ async function handleModuleCreateSubmit(form) {
   state.moduleComposeMode = false;
   await loadShell(result.created.moduleId);
   renderPreview('modules');
+}
+
+function bindBoardPreviewActions() {
+  document.getElementById('board-create-toggle')?.addEventListener('click', () => {
+    state.boardCreateMode = !state.boardCreateMode;
+    state.boardCreateStatus = null;
+    renderPreview('boards');
+  });
+
+  document.getElementById('board-load-guess')?.addEventListener('click', () => {
+    const unitId = document.getElementById('board-create-unit')?.value || '';
+    loadBoardGuess(unitId).catch((error) => {
+      state.boardCreateStatus = { kind: 'error', message: error.message };
+      renderPreview('boards');
+    });
+  });
+
+  const form = document.getElementById('board-create-form');
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.boardCreateStatus = { kind: 'info', message: 'Creating board draft...' };
+        renderPreview('boards');
+        await handleBoardCreateSubmit(form);
+      } catch (error) {
+        state.boardCreateStatus = { kind: 'error', message: error.message };
+        state.boardCreateMode = true;
+        renderPreview('boards');
+      }
+    });
+  }
 }
 
 function bindModulePreviewActions() {
@@ -651,8 +767,11 @@ function renderPreview(view) {
   }
 
   if (view === "boards" && state.boardCatalog) {
-    secondaryTitle.textContent = state.boardDetail ? `${state.boardDetail.board.title} Detail` : `${titles[view].title} Preview`;
-    secondaryBody.innerHTML = renderBoardDetailPanel();
+    secondaryTitle.textContent = state.boardCreateMode
+      ? 'Create board from unit'
+      : state.boardDetail ? `${state.boardDetail.board.title} Detail` : `${titles[view].title} Preview`;
+    secondaryBody.innerHTML = `${renderBoardToolbar()}${renderBoardStatus()}${state.boardCreateMode ? renderBoardCreatePanel() : renderBoardDetailPanel()}`;
+    bindBoardPreviewActions();
     return;
   }
 
@@ -739,14 +858,15 @@ function setActiveView(view) {
 }
 
 async function loadShell(preferredModuleId = null, preferredBoardId = null) {
-  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog] = await Promise.all([
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, boardCreateCandidates] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
     fetchJson('/api/stage4/projects?includeChildren=false'),
     fetchJson('/api/stage4/dashboard/inventory'),
     fetchJson('/api/stage4/dashboard/modules'),
-    fetchJson('/api/stage4/dashboard/boards')
+    fetchJson('/api/stage4/dashboard/boards'),
+    fetchJson('/api/stage4/board-create-candidates')
   ]);
 
   state.tree = tree;
@@ -755,6 +875,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
   state.inventoryDashboard = inventoryDashboard;
   state.moduleCatalog = moduleCatalog;
   state.boardCatalog = boardCatalog;
+  state.boardCreateCandidates = boardCreateCandidates;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
 

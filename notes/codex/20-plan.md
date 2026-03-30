@@ -135,6 +135,7 @@ Planned slices:
   - module-definition validation now exists as a reusable preflight service check before writes
 - Slice 5: add board create/edit flows, including discovery-assisted first guess and manual create
   - board catalog read view complete with assembly detail, boot order, and generated-artifact references
+  - discovery-assisted board-create flow complete with first-guess draft generation from Stage 2 unit identity
 - Slice 6: add board-config validation views and hardware test/report integration
 - Slice 7: add project/build/run pages that sit on top of the Stage 3 job APIs
 - Slice 8: add service write APIs and persistence workflows for user-created modules, boards, and projects

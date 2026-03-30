@@ -61,6 +61,9 @@ Current endpoints:
 - `/api/stage4/dashboard/modules`
 - `/api/stage4/dashboard/boards`
 - `/api/stage4/board-detail/<boardId>`
+- `/api/stage4/board-create-candidates`
+- `/api/stage4/board-create-guess/<unitId>`
+- `POST /api/stage4/board-create-from-unit`
 
 The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.
 ## Web Shell
@@ -133,3 +136,11 @@ The Boards view now consumes two board-focused read contracts:
 - `/api/stage4/board-detail/<boardId>` for one board assembly detail payload
 
 The board detail payload includes module instances, buses, signals, connectors, boot order, generated board artifact paths, references, and linked local help markdown.
+
+The first board-create flow is discovery-assisted:
+
+- `/api/stage4/board-create-candidates` lists current discovered units that can seed a draft
+- `/api/stage4/board-create-guess/<unitId>` returns the first-guess board definition based on match/profile evidence
+- `POST /api/stage4/board-create-from-unit` writes a new board definition and local help page, then regenerates the Stage 4 tree
+
+The first guess clones an exact or candidate board definition when possible, and otherwise falls back to a minimal generic board skeleton based on the observed chip family.

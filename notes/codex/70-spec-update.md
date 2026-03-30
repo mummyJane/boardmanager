@@ -195,3 +195,5 @@
 - 2026-03-31 00:05 Europe/London: Stage 4 spec updated to require a reusable module-definition validation preflight before module writes. Reason: the web UI now needs a validate-first path for user-created module definitions instead of relying only on write-time failures.
 
 - 2026-03-31 00:35 Europe/London: Stage 4 spec updated to call out the board catalog as a Python-served board-facing contract with assembly detail, boot order, generated artifacts, and linked help. Reason: the Boards tab now has a real read view and should not be described as a future placeholder anymore.
+
+- 2026-03-31 01:05 Europe/London: Stage 4 spec updated to call out the first discovery-assisted board-create flow, including candidate-unit listing, first-guess draft generation, and Python-side board/help file creation. Reason: the Boards tab now has a real create path from Stage 2 hardware evidence instead of only a future requirement.

@@ -13,10 +13,13 @@ REPO_ROOT = PROJECT_ROOT.parent
 TREE_MODEL_PATH = PROJECT_ROOT / "web-ui" / "data" / "stage4-tree-model.json"
 WEB_APP_ROOT = PROJECT_ROOT / "web-ui" / "app"
 DEVICE_MANAGER_DATA_ROOT = PROJECT_ROOT / "device-manager" / "data"
+DEVICE_MANAGER_PROFILES_ROOT = PROJECT_ROOT / "device-manager" / "profiles"
 JOB_MANAGER_DATA_ROOT = PROJECT_ROOT / "job-manager" / "data"
 JOB_MANAGER_REPORTS_ROOT = PROJECT_ROOT / "job-manager" / "reports"
 PARTS_DEVICES_ROOT = PROJECT_ROOT / "parts" / "devices"
 HELP_PARTS_ROOT = PROJECT_ROOT / "help" / "parts"
+BOARDS_ROOT = PROJECT_ROOT / "boards"
+HELP_BOARDS_ROOT = PROJECT_ROOT / "help" / "boards"
 GENERATED_ROOT = PROJECT_ROOT / "generated"
 STAGE4_GENERATOR_PATH = PROJECT_ROOT / "scripts" / "generate-stage4-tree-model.mjs"
 MODULE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -110,6 +113,34 @@ def load_validation_reports():
     return reports
 
 
+def load_profiles():
+    profiles = []
+    if not DEVICE_MANAGER_PROFILES_ROOT.exists():
+        return profiles
+    for file_path in sorted(DEVICE_MANAGER_PROFILES_ROOT.glob("*.json")):
+        profile = read_json(file_path, None)
+        if profile is None:
+            continue
+        profile["__fileName"] = file_path.name
+        profiles.append(profile)
+    return profiles
+
+
+def find_profile_by_id(profile_id):
+    for profile in load_profiles():
+        if profile.get("profileId") == profile_id:
+            return profile
+    return None
+
+
+def find_inventory_unit(unit_id):
+    inventory = load_inventory()
+    for unit in inventory.get("units", []):
+        if unit.get("unitId") == unit_id or (unit.get("identity") or {}).get("stableKey") == unit_id:
+            return unit
+    raise FileNotFoundError(f"unit '{unit_id}' not found")
+
+
 def module_paths(module_id):
     return {
         "part": PARTS_DEVICES_ROOT / f"{module_id}.json",
@@ -182,6 +213,276 @@ def load_board_definition(board_id):
         "helpPath": help_path,
         "helpMarkdown": help_text,
     }
+
+
+def load_board_definition(board_id):
+    board_path = PROJECT_ROOT / "boards" / f"{board_id}.json"
+    if not board_path.exists():
+        raise FileNotFoundError(f"board '{board_id}' not found")
+    definition = json.loads(board_path.read_text(encoding="utf-8"))
+    help_path = PROJECT_ROOT / "help" / "boards" / f"{board_id}.md"
+    help_text = help_path.read_text(encoding="utf-8") if help_path.exists() else ""
+    return {
+        "path": board_path,
+        "definition": definition,
+        "helpPath": help_path,
+        "helpMarkdown": help_text,
+    }
+
+
+def board_paths(board_id):
+    return {
+        "board": BOARDS_ROOT / f"{board_id}.json",
+        "help": HELP_BOARDS_ROOT / f"{board_id}.md",
+    }
+
+
+def write_board_files(board_id, definition, help_markdown):
+    paths = board_paths(board_id)
+    previous_board = paths["board"].read_text(encoding="utf-8") if paths["board"].exists() else None
+    previous_help = paths["help"].read_text(encoding="utf-8") if paths["help"].exists() else None
+
+    try:
+        paths["board"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
+        paths["help"].write_text(help_markdown, encoding="utf-8")
+        regenerate_stage4_tree_model()
+    except Exception:
+        if previous_board is None:
+            if paths["board"].exists():
+                paths["board"].unlink()
+        else:
+            paths["board"].write_text(previous_board, encoding="utf-8")
+
+        if previous_help is None:
+            if paths["help"].exists():
+                paths["help"].unlink()
+        else:
+            paths["help"].write_text(previous_help, encoding="utf-8")
+
+        regenerate_stage4_tree_model()
+        raise
+
+
+def build_board_write_result(board_id, action):
+    refreshed_model = load_tree_model()
+    paths = board_paths(board_id)
+    return {
+        action: {
+            "boardId": board_id,
+            "boardPath": str(paths["board"].relative_to(REPO_ROOT)).replace("\\", "/"),
+            "helpPath": str(paths["help"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        },
+        "boardCatalog": build_board_catalog_payload(refreshed_model),
+        "boardDetail": build_board_detail_payload(refreshed_model, board_id),
+        "treeSummary": refreshed_model.get("summary", {}),
+    }
+
+
+def infer_controller_module_id(unit, profile):
+    exact = profile.get("exactBoard") if profile else None
+    if exact and exact.get("controllerModuleId"):
+        return exact.get("controllerModuleId")
+    candidates = profile.get("candidateBoards") if profile else []
+    if candidates:
+        first = candidates[0]
+        if first.get("controllerModuleId"):
+            return first.get("controllerModuleId")
+    chip = ((unit.get("observed") or {}).get("chip") or "").lower()
+    if "esp32-s3" in chip:
+        return "m5stamps3"
+    if "esp32" in chip:
+        return "esp32_wroom_32"
+    if "stm32f0" in chip or "f072" in chip:
+        return "nucleo_f072rb_controller"
+    return None
+
+
+def infer_guess_base_board(unit, profile):
+    match = unit.get("match") or {}
+    if match.get("boardId"):
+        try:
+            return load_board_definition(match.get("boardId"))["definition"]
+        except FileNotFoundError:
+            pass
+    exact = profile.get("exactBoard") if profile else None
+    if exact and exact.get("boardId"):
+        try:
+            return load_board_definition(exact.get("boardId"))["definition"]
+        except FileNotFoundError:
+            pass
+    candidates = profile.get("candidateBoards") if profile else []
+    for candidate in candidates:
+        if candidate.get("boardId"):
+            try:
+                return load_board_definition(candidate.get("boardId"))["definition"]
+            except FileNotFoundError:
+                continue
+    return None
+
+
+def normalize_board_create_payload(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("board payload must be a JSON object")
+    board_id = str(payload.get("boardId") or "").strip()
+    if not MODULE_ID_PATTERN.match(board_id):
+        raise ValueError("boardId must match ^[a-z][a-z0-9_]*$")
+    display_name = str(payload.get("displayName") or "").strip()
+    if not display_name:
+        raise ValueError("displayName is required")
+    vendor = str(payload.get("vendor") or "").strip()
+    if not vendor:
+        raise ValueError("vendor is required")
+    revision = str(payload.get("revision") or "").strip() or "1.0"
+    unit_id = str(payload.get("unitId") or "").strip()
+    if not unit_id:
+        raise ValueError("unitId is required")
+    return {
+        "boardId": board_id,
+        "displayName": display_name,
+        "vendor": vendor,
+        "revision": revision,
+        "unitId": unit_id,
+    }
+
+
+def build_board_guess_payload(unit_id):
+    unit = find_inventory_unit(unit_id)
+    history = load_history()
+    unit_history = next((entry for entry in history.get("units", []) if entry.get("stableKey") == unit.get("unitId")), None)
+    profile = find_profile_by_id((unit.get("history") or {}).get("profileId")) or (find_profile_by_id((unit_history or {}).get("profileId")) if unit_history else None)
+    base_board = infer_guess_base_board(unit, profile)
+    observed = unit.get("observed") or {}
+    match = unit.get("match") or {}
+    suggested_board_id = f"draft_{(match.get('boardId') or observed.get('firmwareBoard') or unit.get('unitId') or 'board').replace(':', '_').replace('-', '_').lower()}"
+    suggested_board_id = re.sub(r'[^a-z0-9_]', '_', suggested_board_id)
+    suggested_board_id = re.sub(r'_+', '_', suggested_board_id).strip('_')
+    if not suggested_board_id or not suggested_board_id[0].isalpha():
+        suggested_board_id = f"draft_{suggested_board_id or 'board'}"
+
+    if base_board is not None:
+        draft = json.loads(json.dumps(base_board))
+    else:
+        draft = {
+            "boardId": suggested_board_id,
+            "displayName": observed.get("firmwareBoard") or observed.get("chip") or "Discovered Board",
+            "revision": "1.0",
+            "vendor": (profile.get("exactBoard") or {}).get("vendor") if profile and profile.get("exactBoard") else (profile.get("fingerprint") or {}).get("manufacturer") or "Unknown",
+            "controller": {
+                "moduleId": infer_controller_module_id(unit, profile)
+            },
+            "capabilities": {capability: True for capability in (observed.get("agentCapabilities") or [])},
+            "signals": [],
+            "buses": [],
+            "bootSequence": [{"name": "controller", "kind": "module"}],
+            "sources": [],
+        }
+
+    draft["boardId"] = suggested_board_id
+    draft["displayName"] = draft.get("displayName") or observed.get("firmwareBoard") or "Discovered Board"
+    draft["revision"] = draft.get("revision") or "1.0"
+    draft["vendor"] = draft.get("vendor") or ((profile.get("exactBoard") or {}).get("vendor") if profile else None) or ((profile.get("fingerprint") or {}).get("manufacturer") if profile else None) or "Unknown"
+    if not draft.get("controller") or not draft["controller"].get("moduleId"):
+        draft["controller"] = {"moduleId": infer_controller_module_id(unit, profile)}
+    if not draft.get("capabilities"):
+        draft["capabilities"] = {capability: True for capability in (observed.get("agentCapabilities") or [])}
+
+    notes = []
+    if match.get("boardId"):
+        notes.append(f"Seeded from matched board definition {match.get('boardId')}")
+    elif profile and (profile.get("candidateBoards") or []):
+        notes.append(f"Seeded from candidate board {(profile.get('candidateBoards') or [])[0].get('boardId')}")
+    else:
+        notes.append("Seeded from discovery fingerprints without a known board definition")
+
+    return {
+        "unit": {
+            "unitId": unit.get("unitId"),
+            "transport": unit.get("transport"),
+            "observed": {
+                "chip": observed.get("chip"),
+                "mac": observed.get("mac"),
+                "serialNumber": observed.get("serialNumber"),
+                "firmwareBoard": observed.get("firmwareBoard"),
+                "agentCapabilities": observed.get("agentCapabilities") or [],
+                "vid": observed.get("vid"),
+                "pid": observed.get("pid"),
+            },
+            "match": match,
+            "history": unit.get("history") or {},
+        },
+        "profile": None if profile is None else {
+            "profileId": profile.get("profileId"),
+            "status": profile.get("status"),
+            "familyKey": profile.get("familyKey"),
+            "exactBoard": profile.get("exactBoard"),
+            "candidateBoards": profile.get("candidateBoards") or [],
+        },
+        "guess": {
+            "boardId": draft.get("boardId"),
+            "displayName": draft.get("displayName"),
+            "revision": draft.get("revision"),
+            "vendor": draft.get("vendor"),
+            "controllerModuleId": (draft.get("controller") or {}).get("moduleId"),
+            "notes": notes,
+            "boardDefinition": draft,
+        },
+    }
+
+
+def build_board_help_markdown(board_definition, guess_payload):
+    unit = guess_payload.get("unit") or {}
+    observed = unit.get("observed") or {}
+    profile = guess_payload.get("profile") or {}
+    lines = [
+        f"# {board_definition.get('displayName')}",
+        "",
+        "## Summary",
+        "",
+        f"`{board_definition.get('boardId')}` is a user-created board draft generated from discovered hardware through the Stage 4 board-create flow.",
+        "",
+        "## Discovery Evidence",
+        "",
+        f"- Unit: `{unit.get('unitId')}`",
+        f"- Chip: `{observed.get('chip') or 'unknown'}`",
+        f"- MAC: `{observed.get('mac') or 'unknown'}`",
+        f"- Serial: `{observed.get('serialNumber') or 'unknown'}`",
+        f"- Firmware board: `{observed.get('firmwareBoard') or 'unknown'}`",
+        "",
+        "## Guess Notes",
+        "",
+    ]
+    for note in guess_payload.get("guess", {}).get("notes", []):
+        lines.append(f"- {note}")
+    if profile:
+        lines.extend([
+            "",
+            "## Profile",
+            "",
+            f"- Profile: `{profile.get('profileId')}`",
+            f"- Status: `{profile.get('status')}`",
+            f"- Family key: `{profile.get('familyKey')}`",
+        ])
+    return '\n'.join(lines) + '\n'
+
+
+def create_board_from_unit(payload):
+    normalized = normalize_board_create_payload(payload)
+    guess_payload = build_board_guess_payload(normalized["unitId"])
+    board_definition = json.loads(json.dumps(guess_payload["guess"]["boardDefinition"]))
+    board_definition["boardId"] = normalized["boardId"]
+    board_definition["displayName"] = normalized["displayName"]
+    board_definition["vendor"] = normalized["vendor"]
+    board_definition["revision"] = normalized["revision"]
+    if "sources" not in board_definition:
+        board_definition["sources"] = []
+
+    paths = board_paths(normalized["boardId"])
+    if paths["board"].exists() or paths["help"].exists():
+        raise FileExistsError(f"board '{normalized['boardId']}' already exists")
+
+    help_markdown = build_board_help_markdown(board_definition, guess_payload)
+    write_board_files(normalized["boardId"], board_definition, help_markdown)
+    return build_board_write_result(normalized["boardId"], "created")
 
 
 def assert_user_owned_module(module_id):
@@ -1094,6 +1395,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 payload = self._read_json_body()
                 self._send_json(200, validate_module_payload(payload))
                 return
+            if parsed.path == "/api/stage4/board-create-from-unit":
+                payload = self._read_json_body()
+                self._send_json(201, create_board_from_unit(payload))
+                return
             if parsed.path == "/api/stage4/module-create":
                 payload = self._read_json_body()
                 self._send_json(201, create_leaf_module(payload))
@@ -1165,6 +1470,21 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_board_catalog_payload(model))
                 return
 
+            if parsed.path == "/api/stage4/board-create-candidates":
+                inventory = load_inventory()
+                candidates = []
+                for unit in inventory.get("units", []):
+                    candidates.append({
+                        "unitId": unit.get("unitId"),
+                        "label": (unit.get("annotation") or {}).get("label"),
+                        "port": (unit.get("transport") or {}).get("port"),
+                        "boardId": (unit.get("match") or {}).get("boardId"),
+                        "chip": (unit.get("observed") or {}).get("chip"),
+                        "firmwareBoard": (unit.get("observed") or {}).get("firmwareBoard"),
+                    })
+                self._send_json(200, {"generatedAt": inventory.get("generatedAt"), "units": candidates})
+                return
+
             if parsed.path == "/api/stage4/tree":
                 self._send_json(200, model)
                 return
@@ -1181,6 +1501,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
             if parsed.path.startswith("/api/stage4/board-detail/"):
                 board_id = parsed.path.rsplit("/", 1)[-1]
                 self._send_json(200, build_board_detail_payload(model, board_id))
+                return
+
+            if parsed.path.startswith("/api/stage4/board-create-guess/"):
+                unit_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_board_guess_payload(unit_id))
                 return
 
             if parsed.path.startswith("/api/stage4/module-edit/"):
@@ -1225,13 +1550,16 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/dashboard/inventory",
                         "/api/stage4/dashboard/modules",
                         "/api/stage4/dashboard/boards",
+                        "/api/stage4/board-create-candidates",
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
                         "/api/stage4/module-help/<moduleId>",
                         "/api/stage4/board-detail/<boardId>",
+                        "/api/stage4/board-create-guess/<unitId>",
                         "/api/stage4/module-edit/<moduleId>",
                         "POST /api/stage4/module-validate",
+                        "POST /api/stage4/board-create-from-unit",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/projects",

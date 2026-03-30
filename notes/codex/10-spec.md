@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-31 00:35 Europe/London
+Last updated: 2026-03-31 01:05 Europe/London
 
 ## Goal
 
@@ -174,6 +174,7 @@ Requirements:
 - board creation must support two entry paths:
   - start from a newly discovered unit and generate a first-guess board profile from its observed identity, buses, devices, and prior family history
   - start from a manual blank or template board definition without requiring the hardware to be discovered first
+- the first discovery-assisted board-create flow should expose candidate discovered units, return a first-guess board draft from the selected unit, and write a new board definition plus local help page through the Python service
 - board editing must let the operator add, remove, reorder, and reconfigure modules plus board-local settings, signals, buses, and bindings
 - where hardware is present, the system should test the current board config against the selected unit and report mismatches, missing devices, extra observed devices, and other validation problems
 - the UI must be able to inspect module trees, board assemblies, IO definitions, bus layouts, boot order, generated API surface, and per-part/per-module help pages including datasheet, website, API usage, and local test references

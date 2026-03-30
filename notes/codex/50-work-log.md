@@ -1833,3 +1833,38 @@ Validation:
 - python import validation of build_board_catalog_payload() and build_board_detail_payload() -> success with 5 boards and 2 generated artifacts for m5stack_dial_v1_1.
 - node --check project/web-ui/app/stage4-shell.js -> success.
 - validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+
+## 2026-03-31 01:05 Europe/London
+
+Commands run:
+
+- Get-Content project/device-manager/data/inventory.json
+- Get-Content project/device-manager/data/unit-history.json
+- Get-Content project/device-manager/profiles/*.json
+- Get-Content project/boards/m5stack_dial_v1_1.json
+- python -m py_compile project/scripts/stage4-read-api.py
+- python import validation of build_board_guess_payload() for mac:c8:2e:18:f0:47:74
+- python inline validation of create_board_from_unit() with draft_validation_board followed by cleanup and tree regeneration
+- node --check project/web-ui/app/stage4-shell.js
+- validate.ps1
+
+Observed issues:
+
+- The Boards tab had read-only catalog coverage, but no flow that started from a discovered unit and turned Stage 2 identity/profile evidence into a first-guess board draft.
+- The Python service had two injected path-normalization strings escape badly during implementation and needed direct repair before the final validation pass.
+
+Actions:
+
+- Added discovery-assisted board-create helpers to the Python Stage 4 service.
+- Added `/api/stage4/board-create-candidates`, `/api/stage4/board-create-guess/<unitId>`, and `POST /api/stage4/board-create-from-unit`.
+- Added board file and help-page write helpers with rollback and tree regeneration.
+- Updated the Boards tab so operators can choose a discovered unit, load the first guess, and create a draft board from the browser flow.
+- Updated the Stage 4 spec, plan, task list, context, README, and latest install/update wrappers to mark the discovery-assisted board-create task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- python import validation of build_board_guess_payload() for COM7 unit mac:c8:2e:18:f0:47:74 -> success; guessed controller esp32_wroom_32 with one candidate board.
+- controlled create_board_from_unit() validation -> success; created temporary draft_validation_board, then removed the files and regenerated the Stage 4 tree.
+- node --check project/web-ui/app/stage4-shell.js -> success.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
