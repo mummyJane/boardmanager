@@ -1527,3 +1527,30 @@ Actions:
 
 - Added repo-wide Python cache ignore rules for __pycache__/ and *.pyc.
 - Removed the generated project/scripts/__pycache__ directory so the working tree stays clean after Python validation runs.
+
+## 2026-03-30 20:30 Europe/London
+
+Commands run:
+
+- Get-ChildItem project/web-ui
+- Get-Content project/scripts/stage4-read-api.py
+- python -m py_compile project/scripts/stage4-read-api.py
+- validate.ps1
+
+Observed issues:
+
+- The Python Stage 4 service exposed the read APIs, but there was no served shell yet for browser navigation across inventory, modules, boards, projects, jobs, and reports.
+- A direct localhost fetch validation of the served shell was blocked by the Windows sandbox runner even after escalation attempts, so browser-style route verification could not be completed from this environment.
+
+Actions:
+
+- Added the first static Stage 4 shell under project/web-ui/app with HTML, CSS, and browser-side JavaScript.
+- Extended the Python Stage 4 server so / serves the shell and /static/... serves the shell assets.
+- The shell now presents top-level navigation for inventory, modules, boards, projects, jobs, and reports, and already loads module/board/project data from the Python Stage 4 APIs.
+- Updated the Stage 4 spec, plan, task list, context, and README to mark the shell task complete.
+
+Validation:
+
+- python -m py_compile project/scripts/stage4-read-api.py -> success.
+- validate.ps1 -> success; validated 22 parts, 5 boards, 4 projects, device-manager data, Stage 3 job data, 5 validation contracts, 4 validation reports, and the Stage 4 tree model.
+- Live localhost fetch for / and /static/... was attempted but blocked by the Windows sandbox runner with access-denied process-launch restrictions.

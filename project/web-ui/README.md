@@ -53,3 +53,26 @@ Current endpoints:
 - `/api/stage4/help?path=project/help/parts/bm8563.md`
 
 The Python API reads the generated tree model and linked help files directly. It is read-only and is intended to be the base for the later full Milestone 4 web server.
+## Web Shell
+
+The first served Stage 4 shell is now a static Python-hosted app under `project/web-ui/app`.
+
+Files:
+
+- `project/web-ui/app/index.html`
+- `project/web-ui/app/stage4-shell.css`
+- `project/web-ui/app/stage4-shell.js`
+
+The shell currently provides top-level navigation for:
+
+- inventory
+- modules
+- boards
+- projects
+- jobs
+- reports
+
+The shell is intentionally thin at this stage:
+
+- modules, boards, and projects already load from the Python Stage 4 read APIs
+- inventory, jobs, and reports are reserved navigation targets that will be filled by the next Stage 4 tasks

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Board Manager</title>
+  <link rel="stylesheet" href="/static/stage4-shell.css">
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="eyebrow">Board Manager</div>
+        <h1>Stage 4 Shell</h1>
+        <p>Python-hosted operator shell over modules, boards, projects, inventory, jobs, and reports.</p>
+      </div>
+      <nav class="nav-list" aria-label="Primary">
+        <button class="nav-item is-active" data-view="inventory">Inventory</button>
+        <button class="nav-item" data-view="modules">Modules</button>
+        <button class="nav-item" data-view="boards">Boards</button>
+        <button class="nav-item" data-view="projects">Projects</button>
+        <button class="nav-item" data-view="jobs">Jobs</button>
+        <button class="nav-item" data-view="reports">Reports</button>
+      </nav>
+      <div class="sidebar-note">
+        <strong>Current scope</strong>
+        <p>This shell is the first UI frame. Inventory, jobs, and reports are navigable now and will be filled in by later Stage 4 tasks.</p>
+      </div>
+    </aside>
+
+    <main class="content-shell">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Milestone 4</div>
+          <h2 id="view-title">Inventory</h2>
+        </div>
+        <div class="status-row">
+          <span class="status-chip" id="api-runtime">runtime: loading</span>
+          <span class="status-chip" id="model-stamp">tree: loading</span>
+        </div>
+      </header>
+
+      <section class="hero-grid" id="hero-grid">
+        <article class="hero-card accent">
+          <div class="hero-label">Stage 4 Roots</div>
+          <div class="hero-value" id="root-count">-</div>
+          <p>Module, board, and project trees generated from the source catalog.</p>
+        </article>
+        <article class="hero-card">
+          <div class="hero-label">Modules</div>
+          <div class="hero-value" id="module-count">-</div>
+          <p>Reusable modules and device-level catalog entries available to compose boards.</p>
+        </article>
+        <article class="hero-card">
+          <div class="hero-label">Boards</div>
+          <div class="hero-value" id="board-count">-</div>
+          <p>Concrete board assemblies with local buses, signals, connectors, and help references.</p>
+        </article>
+        <article class="hero-card">
+          <div class="hero-label">Projects</div>
+          <div class="hero-value" id="project-count">-</div>
+          <p>Board-targeted deployable projects with app roots, OTA policy, and stable API boundaries.</p>
+        </article>
+      </section>
+
+      <section class="view-grid">
+        <article class="panel span-two" id="primary-panel">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow" id="primary-eyebrow">Overview</div>
+              <h3 id="primary-title">Loading</h3>
+            </div>
+          </div>
+          <div id="primary-body" class="panel-body"></div>
+        </article>
+
+        <article class="panel" id="secondary-panel">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Preview</div>
+              <h3 id="secondary-title">Selection</h3>
+            </div>
+          </div>
+          <div id="secondary-body" class="panel-body"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/static/stage4-shell.js"></script>
+</body>
+</html>

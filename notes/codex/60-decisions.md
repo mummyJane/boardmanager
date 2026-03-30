@@ -248,3 +248,6 @@
 - 2026-03-30 20:05 Europe/London: Serve linked local help content through the same Python API surface as the module, board, and project trees. The later web UI should not need a second filesystem-specific path just to render part and board help pages.
 
 - 2026-03-30 20:15 Europe/London: Ignore Python cache folders and .pyc files repo-wide now that Stage 4 includes Python tooling. These are runtime byproducts, not tracked project state.
+
+- 2026-03-30 20:30 Europe/London: Use the existing Python Stage 4 server as the first shell host instead of introducing a separate frontend runtime immediately. That keeps Milestone 4 aligned with the Python web-server requirement and reduces early stack sprawl.
+- 2026-03-30 20:30 Europe/London: Treat inventory, jobs, and reports as reserved shell sections now even before their full view logic exists. Locking the navigation shape early makes later UI tasks less disruptive.

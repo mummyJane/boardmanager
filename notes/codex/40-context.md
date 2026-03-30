@@ -218,3 +218,6 @@ un, and debug records.
 
 - 2026-03-30 20:05 Europe/London: Stage 4 now has a first Python-based read-only API host at serve-stage4-read-api.ps1 backed by project/scripts/stage4-read-api.py.
 - 2026-03-30 20:05 Europe/London: The first Python endpoints expose /api/stage4/tree, /api/stage4/modules, /api/stage4/boards, /api/stage4/projects, and /api/stage4/help so the later web UI can browse both tree nodes and linked help content.
+
+- 2026-03-30 20:30 Europe/London: Stage 4 now has a first served shell under project/web-ui/app, hosted by the Python Stage 4 service at / and /static/....
+- 2026-03-30 20:30 Europe/London: The shell already loads module, board, and project lists from the Python Stage 4 read APIs, while inventory, jobs, and reports are present as reserved navigation targets for the next UI tasks.

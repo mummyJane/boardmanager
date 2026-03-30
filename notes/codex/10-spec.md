@@ -149,7 +149,7 @@ Requirements:
 
 Deliverables:
 
-- browser-based dashboard and operator shell
+- browser-based dashboard and operator shell with top-level navigation for inventory, modules, boards, projects, jobs, and reports
 - tree-based module catalog and module help browser
 - board inventory, history, and board-definition views
 - board create/edit flows for discovered and manual boards

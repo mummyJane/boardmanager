@@ -9,10 +9,21 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 REPO_ROOT = PROJECT_ROOT.parent
 TREE_MODEL_PATH = PROJECT_ROOT / "web-ui" / "data" / "stage4-tree-model.json"
+WEB_APP_ROOT = PROJECT_ROOT / "web-ui" / "app"
 
 
 def load_tree_model():
     return json.loads(TREE_MODEL_PATH.read_text(encoding="utf-8"))
+
+
+def load_static_asset(relative_name):
+    asset_path = (WEB_APP_ROOT / relative_name).resolve()
+    web_root = WEB_APP_ROOT.resolve()
+    if asset_path != web_root and web_root not in asset_path.parents:
+        raise FileNotFoundError("static asset outside web root")
+    if not asset_path.exists() or not asset_path.is_file():
+        raise FileNotFoundError(f"asset '{relative_name}' not found")
+    return asset_path
 
 
 def find_root(model, root_id):
@@ -66,8 +77,26 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(encoded)
 
+    def _send_text(self, status_code, body, content_type="text/plain; charset=utf-8"):
+        encoded = body.encode("utf-8")
+        self.send_response(status_code)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
     def _send_not_found(self, message="not_found"):
         self._send_json(404, {"error": message})
+
+    def _send_static(self, relative_name):
+        asset_path = load_static_asset(relative_name)
+        suffix = asset_path.suffix.lower()
+        content_type = {
+            ".html": "text/html; charset=utf-8",
+            ".css": "text/css; charset=utf-8",
+            ".js": "text/javascript; charset=utf-8",
+        }.get(suffix, "application/octet-stream")
+        self._send_text(200, asset_path.read_text(encoding="utf-8"), content_type)
 
     def log_message(self, format, *args):
         return
@@ -77,6 +106,14 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
             parsed = urlparse(self.path)
             query = parse_qs(parsed.query)
             model = load_tree_model()
+
+            if parsed.path == "/":
+                self._send_static("index.html")
+                return
+
+            if parsed.path.startswith("/static/"):
+                self._send_static(parsed.path.removeprefix("/static/"))
+                return
 
             if parsed.path == "/health":
                 self._send_json(200, {"status": "ok", "runtime": "python"})
@@ -122,6 +159,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 {
                     "error": "not_found",
                     "endpoints": [
+                        "/",
                         "/health",
                         "/api/stage4/tree",
                         "/api/stage4/modules",

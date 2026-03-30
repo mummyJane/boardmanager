@@ -7,7 +7,7 @@
 
 # Board Manager Milestone Plan
 
-Last updated: 2026-03-30 20:05 Europe/London
+Last updated: 2026-03-30 20:30 Europe/London
 
 ## Milestone 1: Repository Bootstrap And Board Definition Pipeline
 
@@ -183,3 +183,5 @@ Planned slices:
 
 
 - 2026-03-30 20:05 Europe/London: Completed the first Python Stage 4 read-only API over the generated tree model, including module, board, project, and help-content endpoints for the later web UI.
+
+- 2026-03-30 20:30 Europe/London: Completed the first served Stage 4 web shell with top-level navigation for inventory, modules, boards, projects, jobs, and reports, hosted from the Python Stage 4 service.
