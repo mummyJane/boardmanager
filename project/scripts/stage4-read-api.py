@@ -232,6 +232,37 @@ def regenerate_stage4_tree_model():
     return result.stdout.strip()
 
 
+def ensure_runtime_ready():
+    missing_paths = []
+    for required_path in [
+        PROJECT_ROOT,
+        WEB_APP_ROOT,
+        DEVICE_MANAGER_DATA_ROOT,
+        DEVICE_MANAGER_PROFILES_ROOT,
+        JOB_MANAGER_DATA_ROOT,
+        JOB_MANAGER_REPORTS_ROOT,
+        PARTS_DEVICES_ROOT,
+        HELP_PARTS_ROOT,
+        BOARDS_ROOT,
+        PROJECTS_ROOT,
+        STAGE4_GENERATOR_PATH,
+    ]:
+        if not required_path.exists():
+            missing_paths.append(str(required_path))
+    if missing_paths:
+        raise FileNotFoundError(
+            "missing Stage 4 runtime paths:\n" + "\n".join(missing_paths)
+        )
+
+
+    if not TREE_MODEL_PATH.exists():
+        print(f"Stage 4 tree model missing at {TREE_MODEL_PATH}; regenerating...")
+        regenerate_stage4_tree_model()
+
+    if not TREE_MODEL_PATH.exists() or not TREE_MODEL_PATH.is_file():
+        raise FileNotFoundError(f"stage4 tree model not found at {TREE_MODEL_PATH}")
+
+
 def normalize_composition_children(composition):
     if not composition:
         return []
@@ -3051,6 +3082,9 @@ def parse_args():
 
 def main():
     args = parse_args()
+    ensure_runtime_ready()
+    print(f"Board Manager repo root: {REPO_ROOT}")
+    print(f"Stage 4 tree model: {TREE_MODEL_PATH}")
     server = ThreadingHTTPServer((args.host, args.port), Stage4ReadApiHandler)
     print(f"Board Manager Stage 4 read API listening on http://{args.host}:{args.port}")
     server.serve_forever()

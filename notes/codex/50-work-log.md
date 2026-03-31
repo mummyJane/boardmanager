@@ -1946,3 +1946,5 @@ Validation:
 - Validation: `validate.ps1` passed after the Jobs-tab changes.
 
 2026-03-31: Completed Milestone 4 job-detail web UI slice. Added Python job-detail/log/report/artifact endpoints, updated the Jobs tab to drill into selected job output, fixed escape regressions in the direct Python/JS edits, and validated with py_compile, node --check, and validate.ps1.
+
+2026-03-31: Fixed Stage 4 Python server startup diagnostics. Added runtime-path self-checks and automatic tree-model regeneration so direct launch with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791` no longer fails late on missing Stage 4 data files. Revalidated with py_compile, direct health check, and validate.ps1.

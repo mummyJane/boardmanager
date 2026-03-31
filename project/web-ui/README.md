@@ -208,3 +208,9 @@ Current behavior:
 - program, run, and debug require a selected stable unit id
 - the Python service delegates to the existing top-level PowerShell Stage 3 runners rather than reimplementing tool orchestration
 - the Jobs tab currently shows recent job summary state; deeper log, report, and artifact views remain the next Stage 4 task
+
+Startup notes:
+
+- direct launch from the repo root is supported with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791`
+- the Python service now verifies its runtime paths at startup and will regenerate `project/web-ui/data/stage4-tree-model.json` automatically if that file is missing
+- if startup still fails, the error now lists the missing absolute runtime paths instead of failing later on first request

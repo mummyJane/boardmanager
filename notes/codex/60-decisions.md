@@ -292,3 +292,5 @@
 - 2026-03-31 09:15 Europe/London: The Python Stage 4 host should own the job-launch endpoint so the browser talks to one web server. The launcher delegates to existing Stage 3 scripts instead of reimplementing build/program/run/debug orchestration in Python.
 
 - 2026-03-31: Keep Stage 4 job-detail views in the Python service layer with explicit `/api/stage4/job-detail`, `/job-log`, `/job-report`, and `/job-artifacts` endpoints rather than exposing raw repo file paths to the browser.
+
+- 2026-03-31: Keep Stage 4 Python server startup self-contained by validating runtime paths and regenerating the Stage 4 tree model when missing, instead of assuming all generated files already exist.
