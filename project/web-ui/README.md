@@ -160,3 +160,6 @@ The manual options endpoint returns available board templates plus controller-mo
 
 - `POST /api/stage4/board-validate` runs the existing Stage 3 board validation flow for a selected board/unit pair and returns the latest summarized report.
 - Board detail payloads now include attached-unit validation candidates, the latest validation summary, and failing-check details so the Boards tab can show mismatches directly.
+
+- `/api/stage4/dashboard/projects` returns the aggregated project catalog used by the Projects tab.
+- `/api/stage4/project-detail/<projectId>` returns the selected-project detail payload for board target, app roots, firmware target, deployment policy, OTA policy, security classification, and override maps.

@@ -255,3 +255,6 @@ un, and debug records.
 - 2026-03-30 22:43 Europe/London: Stage 4 board detail payload now carries validation candidates from current inventory plus the latest validation summary for the board.
 - 2026-03-30 22:43 Europe/London: Python service now exposes `POST /api/stage4/board-validate`, which runs the existing Stage 3 validation runner for a selected board/unit pair and returns the latest report summary.
 - 2026-03-30 22:43 Europe/London: Boards tab now shows attached validation candidates, latest pass/fail summary, failing checks, and a validate action in the board detail panel.
+
+- 2026-03-31 07:53 Europe/London: Python Stage 4 service now exposes `/api/stage4/dashboard/projects` and `/api/stage4/project-detail/<projectId>`.
+- 2026-03-31 07:53 Europe/London: Projects tab now renders real project cards and selected-project detail for board target, app roots, firmware target, deployment/OTA policy, security classification, and override counts.

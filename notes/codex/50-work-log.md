@@ -1920,3 +1920,11 @@ Validation:
 - Validation: in-sandbox direct `run_board_validation()` call hit `spawn EPERM` when Python tried to launch the Node validation runner.
 - Validation: reran one live validation outside the sandbox with `validate-board.ps1 -Board m5stack_dial_v1_1 -Unit mac:c0:4e:30:13:2b:68 -Seconds 2`; it produced the expected report and two failing checks (`internal_i2c_configured`, `internal_i2c_scan`) for the Dial.
 - Validation: `validate.ps1` passed after the Stage 4 board-validation changes.
+
+## 2026-03-31 07:53 Europe/London
+- Task: Stage 4 project catalog view.
+- Updated `project/scripts/stage4-read-api.py` to add `build_project_catalog_payload()`, `build_project_detail_payload()`, `/api/stage4/dashboard/projects`, and `/api/stage4/project-detail/<projectId>`.
+- Updated `project/web-ui/app/stage4-shell.js` so the Projects tab now renders real project cards and selected-project detail instead of placeholder tree-node samples.
+- Validation: `python -m py_compile project/scripts/stage4-read-api.py` passed after fixing one escaped backslash literal in `sourcePath`.
+- Validation: `node --check project/web-ui/app/stage4-shell.js` passed.
+- Validation: direct Python payload check returned `projectCount=4`, `secureCount=1`, and `m5stack_dial_secure_ota` detail bound to board `m5stack_dial_v1_1`.

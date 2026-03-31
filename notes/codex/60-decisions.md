@@ -282,3 +282,5 @@
 
 - 2026-03-30 22:43 Europe/London: Stage 4 board validation will reuse the existing Stage 3 validation runner and reports instead of creating a second validation format for the web layer. The Boards tab should surface Stage 3 evidence directly.
 - 2026-03-30 22:43 Europe/London: Board detail payloads should include both candidate attached units and the latest board-level validation summary so the UI can show current mismatches without forcing a fresh run every time the board is opened.
+
+- 2026-03-31 07:53 Europe/London: The first Projects tab will mirror the Modules/Boards pattern: one aggregated catalog payload plus one selected-project detail payload. This keeps the browser model simple and avoids rebuilding project detail from generic tree nodes in the shell.

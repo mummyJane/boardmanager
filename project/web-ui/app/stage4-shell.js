@@ -4,6 +4,12 @@ const state = {
   modules: null,
   boards: null,
   projects: null,
+  projectCatalog: null,
+  selectedProjectId: null,
+  projectDetail: null,
+  projectCatalog: null,
+  selectedProjectId: null,
+  projectDetail: null,
   inventoryDashboard: null,
   moduleCatalog: null,
   boardCatalog: null,
@@ -1145,13 +1151,21 @@ function renderPreview(view) {
     return;
   }
 
-  if (view === "projects" && state.projects) {
-    const sample = state.projects.nodes.slice(0, 4).map((node) => ({
-      title: node.title,
-      description: `Targets ${node.metadata.boardId ?? "unknown board"}`,
-      meta: [node.metadata.firmwareFamily ?? "unknown", node.metadata.appId ?? "no appId"]
-    }));
-    secondaryBody.innerHTML = renderList(sample);
+  if (view === "projects" && state.projectCatalog) {
+    secondaryTitle.textContent = state.projectDetail ? `${state.projectDetail.project.displayName} Detail` : `${titles[view].title} Preview`;
+    if (!state.projectDetail) {
+      secondaryBody.innerHTML = `<div class="empty-note">Select a project to inspect its board target, app roots, deployment policy, and overrides.</div>`;
+      return;
+    }
+    const detail = state.projectDetail.project;
+    const items = [
+      { title: 'Board target', description: detail.boardTitle ?? detail.boardId, meta: [detail.boardId ?? 'unknown board'] },
+      { title: 'App layout', description: `App root ${detail.app?.appRoot ?? 'n/a'}`, meta: [detail.app?.userCodeRoot ?? 'n/a', detail.app?.stableApi ?? 'n/a'] },
+      { title: 'Firmware target', description: detail.firmwareTarget?.family ?? 'unknown family', meta: [detail.firmwareTarget?.entryPoint ?? 'n/a'] },
+      { title: 'Deployment', description: detail.security?.classification ?? 'standard', meta: [(detail.deployment?.transports ?? []).join(', ') || 'no transport', `signing ${detail.ota?.signing ?? 'n/a'}`, `encryption ${detail.ota?.encryption ?? 'n/a'}`] },
+      { title: 'Overrides', description: `Part overrides ${(Object.keys(detail.partOverrides ?? {})).length}`, meta: [`signal overrides ${(Object.keys(detail.signalOverrides ?? {})).length}`, detail.sourcePath ?? 'n/a'] }
+    ];
+    secondaryBody.innerHTML = renderList(items);
     return;
   }
 
@@ -1205,13 +1219,30 @@ function renderPrimary(view) {
     return;
   }
 
-  if (view === "projects" && state.projects) {
-    const items = state.projects.nodes.map((node) => ({
-      title: node.title,
-      description: `App root: ${node.metadata.appRoot ?? "n/a"}`,
-      meta: [node.metadata.boardId ?? "unknown board", node.metadata.firmwareFamily ?? "unknown family"]
-    }));
-    primaryBody.innerHTML = renderList(items);
+  if (view === "projects" && state.projectCatalog) {
+    primaryBody.innerHTML = `<ul class="data-list">${state.projectCatalog.projects.map((project) => `
+      <li class="data-card selectable-card${state.selectedProjectId === project.projectId ? ' is-selected' : ''}">
+        <button class="card-button" data-project-id="${project.projectId}" type="button">
+          <h4>${project.title}</h4>
+          <div>${project.boardTitle ?? project.boardId} · ${project.firmwareFamily ?? 'unknown family'} · ${project.appId ?? 'no appId'}</div>
+          <div class="meta-row">
+            <span class="meta-chip">${project.projectId}</span>
+            <span class="meta-chip">${project.securityClassification ?? 'standard'}</span>
+            <span class="meta-chip">${project.otaSupported ? 'ota' : 'no ota'}</span>
+            <span class="meta-chip">part overrides ${project.partOverrideCount}</span>
+          </div>
+        </button>
+      </li>`).join('')}</ul>`;
+    document.querySelectorAll('[data-project-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectProject(button.dataset.projectId).catch((error) => {
+          const secondaryTitle = document.getElementById('secondary-title');
+          const secondaryBody = document.getElementById('secondary-body');
+          secondaryTitle.textContent = 'Project detail failed';
+          secondaryBody.innerHTML = `<div class="empty-note">${escapeHtml(error.message)}</div>`;
+        });
+      });
+    });
     return;
   }
 
@@ -1227,8 +1258,8 @@ function setActiveView(view) {
   renderPreview(view);
 }
 
-async function loadShell(preferredModuleId = null, preferredBoardId = null) {
-  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, boardCreateCandidates, boardManualOptions] = await Promise.all([
+async function loadShell(preferredModuleId = null, preferredBoardId = null, preferredProjectId = null) {
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
@@ -1236,6 +1267,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
     fetchJson('/api/stage4/dashboard/inventory'),
     fetchJson('/api/stage4/dashboard/modules'),
     fetchJson('/api/stage4/dashboard/boards'),
+    fetchJson('/api/stage4/dashboard/projects'),
     fetchJson('/api/stage4/board-create-candidates'),
     fetchJson('/api/stage4/board-create-manual-options')
   ]);
@@ -1243,6 +1275,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
   state.tree = tree;
   state.modules = modules;
   state.projects = projects;
+  state.projectCatalog = projectCatalog;
   state.inventoryDashboard = inventoryDashboard;
   state.moduleCatalog = moduleCatalog;
   state.boardCatalog = boardCatalog;
@@ -1250,6 +1283,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
   state.boardManualOptions = boardManualOptions;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
+  state.selectedProjectId = preferredProjectId || state.selectedProjectId || projectCatalog.projects[0]?.projectId || null;
 
   setText('api-runtime', `runtime: ${health.runtime}`);
   setText('model-stamp', `tree: ${tree.generatedAt}`);
@@ -1267,6 +1301,9 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null) {
   }
   if (state.selectedBoardId) {
     state.boardDetail = await fetchJson(`/api/stage4/board-detail/${encodeURIComponent(state.selectedBoardId)}`);
+  }
+  if (state.selectedProjectId) {
+    state.projectDetail = await fetchJson(`/api/stage4/project-detail/${encodeURIComponent(state.selectedProjectId)}`);
   }
 
   setActiveView(state.currentView);

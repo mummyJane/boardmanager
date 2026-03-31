@@ -203,3 +203,5 @@
 - 2026-03-30 22:28 Europe/London: Updated Stage 4 spec to call out the first board editor and board update API path. Reason: the manual/discovery board-create flows now need a persisted edit surface so board config can be refined in the web UI without direct JSON edits.
 
 - 2026-03-30 22:43 Europe/London: Updated Stage 4 spec to call out the first board-validation UI flow. Reason: the board editor and discovery/manual create paths now need a service-backed way to compare the configured board against attached hardware from the Boards tab.
+
+- 2026-03-31 07:53 Europe/London: Updated Stage 4 spec to call out the first project catalog payload/detail shape. Reason: the Projects tab now needs a stable service contract for board target, app layout, OTA/security policy, and override summaries.

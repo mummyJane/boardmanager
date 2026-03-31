@@ -1639,6 +1639,104 @@ def run_board_validation(payload):
     }
 
 
+def load_project_definition(project_id):
+    project_path = PROJECT_ROOT / "projects" / f"{project_id}.json"
+    if not project_path.exists():
+        raise FileNotFoundError(f"project '{project_id}' not found")
+    definition = json.loads(project_path.read_text(encoding="utf-8"))
+    return {
+        "path": project_path,
+        "definition": definition,
+    }
+
+
+def build_project_catalog_payload(model):
+    projects_root = find_root(model, "projects-root") or {"children": []}
+    boards_root = find_root(model, "boards-root") or {"children": []}
+    board_names = {
+        (child.get("metadata") or {}).get("boardId"): child.get("title")
+        for child in boards_root.get("children", [])
+    }
+    projects = []
+    family_counts = {}
+    secure_count = 0
+    ota_count = 0
+
+    for node in projects_root.get("children", []):
+        metadata = node.get("metadata") or {}
+        project = load_project_definition(metadata.get("projectId") or node.get("nodeId"))["definition"]
+        family = metadata.get("firmwareFamily") or "unknown"
+        family_counts[family] = family_counts.get(family, 0) + 1
+        if ((project.get("deployment") or {}).get("security") or {}).get("classification") == "secure":
+            secure_count += 1
+        if ((project.get("deployment") or {}).get("ota") or {}).get("supported"):
+            ota_count += 1
+        projects.append({
+            "projectId": metadata.get("projectId"),
+            "title": node.get("title"),
+            "boardId": metadata.get("boardId"),
+            "boardTitle": board_names.get(metadata.get("boardId")),
+            "firmwareFamily": metadata.get("firmwareFamily"),
+            "entryPoint": metadata.get("entryPoint"),
+            "appId": metadata.get("appId"),
+            "appRoot": metadata.get("appRoot"),
+            "userCodeRoot": metadata.get("userCodeRoot"),
+            "stableApi": metadata.get("stableApi"),
+            "transportCount": len(((project.get("deployment") or {}).get("transports") or [])),
+            "otaSupported": bool(((project.get("deployment") or {}).get("ota") or {}).get("supported")),
+            "signing": ((project.get("deployment") or {}).get("ota") or {}).get("signing"),
+            "encryption": ((project.get("deployment") or {}).get("ota") or {}).get("encryption"),
+            "securityClassification": ((project.get("deployment") or {}).get("security") or {}).get("classification"),
+            "partOverrideCount": len(project.get("partOverrides") or {}),
+            "signalOverrideCount": len(project.get("signalOverrides") or {}),
+            "sourcePath": node.get("sourcePath"),
+        })
+
+    projects.sort(key=lambda item: item.get("title") or "")
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "summary": {
+            "projectCount": len(projects),
+            "firmwareFamilyCounts": dict(sorted(family_counts.items(), key=lambda entry: entry[0].lower())),
+            "secureProjectCount": secure_count,
+            "otaProjectCount": ota_count,
+        },
+        "projects": projects,
+    }
+
+
+def build_project_detail_payload(model, project_id):
+    projects_root = find_root(model, "projects-root") or {"children": []}
+    boards_root = find_root(model, "boards-root") or {"children": []}
+    node = find_node_by_id(projects_root, normalize_id("project:", project_id))
+    if node is None:
+        raise FileNotFoundError(f"project '{project_id}' not found")
+    loaded = load_project_definition(project_id)
+    project = loaded["definition"]
+    board_node = find_node_by_id(boards_root, normalize_id("board:", project.get("boardId")))
+    board_title = board_node.get("title") if board_node else project.get("boardId")
+    deployment = project.get("deployment") or {}
+    ota = deployment.get("ota") or {}
+    security = deployment.get("security") or {}
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "project": {
+            "projectId": project.get("projectId") or project_id,
+            "displayName": project.get("displayName") or node.get("title"),
+            "boardId": project.get("boardId"),
+            "boardTitle": board_title,
+            "app": project.get("app") or {},
+            "firmwareTarget": project.get("firmwareTarget") or {},
+            "deployment": deployment,
+            "ota": ota,
+            "security": security,
+            "partOverrides": project.get("partOverrides") or {},
+            "signalOverrides": project.get("signalOverrides") or {},
+            "sourcePath": str(loaded["path"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        }
+    }
+
+
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
     history = load_history()
@@ -1934,6 +2032,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_board_edit_payload(model, board_id))
                 return
 
+            if parsed.path.startswith("/api/stage4/project-detail/"):
+                project_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_project_detail_payload(model, project_id))
+                return
+
             if parsed.path == "/api/stage4/boards":
                 self._handle_root_collection(model, "boards-root", query)
                 return
@@ -1971,6 +2074,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/dashboard/inventory",
                         "/api/stage4/dashboard/modules",
                         "/api/stage4/dashboard/boards",
+                        "/api/stage4/dashboard/projects",
                         "/api/stage4/board-create-candidates",
                         "/api/stage4/board-create-manual-options",
                         "/api/stage4/tree",
@@ -1987,6 +2091,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "POST /api/stage4/board-validate",
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
+                        "/api/stage4/project-detail/<projectId>",
                         "/api/stage4/projects",
                         "/api/stage4/projects/<projectId>",
                         "/api/stage4/help?path=project/help/parts/bm8563.md",

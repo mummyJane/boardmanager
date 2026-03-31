@@ -1,6 +1,6 @@
 # Board Manager Spec
 
-Last updated: 2026-03-30 22:43 Europe/London
+Last updated: 2026-03-31 07:53 Europe/London
 
 ## Goal
 
@@ -185,6 +185,7 @@ Requirements:
 - the build/run area must let the operator select a project, board, and stable unit id, then start or inspect build, program, run, validate, and debug jobs through the service layer
 - the inventory dashboard should merge current Stage 2 bench inventory with conflicts, overrides, recent validation results, and recent job activity so the operator can see current bench state and recent failures in one place
 - the board catalog should expose board assemblies, module-instance trees, buses, signals, connectors, boot order, generated API artifacts, and linked board help through Python service payloads suitable for the Boards tab
+- the first project catalog should expose project summaries and selected-project detail payloads for board target, app roots, user-code roots, SDK family, OTA policy, security classification, and override counts through the Python service
 - build and run views must surface captured logs, reports, artifacts, and job state from the existing Stage 3 service APIs instead of reading local files directly
 - the system must preserve a database of seen boards and units, including logs, serial numbers, MAC addresses, transport identity, history, and board-family/profile evidence, and expose that data to the UI
 - the initial web UI may consume the existing Stage 2 and Stage 3 JSON service endpoints directly, but Stage 4 must grow the missing write APIs needed for module, board, and project editing
