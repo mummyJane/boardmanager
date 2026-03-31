@@ -39,6 +39,7 @@ void board_manager_user_app_start(const board_app_context_t *context)
     print_i2c_scan();
 
     for (;;) {
+        print_i2c_scan();
         printf("Live GNSS PPS state: %d\n", m5stack_cores3_gnss_v1_gnss_pps_read() ? 1 : 0);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }

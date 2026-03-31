@@ -1978,3 +1978,14 @@ Validation:
 - Validation: direct Stage 4 Python wrapper now returns `logPath=project/job-manager/logs/validation-runner-m5stack_dial_v1_1-mac_c0_4e_30_12_b3_e0.log`, `reportPath=project/job-manager/reports/validation-m5stack_dial_v1_1-mac_c0_4e_30_12_b3_e0.json`, and the failing checks `internal_i2c_configured` plus `internal_i2c_scan`.
 - Validation: `validate.ps1` passed.
 - Validation: `test.ps1` passed.
+
+## 2026-03-31 11:33 Europe/London
+- Task: Per-card validation sweep requested by the user.
+- Validation runs were executed one card at a time with explicit capture timeouts using `validate-board.ps1 -Seconds 3`.
+- COM3 `mac:c0:4e:30:13:2b:68` / `m5stack_dial_v1_1`: validation report refreshed. Captured chip `ESP32-S3 (QFN56) (revision v0.2)`, MAC `c0:4e:30:13:2b:68`, serial `7&203f6002&0&0000`, firmware app `m5stack_dial_demo`, firmware version `0.1.0-dev`, firmware build `Mar 29 2026 21:57:19`. Failing checks: `internal_i2c_configured`, `internal_i2c_scan`.
+- COM4 `mac:48:27:e2:66:b0:04` / `m5stack_cores3_gnss_v1`: validation report refreshed. Captured chip `ESP32-S3 (QFN56) (revision v0.2)`, MAC `48:27:e2:66:b0:04`, serial `7&2d2626df&0&0000`, firmware app `m5stack_cores3_gnss_demo`, firmware version `0.1.0-dev`, firmware build `Mar 29 2026 18:22:38`, live GNSS PPS samples, and a structured `BoardManagerI2CScan` line. Failing checks: `internal_i2c_scan`, `rtc_presence`, `rtc_hook_i2c_ack`, `pmu_presence`. The scan line reported `observed=none`, so the current failure is now real device/bus evidence rather than a missing scan line.
+- COM5 `mac:c0:4e:30:12:b3:e0` / `m5stack_dial_v1_1`: validation report refreshed. Captured chip `ESP32-S3 (QFN56) (revision v0.2)`, MAC `c0:4e:30:12:b3:e0`, serial `7&39b40148&0&0000`, firmware app `m5stack_dial_demo`, firmware version `0.1.0-dev`, firmware build `Mar 29 2026 18:22:10`. Failing checks: `internal_i2c_configured`, `internal_i2c_scan`.
+- COM6 `usb:USB\VID_0483&PID_374B&MI_02\8&2379FC3D&0&0002` / `p_nucleo_usb001_f072rb_v1`: validation report refreshed. Captured serial `8&2379fc3d&0&0002` from USB identity. No firmware app/version/build, no chip MAC, and no runtime lines were available on the STLink VCP in the 3 second window. Failing checks: `usbpd_i2c_configured`, `usbpd_i2c_scan`.
+- COM7 `mac:c8:2e:18:f0:47:74`: no Stage 3 validation was run because the unit is still unmatched. Discovery currently captures chip `ESP32-D0WD-V3 (revision v3.1)`, MAC `c8:2e:18:f0:47:74`, serial `0001`, CP210x USB identity, and an unresolved ESP32-family draft profile.
+- Commands run: `validate-board.ps1` four times, once per matched board/unit pair, each with `-Seconds 3` and bounded command timeouts.
+- Result summary: all four matched boards validated through the runner path without hanging. Current remaining failures are hardware/bus-level or firmware-probe-level issues, not web/server dispatch issues.

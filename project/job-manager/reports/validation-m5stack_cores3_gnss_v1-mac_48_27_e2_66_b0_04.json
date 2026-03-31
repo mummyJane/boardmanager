@@ -1,7 +1,7 @@
 {
   "reportType": "board-validation-report",
   "schemaVersion": 1,
-  "generatedAt": "2026-03-29T21:47:30.458Z",
+  "generatedAt": "2026-03-31T10:54:56.430Z",
   "contractId": "m5stack_cores3_gnss_v1.validation-contract",
   "identity": {
     "boardId": "m5stack_cores3_gnss_v1",
@@ -21,16 +21,16 @@
   },
   "source": {
     "kind": "serial-capture",
-    "lineCount": 3
+    "lineCount": 18
   },
   "summary": {
     "overallPass": false,
-    "executedCheckCount": 12,
-    "failingCheckCount": 2,
+    "executedCheckCount": 15,
+    "failingCheckCount": 4,
     "warningCount": 0
   },
   "health": {
-    "lineCount": 3,
+    "lineCount": 18,
     "voltages": [],
     "temperatures": [],
     "warnings": []
@@ -341,13 +341,13 @@
       "target": "internal_i2c",
       "kind": "bus-configured",
       "description": "Confirm bus internal_i2c is configured on the declared controller peripheral and signal lines.",
-      "pass": false,
+      "pass": true,
       "passCriteria": "The bus can be opened using the declared controller peripheral and line mapping.",
       "evidence": {
-        "source": "contract.config",
+        "source": "BoardManagerI2CScan",
         "bus": "internal_i2c",
         "observedAddresses": [],
-        "rawLine": null
+        "rawLine": "BoardManagerI2CScan: bus=internal_i2c observed=none"
       },
       "failureNotes": []
     },
@@ -373,7 +373,7 @@
           "0x51"
         ],
         "unexpectedObserved": [],
-        "rawLine": null
+        "rawLine": "BoardManagerI2CScan: bus=internal_i2c observed=none"
       },
       "failureNotes": [
         "Missing configured addresses indicate that a declared device is absent, unpowered, or misconfigured.",
@@ -387,19 +387,14 @@
       "target": "rtc",
       "kind": "device-presence",
       "description": "Confirm device rtc is reachable through its declared I2C path.",
-      "pass": null,
+      "pass": false,
       "passCriteria": "The device acknowledges on I2C and returns readable register data.",
       "evidence": {
-        "source": "board.buses.devices",
-        "config": {
-          "instanceId": "rtc",
-          "partId": "bm8563",
-          "bus": "internal_i2c",
-          "busKind": "i2c",
-          "deviceConfig": {
-            "i2cAddress": "0x51"
-          }
-        }
+        "source": "BoardManagerI2CScan",
+        "bus": "internal_i2c",
+        "expectedAddress": "0x51",
+        "observedAddresses": [],
+        "rawLine": "BoardManagerI2CScan: bus=internal_i2c observed=none"
       },
       "failureNotes": [
         "A missing ACK usually indicates the bus is not powered or the address is wrong.",
@@ -413,21 +408,14 @@
       "target": "rtc",
       "kind": "device-i2c-ack",
       "description": "Probe the configured I2C address and confirm an ACK is received.",
-      "pass": null,
+      "pass": false,
       "passCriteria": "The device acknowledges on the configured I2C address.",
       "evidence": {
-        "source": "part.validationHooks",
-        "config": {
-          "hookId": "i2c_ack",
-          "instanceId": "rtc",
-          "partId": "bm8563",
-          "bus": "internal_i2c",
-          "busKind": "i2c",
-          "deviceConfig": {
-            "i2cAddress": "0x51"
-          },
-          "hookConfig": {}
-        }
+        "source": "BoardManagerI2CScan",
+        "bus": "internal_i2c",
+        "expectedAddress": "0x51",
+        "observedAddresses": [],
+        "rawLine": "BoardManagerI2CScan: bus=internal_i2c observed=none"
       },
       "failureNotes": [
         "A missing ACK usually indicates the bus is not powered or the address is wrong."
@@ -467,19 +455,14 @@
       "target": "pmu",
       "kind": "device-presence",
       "description": "Confirm device pmu is reachable through its declared I2C path.",
-      "pass": null,
+      "pass": false,
       "passCriteria": "The PMU responds on I2C and returns coherent power-status data.",
       "evidence": {
-        "source": "board.buses.devices",
-        "config": {
-          "instanceId": "pmu",
-          "partId": "axp2101",
-          "bus": "internal_i2c",
-          "busKind": "i2c",
-          "deviceConfig": {
-            "i2cAddress": "0x34"
-          }
-        }
+        "source": "BoardManagerI2CScan",
+        "bus": "internal_i2c",
+        "expectedAddress": "0x34",
+        "observedAddresses": [],
+        "rawLine": "BoardManagerI2CScan: bus=internal_i2c observed=none"
       },
       "failureNotes": [
         "A present board can still boot with reduced power-control visibility if the PMU probe fails.",
@@ -710,8 +693,23 @@
   ],
   "rawCapture": {
     "lines": [
+      "E (1826628) i2c.master: I2C software timeout",
+      "E (1826628) i2c.master: probe device timeout. Please check if xfer_timeout_ms and pull-ups are correctly set up",
+      "E (1826678) i2c.master: I2C software timeout",
+      "E (1826678) i2c.master: probe device timeout. Please check if xfer_timeout_ms and pull-ups are correctly set up",
+      "BoardManagerI2CScan: bus=internal_i2c observed=none",
       "Live GNSS PPS state: 0",
+      "E (1827728) i2c.master: I2C software timeout",
+      "E (1827728) i2c.master: probe device timeout. Please check if xfer_timeout_ms and pull-ups are correctly set up",
+      "E (1827778) i2c.master: I2C software timeout",
+      "E (1827778) i2c.master: probe device timeout. Please check if xfer_timeout_ms and pull-ups are correctly set up",
+      "BoardManagerI2CScan: bus=internal_i2c observed=none",
       "Live GNSS PPS state: 0",
+      "E (1828828) i2c.master: I2C software timeout",
+      "E (1828828) i2c.master: probe device timeout. Please check if xfer_timeout_ms and pull-ups are correctly set up",
+      "E (1828878) i2c.master: I2C software timeout",
+      "E (1828878) i2c.master: probe device timeout. Please check if xfer_timeout_ms and pull-ups are correctly set up",
+      "BoardManagerI2CScan: bus=internal_i2c observed=none",
       "Live GNSS PPS state: 0"
     ]
   }
