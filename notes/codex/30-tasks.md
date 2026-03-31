@@ -142,3 +142,7 @@ Last updated: 2026-03-31 07:53 Europe/London
 - [x] Rebuild all persisted board definitions from the normalized board model and regenerate dependent validation contracts and Stage 4 tree data
 - [x] Add real STM32 GPIO, I2C, and SPI setup code for the attached F072 board so the platform layer is no longer controller-only
 - [x] Reset the persisted board layer by deleting all current board definitions and board-derived artifacts so fresh board identification can restart from changed hardware
+- [x] Add first module-level test assets for the reusable `esp32_s3` MCU part: hello-world firmware app plus timed eFuse summary read
+- [x] Add first module-level SPI SD-card info test assets for a reusable `sdcard_spi` device part using the CoreS3 slot pin map
+- [ ] Rebuild project metadata after the persisted board reset so repo-wide definition validation can pass again
+

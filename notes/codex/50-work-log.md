@@ -2018,3 +2018,13 @@ Validation:
 - Restored the half-finished uncommitted CoreS3 diagnostic code back to the last committed state before doing the board reset.
 - Removed all current board definitions under `project/boards`, all generated board headers/sources under `project/generated`, all board help pages under `project/help/boards`, all board validation contracts under `project/job-manager/contracts`, all persisted validation reports under `project/job-manager/reports`, and the Stage 4 tree snapshot under `project/web-ui/data/stage4-tree-model.json`.
 - Note: this is an intentional intermediate reset state, so full repo validation was not run after the deletion step because the board catalog is now empty by design until the new board is re-read and redefined.
+## 2026-03-31 14:25 Europe/London
+- Task: start module-owned tests for the plain CoreS3 bring-up, beginning with the `esp32_s3` MCU and the SPI SD-card slot.
+- Added standalone ESP-IDF hello-world test app under `project/parts/mcu/esp32_s3/tests/hello_world`.
+- Added timed host-side eFuse summary read under `project/parts/mcu/esp32_s3/tests/read_fuse_data/run.ps1`.
+- Added new reusable device part `project/parts/devices/sdcard_spi.json` plus help page `project/help/parts/sdcard_spi.md` and standalone ESP-IDF SPI SD-card info test under `project/parts/devices/sdcard_spi/tests/read_card_info`.
+- Commands run: `Get-Content notes/codex/10-spec.md -TotalCount 160`, `Get-Content project/parts/mcu/esp32_s3.json`, `Get-Content project/toolchains/esp-idf/esp-idf/examples/system/efuse/main/efuse_main.c -TotalCount 240`, `project/parts/mcu/esp32_s3/tests/read_fuse_data/run.ps1 -Port COM4 -TimeoutSeconds 30`.
+- Validation result: the eFuse read on COM4 succeeded and returned full ESP32-S3 summary data, including MAC `48:27:e2:66:b0:04`, package version `0`, wafer minor version `2`, optional unique id, flash/security/JTAG/USB fuse blocks, and zeroed secure key blocks.
+- Validation result: repo-wide `node project/scripts/validate-definitions.mjs` currently fails because the earlier board reset left the existing project JSON files referencing removed board ids.
+- Validation result: a timed standalone hello-world build configure attempt reached ESP-IDF configure but failed on this host with Windows permission problems: `idf.py` hit `PermissionError: [WinError 5] Access is denied`, and a direct `cmake` fallback timed out after Git `sh.exe` reported `fatal error - couldn't create signal pipe, Win32 error 5`.
+- Host issue: `apply_patch` started failing intermittently at the Windows sandbox refresh layer, so the later new test files were written with direct PowerShell file writes instead of leaving the task incomplete.

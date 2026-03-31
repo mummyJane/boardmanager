@@ -211,3 +211,5 @@
 - 2026-03-31 09:15 Europe/London: Updated Stage 4 spec to call out the first Jobs-tab launch/monitor flow through the Python service. Reason: the web shell can now start Stage 3 build/program/run/debug actions and show recent job state before the later detailed log/report/artifact view is added.
 
 2026-03-31: Added Stage 4 job-detail service requirement so browser Jobs views consume Python-provided summaries, log tails, parsed reports, and artifact metadata. Reason: the web UI needs stable service contracts and should not read repository files directly.
+- 2026-03-31 14:25 Europe/London: Proposed spec extension: reusable parts should be allowed to own standalone module-test assets under their part folders, not only init/smoke-test metadata. Reason: after the board reset, the first useful bring-up work is testing the plain `esp32_s3` MCU and the SPI SD-card slot before a new board assembly is rebuilt.
+

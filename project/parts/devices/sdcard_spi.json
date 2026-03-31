@@ -1,0 +1,54 @@
+{
+  "partId": "sdcard_spi",
+  "partType": "device",
+  "displayName": "SPI microSD Card",
+  "vendor": "Generic",
+  "interfaces": ["spi", "storage"],
+  "defaultConfig": {
+    "slotType": "microSD",
+    "mountPoint": "/sdcard"
+  },
+  "initContract": {
+    "preconditions": [
+      "The SPI bus must already be configured with board-local pin mapping.",
+      "Any board-local card detect or power-enable line should already be stable before probe."
+    ],
+    "steps": [
+      "Configure the SPI host bus with board-local pins and DMA policy.",
+      "Bind the SD card chip select to the configured SPI host.",
+      "Mount the FAT filesystem and read the card CID/CSD identification data."
+    ]
+  },
+  "smokeTest": {
+    "checks": [
+      "Initialize the SPI-backed SD card bus.",
+      "Read card identification fields such as CID or name.",
+      "Mount the card and confirm a directory listing or simple file read succeeds."
+    ],
+    "passCriteria": "The card initializes over SPI and returns readable identification data.",
+    "failureNotes": [
+      "A mount failure may still indicate that the electrical SPI link is alive if CID/CSD reads succeed.",
+      "Missing pull-ups or an empty card slot are common causes of detection failure."
+    ]
+  },
+  "api": {
+    "highLevel": [
+      {
+        "name": "sdcard_mount",
+        "description": "Initialize and mount the SPI-connected microSD card."
+      },
+      {
+        "name": "sdcard_get_info",
+        "description": "Read card identification and capacity information."
+      },
+      {
+        "name": "sdcard_unmount",
+        "description": "Flush and unmount the mounted microSD card."
+      }
+    ]
+  },
+  "docs": {
+    "website": "https://docs.m5stack.com/en/core/CoreS3",
+    "apiGuide": "project/help/parts/sdcard_spi.md"
+  }
+}
