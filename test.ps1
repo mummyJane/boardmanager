@@ -10,11 +10,17 @@ Initialize-BoardManagerProcessEnv -Paths $paths
 
 try {
     Assert-Command node
+    Assert-Command python
     Push-Location $paths.RepoRoot
     try {
         & node project/tests/run-device-manager-tests.mjs
         if ($LASTEXITCODE -ne 0) {
-            throw "Board Manager tests failed with exit code $LASTEXITCODE"
+            throw "Board Manager Node tests failed with exit code $LASTEXITCODE"
+        }
+
+        & python project/tests/stage4-read-api.test.py
+        if ($LASTEXITCODE -ne 0) {
+            throw "Board Manager Python tests failed with exit code $LASTEXITCODE"
         }
     }
     finally {

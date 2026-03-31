@@ -272,3 +272,5 @@ un, and debug records.
 - Fixed a Stage 4 shell regression where the module help preview accidentally included board-validation markup; Jobs detail now renders clearer report summaries, and board-validation status banners now include failing check ids.
 
 - Stage 4 now has a real Reports view backed by `/api/stage4/dashboard/reports`; it shows recent validation reports, failing checks, and raw report payloads instead of a placeholder panel.
+
+- Test coverage is now less bench-coupled: Stage 2 service tests use fixture roots, Stage 3 job-service tests use a temp project root, and Stage 4 has a Python HTTP regression test for key read endpoints.

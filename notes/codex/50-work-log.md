@@ -1954,3 +1954,5 @@ Validation:
 2026-03-31: Fixed Stage 4 shell regressions found in live use. Removed a misplaced board-validation section from the module help preview, improved Jobs log/report detail rendering, and changed board-validation failure banners to name the failing checks instead of only reporting a count. Revalidated with `node --check project/web-ui/app/stage4-shell.js`.
 
 2026-03-31: Added a real Stage 4 Reports view. Exposed `/api/stage4/dashboard/reports` from the Python server, wired the Reports tab to recent validation reports, and restarted the debug-trace server on `127.0.0.1:8791`. Verified the route returned HTTP 200 and repo validation still passed.
+
+2026-03-31: Hardened the test layer. Refactored Stage 2 and Stage 3 service-data helpers to accept fixture roots, updated Stage 3 tests to call exported production validation helpers instead of local stub parsers, added a Python Stage 4 API regression test, and updated `test.ps1` to run both Node and Python test suites. Validation: `test.ps1` passed with 3 Node groups plus the Stage 4 Python API test.

@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "..");
-const jobStorePath = path.join(projectRoot, "job-manager", "data", "jobs.json");
+const defaultProjectRoot = path.resolve(__dirname, "..");
+const defaultJobStorePath = path.join(defaultProjectRoot, "job-manager", "data", "jobs.json");
 
 async function readJson(filePath, fallback) {
   try {
@@ -20,8 +20,17 @@ function parseNumber(value, fallback) {
   return Number.isInteger(parsed) ? parsed : fallback;
 }
 
-function ensureProjectPath(filePath) {
+function resolveJobPaths(options = {}) {
+  const projectRoot = path.resolve(options.projectRoot ?? defaultProjectRoot);
+  return {
+    projectRoot,
+    jobStorePath: path.resolve(options.jobStorePath ?? path.join(projectRoot, "job-manager", "data", "jobs.json")),
+  };
+}
+
+function ensureProjectPath(filePath, options = {}) {
   if (!filePath) return null;
+  const { projectRoot } = resolveJobPaths(options);
   const resolved = path.resolve(filePath);
   const normalizedRoot = `${projectRoot}${path.sep}`;
   if (resolved === projectRoot || resolved.startsWith(normalizedRoot)) {
@@ -48,7 +57,8 @@ async function readTextTail(filePath, tailLines) {
   return filtered.slice(filtered.length - tailLines);
 }
 
-export async function readJobStore() {
+export async function readJobStore(options = {}) {
+  const { jobStorePath } = resolveJobPaths(options);
   return readJson(jobStorePath, {
     generatedAt: null,
     nextJobSequence: 1,
@@ -56,8 +66,8 @@ export async function readJobStore() {
   });
 }
 
-export async function getJobsPayload(searchParams) {
-  const store = await readJobStore();
+export async function getJobsPayload(searchParams, options = {}) {
+  const store = await readJobStore(options);
   const requestedJob = searchParams.get("job");
   const requestedAction = searchParams.get("action");
   const requestedStatus = searchParams.get("status");
@@ -85,8 +95,8 @@ export async function getJobsPayload(searchParams) {
   };
 }
 
-async function requireJob(jobId) {
-  const store = await readJobStore();
+async function requireJob(jobId, options = {}) {
+  const store = await readJobStore(options);
   const job = (store.jobs ?? []).find((entry) => entry.jobId === jobId);
   if (!job) {
     throw new Error(`Job '${jobId}' was not found.`);
@@ -94,7 +104,7 @@ async function requireJob(jobId) {
   return job;
 }
 
-export async function getJobLogPayload(searchParams) {
+export async function getJobLogPayload(searchParams, options = {}) {
   const jobId = searchParams.get("job");
   if (!jobId) {
     throw new Error("Missing required 'job' query parameter.");
@@ -102,13 +112,13 @@ export async function getJobLogPayload(searchParams) {
 
   const requestedKind = searchParams.get("kind");
   const tailLines = parseNumber(searchParams.get("tail"), 200);
-  const job = await requireJob(jobId);
+  const job = await requireJob(jobId, options);
   const logEntry = (job.logs ?? []).find((entry) => !requestedKind || entry.kind === requestedKind);
   if (!logEntry?.path) {
     throw new Error(`No log entry was found for job '${jobId}'.`);
   }
 
-  const logPath = ensureProjectPath(logEntry.path);
+  const logPath = ensureProjectPath(logEntry.path, options);
   const logStat = await safeStat(logPath);
   if (!logStat?.isFile()) {
     throw new Error(`Log file '${logPath}' was not found.`);
@@ -125,14 +135,14 @@ export async function getJobLogPayload(searchParams) {
   };
 }
 
-export async function getJobReportPayload(searchParams) {
+export async function getJobReportPayload(searchParams, options = {}) {
   const jobId = searchParams.get("job");
   if (!jobId) {
     throw new Error("Missing required 'job' query parameter.");
   }
 
-  const job = await requireJob(jobId);
-  const reportPath = ensureProjectPath(job.result?.reportPath);
+  const job = await requireJob(jobId, options);
+  const reportPath = ensureProjectPath(job.result?.reportPath, options);
   if (!reportPath) {
     throw new Error(`Job '${jobId}' does not have a report path.`);
   }
@@ -149,16 +159,16 @@ export async function getJobReportPayload(searchParams) {
   };
 }
 
-export async function getJobArtifactsPayload(searchParams) {
+export async function getJobArtifactsPayload(searchParams, options = {}) {
   const jobId = searchParams.get("job");
   if (!jobId) {
     throw new Error("Missing required 'job' query parameter.");
   }
 
-  const job = await requireJob(jobId);
+  const job = await requireJob(jobId, options);
   const artifacts = [];
   for (const entry of job.artifacts ?? []) {
-    const artifactPath = ensureProjectPath(entry.path);
+    const artifactPath = ensureProjectPath(entry.path, options);
     const fileStat = artifactPath ? await safeStat(artifactPath) : null;
     artifacts.push({
       kind: entry.kind ?? "artifact",

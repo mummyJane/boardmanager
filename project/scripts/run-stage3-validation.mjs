@@ -60,7 +60,7 @@ function normalizeBooleanToken(value) {
   return null;
 }
 
-function parseI2cScanLines(lines) {
+export function parseI2cScanLines(lines) {
   const scans = new Map();
   for (const line of lines) {
     const trimmed = String(line).trim();
@@ -184,7 +184,7 @@ function parseHealthMetricLine(line) {
   };
 }
 
-function parseTelemetry(lines, contract) {
+export function parseTelemetry(lines, contract) {
   const telemetry = createTelemetry();
   const expectedBoardId = contract.boardId;
 
@@ -368,7 +368,7 @@ function findObservedAddressEvidence(check, scanMap) {
   };
 }
 
-function inferCheckResult(contract, check, unit, telemetry, scanMap) {
+export function inferCheckResult(contract, check, unit, telemetry, scanMap) {
   const manual = telemetry.checkResults.get(check.checkId);
   if (manual) {
     return {
@@ -565,7 +565,7 @@ function buildChecks(contract, unit, telemetry, scanMap) {
   return checks;
 }
 
-function buildReport(contract, unit, port, scanMap, lines, telemetry) {
+export function buildReport(contract, unit, port, scanMap, lines, telemetry) {
   const checks = buildChecks(contract, unit, telemetry, scanMap);
   const executedChecks = checks.filter((entry) => entry.pass !== null);
   const failingChecks = executedChecks.filter((entry) => entry.pass === false);
@@ -652,7 +652,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error.message || error);
-  process.exitCode = 1;
-});
+if (import.meta.url === new URL(process.argv[1], "file:").href) {
+  main().catch((error) => {
+    console.error(error.message || error);
+    process.exitCode = 1;
+  });
+}

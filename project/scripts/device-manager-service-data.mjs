@@ -6,8 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const deviceManagerRoot = path.join(projectRoot, "device-manager");
-const dataRoot = path.join(deviceManagerRoot, "data");
-const profilesRoot = path.join(deviceManagerRoot, "profiles");
+const defaultDataRoot = path.join(deviceManagerRoot, "data");
+const defaultProfilesRoot = path.join(deviceManagerRoot, "profiles");
 
 async function readJson(filePath, fallback) {
   try {
@@ -17,20 +17,31 @@ async function readJson(filePath, fallback) {
   }
 }
 
-export async function readInventory() {
-  return readJson(path.join(dataRoot, "inventory.json"), { generatedAt: null, host: {}, units: [] });
+function resolveServiceRoots(options = {}) {
+  return {
+    dataRoot: options.dataRoot ?? defaultDataRoot,
+    profilesRoot: options.profilesRoot ?? defaultProfilesRoot,
+    generatedAt: options.generatedAt ?? new Date().toISOString(),
+  };
 }
 
-export async function readHistory() {
-  return readJson(path.join(dataRoot, "unit-history.json"), { generatedAt: null, host: {}, units: [], families: [], conflicts: [] });
+export async function readInventory(options = {}) {
+  const roots = resolveServiceRoots(options);
+  return readJson(path.join(roots.dataRoot, "inventory.json"), { generatedAt: null, host: {}, units: [] });
 }
 
-export async function readProfiles() {
-  const entries = await readdir(profilesRoot, { withFileTypes: true });
+export async function readHistory(options = {}) {
+  const roots = resolveServiceRoots(options);
+  return readJson(path.join(roots.dataRoot, "unit-history.json"), { generatedAt: null, host: {}, units: [], families: [], conflicts: [] });
+}
+
+export async function readProfiles(options = {}) {
+  const roots = resolveServiceRoots(options);
+  const entries = await readdir(roots.profilesRoot, { withFileTypes: true });
   const profiles = [];
   for (const entry of entries) {
     if (!entry.isFile() || !entry.name.endsWith(".json")) continue;
-    const filePath = path.join(profilesRoot, entry.name);
+    const filePath = path.join(roots.profilesRoot, entry.name);
     const profile = await readJson(filePath, null);
     if (profile) profiles.push(profile);
   }
@@ -42,8 +53,8 @@ function parseBoolean(value, defaultValue = false) {
   return ["1", "true", "yes"].includes(String(value).toLowerCase());
 }
 
-export async function getInventoryPayload(searchParams) {
-  const inventory = await readInventory();
+export async function getInventoryPayload(searchParams, options = {}) {
+  const inventory = await readInventory(options);
   const unit = searchParams.get("unit");
   const units = (inventory.units ?? []).filter((entry) => !unit || entry.unitId === unit || entry.identity?.stableKey === unit);
   return {
@@ -54,8 +65,8 @@ export async function getInventoryPayload(searchParams) {
   };
 }
 
-export async function getHistoryPayload(searchParams) {
-  const history = await readHistory();
+export async function getHistoryPayload(searchParams, options = {}) {
+  const history = await readHistory(options);
   const unit = searchParams.get("unit");
   const family = searchParams.get("family");
   const includeMissing = parseBoolean(searchParams.get("includeMissing"), true);
@@ -87,8 +98,9 @@ export async function getHistoryPayload(searchParams) {
   };
 }
 
-export async function getProfilesPayload(searchParams) {
-  const profiles = await readProfiles();
+export async function getProfilesPayload(searchParams, options = {}) {
+  const profiles = await readProfiles(options);
+  const roots = resolveServiceRoots(options);
   const profileId = searchParams.get("profile");
   const familyKey = searchParams.get("family");
   const status = searchParams.get("status");
@@ -103,7 +115,7 @@ export async function getProfilesPayload(searchParams) {
   });
 
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt: roots.generatedAt,
     profileCount: items.length,
     profiles: items,
   };

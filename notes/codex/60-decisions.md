@@ -300,3 +300,5 @@
 - 2026-03-31: Keep Stage 4 failure banners and job-detail panels task-oriented: module help stays module-only, Jobs shows a readable report summary before raw JSON, and validation failures should name failing checks when available.
 
 - 2026-03-31: Use a dedicated Reports tab backed by summarized validation-report payloads instead of trying to overload the Jobs tab for board-validation history.
+
+- 2026-03-31: Prefer fixture-root overrides in service/data helpers over tests that mutate the real repo state. Stage 3 validation tests should import production helpers directly, and Stage 4 API regressions should be checked through a lightweight Python HTTP test.
