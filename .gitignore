@@ -22,3 +22,4 @@ project/device-manager/data/*.sqlite-journal
 
 __pycache__/
 *.pyc
+project/job-manager/logs/stage4-read-api-trace.jsonl
