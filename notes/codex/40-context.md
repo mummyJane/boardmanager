@@ -275,3 +275,4 @@ un, and debug records.
 
 - Test coverage is now less bench-coupled: Stage 2 service tests use fixture roots, Stage 3 job-service tests use a temp project root, and Stage 4 has a Python HTTP regression test for key read endpoints.
 - 2026-03-31 10:24 Europe/London: Rebuilt the five persisted board definition files under `project/boards` as a fresh normalized set, then regenerated Stage 3 validation contracts and the Stage 4 tree model.
+- 2026-03-31 10:52 Europe/London: Stage 4 board validation was traced to the Node validation runner entrypoint guard. Direct `node project/scripts/run-stage3-validation.mjs ...` calls on Windows were returning exit code 0 with no stdout because `main()` was not being entered.

@@ -18,6 +18,7 @@ DEVICE_MANAGER_DATA_ROOT = PROJECT_ROOT / "device-manager" / "data"
 DEVICE_MANAGER_PROFILES_ROOT = PROJECT_ROOT / "device-manager" / "profiles"
 JOB_MANAGER_DATA_ROOT = PROJECT_ROOT / "job-manager" / "data"
 JOB_MANAGER_REPORTS_ROOT = PROJECT_ROOT / "job-manager" / "reports"
+JOB_MANAGER_LOGS_ROOT = PROJECT_ROOT / "job-manager" / "logs"
 PARTS_DEVICES_ROOT = PROJECT_ROOT / "parts" / "devices"
 HELP_PARTS_ROOT = PROJECT_ROOT / "help" / "parts"
 BOARDS_ROOT = PROJECT_ROOT / "boards"
@@ -44,6 +45,11 @@ TRACE_STATE = {
 
 def utc_now_iso():
     return datetime.now(timezone.utc).isoformat()
+
+
+def sanitize_segment(value):
+    text = re.sub(r"[^a-z0-9]+", "_", str(value or "unknown").lower()).strip("_")
+    return text or "unknown"
 
 
 def set_debug_trace(enabled=False, trace_file=None, max_events=200):
@@ -1656,6 +1662,46 @@ def update_board(board_id, payload):
     write_board_files(board_id, definition, help_markdown)
     return build_board_write_result(board_id, "updated")
 
+
+def parse_runner_json(stdout_text):
+    stdout_text = (stdout_text or "").strip()
+    if not stdout_text:
+        return None
+    try:
+        return json.loads(stdout_text)
+    except json.JSONDecodeError:
+        pass
+
+    first_brace = stdout_text.find("{")
+    last_brace = stdout_text.rfind("}")
+    if first_brace != -1 and last_brace != -1 and last_brace > first_brace:
+        candidate = stdout_text[first_brace:last_brace + 1]
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            return None
+    return None
+
+
+def write_validation_runner_log(board_id, unit_id, port, seconds, result, stdout_text, stderr_text):
+    JOB_MANAGER_LOGS_ROOT.mkdir(parents=True, exist_ok=True)
+    log_path = JOB_MANAGER_LOGS_ROOT / f"validation-runner-{sanitize_segment(board_id)}-{sanitize_segment(unit_id)}.log"
+    log_text = (
+        f"generatedAt: {utc_now_iso()}\n"
+        f"boardId: {board_id}\n"
+        f"unitId: {unit_id}\n"
+        f"port: {port}\n"
+        f"seconds: {seconds}\n"
+        f"exitCode: {result.returncode}\n"
+        "stdout:\n"
+        f"{stdout_text or '<empty>'}\n"
+        "stderr:\n"
+        f"{stderr_text or '<empty>'}\n"
+    )
+    log_path.write_text(log_text, encoding="utf-8")
+    return log_path
+
+
 def run_board_validation(payload):
     if not isinstance(payload, dict):
         raise ValueError("validation payload must be a JSON object")
@@ -1695,23 +1741,23 @@ def run_board_validation(payload):
 
     stdout_text = (result.stdout or "").strip()
     stderr_text = (result.stderr or "").strip()
-    payload_data = None
-    if stdout_text:
-        try:
-            payload_data = json.loads(stdout_text)
-        except json.JSONDecodeError:
-            payload_data = None
+    log_path = write_validation_runner_log(board_id, unit_id, port, seconds, result, stdout_text, stderr_text)
+    payload_data = parse_runner_json(stdout_text)
 
     if payload_data is None:
         message = stderr_text or stdout_text or f"validation runner exited with code {result.returncode}"
-        raise RuntimeError(message)
+        raise RuntimeError(f"{message}; runner log: {log_path.relative_to(REPO_ROOT).as_posix()}")
 
     report_path = Path(payload_data.get("reportPath") or "")
     if not report_path.exists():
-        raise FileNotFoundError("validation report was not written")
+        raise FileNotFoundError(
+            f"validation report was not written; runner log: {log_path.relative_to(REPO_ROOT).as_posix()}"
+        )
     report = read_json(report_path, None)
     if report is None:
-        raise RuntimeError("validation report could not be parsed")
+        raise RuntimeError(
+            f"validation report could not be parsed; runner log: {log_path.relative_to(REPO_ROOT).as_posix()}"
+        )
     report["__fileName"] = report_path.name
 
     return {
@@ -1721,6 +1767,8 @@ def run_board_validation(payload):
             "port": port,
             "seconds": seconds,
             "exitCode": result.returncode,
+            "logPath": str(log_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "reportPath": str(report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         },
         "latest": summarize_validation_report(report),
         "raw": payload_data,

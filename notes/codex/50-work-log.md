@@ -1967,3 +1967,14 @@ Validation:
 - Validation: `validate.ps1` passed.
 - Validation: `test.ps1` passed with discovery, service-data, Stage 3 job-flow, and Stage 4 Python API coverage.
 - Note: `apply_patch` failed twice at the Windows sandbox refresh layer before file IO, so the board JSON rewrite used direct PowerShell `Set-Content` for this maintenance task.
+
+## 2026-03-31 10:52 Europe/London
+- Task: Fix Stage 4 board validation reporting when the web UI showed `validation runner exited with code 0` and no runner log.
+- Root cause: `project/scripts/run-stage3-validation.mjs` used `if (import.meta.url === new URL(process.argv[1], "file:").href)` as its entrypoint guard. On Windows, launching the script as `node project/scripts/run-stage3-validation.mjs ...` did not satisfy that comparison, so `main()` never ran and the process exited 0 with empty stdout/stderr.
+- Updated `project/scripts/run-stage3-validation.mjs` to use a `pathToFileURL(path.resolve(process.argv[1])).href` comparison for the CLI entrypoint check.
+- Updated `project/scripts/stage4-read-api.py` to always write a validation-runner log under `project/job-manager/logs`, to parse JSON payloads more defensively from stdout, and to return `executed.logPath` and `executed.reportPath` to the UI.
+- Commands run: direct `node project/scripts/run-stage3-validation.mjs --board m5stack_dial_v1_1 --unit mac:c0:4e:30:12:b3:e0 --port COM5 --seconds 2`, direct Python import call to `run_board_validation(...)`, `validate.ps1`, and `test.ps1`.
+- Validation: direct Node validation now writes `project/job-manager/reports/validation-m5stack_dial_v1_1-mac_c0_4e_30_12_b3_e0.json` and exits with code 1 for the expected failing checks.
+- Validation: direct Stage 4 Python wrapper now returns `logPath=project/job-manager/logs/validation-runner-m5stack_dial_v1_1-mac_c0_4e_30_12_b3_e0.log`, `reportPath=project/job-manager/reports/validation-m5stack_dial_v1_1-mac_c0_4e_30_12_b3_e0.json`, and the failing checks `internal_i2c_configured` plus `internal_i2c_scan`.
+- Validation: `validate.ps1` passed.
+- Validation: `test.ps1` passed.
