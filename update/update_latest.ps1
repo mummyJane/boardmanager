@@ -1,1 +1,1 @@
-& "$PSScriptRoot\update_Task_milestone4_job_pages_1.ps1"
+& "$PSScriptRoot\update_Task_milestone4_job_detail_1.ps1"

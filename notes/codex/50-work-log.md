@@ -1944,3 +1944,5 @@ Validation:
 - Commands run: `python -m py_compile project/scripts/stage4-read-api.py`, `node --check project/web-ui/app/stage4-shell.js`, inline Python payload check for `build_jobs_dashboard_payload()`, inline Python launch/cleanup validation for a debug job on `m5stack_cores3_gnss_demo`, and `validate.ps1`.
 - Validation: direct `launch_stage3_job()` debug validation succeeded for `m5stack_cores3_gnss_demo` on `mac:48:27:e2:66:b0:04` with exit code `0`; transient job/log/report files were removed afterward and `jobs.json` was restored.
 - Validation: `validate.ps1` passed after the Jobs-tab changes.
+
+2026-03-31: Completed Milestone 4 job-detail web UI slice. Added Python job-detail/log/report/artifact endpoints, updated the Jobs tab to drill into selected job output, fixed escape regressions in the direct Python/JS edits, and validated with py_compile, node --check, and validate.ps1.

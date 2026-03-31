@@ -231,3 +231,5 @@ Requirements:
 
 
 
+
+- Stage 4 Jobs views must expose Stage 3 job summaries, log tails, parsed reports, and artifact paths directly through the Python web service so the browser does not need to read repository files itself.

@@ -118,7 +118,7 @@ Last updated: 2026-03-31 07:53 Europe/London
 - [x] Add a project create/edit flow for user-defined projects, including SDK code, third-party component code, module code, and selected board target
 - [x] Add service write APIs for creating and updating project definitions safely
 - [x] Add build/run/program/debug pages that launch and monitor Stage 3 jobs for the selected project, board, and unit
-- [ ] Add job-log, report, and artifact views to the web UI on top of the existing Stage 3 APIs
+- [x] Add job-log, report, and artifact views to the web UI on top of the existing Stage 3 APIs
 - [ ] Add a known-module seeding flow so operator-provided module lists such as the supplied M5Stack module inventory can be imported into the catalog
 - [ ] Seed the initial known-module catalog with the current M5Stack examples and the current Waveshare board examples, including aliases, chip families, and whether each entry is a standalone board, reusable module, or both
 - [ ] Add tests for Stage 4 read APIs, write APIs, tree transforms, and first-guess board creation logic

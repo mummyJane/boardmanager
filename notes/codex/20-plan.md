@@ -209,3 +209,5 @@ Planned slices:
 - 2026-03-31 08:45 Europe/London: Stage 4 project create/edit flow complete. The Projects tab now supports user-created project definitions, guarded updates for user-owned projects, and minimal firmware-app scaffolding so new project JSON files validate immediately.
 
 - 2026-03-31 09:15 Europe/London: Stage 4 jobs view complete for first launch/monitor coverage. The shell can now launch Stage 3 build/program/run/debug jobs through the Python host and show recent job status without waiting for the deeper log/report/artifact task.
+
+- Milestone 4 now includes a completed job-detail slice: the Jobs tab must show recent Stage 3 jobs and drill into log tails, parsed reports, and artifacts from the Python service layer.

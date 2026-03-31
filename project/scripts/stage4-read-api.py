@@ -2311,6 +2311,114 @@ def find_job_by_id(job_id):
 
 
 
+def ensure_repo_file_path(file_path):
+    if not file_path:
+        return None
+    candidate = Path(file_path)
+    if not candidate.is_absolute():
+        candidate = REPO_ROOT / candidate
+    candidate = candidate.resolve()
+    repo_root = REPO_ROOT.resolve()
+    if candidate != repo_root and repo_root not in candidate.parents:
+        raise ValueError(f"path '{file_path}' is outside the repo root")
+    return candidate
+
+
+
+def read_text_tail(file_path, tail_lines):
+    lines = file_path.read_text(encoding="utf-8").splitlines()
+    if tail_lines <= 0 or len(lines) <= tail_lines:
+        return lines
+    return lines[-tail_lines:]
+
+
+
+def build_job_log_payload(job_id, tail_lines=80):
+    job = find_job_by_id(job_id)
+    log_entry = next((entry for entry in (job.get("logs") or []) if entry.get("path")), None)
+    if log_entry is None:
+        return {
+            "jobId": job_id,
+            "available": False,
+            "kind": None,
+            "path": None,
+            "tailLineCount": 0,
+            "lines": [],
+        }
+    log_path = ensure_repo_file_path(log_entry.get("path"))
+    if log_path is None or not log_path.exists() or not log_path.is_file():
+        return {
+            "jobId": job_id,
+            "available": False,
+            "kind": log_entry.get("kind"),
+            "path": None if log_path is None else str(log_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "tailLineCount": 0,
+            "lines": [],
+        }
+    lines = read_text_tail(log_path, tail_lines)
+    return {
+        "jobId": job_id,
+        "available": True,
+        "kind": log_entry.get("kind"),
+        "path": str(log_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "tailLineCount": len(lines),
+        "lines": lines,
+    }
+
+
+
+def build_job_report_payload(job_id):
+    job = find_job_by_id(job_id)
+    report_path = ensure_repo_file_path((job.get("result") or {}).get("reportPath"))
+    if report_path is None or not report_path.exists() or not report_path.is_file():
+        return {
+            "jobId": job_id,
+            "available": False,
+            "path": None if report_path is None else str(report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "report": None,
+        }
+    report = read_json(report_path, None)
+    return {
+        "jobId": job_id,
+        "available": report is not None,
+        "path": str(report_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "report": report,
+    }
+
+
+
+def build_job_artifacts_payload(job_id):
+    job = find_job_by_id(job_id)
+    artifacts = []
+    for entry in job.get("artifacts") or []:
+        artifact_path = ensure_repo_file_path(entry.get("path"))
+        exists = bool(artifact_path and artifact_path.exists())
+        artifacts.append({
+            "kind": entry.get("kind"),
+            "path": None if artifact_path is None else str(artifact_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+            "exists": exists,
+            "sizeBytes": artifact_path.stat().st_size if exists else None,
+        })
+    return {
+        "jobId": job_id,
+        "artifactCount": len(artifacts),
+        "artifacts": artifacts,
+    }
+
+
+
+def build_job_detail_payload(job_id, tail_lines=80):
+    job = find_job_by_id(job_id)
+    return {
+        "generatedAt": load_jobs().get("generatedAt"),
+        "job": summarize_job(job),
+        "log": build_job_log_payload(job_id, tail_lines=tail_lines),
+        "report": build_job_report_payload(job_id),
+        "artifacts": build_job_artifacts_payload(job_id),
+    }
+
+
+
 def normalize_job_launch_payload(payload):
     if not isinstance(payload, dict):
         raise ValueError("job payload must be a JSON object")
@@ -2686,6 +2794,28 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_jobs_dashboard_payload(model))
                 return
 
+            if parsed.path.startswith("/api/stage4/job-detail/"):
+                job_id = parsed.path.rsplit("/", 1)[-1]
+                tail_lines = int(query.get("tail", ["80"])[0])
+                self._send_json(200, build_job_detail_payload(job_id, tail_lines=tail_lines))
+                return
+
+            if parsed.path.startswith("/api/stage4/job-log/"):
+                job_id = parsed.path.rsplit("/", 1)[-1]
+                tail_lines = int(query.get("tail", ["80"])[0])
+                self._send_json(200, build_job_log_payload(job_id, tail_lines=tail_lines))
+                return
+
+            if parsed.path.startswith("/api/stage4/job-report/"):
+                job_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_job_report_payload(job_id))
+                return
+
+            if parsed.path.startswith("/api/stage4/job-artifacts/"):
+                job_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_job_artifacts_payload(job_id))
+                return
+
             if parsed.path == "/api/stage4/board-create-candidates":
                 inventory = load_inventory()
                 candidates = []
@@ -2790,6 +2920,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/dashboard/modules",
                         "/api/stage4/dashboard/boards",
                         "/api/stage4/dashboard/jobs",
+                        "/api/stage4/job-detail/<jobId>",
+                        "/api/stage4/job-log/<jobId>",
+                        "/api/stage4/job-report/<jobId>",
+                        "/api/stage4/job-artifacts/<jobId>",
                         "/api/stage4/dashboard/projects",
                         "/api/stage4/board-create-candidates",
                         "/api/stage4/board-create-manual-options",

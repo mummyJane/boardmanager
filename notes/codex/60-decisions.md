@@ -290,3 +290,5 @@
 
 - 2026-03-31 09:15 Europe/London: Keep the first Jobs tab thin: launch Stage 3 actions through the existing PowerShell runners from the Python service and show recent job-state summaries from the Stage 3 job store. Detailed log/report/artifact browsing stays in the next task.
 - 2026-03-31 09:15 Europe/London: The Python Stage 4 host should own the job-launch endpoint so the browser talks to one web server. The launcher delegates to existing Stage 3 scripts instead of reimplementing build/program/run/debug orchestration in Python.
+
+- 2026-03-31: Keep Stage 4 job-detail views in the Python service layer with explicit `/api/stage4/job-detail`, `/job-log`, `/job-report`, and `/job-artifacts` endpoints rather than exposing raw repo file paths to the browser.

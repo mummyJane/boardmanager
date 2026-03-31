@@ -195,6 +195,13 @@ The Jobs tab now has a first launch/monitor flow through the Python service:
 - `/api/stage4/dashboard/jobs` returns recent Stage 3 job summaries plus project and unit choices for the Jobs tab.
 - `POST /api/stage4/job-launch` launches one of the existing Stage 3 actions: `build`, `program`, `run`, or `debug`.
 
+The Jobs tab now also consumes:
+
+- `/api/stage4/job-detail/<jobId>` for the selected job summary plus linked log/report/artifact payloads
+- `/api/stage4/job-log/<jobId>` for bounded log-tail reads
+- `/api/stage4/job-report/<jobId>` for the parsed job report JSON
+- `/api/stage4/job-artifacts/<jobId>` for artifact path and existence metadata
+
 Current behavior:
 
 - build uses the selected project and board target, and may optionally carry a selected stable unit id

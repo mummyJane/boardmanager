@@ -15,6 +15,7 @@ const state = {
   jobsDashboard: null,
   selectedJobId: null,
   jobStatus: null,
+  jobDetail: null,
   inventoryDashboard: null,
   moduleCatalog: null,
   boardCatalog: null,
@@ -776,10 +777,18 @@ async function loadProjectEdit(projectId) {
 async function selectJob(jobId) {
   state.selectedJobId = jobId;
   renderPrimary('jobs');
+  const detailPayload = await fetchJson(`/api/stage4/job-detail/${encodeURIComponent(jobId)}?tail=80`);
+  if (state.selectedJobId !== jobId) {
+    return;
+  }
+  state.jobDetail = detailPayload;
   renderPreview('jobs');
 }
 
 function findSelectedJob() {
+  if (state.jobDetail?.job?.jobId === state.selectedJobId) {
+    return state.jobDetail.job;
+  }
   return (state.jobsDashboard?.recentJobs ?? []).find((entry) => entry.jobId === state.selectedJobId) || null;
 }
 
@@ -844,6 +853,9 @@ async function handleJobLaunchSubmit(form) {
   };
   state.jobsDashboard = result.dashboard;
   state.selectedJobId = result.job?.jobId || state.selectedJobId;
+  if (state.selectedJobId) {
+    state.jobDetail = await fetchJson(`/api/stage4/job-detail/${encodeURIComponent(state.selectedJobId)}?tail=80`);
+  }
   renderPrimary('jobs');
   renderPreview('jobs');
 }
@@ -1538,6 +1550,40 @@ function renderJobsStatus() {
   return `<div class="status-banner ${state.jobStatus.kind}">${escapeHtml(state.jobStatus.message)}</div>`;
 }
 
+function renderJsonBlock(value) {
+  if (value === null || value === undefined) {
+    return '<div class="empty-inline">No data.</div>';
+  }
+  return `<pre class="code-block">${escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
+}
+
+function renderLogBlock(log) {
+  if (!log?.available) {
+    return '<div class="empty-inline">No job log available.</div>';
+  }
+  return `
+    <div class="detail-stack">
+      <div class="meta-row">
+        <span class="meta-chip">${escapeHtml(log.kind ?? 'log')}</span>
+        <span class="meta-chip">${escapeHtml(log.path ?? 'no path')}</span>
+        <span class="meta-chip">tail ${log.tailLineCount ?? 0}</span>
+      </div>
+      <pre class="code-block">${escapeHtml((log.lines ?? []).join('\n'))}</pre>
+    </div>`;
+}
+
+function renderArtifactList(artifacts) {
+  const items = artifacts?.artifacts ?? [];
+  if (!items.length) {
+    return '<div class="empty-inline">No artifacts recorded.</div>';
+  }
+  return renderList(items.map((entry) => ({
+    title: entry.kind ?? 'artifact',
+    description: entry.path ?? 'no path',
+    meta: [entry.exists ? 'present' : 'missing', entry.sizeBytes == null ? 'size n/a' : `${entry.sizeBytes} bytes`],
+  })));
+}
+
 function renderJobLaunchPanel() {
   const projects = state.projectCatalog?.projects ?? [];
   const defaultProjectId = state.selectedProjectId || projects[0]?.projectId || '';
@@ -1603,14 +1649,31 @@ function renderJobLaunchPanel() {
 function renderJobsDetailPanel() {
   const selected = findSelectedJob();
   if (!selected) {
-    return `<div class="empty-note">Select a recent job to inspect its status summary.</div>`;
+    return `<div class="empty-note">Select a recent job to inspect its logs, report, and artifacts.</div>`;
   }
-  return renderList([
-    { title: 'Job', description: `${selected.action} · ${selected.status}`, meta: [selected.jobId, selected.updatedAt ?? selected.createdAt ?? ''] },
-    { title: 'Resolution', description: selected.projectId ?? 'unknown project', meta: [selected.boardId ?? 'unknown board', selected.unitId ?? 'no unit', selected.transportPort ?? 'no port'] },
-    { title: 'Result', description: selected.summary ?? 'No summary recorded yet.', meta: [`exit ${selected.exitCode ?? 'n/a'}`, selected.pass === true ? 'pass' : selected.pass === false ? 'fail' : 'pending'] },
-    { title: 'Artifacts', description: `logs ${selected.logCount ?? 0} · artifacts ${selected.artifactCount ?? 0}`, meta: [selected.reportPath ?? 'no report path'] },
-  ]);
+  const report = state.jobDetail?.report ?? null;
+  const log = state.jobDetail?.log ?? null;
+  const artifacts = state.jobDetail?.artifacts ?? null;
+  return `
+    <div class="detail-stack">
+      ${renderList([
+        { title: 'Job', description: `${selected.action} · ${selected.status}`, meta: [selected.jobId, selected.updatedAt ?? selected.createdAt ?? ''] },
+        { title: 'Resolution', description: selected.projectId ?? 'unknown project', meta: [selected.boardId ?? 'unknown board', selected.unitId ?? 'no unit', selected.transportPort ?? 'no port'] },
+        { title: 'Result', description: selected.summary ?? 'No summary recorded yet.', meta: [`exit ${selected.exitCode ?? 'n/a'}`, selected.pass === true ? 'pass' : selected.pass === false ? 'fail' : 'pending'] },
+      ])}
+      <div>
+        <strong>Log tail</strong>
+        ${renderLogBlock(log)}
+      </div>
+      <div>
+        <strong>Parsed report</strong>
+        ${report?.available ? renderJsonBlock(report.report) : '<div class="empty-inline">No parsed report available.</div>'}
+      </div>
+      <div>
+        <strong>Artifacts</strong>
+        ${renderArtifactList(artifacts)}
+      </div>
+    </div>`;
 }
 
 function bindJobsPreviewActions() {
@@ -1853,6 +1916,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
   state.projectEditOptions = projectEditOptions;
   state.jobsDashboard = jobsDashboard;
   state.selectedJobId = state.selectedJobId || jobsDashboard.recentJobs[0]?.jobId || null;
+  state.jobDetail = null;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
   state.selectedProjectId = preferredProjectId || state.selectedProjectId || projectCatalog.projects[0]?.projectId || null;
@@ -1876,6 +1940,9 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
   }
   if (state.selectedProjectId) {
     state.projectDetail = await fetchJson(`/api/stage4/project-detail/${encodeURIComponent(state.selectedProjectId)}`);
+  }
+  if (state.selectedJobId) {
+    state.jobDetail = await fetchJson(`/api/stage4/job-detail/${encodeURIComponent(state.selectedJobId)}?tail=80`);
   }
 
   setActiveView(state.currentView);
