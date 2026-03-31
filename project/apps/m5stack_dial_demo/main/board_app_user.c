@@ -75,6 +75,7 @@ void board_manager_user_app_start(const board_app_context_t *context)
 
     for (;;) {
         m5stack_dial_v1_1_platform_get_self_test(&result);
+        print_i2c_scan();
         printf("Live inputs: touch_irq=%d rfid_irq=%d enc_a=%d enc_b=%d\n",
             result.touch_interrupt_active ? 1 : 0,
             result.rfid_interrupt_active ? 1 : 0,

@@ -1989,3 +1989,15 @@ Validation:
 - COM7 `mac:c8:2e:18:f0:47:74`: no Stage 3 validation was run because the unit is still unmatched. Discovery currently captures chip `ESP32-D0WD-V3 (revision v3.1)`, MAC `c8:2e:18:f0:47:74`, serial `0001`, CP210x USB identity, and an unresolved ESP32-family draft profile.
 - Commands run: `validate-board.ps1` four times, once per matched board/unit pair, each with `-Seconds 3` and bounded command timeouts.
 - Result summary: all four matched boards validated through the runner path without hanging. Current remaining failures are hardware/bus-level or firmware-probe-level issues, not web/server dispatch issues.
+
+## 2026-03-31 11:46 Europe/London
+- Task: Check whether repeated validation failures were caused by missing IO/UART/I2C setup.
+- Inspected `project/generated/m5stack_dial_v1_1.c`, `project/platform/esp-idf/m5stack_dial_v1_1_platform.c`, `project/generated/m5stack_cores3_gnss_v1.c`, and `project/platform/esp-idf/m5stack_cores3_gnss_v1_platform.c`.
+- Verified that both boards do run their generated controller boot and bus boot steps before dependent device probes.
+- Dial finding: runtime validation only captured `Live inputs` lines and no `BoardManagerI2CScan` lines, so `internal_i2c_configured` and `internal_i2c_scan` were failing from missing recurring scan evidence rather than from proven bad pin setup.
+- CoreS3 finding: runtime validation captured repeated `BoardManagerI2CScan: bus=internal_i2c observed=none` lines plus ESP-IDF `I2C software timeout` messages, so this board now looks like a real I2C bus/probe failure, not just a missing validation-print problem.
+- UART finding: no obvious UART mapping error was found in the current code paths. CoreS3 GNSS PPS GPIO sampling works, and the serial transport, firmware identity, and board-agent lines are being captured correctly over USB serial.
+- Changed `project/apps/m5stack_dial_demo/main/board_app_user.c` so the Dial now emits `BoardManagerI2CScan` continuously in the live loop, matching the CoreS3 validation style.
+- Validation: `validate.ps1` passed.
+- Validation: `test.ps1` passed.
+- Remaining gap: module-level status register / version register reads are not broadly implemented yet; current validation mostly logs board identity, firmware identity, transport identity, and bus/device presence evidence.
