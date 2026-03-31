@@ -2012,3 +2012,9 @@ Validation:
 - Fix: enable `HAL_DMA_MODULE_ENABLED`, compile `stm32f0xx_hal_dma.c`, and include `stm32f0xx_hal_dma.h` before the I2C/SPI HAL headers.
 - Validation: `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` passed and produced `project/build/stm32-p_nucleo_usb001_f072rb_demo`.
 - Validation: `validate.ps1` passed.
+## 2026-03-31 13:26 Europe/London
+- Task: Reset the persisted board layer after the user changed one of the physical cards and asked to restart board reading/testing from a clean state.
+- First cleanup step: stopped leftover `cmake`, `ninja`, and recent `python` processes from the interrupted CoreS3 rebuild attempt so the reset would not race active build jobs.
+- Restored the half-finished uncommitted CoreS3 diagnostic code back to the last committed state before doing the board reset.
+- Removed all current board definitions under `project/boards`, all generated board headers/sources under `project/generated`, all board help pages under `project/help/boards`, all board validation contracts under `project/job-manager/contracts`, all persisted validation reports under `project/job-manager/reports`, and the Stage 4 tree snapshot under `project/web-ui/data/stage4-tree-model.json`.
+- Note: this is an intentional intermediate reset state, so full repo validation was not run after the deletion step because the board catalog is now empty by design until the new board is re-read and redefined.

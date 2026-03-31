@@ -141,3 +141,4 @@ Last updated: 2026-03-31 07:53 Europe/London
 
 - [x] Rebuild all persisted board definitions from the normalized board model and regenerate dependent validation contracts and Stage 4 tree data
 - [x] Add real STM32 GPIO, I2C, and SPI setup code for the attached F072 board so the platform layer is no longer controller-only
+- [x] Reset the persisted board layer by deleting all current board definitions and board-derived artifacts so fresh board identification can restart from changed hardware
