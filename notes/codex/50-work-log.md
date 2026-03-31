@@ -2001,3 +2001,14 @@ Validation:
 - Validation: `validate.ps1` passed.
 - Validation: `test.ps1` passed.
 - Remaining gap: module-level status register / version register reads are not broadly implemented yet; current validation mostly logs board identity, firmware identity, transport identity, and bus/device presence evidence.
+## 2026-03-31 12:18 Europe/London
+- Task: Add concrete STM32 GPIO, I2C, and SPI setup for the attached F072 board instead of leaving the bus hooks stubbed.
+- Updated `project/apps/p_nucleo_usb001_demo/main/stm32f0xx_hal_conf.h` to enable the STM32 HAL DMA, I2C, and SPI modules and to include the needed HAL headers in a compile-safe order for STM32CubeF0.
+- Updated `project/apps/p_nucleo_usb001_demo/CMakeLists.txt` to compile the STM32CubeF0 HAL DMA, I2C, and SPI sources into the demo app.
+- Updated `project/platform/stm32cube/p_nucleo_usb001_f072rb_v1_platform.c` to initialize the modeled GPIO signals, I2C1 on PB8/PB9 for the `usbpd_i2c` bus, and a non-conflicting SPI2 master scaffold on PB13/PB14/PB15.
+- Commands run: `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1`, `validate.ps1`.
+- First build failure: STM32CubeF0 SPI compile failed because the DMA HAL types were not enabled in the app HAL config.
+- Second build failure: STM32CubeF0 I2C and SPI still compiled against incomplete DMA typing because `stm32f0xx_hal_dma.h` was included after the bus headers.
+- Fix: enable `HAL_DMA_MODULE_ENABLED`, compile `stm32f0xx_hal_dma.c`, and include `stm32f0xx_hal_dma.h` before the I2C/SPI HAL headers.
+- Validation: `build.ps1 -Platform stm32 -App p_nucleo_usb001_demo -Board p_nucleo_usb001_f072rb_v1` passed and produced `project/build/stm32-p_nucleo_usb001_f072rb_demo`.
+- Validation: `validate.ps1` passed.

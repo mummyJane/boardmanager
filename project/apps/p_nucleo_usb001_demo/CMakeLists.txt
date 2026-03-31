@@ -32,12 +32,16 @@ add_executable(${PROJECT_NAME}
     ${PLATFORM_DIR}/p_nucleo_usb001_f072rb_v1_platform.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_cortex.c
+    ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_dma.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_flash.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_flash_ex.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_gpio.c
+    ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_i2c.c
+    ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_i2c_ex.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_pwr.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_rcc.c
     ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_rcc_ex.c
+    ${HAL_DRIVER_DIR}/Src/stm32f0xx_hal_spi.c
     ${CMSIS_DEVICE_DIR}/Source/Templates/system_stm32f0xx.c
     ${CMSIS_DEVICE_DIR}/Source/Templates/gcc/startup_stm32f072xb.s
 )
