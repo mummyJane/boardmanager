@@ -274,3 +274,4 @@ un, and debug records.
 - Stage 4 now has a real Reports view backed by `/api/stage4/dashboard/reports`; it shows recent validation reports, failing checks, and raw report payloads instead of a placeholder panel.
 
 - Test coverage is now less bench-coupled: Stage 2 service tests use fixture roots, Stage 3 job-service tests use a temp project root, and Stage 4 has a Python HTTP regression test for key read endpoints.
+- 2026-03-31 10:24 Europe/London: Rebuilt the five persisted board definition files under `project/boards` as a fresh normalized set, then regenerated Stage 3 validation contracts and the Stage 4 tree model.

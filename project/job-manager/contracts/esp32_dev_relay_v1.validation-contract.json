@@ -4,7 +4,7 @@
   "displayName": "ESP32 Dev Relay V1",
   "revision": "1.0",
   "platformSdk": "esp-idf",
-  "generatedAt": "2026-03-29T21:20:46.741Z",
+  "generatedAt": "2026-03-31T09:14:05.101Z",
   "strategy": {
     "order": [
       "controller",

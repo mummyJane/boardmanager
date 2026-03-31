@@ -4,7 +4,7 @@
   "displayName": "M5Stack Dial V1.1",
   "revision": "1.1",
   "platformSdk": "esp-idf",
-  "generatedAt": "2026-03-29T21:20:46.760Z",
+  "generatedAt": "2026-03-31T09:14:05.104Z",
   "strategy": {
     "order": [
       "controller",

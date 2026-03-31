@@ -13,6 +13,10 @@
     "jtag": true,
     "powerDelivery": true
   },
+  "power": {
+    "usbInput": "USB VBUS",
+    "debugBridge": "ST-LINK/V2-1"
+  },
   "signals": [
     {
       "name": "heartbeat_led",
@@ -76,29 +80,70 @@
     }
   ],
   "bootSequence": [
-    { "name": "controller", "kind": "module" },
-    { "name": "usbpd_i2c", "kind": "bus", "bus": "usbpd_i2c" },
-    { "name": "usb_pd_controller", "kind": "device", "instanceId": "usb_pd_controller" },
-    { "name": "heartbeat_led_off", "kind": "signal", "signal": "heartbeat_led", "state": false },
-    { "name": "vconn_disable", "kind": "signal", "signal": "vconn_enable", "state": false },
-    { "name": "buzzer_disable", "kind": "signal", "signal": "buzzer_enable", "state": false }
+    {
+      "name": "controller",
+      "kind": "module"
+    },
+    {
+      "name": "usbpd_i2c",
+      "kind": "bus",
+      "bus": "usbpd_i2c"
+    },
+    {
+      "name": "usb_pd_controller",
+      "kind": "device",
+      "instanceId": "usb_pd_controller"
+    },
+    {
+      "name": "heartbeat_led_off",
+      "kind": "signal",
+      "signal": "heartbeat_led",
+      "state": false
+    },
+    {
+      "name": "vconn_disable",
+      "kind": "signal",
+      "signal": "vconn_enable",
+      "state": false
+    },
+    {
+      "name": "buzzer_disable",
+      "kind": "signal",
+      "signal": "buzzer_enable",
+      "state": false
+    }
   ],
   "connectors": [
     {
       "name": "arduino_uno_v3",
       "type": "Arduino Uno V3",
       "pins": [
-        { "label": "D13", "signal": "PA5" },
-        { "label": "D15", "signal": "PB8" },
-        { "label": "D14", "signal": "PB9" }
+        {
+          "label": "D13",
+          "signal": "PA5"
+        },
+        {
+          "label": "D15",
+          "signal": "PB8"
+        },
+        {
+          "label": "D14",
+          "signal": "PB9"
+        }
       ]
     },
     {
       "name": "st_morpho",
       "type": "ST Morpho",
       "pins": [
-        { "label": "PC13", "signal": "PC13" },
-        { "label": "PA8", "signal": "PA8" }
+        {
+          "label": "PC13",
+          "signal": "PC13"
+        },
+        {
+          "label": "PA8",
+          "signal": "PA8"
+        }
       ]
     }
   ],

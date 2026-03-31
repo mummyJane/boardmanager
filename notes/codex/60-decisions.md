@@ -302,3 +302,5 @@
 - 2026-03-31: Use a dedicated Reports tab backed by summarized validation-report payloads instead of trying to overload the Jobs tab for board-validation history.
 
 - 2026-03-31: Prefer fixture-root overrides in service/data helpers over tests that mutate the real repo state. Stage 3 validation tests should import production helpers directly, and Stage 4 API regressions should be checked through a lightweight Python HTTP test.
+- 2026-03-31 10:24 Europe/London: Treat the user-requested board reset as a full persisted-board rebuild. Rewrite the board JSON definitions first, then regenerate contracts and Stage 4 tree data immediately so the repo never sits in a half-rebuilt board state.
+- 2026-03-31 10:24 Europe/London: Because `apply_patch` failed at the sandbox refresh layer before touching files, use direct PowerShell file writes for this rebuild instead of leaving the task incomplete.

@@ -85,51 +85,119 @@
     }
   ],
   "bootSequence": [
-    { "name": "controller", "kind": "module" },
-    { "name": "internal_i2c", "kind": "bus", "bus": "internal_i2c" },
-    { "name": "rtc", "kind": "device", "instanceId": "rtc" },
-    { "name": "pmu", "kind": "device", "instanceId": "pmu" },
-    { "name": "gnss_uart", "kind": "bus", "bus": "gnss_uart" },
-    { "name": "gnss_module", "kind": "device", "instanceId": "gnss_module" }
+    {
+      "name": "controller",
+      "kind": "module"
+    },
+    {
+      "name": "internal_i2c",
+      "kind": "bus",
+      "bus": "internal_i2c"
+    },
+    {
+      "name": "rtc",
+      "kind": "device",
+      "instanceId": "rtc"
+    },
+    {
+      "name": "pmu",
+      "kind": "device",
+      "instanceId": "pmu"
+    },
+    {
+      "name": "gnss_uart",
+      "kind": "bus",
+      "bus": "gnss_uart"
+    },
+    {
+      "name": "gnss_module",
+      "kind": "device",
+      "instanceId": "gnss_module"
+    }
   ],
   "connectors": [
     {
       "name": "port_a",
       "type": "HY2.0-4P",
       "pins": [
-        { "label": "GND", "signal": "GND" },
-        { "label": "5V", "signal": "5V" },
-        { "label": "YELLOW", "signal": "GPIO2" },
-        { "label": "WHITE", "signal": "GPIO1" }
+        {
+          "label": "GND",
+          "signal": "GND"
+        },
+        {
+          "label": "5V",
+          "signal": "5V"
+        },
+        {
+          "label": "YELLOW",
+          "signal": "GPIO2"
+        },
+        {
+          "label": "WHITE",
+          "signal": "GPIO1"
+        }
       ]
     },
     {
       "name": "port_b",
       "type": "HY2.0-4P",
       "pins": [
-        { "label": "GND", "signal": "GND" },
-        { "label": "5V", "signal": "5V" },
-        { "label": "YELLOW", "signal": "GPIO9" },
-        { "label": "WHITE", "signal": "GPIO8" }
+        {
+          "label": "GND",
+          "signal": "GND"
+        },
+        {
+          "label": "5V",
+          "signal": "5V"
+        },
+        {
+          "label": "YELLOW",
+          "signal": "GPIO9"
+        },
+        {
+          "label": "WHITE",
+          "signal": "GPIO8"
+        }
       ]
     },
     {
       "name": "port_c",
       "type": "HY2.0-4P",
       "pins": [
-        { "label": "GND", "signal": "GND" },
-        { "label": "5V", "signal": "5V" },
-        { "label": "YELLOW", "signal": "GPIO17" },
-        { "label": "WHITE", "signal": "GPIO18" }
+        {
+          "label": "GND",
+          "signal": "GND"
+        },
+        {
+          "label": "5V",
+          "signal": "5V"
+        },
+        {
+          "label": "YELLOW",
+          "signal": "GPIO17"
+        },
+        {
+          "label": "WHITE",
+          "signal": "GPIO18"
+        }
       ]
     },
     {
       "name": "m5_bus",
       "type": "M5-Bus",
       "pins": [
-        { "label": "TX", "signal": "GPIO17" },
-        { "label": "RX", "signal": "GPIO18" },
-        { "label": "PPS", "signal": "GPIO8" }
+        {
+          "label": "TX",
+          "signal": "GPIO17"
+        },
+        {
+          "label": "RX",
+          "signal": "GPIO18"
+        },
+        {
+          "label": "PPS",
+          "signal": "GPIO8"
+        }
       ]
     }
   ],

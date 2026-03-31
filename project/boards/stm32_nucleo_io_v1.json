@@ -12,6 +12,9 @@
     "uart": true,
     "jtag": true
   },
+  "power": {
+    "supply": "USB or ST-LINK power rail"
+  },
   "signals": [
     {
       "name": "heartbeat_led",
@@ -38,9 +41,25 @@
       "activeLevel": "low"
     }
   ],
+  "buses": [],
   "bootSequence": [
-    { "name": "controller", "kind": "module" },
-    { "name": "heartbeat_led_off", "kind": "signal", "signal": "heartbeat_led", "state": false },
-    { "name": "fan_disable", "kind": "signal", "signal": "fan_enable", "state": false }
-  ]
+    {
+      "name": "controller",
+      "kind": "module"
+    },
+    {
+      "name": "heartbeat_led_off",
+      "kind": "signal",
+      "signal": "heartbeat_led",
+      "state": false
+    },
+    {
+      "name": "fan_disable",
+      "kind": "signal",
+      "signal": "fan_enable",
+      "state": false
+    }
+  ],
+  "connectors": [],
+  "sources": []
 }

@@ -136,3 +136,7 @@ Last updated: 2026-03-31 07:53 Europe/London
 
 
 
+
+## Completed Maintenance
+
+- [x] Rebuild all persisted board definitions from the normalized board model and regenerate dependent validation contracts and Stage 4 tree data

@@ -152,35 +152,96 @@
     }
   ],
   "bootSequence": [
-    { "name": "controller", "kind": "module" },
-    { "name": "power_hold", "kind": "signal", "signal": "power_hold", "state": true },
-    { "name": "internal_i2c", "kind": "bus", "bus": "internal_i2c" },
-    { "name": "rtc", "kind": "device", "instanceId": "rtc" },
-    { "name": "touch", "kind": "device", "instanceId": "touch" },
-    { "name": "rfid", "kind": "device", "instanceId": "rfid" },
-    { "name": "display_spi", "kind": "bus", "bus": "display_spi" },
-    { "name": "display", "kind": "device", "instanceId": "display" },
-    { "name": "lcd_backlight", "kind": "signal", "signal": "lcd_backlight", "state": true }
+    {
+      "name": "controller",
+      "kind": "module"
+    },
+    {
+      "name": "power_hold",
+      "kind": "signal",
+      "signal": "power_hold",
+      "state": true
+    },
+    {
+      "name": "internal_i2c",
+      "kind": "bus",
+      "bus": "internal_i2c"
+    },
+    {
+      "name": "rtc",
+      "kind": "device",
+      "instanceId": "rtc"
+    },
+    {
+      "name": "touch",
+      "kind": "device",
+      "instanceId": "touch"
+    },
+    {
+      "name": "rfid",
+      "kind": "device",
+      "instanceId": "rfid"
+    },
+    {
+      "name": "display_spi",
+      "kind": "bus",
+      "bus": "display_spi"
+    },
+    {
+      "name": "display",
+      "kind": "device",
+      "instanceId": "display"
+    },
+    {
+      "name": "lcd_backlight",
+      "kind": "signal",
+      "signal": "lcd_backlight",
+      "state": true
+    }
   ],
   "connectors": [
     {
       "name": "port_a",
       "type": "HY2.0-4P",
       "pins": [
-        { "label": "GND", "signal": "GND" },
-        { "label": "5V", "signal": "5V" },
-        { "label": "YELLOW", "signal": "GPIO13" },
-        { "label": "WHITE", "signal": "GPIO15" }
+        {
+          "label": "GND",
+          "signal": "GND"
+        },
+        {
+          "label": "5V",
+          "signal": "5V"
+        },
+        {
+          "label": "YELLOW",
+          "signal": "GPIO13"
+        },
+        {
+          "label": "WHITE",
+          "signal": "GPIO15"
+        }
       ]
     },
     {
       "name": "port_b",
       "type": "HY2.0-4P",
       "pins": [
-        { "label": "GND", "signal": "GND" },
-        { "label": "5V", "signal": "5V" },
-        { "label": "YELLOW", "signal": "GPIO2" },
-        { "label": "WHITE", "signal": "GPIO1" }
+        {
+          "label": "GND",
+          "signal": "GND"
+        },
+        {
+          "label": "5V",
+          "signal": "5V"
+        },
+        {
+          "label": "YELLOW",
+          "signal": "GPIO2"
+        },
+        {
+          "label": "WHITE",
+          "signal": "GPIO1"
+        }
       ]
     }
   ],

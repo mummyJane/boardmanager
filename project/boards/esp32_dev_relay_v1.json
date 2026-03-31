@@ -14,6 +14,10 @@
     "wifi": true,
     "bluetooth": true
   },
+  "power": {
+    "supply": "5V dev board rail",
+    "relaySupply": "local relay driver rail"
+  },
   "signals": [
     {
       "name": "status_led",
@@ -40,9 +44,25 @@
       "activeLevel": "low"
     }
   ],
+  "buses": [],
   "bootSequence": [
-    { "name": "controller", "kind": "module" },
-    { "name": "status_led_off", "kind": "signal", "signal": "status_led", "state": false },
-    { "name": "relay_off", "kind": "signal", "signal": "relay_drive", "state": false }
-  ]
+    {
+      "name": "controller",
+      "kind": "module"
+    },
+    {
+      "name": "status_led_off",
+      "kind": "signal",
+      "signal": "status_led",
+      "state": false
+    },
+    {
+      "name": "relay_off",
+      "kind": "signal",
+      "signal": "relay_drive",
+      "state": false
+    }
+  ],
+  "connectors": [],
+  "sources": []
 }

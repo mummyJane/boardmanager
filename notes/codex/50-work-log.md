@@ -1956,3 +1956,14 @@ Validation:
 2026-03-31: Added a real Stage 4 Reports view. Exposed `/api/stage4/dashboard/reports` from the Python server, wired the Reports tab to recent validation reports, and restarted the debug-trace server on `127.0.0.1:8791`. Verified the route returned HTTP 200 and repo validation still passed.
 
 2026-03-31: Hardened the test layer. Refactored Stage 2 and Stage 3 service-data helpers to accept fixture roots, updated Stage 3 tests to call exported production validation helpers instead of local stub parsers, added a Python Stage 4 API regression test, and updated `test.ps1` to run both Node and Python test suites. Validation: `test.ps1` passed with 3 Node groups plus the Stage 4 Python API test.
+
+## 2026-03-31 10:24 Europe/London
+- Task: Full board rebuild requested by the user.
+- Rewrote all persisted board definition files under `project/boards`: `esp32_dev_relay_v1.json`, `m5stack_cores3_gnss_v1.json`, `m5stack_dial_v1_1.json`, `p_nucleo_usb001_f072rb_v1.json`, and `stm32_nucleo_io_v1.json`.
+- Commands run: `node project/scripts/generate-board-artifacts.mjs`, `generate-validation-contracts.ps1`, `generate-stage4-tree-model.ps1`, `validate.ps1`, `test.ps1`.
+- Validation: board artifacts regenerated successfully for all 5 boards.
+- Validation: validation contracts regenerated successfully for all 5 boards.
+- Validation: Stage 4 tree model regenerated successfully with 13 modules, 5 boards, and 4 projects.
+- Validation: `validate.ps1` passed.
+- Validation: `test.ps1` passed with discovery, service-data, Stage 3 job-flow, and Stage 4 Python API coverage.
+- Note: `apply_patch` failed twice at the Windows sandbox refresh layer before file IO, so the board JSON rewrite used direct PowerShell `Set-Content` for this maintenance task.
