@@ -207,3 +207,5 @@
 - 2026-03-31 07:53 Europe/London: Updated Stage 4 spec to call out the first project catalog payload/detail shape. Reason: the Projects tab now needs a stable service contract for board target, app layout, OTA/security policy, and override summaries.
 
 - 2026-03-31 08:45 Europe/London: Updated Stage 4 spec to call out the first project create/edit flow plus guarded project write APIs and project code-root metadata. Reason: the Projects tab now supports user-created project definitions, board selection, OTA/security policy, and explicit SDK/component/module code roots through the Python service.
+
+- 2026-03-31 09:15 Europe/London: Updated Stage 4 spec to call out the first Jobs-tab launch/monitor flow through the Python service. Reason: the web shell can now start Stage 3 build/program/run/debug actions and show recent job state before the later detailed log/report/artifact view is added.

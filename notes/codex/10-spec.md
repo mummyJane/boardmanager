@@ -188,6 +188,7 @@ Requirements:
 - the first project catalog should expose project summaries and selected-project detail payloads for board target, app roots, user-code roots, SDK family, OTA policy, security classification, and override counts through the Python service
 - the first project create/edit flow should support user-defined projects through the Python service, including board selection, app layout, firmware target, OTA and security policy, part/signal overrides, and explicit code-root metadata for SDK code, third-party component code, and module code
 - the first project write API layer should support safe project creation and guarded updates for user-owned projects, scaffold missing app-root and user-code-root files where needed, and regenerate the Stage 4 tree after successful writes
+- the first jobs view should let the operator launch build, program, run, and debug actions for a selected project/board/unit through the Python service, and should surface recent job status from the Stage 3 job store
 - build and run views must surface captured logs, reports, artifacts, and job state from the existing Stage 3 service APIs instead of reading local files directly
 - the system must preserve a database of seen boards and units, including logs, serial numbers, MAC addresses, transport identity, history, and board-family/profile evidence, and expose that data to the UI
 - the initial web UI may consume the existing Stage 2 and Stage 3 JSON service endpoints directly, but Stage 4 must grow the missing write APIs needed for module, board, and project editing

@@ -287,3 +287,6 @@
 
 - 2026-03-31 08:45 Europe/London: Keep the first project editor guarded to `origin: user` project definitions, matching the earlier module-edit rule. Seeded catalog projects remain reference data and should not be editable through the first generic write API.
 - 2026-03-31 08:45 Europe/London: New user-created projects should scaffold minimal app-root files immediately instead of only writing project JSON. This keeps the existing definition validator happy and makes the first project-create flow usable without a second manual file-setup step.
+
+- 2026-03-31 09:15 Europe/London: Keep the first Jobs tab thin: launch Stage 3 actions through the existing PowerShell runners from the Python service and show recent job-state summaries from the Stage 3 job store. Detailed log/report/artifact browsing stays in the next task.
+- 2026-03-31 09:15 Europe/London: The Python Stage 4 host should own the job-launch endpoint so the browser talks to one web server. The launcher delegates to existing Stage 3 scripts instead of reimplementing build/program/run/debug orchestration in Python.

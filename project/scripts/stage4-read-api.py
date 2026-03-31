@@ -1,6 +1,7 @@
 import argparse
 import json
 import re
+import shutil
 import subprocess
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -2225,6 +2226,202 @@ def build_project_detail_payload(model, project_id):
 
 
 
+def map_firmware_family_to_platform(family):
+    family_text = str(family or "").strip().lower()
+    if family_text == "esp-idf":
+        return "esp32"
+    if family_text == "stm32cube":
+        return "stm32"
+    raise ValueError(f"unsupported firmware family '{family}'")
+
+
+
+def summarize_job(job):
+    resolution = job.get("resolution") or {}
+    result = job.get("result") or {}
+    logs = job.get("logs") or []
+    artifacts = job.get("artifacts") or []
+    return {
+        "jobId": job.get("jobId"),
+        "action": job.get("action"),
+        "status": job.get("status"),
+        "createdAt": job.get("createdAt"),
+        "updatedAt": job.get("updatedAt"),
+        "summary": result.get("summary"),
+        "exitCode": result.get("exitCode"),
+        "pass": result.get("pass"),
+        "boardId": resolution.get("matchedBoardId") or resolution.get("boardId"),
+        "projectId": resolution.get("matchedProjectId") or resolution.get("projectId"),
+        "unitId": resolution.get("matchedUnitId") or resolution.get("unitId"),
+        "transportPort": resolution.get("resolvedTransportPort"),
+        "logCount": len(logs),
+        "artifactCount": len(artifacts),
+        "reportPath": result.get("reportPath"),
+    }
+
+
+
+def build_jobs_dashboard_payload(model):
+    jobs_store = load_jobs()
+    inventory = load_inventory()
+    projects_payload = build_project_catalog_payload(model)
+    jobs = sorted(jobs_store.get("jobs", []), key=lambda entry: entry.get("updatedAt") or entry.get("createdAt") or "", reverse=True)
+    recent_jobs = [summarize_job(job) for job in jobs[:20]]
+    status_counts = {}
+    action_counts = {}
+    for entry in jobs:
+        status = entry.get("status") or "unknown"
+        action = entry.get("action") or "unknown"
+        status_counts[status] = status_counts.get(status, 0) + 1
+        action_counts[action] = action_counts.get(action, 0) + 1
+
+    units = []
+    for unit in inventory.get("units", []):
+        annotation = unit.get("annotation") or {}
+        match = unit.get("match") or {}
+        transport = unit.get("transport") or {}
+        units.append({
+            "unitId": unit.get("unitId"),
+            "label": annotation.get("label"),
+            "boardId": (unit.get("manualOverride") or {}).get("boardId") or match.get("boardId"),
+            "port": transport.get("port"),
+            "transportKind": transport.get("kind"),
+            "present": unit.get("present", True),
+        })
+
+    return {
+        "generatedAt": jobs_store.get("generatedAt"),
+        "summary": {
+            "jobCount": len(jobs),
+            "statusCounts": dict(sorted(status_counts.items())),
+            "actionCounts": dict(sorted(action_counts.items())),
+        },
+        "projects": projects_payload.get("projects", []),
+        "units": units,
+        "recentJobs": recent_jobs,
+    }
+
+
+
+def find_job_by_id(job_id):
+    for job in load_jobs().get("jobs", []):
+        if job.get("jobId") == job_id:
+            return job
+    raise FileNotFoundError(f"job '{job_id}' not found")
+
+
+
+def normalize_job_launch_payload(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("job payload must be a JSON object")
+    action = str(payload.get("action") or "").strip().lower()
+    if action not in {"build", "program", "run", "debug"}:
+        raise ValueError("action must be one of: build, program, run, debug")
+    project_id = str(payload.get("projectId") or "").strip()
+    if not project_id:
+        raise ValueError("projectId is required")
+    project = load_project_definition(project_id)["definition"]
+    platform = map_firmware_family_to_platform((project.get("firmwareTarget") or {}).get("family"))
+    unit_id = str(payload.get("unitId") or "").strip()
+    if action in {"program", "run", "debug"} and not unit_id:
+        raise ValueError(f"unitId is required for action '{action}'")
+    return {
+        "action": action,
+        "projectId": project_id,
+        "project": project,
+        "platform": platform,
+        "boardId": project.get("boardId"),
+        "appId": ((project.get("app") or {}).get("appId") or project_id),
+        "unitId": unit_id or None,
+        "buildType": str(payload.get("buildType") or "Debug").strip() or "Debug",
+        "configureTimeoutSeconds": int(payload.get("configureTimeoutSeconds") or 180),
+        "buildTimeoutSeconds": int(payload.get("buildTimeoutSeconds") or 300),
+        "programTimeoutSeconds": int(payload.get("programTimeoutSeconds") or 300),
+        "runTimeoutSeconds": int(payload.get("runTimeoutSeconds") or 10),
+        "baudRate": int(payload.get("baudRate") or 115200),
+        "gdbServerPort": int(payload.get("gdbServerPort") or 3333),
+        "telnetPort": int(payload.get("telnetPort") or 4444),
+        "tclPort": int(payload.get("tclPort") or 6666),
+    }
+
+
+
+def resolve_powershell_executable():
+    return shutil.which("pwsh") or shutil.which("powershell") or shutil.which("powershell.exe")
+
+
+
+def launch_stage3_job(payload):
+    normalized = normalize_job_launch_payload(payload)
+    before_jobs = load_jobs().get("jobs", [])
+    before_ids = {job.get("jobId") for job in before_jobs}
+    powershell_exe = resolve_powershell_executable()
+    if not powershell_exe:
+        raise RuntimeError("PowerShell executable was not found on PATH")
+
+    script_name = {
+        "build": "build.ps1",
+        "program": "program.ps1",
+        "run": "run.ps1",
+        "debug": "debug.ps1",
+    }[normalized["action"]]
+    command = [
+        powershell_exe,
+        "-File",
+        str(REPO_ROOT / script_name),
+        "-Platform",
+        normalized["platform"],
+        "-App",
+        normalized["appId"],
+        "-Board",
+        normalized["boardId"],
+    ]
+    if normalized["action"] == "build":
+        command += [
+            "-BuildType", normalized["buildType"],
+            "-ConfigureTimeoutSeconds", str(normalized["configureTimeoutSeconds"]),
+            "-BuildTimeoutSeconds", str(normalized["buildTimeoutSeconds"]),
+        ]
+        if normalized["unitId"]:
+            command += ["-Unit", normalized["unitId"]]
+    elif normalized["action"] == "program":
+        command += ["-Unit", normalized["unitId"], "-ProgramTimeoutSeconds", str(normalized["programTimeoutSeconds"])]
+    elif normalized["action"] == "run":
+        command += ["-Unit", normalized["unitId"], "-RunTimeoutSeconds", str(normalized["runTimeoutSeconds"]), "-BaudRate", str(normalized["baudRate"])]
+    elif normalized["action"] == "debug":
+        command += [
+            "-Unit", normalized["unitId"],
+            "-GdbServerPort", str(normalized["gdbServerPort"]),
+            "-TelnetPort", str(normalized["telnetPort"]),
+            "-TclPort", str(normalized["tclPort"]),
+        ]
+
+    completed = subprocess.run(command, cwd=str(REPO_ROOT), capture_output=True, text=True, check=False)
+    after_jobs = load_jobs().get("jobs", [])
+    new_jobs = [job for job in after_jobs if job.get("jobId") not in before_ids]
+    if not new_jobs:
+        raise RuntimeError(f"{normalized['action']} job did not create a Stage 3 job record")
+    new_jobs.sort(key=lambda entry: entry.get("createdAt") or "", reverse=True)
+    job = new_jobs[0]
+    return {
+        "launchedAt": new_jobs[0].get("createdAt") or new_jobs[0].get("updatedAt"),
+        "request": {
+            "action": normalized["action"],
+            "projectId": normalized["projectId"],
+            "boardId": normalized["boardId"],
+            "unitId": normalized["unitId"],
+            "platform": normalized["platform"],
+        },
+        "process": {
+            "exitCode": completed.returncode,
+            "stdout": (completed.stdout or "").strip(),
+            "stderr": (completed.stderr or "").strip(),
+        },
+        "job": summarize_job(job),
+        "dashboard": build_jobs_dashboard_payload(load_tree_model()),
+    }
+
+
 def build_inventory_dashboard_payload():
     inventory = load_inventory()
     history = load_history()
@@ -2400,6 +2597,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 payload = self._read_json_body()
                 self._send_json(201, create_project(payload))
                 return
+            if parsed.path == "/api/stage4/job-launch":
+                payload = self._read_json_body()
+                self._send_json(200, launch_stage3_job(payload))
+                return
             if parsed.path == "/api/stage4/module-create":
                 payload = self._read_json_body()
                 self._send_json(201, create_leaf_module(payload))
@@ -2479,6 +2680,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
 
             if parsed.path == "/api/stage4/dashboard/boards":
                 self._send_json(200, build_board_catalog_payload(model))
+                return
+
+            if parsed.path == "/api/stage4/dashboard/jobs":
+                self._send_json(200, build_jobs_dashboard_payload(model))
                 return
 
             if parsed.path == "/api/stage4/board-create-candidates":
@@ -2584,6 +2789,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/dashboard/inventory",
                         "/api/stage4/dashboard/modules",
                         "/api/stage4/dashboard/boards",
+                        "/api/stage4/dashboard/jobs",
                         "/api/stage4/dashboard/projects",
                         "/api/stage4/board-create-candidates",
                         "/api/stage4/board-create-manual-options",
@@ -2606,6 +2812,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/project-edit/<projectId>",
                         "POST /api/stage4/project-validate",
                         "POST /api/stage4/project-create",
+                        "POST /api/stage4/job-launch",
                         "/api/stage4/projects",
                         "/api/stage4/projects/<projectId>",
                         "PUT /api/stage4/projects/<projectId>",

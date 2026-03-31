@@ -12,6 +12,9 @@ const state = {
   projectEditMode: false,
   projectEditPayload: null,
   projectStatus: null,
+  jobsDashboard: null,
+  selectedJobId: null,
+  jobStatus: null,
   inventoryDashboard: null,
   moduleCatalog: null,
   boardCatalog: null,
@@ -57,12 +60,12 @@ const titles = {
   jobs: {
     title: "Jobs",
     eyebrow: "Execution",
-    description: "Stage 3 job pages are the next task family after the shell. This slot is reserved for build, program, run, debug, and validation activity."
+    description: "Launch and monitor Stage 3 build, program, run, and debug jobs for the selected project, board, and unit."
   },
   reports: {
     title: "Reports",
     eyebrow: "Validation & logs",
-    description: "Validation reports, run logs, and later exported operator reports will surface here once the shell grows beyond the first frame."
+    description: "Detailed job logs, parsed reports, and artifacts are the next task. This view stays reserved until that slice is added."
   }
 };
 
@@ -770,6 +773,81 @@ async function loadProjectEdit(projectId) {
   renderPreview('projects');
 }
 
+async function selectJob(jobId) {
+  state.selectedJobId = jobId;
+  renderPrimary('jobs');
+  renderPreview('jobs');
+}
+
+function findSelectedJob() {
+  return (state.jobsDashboard?.recentJobs ?? []).find((entry) => entry.jobId === state.selectedJobId) || null;
+}
+
+function projectUnitsForSelection(projectId) {
+  if (!projectId) {
+    return [];
+  }
+  const project = (state.projectCatalog?.projects ?? []).find((entry) => entry.projectId === projectId);
+  if (!project) {
+    return [];
+  }
+  return (state.inventoryDashboard?.units ?? []).filter((unit) => unit.boardId === project.boardId);
+}
+
+function toggleJobUnitRequirement(form) {
+  const action = String(form.querySelector('[name="action"]')?.value || '').trim();
+  const unitSelect = form.querySelector('[name="unitId"]');
+  if (!unitSelect) {
+    return;
+  }
+  const requiresUnit = action !== 'build';
+  unitSelect.required = requiresUnit;
+  unitSelect.disabled = false;
+}
+
+function repopulateJobUnitOptions(form) {
+  const projectId = String(form.querySelector('[name="projectId"]')?.value || '').trim();
+  const unitSelect = form.querySelector('[name="unitId"]');
+  if (!unitSelect) {
+    return;
+  }
+  const units = projectUnitsForSelection(projectId);
+  const previous = unitSelect.value;
+  unitSelect.innerHTML = `<option value="">${units.length ? 'Select unit' : 'No matching unit'}</option>${units.map((unit) => `<option value="${unit.unitId}">${escapeHtml(unit.label || unit.boardId || unit.unitId)}${unit.port ? ` (${escapeHtml(unit.port)})` : ''}</option>`).join('')}`;
+  if (units.some((unit) => unit.unitId === previous)) {
+    unitSelect.value = previous;
+  }
+}
+
+async function handleJobLaunchSubmit(form) {
+  const formData = new FormData(form);
+  const action = String(formData.get('action') || '').trim();
+  const projectId = String(formData.get('projectId') || '').trim();
+  const payload = {
+    action,
+    projectId,
+    unitId: String(formData.get('unitId') || '').trim() || null,
+    buildType: String(formData.get('buildType') || 'Debug').trim() || 'Debug',
+    configureTimeoutSeconds: Number(String(formData.get('configureTimeoutSeconds') || '180').trim() || '180'),
+    buildTimeoutSeconds: Number(String(formData.get('buildTimeoutSeconds') || '300').trim() || '300'),
+    programTimeoutSeconds: Number(String(formData.get('programTimeoutSeconds') || '300').trim() || '300'),
+    runTimeoutSeconds: Number(String(formData.get('runTimeoutSeconds') || '10').trim() || '10'),
+    baudRate: Number(String(formData.get('baudRate') || '115200').trim() || '115200'),
+    gdbServerPort: Number(String(formData.get('gdbServerPort') || '3333').trim() || '3333'),
+    telnetPort: Number(String(formData.get('telnetPort') || '4444').trim() || '4444'),
+    tclPort: Number(String(formData.get('tclPort') || '6666').trim() || '6666'),
+  };
+  const result = await postJson('/api/stage4/job-launch', payload);
+  state.jobStatus = {
+    kind: result.job?.pass === false || result.process?.exitCode ? 'error' : 'success',
+    message: result.job?.summary || `${action} job ${result.job?.jobId ?? ''}`.trim(),
+  };
+  state.jobsDashboard = result.dashboard;
+  state.selectedJobId = result.job?.jobId || state.selectedJobId;
+  renderPrimary('jobs');
+  renderPreview('jobs');
+}
+
 async function loadBoardGuess(unitId) {
   if (!unitId) {
     state.boardCreateGuess = null;
@@ -1445,6 +1523,120 @@ function bindProjectPreviewActions() {
   }
 }
 
+function renderJobsToolbar() {
+  return `
+    <div class="action-row">
+      ${state.selectedProjectId ? `<span class="status-chip">project ${escapeHtml(state.selectedProjectId)}</span>` : ''}
+      ${state.selectedJobId ? `<span class="status-chip">job ${escapeHtml(state.selectedJobId)}</span>` : ''}
+    </div>`;
+}
+
+function renderJobsStatus() {
+  if (!state.jobStatus) {
+    return '';
+  }
+  return `<div class="status-banner ${state.jobStatus.kind}">${escapeHtml(state.jobStatus.message)}</div>`;
+}
+
+function renderJobLaunchPanel() {
+  const projects = state.projectCatalog?.projects ?? [];
+  const defaultProjectId = state.selectedProjectId || projects[0]?.projectId || '';
+  const units = projectUnitsForSelection(defaultProjectId);
+  return `
+    <form id="job-launch-form" class="form-stack">
+      <div class="eyebrow">Launch Stage 3 job</div>
+      <div class="form-grid">
+        <label class="field-label">Action
+          <select class="text-input" name="action" required>
+            <option value="build">build</option>
+            <option value="program">program</option>
+            <option value="run">run</option>
+            <option value="debug">debug</option>
+          </select>
+        </label>
+        <label class="field-label">Project
+          <select class="text-input" name="projectId" required>
+            ${projects.map((project) => `<option value="${escapeHtml(project.projectId)}" ${project.projectId === defaultProjectId ? 'selected' : ''}>${escapeHtml(project.title)} (${escapeHtml(project.projectId)})</option>`).join('')}
+          </select>
+        </label>
+        <label class="field-label">Unit
+          <select class="text-input" name="unitId">
+            <option value="">${units.length ? 'Select unit' : 'No matching unit'}</option>
+            ${units.map((unit) => `<option value="${unit.unitId}">${escapeHtml(unit.label || unit.boardId || unit.unitId)}${unit.port ? ` (${escapeHtml(unit.port)})` : ''}</option>`).join('')}
+          </select>
+        </label>
+        <label class="field-label">Build type
+          <input class="text-input" name="buildType" value="Debug">
+        </label>
+        <label class="field-label">Configure timeout
+          <input class="text-input" name="configureTimeoutSeconds" type="number" min="30" value="180">
+        </label>
+        <label class="field-label">Build timeout
+          <input class="text-input" name="buildTimeoutSeconds" type="number" min="30" value="300">
+        </label>
+        <label class="field-label">Program timeout
+          <input class="text-input" name="programTimeoutSeconds" type="number" min="30" value="300">
+        </label>
+        <label class="field-label">Run timeout
+          <input class="text-input" name="runTimeoutSeconds" type="number" min="1" value="10">
+        </label>
+        <label class="field-label">Baud rate
+          <input class="text-input" name="baudRate" type="number" min="1200" value="115200">
+        </label>
+        <label class="field-label">GDB server port
+          <input class="text-input" name="gdbServerPort" type="number" min="1024" value="3333">
+        </label>
+        <label class="field-label">Telnet port
+          <input class="text-input" name="telnetPort" type="number" min="1024" value="4444">
+        </label>
+        <label class="field-label">TCL port
+          <input class="text-input" name="tclPort" type="number" min="1024" value="6666">
+        </label>
+      </div>
+      <div class="action-row">
+        <button class="action-button primary" type="submit">Launch job</button>
+        <span class="empty-inline">Build does not require a unit. Program, run, and debug target the selected stable unit id.</span>
+      </div>
+    </form>`;
+}
+
+function renderJobsDetailPanel() {
+  const selected = findSelectedJob();
+  if (!selected) {
+    return `<div class="empty-note">Select a recent job to inspect its status summary.</div>`;
+  }
+  return renderList([
+    { title: 'Job', description: `${selected.action} · ${selected.status}`, meta: [selected.jobId, selected.updatedAt ?? selected.createdAt ?? ''] },
+    { title: 'Resolution', description: selected.projectId ?? 'unknown project', meta: [selected.boardId ?? 'unknown board', selected.unitId ?? 'no unit', selected.transportPort ?? 'no port'] },
+    { title: 'Result', description: selected.summary ?? 'No summary recorded yet.', meta: [`exit ${selected.exitCode ?? 'n/a'}`, selected.pass === true ? 'pass' : selected.pass === false ? 'fail' : 'pending'] },
+    { title: 'Artifacts', description: `logs ${selected.logCount ?? 0} · artifacts ${selected.artifactCount ?? 0}`, meta: [selected.reportPath ?? 'no report path'] },
+  ]);
+}
+
+function bindJobsPreviewActions() {
+  const form = document.getElementById('job-launch-form');
+  if (form) {
+    toggleJobUnitRequirement(form);
+    form.querySelector('[name="action"]')?.addEventListener('change', () => {
+      toggleJobUnitRequirement(form);
+    });
+    form.querySelector('[name="projectId"]')?.addEventListener('change', () => {
+      repopulateJobUnitOptions(form);
+    });
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.jobStatus = { kind: 'info', message: 'Launching job...' };
+        renderPreview('jobs');
+        await handleJobLaunchSubmit(form);
+      } catch (error) {
+        state.jobStatus = { kind: 'error', message: error.message };
+        renderPreview('jobs');
+      }
+    });
+  }
+}
+
 function renderPreview(view) {
   const secondaryTitle = document.getElementById("secondary-title");
   const secondaryBody = document.getElementById("secondary-body");
@@ -1600,6 +1792,27 @@ function renderPrimary(view) {
     return;
   }
 
+  if (view === "jobs" && state.jobsDashboard) {
+    primaryBody.innerHTML = `<ul class="data-list">${state.jobsDashboard.recentJobs.map((job) => `
+      <li class="data-card selectable-card${state.selectedJobId === job.jobId ? ' is-selected' : ''}">
+        <button class="card-button" data-job-id="${job.jobId}" type="button">
+          <h4>${job.action} · ${job.jobId}</h4>
+          <div>${job.projectId ?? 'unknown project'} · ${job.boardId ?? 'unknown board'} · ${job.status ?? 'unknown status'}</div>
+          <div class="meta-row">
+            <span class="meta-chip">${job.status ?? 'unknown'}</span>
+            <span class="meta-chip">${job.unitId ?? 'no unit'}</span>
+            <span class="meta-chip">${job.pass === true ? 'pass' : job.pass === false ? 'fail' : 'pending'}</span>
+          </div>
+        </button>
+      </li>`).join('')}</ul>`;
+    document.querySelectorAll('[data-job-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectJob(button.dataset.jobId);
+      });
+    });
+    return;
+  }
+
   primaryBody.innerHTML = `<div class="empty-note">${titleInfo.description}</div>`;
 }
 
@@ -1613,7 +1826,7 @@ function setActiveView(view) {
 }
 
 async function loadShell(preferredModuleId = null, preferredBoardId = null, preferredProjectId = null) {
-  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions, projectEditOptions] = await Promise.all([
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions, projectEditOptions, jobsDashboard] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
@@ -1624,7 +1837,8 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
     fetchJson('/api/stage4/dashboard/projects'),
     fetchJson('/api/stage4/board-create-candidates'),
     fetchJson('/api/stage4/board-create-manual-options'),
-    fetchJson('/api/stage4/project-edit-options')
+    fetchJson('/api/stage4/project-edit-options'),
+    fetchJson('/api/stage4/dashboard/jobs')
   ]);
 
   state.tree = tree;
@@ -1637,6 +1851,8 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
   state.boardCreateCandidates = boardCreateCandidates;
   state.boardManualOptions = boardManualOptions;
   state.projectEditOptions = projectEditOptions;
+  state.jobsDashboard = jobsDashboard;
+  state.selectedJobId = state.selectedJobId || jobsDashboard.recentJobs[0]?.jobId || null;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
   state.selectedProjectId = preferredProjectId || state.selectedProjectId || projectCatalog.projects[0]?.projectId || null;

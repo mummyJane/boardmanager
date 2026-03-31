@@ -1936,3 +1936,11 @@ Validation:
 - Commands run: `python -m py_compile project/scripts/stage4-read-api.py`, `node --check project/web-ui/app/stage4-shell.js`, inline Python create/update/cleanup validation for `user_stage4_temp_project`, and `validate.ps1`.
 - Validation: the controlled create/update/cleanup cycle scaffolded `apps/user_stage4_temp_app/main/app_main.c`, `board_app_user.c`, and `board_app_user.h`, then removed the temporary project and regenerated the Stage 4 tree.
 - Validation: `validate.ps1` passed after the project create/edit changes.
+
+## 2026-03-31 09:15 Europe/London
+- Task: Stage 4 build/run/program/debug pages on top of the existing Stage 3 job APIs.
+- Updated `project/scripts/stage4-read-api.py` to add `/api/stage4/dashboard/jobs` and `POST /api/stage4/job-launch`, backed by the existing top-level PowerShell Stage 3 runners.
+- Updated `project/web-ui/app/stage4-shell.js` so the Jobs tab now renders a launch form, recent job cards, and selected-job summary detail.
+- Commands run: `python -m py_compile project/scripts/stage4-read-api.py`, `node --check project/web-ui/app/stage4-shell.js`, inline Python payload check for `build_jobs_dashboard_payload()`, inline Python launch/cleanup validation for a debug job on `m5stack_cores3_gnss_demo`, and `validate.ps1`.
+- Validation: direct `launch_stage3_job()` debug validation succeeded for `m5stack_cores3_gnss_demo` on `mac:48:27:e2:66:b0:04` with exit code `0`; transient job/log/report files were removed afterward and `jobs.json` was restored.
+- Validation: `validate.ps1` passed after the Jobs-tab changes.

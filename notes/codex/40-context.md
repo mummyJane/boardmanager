@@ -260,3 +260,5 @@ un, and debug records.
 - 2026-03-31 07:53 Europe/London: Projects tab now renders real project cards and selected-project detail for board target, app roots, firmware target, deployment/OTA policy, security classification, and override counts.
 
 - 2026-03-31 08:45 Europe/London: Stage 4 Projects tab now has real create/edit support backed by the Python service. User-created projects are marked `origin: user`, catalog projects remain read-only, and new projects scaffold minimal app roots plus reserved user-code files so repo validation passes immediately.
+
+- 2026-03-31 09:15 Europe/London: Stage 4 Jobs tab now launches Stage 3 build/program/run/debug actions through the Python service. Live validation used the CoreS3+GNSS unit `mac:48:27:e2:66:b0:04` for a debug job, then restored transient job files so the repo stayed clean.

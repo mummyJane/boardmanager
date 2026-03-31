@@ -188,3 +188,16 @@ Safety rules:
 - catalog projects remain readable but reject write attempts
 - create/update flows regenerate the Stage 4 tree before returning refreshed payloads
 - create/update flows keep the repo-validation contract intact by scaffolding the minimal reserved user-code files when a new project app root does not exist yet
+
+
+The Jobs tab now has a first launch/monitor flow through the Python service:
+
+- `/api/stage4/dashboard/jobs` returns recent Stage 3 job summaries plus project and unit choices for the Jobs tab.
+- `POST /api/stage4/job-launch` launches one of the existing Stage 3 actions: `build`, `program`, `run`, or `debug`.
+
+Current behavior:
+
+- build uses the selected project and board target, and may optionally carry a selected stable unit id
+- program, run, and debug require a selected stable unit id
+- the Python service delegates to the existing top-level PowerShell Stage 3 runners rather than reimplementing tool orchestration
+- the Jobs tab currently shows recent job summary state; deeper log, report, and artifact views remain the next Stage 4 task

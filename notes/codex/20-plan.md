@@ -141,6 +141,7 @@ Planned slices:
 - Slice 7: add project/build/run pages that sit on top of the Stage 3 job APIs
   - project catalog read view complete with board target, app layout, OTA/security policy, and override summaries
   - project create/edit flow complete with guarded Python write APIs, preflight validation, and minimal app-root scaffolding for new user projects
+  - jobs view now launches build/program/run/debug actions through the Python service and shows recent Stage 3 job state
 - Slice 8: add service write APIs and persistence workflows for user-created modules, boards, and projects
   - module, board, and project write APIs now exist for the first Stage 4 editor flows
 
@@ -206,3 +207,5 @@ Planned slices:
 - 2026-03-31 07:53 Europe/London: Stage 4 project catalog view complete. Python service now exposes project catalog/detail payloads and the Projects tab renders real board target, app layout, deployment, OTA, security, and override detail.
 
 - 2026-03-31 08:45 Europe/London: Stage 4 project create/edit flow complete. The Projects tab now supports user-created project definitions, guarded updates for user-owned projects, and minimal firmware-app scaffolding so new project JSON files validate immediately.
+
+- 2026-03-31 09:15 Europe/London: Stage 4 jobs view complete for first launch/monitor coverage. The shell can now launch Stage 3 build/program/run/debug jobs through the Python host and show recent job status without waiting for the deeper log/report/artifact task.
