@@ -2384,6 +2384,54 @@ def build_jobs_dashboard_payload(model):
 
 
 
+def build_reports_dashboard_payload():
+    reports = load_validation_reports()
+    report_items = []
+    pass_count = 0
+    fail_count = 0
+    for report in reports[:50]:
+        summary = report.get("summary") or {}
+        identity = report.get("identity") or {}
+        failing_checks = [
+            {
+                "checkId": entry.get("checkId"),
+                "title": entry.get("title") or entry.get("checkId"),
+                "notes": entry.get("notes") or [],
+            }
+            for entry in (report.get("checks") or [])
+            if entry.get("pass") is False
+        ]
+        overall_pass = summary.get("overallPass")
+        if overall_pass is True:
+            pass_count += 1
+        elif overall_pass is False:
+            fail_count += 1
+        report_items.append({
+            "reportFile": report.get("__fileName"),
+            "generatedAt": report.get("generatedAt"),
+            "boardId": identity.get("boardId"),
+            "boardDisplayName": identity.get("boardDisplayName") or identity.get("boardId"),
+            "stableUnitId": identity.get("stableUnitId"),
+            "port": identity.get("port"),
+            "transportKind": identity.get("transportKind"),
+            "overallPass": overall_pass,
+            "failingCheckCount": summary.get("failingCheckCount"),
+            "warningCount": summary.get("warningCount"),
+            "failingChecks": failing_checks,
+            "report": report,
+        })
+
+    return {
+        "generatedAt": reports[0].get("generatedAt") if reports else None,
+        "summary": {
+            "reportCount": len(report_items),
+            "passCount": pass_count,
+            "failCount": fail_count,
+        },
+        "reports": report_items,
+    }
+
+
 def find_job_by_id(job_id):
     for job in load_jobs().get("jobs", []):
         if job.get("jobId") == job_id:
@@ -2894,6 +2942,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_project_catalog_payload(model))
                 return
 
+            if parsed.path == "/api/stage4/dashboard/reports":
+                self._send_json(200, build_reports_dashboard_payload())
+                return
+
             if parsed.path.startswith("/api/stage4/job-detail/"):
                 job_id = parsed.path.rsplit("/", 1)[-1]
                 tail_lines = int(query.get("tail", ["80"])[0])
@@ -3026,6 +3078,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/job-report/<jobId>",
                         "/api/stage4/job-artifacts/<jobId>",
                         "/api/stage4/dashboard/projects",
+                        "/api/stage4/dashboard/reports",
                         "/api/stage4/board-create-candidates",
                         "/api/stage4/board-create-manual-options",
                         "/api/stage4/project-edit-options",

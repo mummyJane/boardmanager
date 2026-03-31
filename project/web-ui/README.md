@@ -220,3 +220,5 @@ Debug trace:
 - launch with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791 --debug-trace --trace-file project/job-manager/logs/stage4-read-api-trace.jsonl`
 - inspect live trace state at `/api/stage4/debug/trace`
 - trace events include startup, request, response, and basic HTTP log entries
+
+The Reports tab now consumes `/api/stage4/dashboard/reports` and exposes recent Stage 3 validation reports with pass/fail state, failing checks, unit identity, and raw report payloads.

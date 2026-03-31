@@ -298,3 +298,5 @@
 - 2026-03-31: Add a lightweight in-memory/file-backed debug trace mode to the Stage 4 Python server so web-UI routing and startup issues can be diagnosed from the service itself without attaching an external debugger.
 
 - 2026-03-31: Keep Stage 4 failure banners and job-detail panels task-oriented: module help stays module-only, Jobs shows a readable report summary before raw JSON, and validation failures should name failing checks when available.
+
+- 2026-03-31: Use a dedicated Reports tab backed by summarized validation-report payloads instead of trying to overload the Jobs tab for board-validation history.

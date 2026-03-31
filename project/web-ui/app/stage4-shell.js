@@ -16,6 +16,8 @@ const state = {
   selectedJobId: null,
   jobStatus: null,
   jobDetail: null,
+  reportsDashboard: null,
+  selectedReportFile: null,
   inventoryDashboard: null,
   moduleCatalog: null,
   boardCatalog: null,
@@ -65,8 +67,8 @@ const titles = {
   },
   reports: {
     title: "Reports",
-    eyebrow: "Validation & logs",
-    description: "Detailed job logs, parsed reports, and artifacts are the next task. This view stays reserved until that slice is added."
+    eyebrow: "Validation history",
+    description: "Recent validation reports with pass/fail state, failing checks, unit identity, and raw captured report data."
   }
 };
 
@@ -765,6 +767,12 @@ async function selectJob(jobId) {
   }
   state.jobDetail = detailPayload;
   renderPreview('jobs');
+}
+
+async function selectReport(reportFile) {
+  state.selectedReportFile = reportFile;
+  renderPrimary('reports');
+  renderPreview('reports');
 }
 
 function findSelectedJob() {
@@ -1785,6 +1793,32 @@ function renderPreview(view) {
     return;
   }
 
+  if (view === "reports" && state.reportsDashboard) {
+    const report = (state.reportsDashboard.reports ?? []).find((entry) => entry.reportFile === state.selectedReportFile) || state.reportsDashboard.reports?.[0] || null;
+    secondaryTitle.textContent = report ? `${report.boardDisplayName ?? report.boardId ?? 'Report'} Report` : `${titles[view].title} Preview`;
+    if (!report) {
+      secondaryBody.innerHTML = `<div class="empty-note">No validation reports are available yet.</div>`;
+      return;
+    }
+    secondaryBody.innerHTML = `
+      <div class="detail-stack">
+        ${renderList([
+          { title: 'Report', description: report.reportFile ?? 'unknown file', meta: [report.generatedAt ?? 'no timestamp'] },
+          { title: 'Board', description: report.boardDisplayName ?? report.boardId ?? 'unknown board', meta: [report.boardId ?? 'unknown board', report.port ?? 'no port'] },
+          { title: 'Unit', description: report.stableUnitId ?? 'no unit', meta: [report.transportKind ?? 'unknown transport', report.overallPass === true ? 'pass' : report.overallPass === false ? 'fail' : 'unknown'] },
+        ])}
+        <div>
+          <strong>Failing checks</strong>
+          ${report.failingChecks?.length ? `<ul class="inline-list">${report.failingChecks.map((entry) => `<li><code>${escapeHtml(entry.checkId || entry.title || 'check')}</code>${entry.notes?.length ? `: ${escapeHtml(entry.notes.join(' | '))}` : ''}</li>`).join('')}</ul>` : '<div class="empty-inline">No failing checks recorded.</div>'}
+        </div>
+        <div>
+          <strong>Raw report</strong>
+          ${renderJsonBlock(report.report)}
+        </div>
+      </div>`;
+    return;
+  }
+
   secondaryBody.innerHTML = `<div class="empty-note">${titles[view].description}</div>`;
 }
 
@@ -1884,6 +1918,27 @@ function renderPrimary(view) {
     return;
   }
 
+  if (view === "reports" && state.reportsDashboard) {
+    primaryBody.innerHTML = `<ul class="data-list">${state.reportsDashboard.reports.map((report) => `
+      <li class="data-card selectable-card${state.selectedReportFile === report.reportFile ? ' is-selected' : ''}">
+        <button class="card-button" data-report-file="${report.reportFile}" type="button">
+          <h4>${report.boardDisplayName ?? report.boardId ?? 'report'} · ${report.reportFile}</h4>
+          <div>${report.stableUnitId ?? 'no unit'}${report.port ? ` · ${report.port}` : ''} · ${report.generatedAt ?? 'no timestamp'}</div>
+          <div class="meta-row">
+            <span class="meta-chip">${report.overallPass === true ? 'pass' : report.overallPass === false ? 'fail' : 'unknown'}</span>
+            <span class="meta-chip">failing ${report.failingCheckCount ?? 0}</span>
+            <span class="meta-chip">warnings ${report.warningCount ?? 0}</span>
+          </div>
+        </button>
+      </li>`).join('')}</ul>`;
+    document.querySelectorAll('[data-report-file]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectReport(button.dataset.reportFile);
+      });
+    });
+    return;
+  }
+
   primaryBody.innerHTML = `<div class="empty-note">${titleInfo.description}</div>`;
 }
 
@@ -1897,7 +1952,7 @@ function setActiveView(view) {
 }
 
 async function loadShell(preferredModuleId = null, preferredBoardId = null, preferredProjectId = null) {
-  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions, projectEditOptions, jobsDashboard] = await Promise.all([
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions, projectEditOptions, jobsDashboard, reportsDashboard] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
@@ -1909,7 +1964,8 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
     fetchJson('/api/stage4/board-create-candidates'),
     fetchJson('/api/stage4/board-create-manual-options'),
     fetchJson('/api/stage4/project-edit-options'),
-    fetchJson('/api/stage4/dashboard/jobs')
+    fetchJson('/api/stage4/dashboard/jobs'),
+    fetchJson('/api/stage4/dashboard/reports')
   ]);
 
   state.tree = tree;
@@ -1923,7 +1979,9 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
   state.boardManualOptions = boardManualOptions;
   state.projectEditOptions = projectEditOptions;
   state.jobsDashboard = jobsDashboard;
+  state.reportsDashboard = reportsDashboard;
   state.selectedJobId = state.selectedJobId || jobsDashboard.recentJobs[0]?.jobId || null;
+  state.selectedReportFile = state.selectedReportFile || reportsDashboard.reports?.[0]?.reportFile || null;
   state.jobDetail = null;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
