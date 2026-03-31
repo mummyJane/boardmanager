@@ -2028,3 +2028,9 @@ Validation:
 - Validation result: repo-wide `node project/scripts/validate-definitions.mjs` currently fails because the earlier board reset left the existing project JSON files referencing removed board ids.
 - Validation result: a timed standalone hello-world build configure attempt reached ESP-IDF configure but failed on this host with Windows permission problems: `idf.py` hit `PermissionError: [WinError 5] Access is denied`, and a direct `cmake` fallback timed out after Git `sh.exe` reported `fatal error - couldn't create signal pipe, Win32 error 5`.
 - Host issue: `apply_patch` started failing intermittently at the Windows sandbox refresh layer, so the later new test files were written with direct PowerShell file writes instead of leaving the task incomplete.
+## 2026-03-31 15:05 Europe/London
+- Task: add durable per-test run logs for the new module-level CoreS3 tests.
+- Added project/parts/mcu/esp32_s3/tests/run-log.md and seeded it with the successful ead_fuse_data hardware run plus the hello-world configure history and host workaround result.
+- Added project/parts/devices/sdcard_spi/tests/run-log.md and seeded it with the pending SD-card info test entry so the next run has an explicit expected result and observed-result slot.
+- Result: module-owned tests now have a stable place to record 	est, hardware, xpected, observed, esult, 	imeout, command, and 
+otes for each run.

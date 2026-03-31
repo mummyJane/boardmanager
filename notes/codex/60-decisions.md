@@ -316,3 +316,4 @@
 - 2026-03-31 14:25 Europe/London: Treat the ESP32-S3 eFuse read as a host-side test owned by the MCU part. It uses `espefuse.py` with a bounded timeout because this produces fuller chip identity data than an on-device firmware app for the same step.
 - 2026-03-31 14:25 Europe/London: Model the CoreS3 microSD slot as a reusable `sdcard_spi` device part with its own help page and smoke-test app, using the official CoreS3 SPI pin map instead of burying the SD slot logic in a board-specific app.
 
+- 2026-03-31 15:05 Europe/London: Keep test-run evidence beside the reusable part test assets instead of only in the global work log. Each module/device test folder should have a un-log.md that records expected result, observed result, pass/fail state, timeout, and command per run.
