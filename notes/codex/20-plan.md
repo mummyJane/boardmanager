@@ -139,7 +139,10 @@ Planned slices:
   - manual board-create flow complete with blank-board and template-backed creation paths
 - Slice 6: add board-config validation views and hardware test/report integration
 - Slice 7: add project/build/run pages that sit on top of the Stage 3 job APIs
+  - project catalog read view complete with board target, app layout, OTA/security policy, and override summaries
+  - project create/edit flow complete with guarded Python write APIs, preflight validation, and minimal app-root scaffolding for new user projects
 - Slice 8: add service write APIs and persistence workflows for user-created modules, boards, and projects
+  - module, board, and project write APIs now exist for the first Stage 4 editor flows
 
 - 2026-03-30 18:45 Europe/London: Milestone 4 planning now treats the UI as three connected areas: module config, board config, and build/run. The shared model is tree-based, with module composition feeding board assembly and board selection feeding project execution.
 - 2026-03-30 19:25 Europe/London: Milestone 4 planning now also reserves the long-term web-serving role for a Python-based service host, while current Node scripts remain acceptable for generation and validation work.
@@ -201,3 +204,5 @@ Planned slices:
 - 2026-03-30 22:43 Europe/London: Stage 4 board-config validation flow complete. Boards detail now shows attached-unit candidates, latest validation summary, and a validate action that runs the existing Stage 3 validation contract through the Python service.
 
 - 2026-03-31 07:53 Europe/London: Stage 4 project catalog view complete. Python service now exposes project catalog/detail payloads and the Projects tab renders real board target, app layout, deployment, OTA, security, and override detail.
+
+- 2026-03-31 08:45 Europe/London: Stage 4 project create/edit flow complete. The Projects tab now supports user-created project definitions, guarded updates for user-owned projects, and minimal firmware-app scaffolding so new project JSON files validate immediately.

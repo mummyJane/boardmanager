@@ -1928,3 +1928,11 @@ Validation:
 - Validation: `python -m py_compile project/scripts/stage4-read-api.py` passed after fixing one escaped backslash literal in `sourcePath`.
 - Validation: `node --check project/web-ui/app/stage4-shell.js` passed.
 - Validation: direct Python payload check returned `projectCount=4`, `secureCount=1`, and `m5stack_dial_secure_ota` detail bound to board `m5stack_dial_v1_1`.
+
+## 2026-03-31 08:45 Europe/London
+- Task: Stage 4 project create/edit flow and guarded project write APIs.
+- Updated `project/scripts/stage4-read-api.py` to add project edit options, project edit payloads, project validation, project create/update helpers, guarded user-owned project updates, and minimal app-root scaffolding for new user projects.
+- Updated `project/web-ui/app/stage4-shell.js` so the Projects tab now supports create/edit actions, project validation before write, board-target selection, OTA/security policy editing, and code-root metadata for SDK, third-party components, and module code.
+- Commands run: `python -m py_compile project/scripts/stage4-read-api.py`, `node --check project/web-ui/app/stage4-shell.js`, inline Python create/update/cleanup validation for `user_stage4_temp_project`, and `validate.ps1`.
+- Validation: the controlled create/update/cleanup cycle scaffolded `apps/user_stage4_temp_app/main/app_main.c`, `board_app_user.c`, and `board_app_user.h`, then removed the temporary project and regenerated the Stage 4 tree.
+- Validation: `validate.ps1` passed after the project create/edit changes.

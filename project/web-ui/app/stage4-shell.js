@@ -7,9 +7,11 @@ const state = {
   projectCatalog: null,
   selectedProjectId: null,
   projectDetail: null,
-  projectCatalog: null,
-  selectedProjectId: null,
-  projectDetail: null,
+  projectEditOptions: null,
+  projectCreateMode: false,
+  projectEditMode: false,
+  projectEditPayload: null,
+  projectStatus: null,
   inventoryDashboard: null,
   moduleCatalog: null,
   boardCatalog: null,
@@ -745,6 +747,29 @@ async function loadBoardEdit(boardId) {
   renderPreview('boards');
 }
 
+async function selectProject(projectId) {
+  state.selectedProjectId = projectId;
+  state.projectCreateMode = false;
+  state.projectEditMode = false;
+  state.projectEditPayload = null;
+  renderPrimary('projects');
+  const detailPayload = await fetchJson(`/api/stage4/project-detail/${encodeURIComponent(projectId)}`);
+  if (state.selectedProjectId !== projectId) {
+    return;
+  }
+  state.projectDetail = detailPayload;
+  renderPreview('projects');
+}
+
+async function loadProjectEdit(projectId) {
+  const payload = await fetchJson(`/api/stage4/project-edit/${encodeURIComponent(projectId)}`);
+  if (state.selectedProjectId !== projectId) {
+    return;
+  }
+  state.projectEditPayload = payload;
+  renderPreview('projects');
+}
+
 async function loadBoardGuess(unitId) {
   if (!unitId) {
     state.boardCreateGuess = null;
@@ -910,6 +935,95 @@ async function handleModuleCreateSubmit(form) {
   state.moduleComposeMode = false;
   await loadShell(result.created.moduleId);
   renderPreview('modules');
+}
+
+function parseJsonObjectInput(rawValue, fieldName) {
+  const raw = String(rawValue || '').trim();
+  if (!raw) {
+    return {};
+  }
+  const value = JSON.parse(raw);
+  if (!value || Array.isArray(value) || typeof value !== 'object') {
+    throw new Error(`${fieldName} must be a JSON object.`);
+  }
+  return value;
+}
+
+function parseLineList(rawValue) {
+  return String(rawValue || '')
+    .split(/\r?\n/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function buildProjectPayloadFromForm(formData) {
+  return {
+    projectId: String(formData.get('projectId') || '').trim(),
+    displayName: String(formData.get('displayName') || '').trim(),
+    boardId: String(formData.get('boardId') || '').trim(),
+    app: {
+      appId: String(formData.get('appId') || '').trim(),
+      appRoot: String(formData.get('appRoot') || '').trim(),
+      userCodeRoot: String(formData.get('userCodeRoot') || '').trim(),
+      generatedSupportRoot: String(formData.get('generatedSupportRoot') || '').trim(),
+      stableApi: String(formData.get('stableApi') || '').trim(),
+    },
+    firmwareTarget: {
+      family: String(formData.get('firmwareFamily') || '').trim(),
+      entryPoint: String(formData.get('entryPoint') || '').trim(),
+    },
+    deployment: {
+      transports: String(formData.get('transports') || '').split(',').map((entry) => entry.trim()).filter(Boolean),
+      ota: {
+        supported: formData.get('otaSupported') === 'on',
+        signing: String(formData.get('otaSigning') || '').trim(),
+        signedBy: String(formData.get('otaSignedBy') || '').trim(),
+        encryption: String(formData.get('otaEncryption') || '').trim(),
+      },
+      security: {
+        classification: String(formData.get('securityClassification') || '').trim(),
+      },
+    },
+    codeRoots: {
+      sdk: parseLineList(formData.get('sdkRoots')),
+      thirdPartyComponents: parseLineList(formData.get('componentRoots')),
+      moduleCode: parseLineList(formData.get('moduleCodeRoots')),
+    },
+    partOverrides: parseJsonObjectInput(formData.get('partOverrides'), 'Part overrides'),
+    signalOverrides: parseJsonObjectInput(formData.get('signalOverrides'), 'Signal overrides'),
+  };
+}
+
+async function handleProjectCreateSubmit(form) {
+  const payload = buildProjectPayloadFromForm(new FormData(form));
+  const validation = await postJson('/api/stage4/project-validate', payload);
+  if (!validation.valid) {
+    throw new Error(validation.errors.join('; '));
+  }
+  const result = await postJson('/api/stage4/project-create', payload);
+  const warningText = (validation.warnings ?? []).length ? ` Warnings: ${(validation.warnings || []).join(' | ')}` : '';
+  state.projectStatus = { kind: 'success', message: `Created ${result.created.projectId}.${warningText}` };
+  state.projectCreateMode = false;
+  state.projectEditMode = false;
+  state.projectEditPayload = null;
+  await loadShell(state.selectedModuleId, state.selectedBoardId, result.created.projectId);
+  renderPreview('projects');
+}
+
+async function handleProjectEditSubmit(form) {
+  const payload = buildProjectPayloadFromForm(new FormData(form));
+  const validation = await postJson('/api/stage4/project-validate', payload);
+  if (!validation.valid) {
+    throw new Error(validation.errors.join('; '));
+  }
+  const result = await putJson(`/api/stage4/projects/${encodeURIComponent(payload.projectId)}`, payload);
+  const warningText = (validation.warnings ?? []).length ? ` Warnings: ${(validation.warnings || []).join(' | ')}` : '';
+  state.projectStatus = { kind: 'success', message: `Updated ${result.updated.projectId}.${warningText}` };
+  state.projectCreateMode = false;
+  state.projectEditMode = false;
+  state.projectEditPayload = null;
+  await loadShell(state.selectedModuleId, state.selectedBoardId, result.updated.projectId);
+  renderPreview('projects');
 }
 
 function bindBoardPreviewActions() {
@@ -1092,6 +1206,245 @@ function bindModulePreviewActions() {
   }
 }
 
+function renderProjectToolbar() {
+  return `
+    <div class="action-row">
+      <button class="action-button" type="button" id="project-create-toggle">${state.projectCreateMode ? 'Back to detail' : 'New project'}</button>
+      <button class="action-button" type="button" id="project-edit-toggle">${state.projectEditMode ? 'Back to detail' : 'Edit project'}</button>
+      ${state.selectedProjectId ? `<span class="status-chip">selected ${escapeHtml(state.selectedProjectId)}</span>` : ''}
+    </div>`;
+}
+
+function renderProjectStatus() {
+  if (!state.projectStatus) {
+    return '';
+  }
+  return `<div class="status-banner ${state.projectStatus.kind}">${escapeHtml(state.projectStatus.message)}</div>`;
+}
+
+function renderProjectForm(project, options, modeLabel) {
+  const boards = options?.boards ?? [];
+  const firmwareFamilies = options?.firmwareFamilies ?? [];
+  const securityClassifications = options?.securityClassifications ?? [];
+  const signingOptions = options?.otaSigningOptions ?? [];
+  const signedByOptions = options?.otaSignerOptions ?? [];
+  const encryptionOptions = options?.otaEncryptionOptions ?? [];
+  const boardOptions = boards.map((entry) => `<option value="${escapeHtml(entry.boardId)}" ${entry.boardId === project.boardId ? 'selected' : ''}>${escapeHtml(entry.title)} (${escapeHtml(entry.boardId)})</option>`).join('');
+  const familyOptions = firmwareFamilies.map((entry) => `<option value="${escapeHtml(entry)}" ${entry === project.firmwareTarget?.family ? 'selected' : ''}>${escapeHtml(entry)}</option>`).join('');
+  const securityOptions = securityClassifications.map((entry) => `<option value="${escapeHtml(entry)}" ${entry === project.deployment?.security?.classification ? 'selected' : ''}>${escapeHtml(entry)}</option>`).join('');
+  const signingSelect = signingOptions.map((entry) => `<option value="${escapeHtml(entry)}" ${entry === project.deployment?.ota?.signing ? 'selected' : ''}>${escapeHtml(entry)}</option>`).join('');
+  const signedBySelect = signedByOptions.map((entry) => `<option value="${escapeHtml(entry)}" ${entry === project.deployment?.ota?.signedBy ? 'selected' : ''}>${escapeHtml(entry)}</option>`).join('');
+  const encryptionSelect = encryptionOptions.map((entry) => `<option value="${escapeHtml(entry)}" ${entry === project.deployment?.ota?.encryption ? 'selected' : ''}>${escapeHtml(entry)}</option>`).join('');
+  const codeRoots = project.codeRoots ?? { sdk: [], thirdPartyComponents: [], moduleCode: [] };
+  return `
+    <form id="project-${modeLabel}-form" class="form-stack">
+      <div class="eyebrow">${modeLabel === 'create' ? 'Create project' : 'Edit project'}</div>
+      <div class="form-grid">
+        <label class="field-label">Project id
+          <input class="text-input" name="projectId" value="${escapeHtml(project.projectId ?? '')}" ${modeLabel === 'edit' ? 'readonly' : ''} required pattern="[a-z][a-z0-9_]*">
+        </label>
+        <label class="field-label">Display name
+          <input class="text-input" name="displayName" value="${escapeHtml(project.displayName ?? '')}" required>
+        </label>
+        <label class="field-label">Board target
+          <select class="text-input" name="boardId" required>
+            <option value="">Select board</option>
+            ${boardOptions}
+          </select>
+        </label>
+        <label class="field-label">App id
+          <input class="text-input" name="appId" value="${escapeHtml(project.app?.appId ?? '')}" required pattern="[a-z][a-z0-9_]*">
+        </label>
+        <label class="field-label">App root
+          <input class="text-input" name="appRoot" value="${escapeHtml(project.app?.appRoot ?? '')}" required>
+        </label>
+        <label class="field-label">User code root
+          <input class="text-input" name="userCodeRoot" value="${escapeHtml(project.app?.userCodeRoot ?? '')}" required>
+        </label>
+        <label class="field-label">Generated support root
+          <input class="text-input" name="generatedSupportRoot" value="${escapeHtml(project.app?.generatedSupportRoot ?? 'generated')}" required>
+        </label>
+        <label class="field-label">Stable API
+          <input class="text-input" name="stableApi" value="${escapeHtml(project.app?.stableApi ?? 'firmware-common/board_user_api.h')}" required>
+        </label>
+        <label class="field-label">Firmware family
+          <select class="text-input" name="firmwareFamily" required>
+            ${familyOptions}
+          </select>
+        </label>
+        <label class="field-label">Entry point
+          <input class="text-input" name="entryPoint" value="${escapeHtml(project.firmwareTarget?.entryPoint ?? '')}" required>
+        </label>
+        <label class="field-label">Transports
+          <input class="text-input" name="transports" value="${escapeHtml((project.deployment?.transports ?? []).join(', '))}" required>
+        </label>
+        <label class="field-label checkbox-field">OTA supported
+          <input type="checkbox" name="otaSupported" ${project.deployment?.ota?.supported ? 'checked' : ''}>
+        </label>
+        <label class="field-label">OTA signing
+          <select class="text-input" name="otaSigning">${signingSelect}</select>
+        </label>
+        <label class="field-label">OTA signed by
+          <select class="text-input" name="otaSignedBy">${signedBySelect}</select>
+        </label>
+        <label class="field-label">OTA encryption
+          <select class="text-input" name="otaEncryption">${encryptionSelect}</select>
+        </label>
+        <label class="field-label">Security classification
+          <select class="text-input" name="securityClassification">${securityOptions}</select>
+        </label>
+      </div>
+      <label class="field-label">SDK code roots
+        <textarea class="text-area" name="sdkRoots" rows="4" placeholder="One path per line">${escapeHtml((codeRoots.sdk ?? []).join('\n'))}</textarea>
+      </label>
+      <label class="field-label">Third-party component roots
+        <textarea class="text-area" name="componentRoots" rows="4" placeholder="One path per line">${escapeHtml((codeRoots.thirdPartyComponents ?? []).join('\n'))}</textarea>
+      </label>
+      <label class="field-label">Module code roots
+        <textarea class="text-area" name="moduleCodeRoots" rows="4" placeholder="One path per line">${escapeHtml((codeRoots.moduleCode ?? []).join('\n'))}</textarea>
+      </label>
+      <label class="field-label">Part overrides JSON
+        <textarea class="text-area" name="partOverrides" rows="8">${escapeHtml(JSON.stringify(project.partOverrides ?? {}, null, 2))}</textarea>
+      </label>
+      <label class="field-label">Signal overrides JSON
+        <textarea class="text-area" name="signalOverrides" rows="8">${escapeHtml(JSON.stringify(project.signalOverrides ?? {}, null, 2))}</textarea>
+      </label>
+      <div class="action-row">
+        <button class="action-button primary" type="submit">${modeLabel === 'create' ? 'Create project' : 'Save project'}</button>
+        <span class="empty-inline">Projects bind user code, SDK code, third-party component code, and module code to one board target.</span>
+      </div>
+    </form>`;
+}
+
+function renderProjectCreatePanel() {
+  const options = state.projectEditOptions ?? { boards: [], firmwareFamilies: ['esp-idf', 'stm32cube'], securityClassifications: ['standard', 'secure'], otaSigningOptions: ['none', 'per-unit'], otaSignerOptions: ['none', 'root'], otaEncryptionOptions: ['none', 'per-unit-aes'] };
+  const defaultBoardId = state.selectedBoardId || options.boards?.[0]?.boardId || '';
+  const defaultFamily = defaultBoardId.startsWith('p_nucleo') ? 'stm32cube' : 'esp-idf';
+  const appId = state.selectedProjectId ? `${state.selectedProjectId}_copy` : 'user_project_demo';
+  const project = {
+    projectId: appId,
+    displayName: 'User Project',
+    boardId: defaultBoardId,
+    app: {
+      appId,
+      appRoot: `apps/${appId}`,
+      userCodeRoot: `apps/${appId}/main`,
+      generatedSupportRoot: 'generated',
+      stableApi: 'firmware-common/board_user_api.h',
+    },
+    firmwareTarget: {
+      family: defaultFamily,
+      entryPoint: defaultFamily === 'stm32cube' ? 'main/main.c' : 'main/app_main.c',
+    },
+    deployment: {
+      transports: ['usb'],
+      ota: { supported: false, signing: 'none', signedBy: 'none', encryption: 'none' },
+      security: { classification: 'standard' },
+    },
+    codeRoots: { sdk: [], thirdPartyComponents: [], moduleCode: [] },
+    partOverrides: {},
+    signalOverrides: {},
+  };
+  return renderProjectForm(project, options, 'create');
+}
+
+function renderProjectEditPanel() {
+  if (!state.projectEditPayload) {
+    return `<div class="empty-note">Load a user-owned project to edit it.</div>`;
+  }
+  return renderProjectForm(state.projectEditPayload.project, state.projectEditPayload.options, 'edit');
+}
+
+function renderProjectDetailPanel() {
+  if (!state.projectDetail) {
+    return `<div class="empty-note">Select a project to inspect its board target, app roots, deployment policy, and overrides.</div>`;
+  }
+  const detail = state.projectDetail.project;
+  const codeRoots = detail.codeRoots ?? { sdk: [], thirdPartyComponents: [], moduleCode: [] };
+  const items = [
+    { title: 'Board target', description: detail.boardTitle ?? detail.boardId, meta: [detail.boardId ?? 'unknown board', detail.editable ? 'editable' : 'catalog-owned'] },
+    { title: 'App layout', description: `App root ${detail.app?.appRoot ?? 'n/a'}`, meta: [detail.app?.userCodeRoot ?? 'n/a', detail.app?.stableApi ?? 'n/a'] },
+    { title: 'Firmware target', description: detail.firmwareTarget?.family ?? 'unknown family', meta: [detail.firmwareTarget?.entryPoint ?? 'n/a'] },
+    { title: 'Deployment', description: detail.security?.classification ?? 'standard', meta: [(detail.deployment?.transports ?? []).join(', ') || 'no transport', `signing ${detail.ota?.signing ?? 'n/a'}`, `encryption ${detail.ota?.encryption ?? 'n/a'}`] },
+    { title: 'Code roots', description: `SDK ${(codeRoots.sdk ?? []).length} · components ${(codeRoots.thirdPartyComponents ?? []).length} · module code ${(codeRoots.moduleCode ?? []).length}`, meta: [...(codeRoots.sdk ?? []), ...(codeRoots.thirdPartyComponents ?? []), ...(codeRoots.moduleCode ?? [])].slice(0, 4) },
+    { title: 'Overrides', description: `Part overrides ${(Object.keys(detail.partOverrides ?? {}).length)}`, meta: [`signal overrides ${(Object.keys(detail.signalOverrides ?? {}).length)}`, detail.sourcePath ?? 'n/a'] }
+  ];
+  return renderList(items);
+}
+
+function bindProjectPreviewActions() {
+  document.getElementById('project-create-toggle')?.addEventListener('click', () => {
+    state.projectCreateMode = !state.projectCreateMode;
+    state.projectEditMode = false;
+    state.projectEditPayload = null;
+    state.projectStatus = null;
+    renderPreview('projects');
+  });
+
+  document.getElementById('project-edit-toggle')?.addEventListener('click', () => {
+    const nextMode = !state.projectEditMode;
+    state.projectEditMode = nextMode;
+    state.projectCreateMode = false;
+    state.projectStatus = null;
+    if (!nextMode) {
+      state.projectEditPayload = null;
+      renderPreview('projects');
+      return;
+    }
+    if (!state.selectedProjectId) {
+      state.projectStatus = { kind: 'error', message: 'Select a project first.' };
+      state.projectEditMode = false;
+      renderPreview('projects');
+      return;
+    }
+    if (state.projectDetail?.project?.editable === false) {
+      state.projectStatus = { kind: 'error', message: 'Only user-created projects are editable through the Stage 4 write API.' };
+      state.projectEditMode = false;
+      renderPreview('projects');
+      return;
+    }
+    state.projectStatus = { kind: 'info', message: 'Loading project editor...' };
+    renderPreview('projects');
+    loadProjectEdit(state.selectedProjectId).catch((error) => {
+      state.projectStatus = { kind: 'error', message: error.message };
+      state.projectEditMode = false;
+      renderPreview('projects');
+    });
+  });
+
+  const createForm = document.getElementById('project-create-form');
+  if (createForm) {
+    createForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.projectStatus = { kind: 'info', message: 'Creating project...' };
+        renderPreview('projects');
+        await handleProjectCreateSubmit(createForm);
+      } catch (error) {
+        state.projectStatus = { kind: 'error', message: error.message };
+        state.projectCreateMode = true;
+        renderPreview('projects');
+      }
+    });
+  }
+
+  const editForm = document.getElementById('project-edit-form');
+  if (editForm) {
+    editForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        state.projectStatus = { kind: 'info', message: 'Saving project...' };
+        renderPreview('projects');
+        await handleProjectEditSubmit(editForm);
+      } catch (error) {
+        state.projectStatus = { kind: 'error', message: error.message };
+        state.projectEditMode = true;
+        renderPreview('projects');
+      }
+    });
+  }
+}
+
 function renderPreview(view) {
   const secondaryTitle = document.getElementById("secondary-title");
   const secondaryBody = document.getElementById("secondary-body");
@@ -1230,6 +1583,7 @@ function renderPrimary(view) {
             <span class="meta-chip">${project.securityClassification ?? 'standard'}</span>
             <span class="meta-chip">${project.otaSupported ? 'ota' : 'no ota'}</span>
             <span class="meta-chip">part overrides ${project.partOverrideCount}</span>
+            <span class="meta-chip">${project.origin ?? 'catalog'}</span>
           </div>
         </button>
       </li>`).join('')}</ul>`;
@@ -1259,7 +1613,7 @@ function setActiveView(view) {
 }
 
 async function loadShell(preferredModuleId = null, preferredBoardId = null, preferredProjectId = null) {
-  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions] = await Promise.all([
+  const [health, tree, modules, projects, inventoryDashboard, moduleCatalog, boardCatalog, projectCatalog, boardCreateCandidates, boardManualOptions, projectEditOptions] = await Promise.all([
     fetchJson('/health'),
     fetchJson('/api/stage4/tree'),
     fetchJson('/api/stage4/modules?includeChildren=false'),
@@ -1269,7 +1623,8 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
     fetchJson('/api/stage4/dashboard/boards'),
     fetchJson('/api/stage4/dashboard/projects'),
     fetchJson('/api/stage4/board-create-candidates'),
-    fetchJson('/api/stage4/board-create-manual-options')
+    fetchJson('/api/stage4/board-create-manual-options'),
+    fetchJson('/api/stage4/project-edit-options')
   ]);
 
   state.tree = tree;
@@ -1281,6 +1636,7 @@ async function loadShell(preferredModuleId = null, preferredBoardId = null, pref
   state.boardCatalog = boardCatalog;
   state.boardCreateCandidates = boardCreateCandidates;
   state.boardManualOptions = boardManualOptions;
+  state.projectEditOptions = projectEditOptions;
   state.selectedModuleId = preferredModuleId || state.selectedModuleId || moduleCatalog.modules[0]?.moduleId || null;
   state.selectedBoardId = preferredBoardId || state.selectedBoardId || boardCatalog.boards[0]?.boardId || null;
   state.selectedProjectId = preferredProjectId || state.selectedProjectId || projectCatalog.projects[0]?.projectId || null;

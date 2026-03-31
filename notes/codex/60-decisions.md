@@ -284,3 +284,6 @@
 - 2026-03-30 22:43 Europe/London: Board detail payloads should include both candidate attached units and the latest board-level validation summary so the UI can show current mismatches without forcing a fresh run every time the board is opened.
 
 - 2026-03-31 07:53 Europe/London: The first Projects tab will mirror the Modules/Boards pattern: one aggregated catalog payload plus one selected-project detail payload. This keeps the browser model simple and avoids rebuilding project detail from generic tree nodes in the shell.
+
+- 2026-03-31 08:45 Europe/London: Keep the first project editor guarded to `origin: user` project definitions, matching the earlier module-edit rule. Seeded catalog projects remain reference data and should not be editable through the first generic write API.
+- 2026-03-31 08:45 Europe/London: New user-created projects should scaffold minimal app-root files immediately instead of only writing project JSON. This keeps the existing definition validator happy and makes the first project-create flow usable without a second manual file-setup step.

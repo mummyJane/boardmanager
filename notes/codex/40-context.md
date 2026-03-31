@@ -258,3 +258,5 @@ un, and debug records.
 
 - 2026-03-31 07:53 Europe/London: Python Stage 4 service now exposes `/api/stage4/dashboard/projects` and `/api/stage4/project-detail/<projectId>`.
 - 2026-03-31 07:53 Europe/London: Projects tab now renders real project cards and selected-project detail for board target, app roots, firmware target, deployment/OTA policy, security classification, and override counts.
+
+- 2026-03-31 08:45 Europe/London: Stage 4 Projects tab now has real create/edit support backed by the Python service. User-created projects are marked `origin: user`, catalog projects remain read-only, and new projects scaffold minimal app roots plus reserved user-code files so repo validation passes immediately.

@@ -163,3 +163,28 @@ The manual options endpoint returns available board templates plus controller-mo
 
 - `/api/stage4/dashboard/projects` returns the aggregated project catalog used by the Projects tab.
 - `/api/stage4/project-detail/<projectId>` returns the selected-project detail payload for board target, app roots, firmware target, deployment policy, OTA policy, security classification, and override maps.
+
+
+The Projects tab now has a first create/edit flow through the Python service:
+
+- `/api/stage4/project-edit-options` returns board choices plus firmware/security/OTA option lists for the form.
+- `/api/stage4/project-edit/<projectId>` returns a write-oriented project payload for the selected project.
+- `POST /api/stage4/project-validate` validates a project payload before write and returns normalized shape, errors, and warnings.
+- `POST /api/stage4/project-create` creates a user-owned project definition and scaffolds minimal app-root files when needed.
+- `PUT /api/stage4/projects/<projectId>` updates an existing user-owned project definition safely.
+
+The first project editor supports:
+
+- selected board target
+- app layout and stable API path
+- firmware family and entrypoint
+- OTA transports, signing, encryption, and security classification
+- explicit code-root metadata for SDK code, third-party component code, and module code
+- part and signal override maps
+
+Safety rules:
+
+- only `origin: user` projects are editable through the update API
+- catalog projects remain readable but reject write attempts
+- create/update flows regenerate the Stage 4 tree before returning refreshed payloads
+- create/update flows keep the repo-validation contract intact by scaffolding the minimal reserved user-code files when a new project app root does not exist yet

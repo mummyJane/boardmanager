@@ -21,10 +21,16 @@ HELP_PARTS_ROOT = PROJECT_ROOT / "help" / "parts"
 BOARDS_ROOT = PROJECT_ROOT / "boards"
 HELP_BOARDS_ROOT = PROJECT_ROOT / "help" / "boards"
 GENERATED_ROOT = PROJECT_ROOT / "generated"
+PROJECTS_ROOT = PROJECT_ROOT / "projects"
 STAGE4_GENERATOR_PATH = PROJECT_ROOT / "scripts" / "generate-stage4-tree-model.mjs"
 MODULE_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 INTERFACE_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_\\-]*$")
 API_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
+ALLOWED_FIRMWARE_FAMILIES = {"esp-idf", "stm32cube"}
+ALLOWED_SECURITY_CLASSIFICATIONS = {"standard", "secure"}
+ALLOWED_OTA_SIGNING = {"none", "per-unit"}
+ALLOWED_OTA_SIGNERS = {"none", "root"}
+ALLOWED_OTA_ENCRYPTION = {"none", "per-unit-aes"}
 
 
 def read_json(file_path, fallback):
@@ -1640,7 +1646,7 @@ def run_board_validation(payload):
 
 
 def load_project_definition(project_id):
-    project_path = PROJECT_ROOT / "projects" / f"{project_id}.json"
+    project_path = PROJECTS_ROOT / f"{project_id}.json"
     if not project_path.exists():
         raise FileNotFoundError(f"project '{project_id}' not found")
     definition = json.loads(project_path.read_text(encoding="utf-8"))
@@ -1648,6 +1654,453 @@ def load_project_definition(project_id):
         "path": project_path,
         "definition": definition,
     }
+
+
+
+def project_paths(project_id):
+    return {
+        "project": PROJECTS_ROOT / f"{project_id}.json",
+    }
+
+
+
+def normalize_repo_relative_path(value, field_name):
+    text = str(value or "").strip().replace("\\", "/")
+    if not text:
+        raise ValueError(f"{field_name} is required")
+    candidate = Path(text)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        raise ValueError(f"{field_name} must stay inside the project tree")
+    return text
+
+
+
+def ensure_string_array(value, field_name):
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError(f"{field_name} must be an array")
+    result = []
+    for entry in value:
+        text = str(entry or "").strip()
+        if text:
+            result.append(text)
+    return result
+
+
+
+def ensure_object(value, field_name):
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ValueError(f"{field_name} must be an object")
+    return value
+
+
+
+def build_project_edit_options(model):
+    boards_root = find_root(model, "boards-root") or {"children": []}
+    boards = []
+    for node in boards_root.get("children", []):
+        metadata = node.get("metadata") or {}
+        boards.append({
+            "boardId": metadata.get("boardId") or node.get("nodeId"),
+            "title": node.get("title"),
+            "vendor": metadata.get("vendor"),
+            "revision": metadata.get("revision"),
+            "controllerModuleId": metadata.get("controllerModuleId"),
+        })
+    boards.sort(key=lambda item: item.get("title") or "")
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "boards": boards,
+        "firmwareFamilies": sorted(ALLOWED_FIRMWARE_FAMILIES),
+        "securityClassifications": sorted(ALLOWED_SECURITY_CLASSIFICATIONS),
+        "transportOptions": ["usb", "ota", "uart", "jtag"],
+        "otaSigningOptions": sorted(ALLOWED_OTA_SIGNING),
+        "otaSignerOptions": sorted(ALLOWED_OTA_SIGNERS),
+        "otaEncryptionOptions": sorted(ALLOWED_OTA_ENCRYPTION),
+    }
+
+
+
+def normalize_project_payload(payload, model, existing_project_id=None):
+    if not isinstance(payload, dict):
+        raise ValueError("project payload must be a JSON object")
+
+    project_id = str(payload.get("projectId") or "").strip()
+    if not MODULE_ID_PATTERN.match(project_id):
+        raise ValueError("projectId must match ^[a-z][a-z0-9_]*$")
+    if existing_project_id is not None and project_id != existing_project_id:
+        raise ValueError("projectId in payload must match the project id in the request path")
+
+    display_name = str(payload.get("displayName") or "").strip()
+    if not display_name:
+        raise ValueError("displayName is required")
+
+    board_id = str(payload.get("boardId") or "").strip()
+    if not board_id:
+        raise ValueError("boardId is required")
+    if not (PROJECT_ROOT / "boards" / f"{board_id}.json").exists():
+        raise ValueError(f"boardId '{board_id}' does not exist")
+
+    app = payload.get("app") or {}
+    app_id = str(app.get("appId") or "").strip()
+    if not MODULE_ID_PATTERN.match(app_id):
+        raise ValueError("app.appId must match ^[a-z][a-z0-9_]*$")
+
+    app_root = normalize_repo_relative_path(app.get("appRoot"), "app.appRoot")
+    user_code_root = normalize_repo_relative_path(app.get("userCodeRoot"), "app.userCodeRoot")
+    generated_support_root = normalize_repo_relative_path(app.get("generatedSupportRoot") or "generated", "app.generatedSupportRoot")
+    stable_api = normalize_repo_relative_path(app.get("stableApi"), "app.stableApi")
+
+    firmware_target = payload.get("firmwareTarget") or {}
+    family = str(firmware_target.get("family") or "").strip()
+    if family not in ALLOWED_FIRMWARE_FAMILIES:
+        raise ValueError(f"firmwareTarget.family must be one of: {', '.join(sorted(ALLOWED_FIRMWARE_FAMILIES))}")
+    entry_point = normalize_repo_relative_path(firmware_target.get("entryPoint"), "firmwareTarget.entryPoint")
+
+    deployment = payload.get("deployment") or {}
+    transports = ensure_string_array(deployment.get("transports"), "deployment.transports")
+    if not transports:
+        raise ValueError("deployment.transports must include at least one transport")
+    transports = list(dict.fromkeys(transports))
+
+    ota = deployment.get("ota") or {}
+    ota_supported = bool(ota.get("supported"))
+    ota_signing = str(ota.get("signing") or ("per-unit" if ota_supported else "none")).strip()
+    ota_signed_by = str(ota.get("signedBy") or ("root" if ota_supported else "none")).strip()
+    ota_encryption = str(ota.get("encryption") or "none").strip()
+    if ota_signing not in ALLOWED_OTA_SIGNING:
+        raise ValueError(f"deployment.ota.signing must be one of: {', '.join(sorted(ALLOWED_OTA_SIGNING))}")
+    if ota_signed_by not in ALLOWED_OTA_SIGNERS:
+        raise ValueError(f"deployment.ota.signedBy must be one of: {', '.join(sorted(ALLOWED_OTA_SIGNERS))}")
+    if ota_encryption not in ALLOWED_OTA_ENCRYPTION:
+        raise ValueError(f"deployment.ota.encryption must be one of: {', '.join(sorted(ALLOWED_OTA_ENCRYPTION))}")
+
+    security = deployment.get("security") or {}
+    classification = str(security.get("classification") or "standard").strip()
+    if classification not in ALLOWED_SECURITY_CLASSIFICATIONS:
+        raise ValueError(f"deployment.security.classification must be one of: {', '.join(sorted(ALLOWED_SECURITY_CLASSIFICATIONS))}")
+
+    code_roots = ensure_object(payload.get("codeRoots"), "codeRoots")
+    normalized_code_roots = {
+        "sdk": [normalize_repo_relative_path(entry, "codeRoots.sdk") for entry in ensure_string_array(code_roots.get("sdk"), "codeRoots.sdk")],
+        "thirdPartyComponents": [normalize_repo_relative_path(entry, "codeRoots.thirdPartyComponents") for entry in ensure_string_array(code_roots.get("thirdPartyComponents"), "codeRoots.thirdPartyComponents")],
+        "moduleCode": [normalize_repo_relative_path(entry, "codeRoots.moduleCode") for entry in ensure_string_array(code_roots.get("moduleCode"), "codeRoots.moduleCode")],
+    }
+
+    return {
+        "projectId": project_id,
+        "displayName": display_name,
+        "boardId": board_id,
+        "origin": str(payload.get("origin") or "user").strip() or "user",
+        "app": {
+            "appId": app_id,
+            "appRoot": app_root,
+            "userCodeRoot": user_code_root,
+            "generatedSupportRoot": generated_support_root,
+            "stableApi": stable_api,
+        },
+        "firmwareTarget": {
+            "family": family,
+            "entryPoint": entry_point,
+        },
+        "deployment": {
+            "transports": transports,
+            "ota": {
+                "supported": ota_supported,
+                "signing": ota_signing,
+                "signedBy": ota_signed_by,
+                "encryption": ota_encryption,
+            },
+            "security": {
+                "classification": classification,
+            },
+        },
+        "codeRoots": normalized_code_roots,
+        "partOverrides": ensure_object(payload.get("partOverrides"), "partOverrides"),
+        "signalOverrides": ensure_object(payload.get("signalOverrides"), "signalOverrides"),
+    }
+
+
+
+def validate_project_payload(payload, existing_project_id=None):
+    model = load_tree_model()
+    try:
+        normalized = normalize_project_payload(payload, model, existing_project_id=existing_project_id)
+    except ValueError as error:
+        return {
+            "valid": False,
+            "errors": [str(error)],
+            "warnings": [],
+            "normalized": None,
+        }
+
+    errors = []
+    warnings = []
+    projects_root = find_root(model, "projects-root") or {"children": []}
+    existing_project_ids = {
+        (child.get("metadata") or {}).get("projectId")
+        for child in projects_root.get("children", [])
+    }
+    if existing_project_id is None and normalized["projectId"] in existing_project_ids:
+        errors.append(f"project '{normalized['projectId']}' already exists")
+
+    existing_app_ids = set()
+    for child in projects_root.get("children", []):
+        metadata = child.get("metadata") or {}
+        project_id = metadata.get("projectId")
+        if existing_project_id is not None and project_id == existing_project_id:
+            continue
+        app_id = metadata.get("appId")
+        if app_id:
+            existing_app_ids.add(app_id)
+    if normalized["app"]["appId"] in existing_app_ids:
+        errors.append(f"app.appId '{normalized['app']['appId']}' is already in use")
+
+    if len(normalized["displayName"]) < 3:
+        errors.append("displayName must be at least 3 characters long")
+
+    app_root_path = PROJECT_ROOT / normalized["app"]["appRoot"]
+    user_code_root_path = PROJECT_ROOT / normalized["app"]["userCodeRoot"]
+    stable_api_path = PROJECT_ROOT / normalized["app"]["stableApi"]
+    entry_point_path = PROJECT_ROOT / normalized["app"]["appRoot"] / normalized["firmwareTarget"]["entryPoint"]
+
+    if not stable_api_path.exists():
+        errors.append(f"app.stableApi '{normalized['app']['stableApi']}' does not exist")
+    if app_root_path.exists() and not app_root_path.is_dir():
+        errors.append(f"app.appRoot '{normalized['app']['appRoot']}' must be a directory")
+    if user_code_root_path.exists() and not user_code_root_path.is_dir():
+        errors.append(f"app.userCodeRoot '{normalized['app']['userCodeRoot']}' must be a directory")
+
+    if normalized["deployment"]["ota"]["supported"]:
+        if "ota" not in normalized["deployment"]["transports"]:
+            errors.append("deployment.transports must include 'ota' when OTA is supported")
+        if normalized["deployment"]["ota"]["signing"] != "per-unit":
+            errors.append("OTA-capable projects must use per-unit signing")
+        if normalized["deployment"]["ota"]["signedBy"] != "root":
+            errors.append("OTA-capable projects must be signed by the local root key")
+    else:
+        if normalized["deployment"]["ota"]["signing"] != "none" or normalized["deployment"]["ota"]["encryption"] != "none":
+            errors.append("OTA signing or encryption cannot be enabled while OTA support is disabled")
+
+    if normalized["deployment"]["security"]["classification"] == "secure" and normalized["deployment"]["ota"]["encryption"] == "none":
+        errors.append("secure projects must require OTA encryption")
+    if normalized["deployment"]["ota"]["encryption"] != "none" and normalized["deployment"]["security"]["classification"] != "secure":
+        errors.append("OTA encryption requires the project to be marked secure")
+
+    board = load_board_definition(normalized["boardId"])["definition"]
+    signal_names = {signal.get("name") for signal in (board.get("signals") or board.get("io") or []) if signal.get("name")}
+    device_instances = {}
+    for bus in board.get("buses") or []:
+        for device in bus.get("devices") or []:
+            instance_id = device.get("instanceId")
+            if instance_id:
+                device_instances[instance_id] = device.get("partId")
+
+    for instance_id, override in (normalized["partOverrides"] or {}).items():
+        if instance_id not in device_instances:
+            errors.append(f"partOverride '{instance_id}' does not exist on board '{normalized['boardId']}'")
+            continue
+        part_id = (override or {}).get("partId")
+        if part_id and not (PARTS_DEVICES_ROOT / f"{part_id}.json").exists():
+            warnings.append(f"partOverride '{instance_id}' references partId '{part_id}' that is not in parts/devices")
+
+    for signal_name in (normalized["signalOverrides"] or {}).keys():
+        if signal_name not in signal_names:
+            errors.append(f"signalOverride '{signal_name}' does not exist on board '{normalized['boardId']}'")
+
+    if not app_root_path.exists():
+        warnings.append(f"appRoot '{normalized['app']['appRoot']}' will be scaffolded")
+    if not user_code_root_path.exists():
+        warnings.append(f"userCodeRoot '{normalized['app']['userCodeRoot']}' will be scaffolded")
+    if not entry_point_path.exists():
+        warnings.append(f"firmware entry point '{normalized['firmwareTarget']['entryPoint']}' will be scaffolded")
+
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "warnings": warnings,
+        "normalized": normalized,
+    }
+
+
+
+def ensure_directory(path_obj, created_dirs):
+    missing = []
+    current = path_obj
+    while not current.exists() and current != current.parent:
+        missing.append(current)
+        current = current.parent
+    path_obj.mkdir(parents=True, exist_ok=True)
+    for entry in reversed(missing):
+        created_dirs.append(entry)
+
+
+
+def ensure_file_contents(path_obj, content, created_dirs, created_files):
+    if path_obj.exists():
+        return
+    ensure_directory(path_obj.parent, created_dirs)
+    path_obj.write_text(content, encoding="utf-8")
+    created_files.append(path_obj)
+
+
+
+def remove_created_paths(created_files, created_dirs):
+    for file_path in reversed(created_files):
+        if file_path.exists():
+            file_path.unlink()
+    for dir_path in reversed(created_dirs):
+        if dir_path.exists() and not any(dir_path.iterdir()):
+            dir_path.rmdir()
+
+
+
+def scaffold_project_support_files(normalized):
+    created_dirs = []
+    created_files = []
+    app_root = PROJECT_ROOT / normalized["app"]["appRoot"]
+    user_code_root = PROJECT_ROOT / normalized["app"]["userCodeRoot"]
+    entry_point_path = PROJECT_ROOT / normalized["app"]["appRoot"] / normalized["firmwareTarget"]["entryPoint"]
+    app_id = normalized["app"]["appId"]
+    family = normalized["firmwareTarget"]["family"]
+
+    if family == "esp-idf":
+        ensure_file_contents(
+            app_root / "CMakeLists.txt",
+            f"cmake_minimum_required(VERSION 3.16)\ninclude($ENV{{IDF_PATH}}/tools/cmake/project.cmake)\nproject({app_id})\n",
+            created_dirs,
+            created_files,
+        )
+        ensure_file_contents(
+            user_code_root / "CMakeLists.txt",
+            'idf_component_register(SRCS "app_main.c" "board_app_user.c"\n                       INCLUDE_DIRS ".")\n',
+            created_dirs,
+            created_files,
+        )
+        ensure_file_contents(
+            entry_point_path,
+            '#include "board_user_api.h"\n\nvoid app_main(void)\n{\n  board_manager_user_app_start();\n}\n',
+            created_dirs,
+            created_files,
+        )
+    else:
+        ensure_file_contents(
+            app_root / "CMakeLists.txt",
+            f"cmake_minimum_required(VERSION 3.20)\nproject({app_id} C ASM)\nadd_executable(${{PROJECT_NAME}}\n  main/main.c\n  main/board_app_user.c\n)\ntarget_include_directories(${{PROJECT_NAME}} PRIVATE main ../../firmware-common)\n",
+            created_dirs,
+            created_files,
+        )
+        ensure_file_contents(
+            entry_point_path,
+            '#include "board_app_user.h"\n\nint main(void)\n{\n  board_manager_user_app_start();\n  while (1) {\n  }\n  return 0;\n}\n',
+            created_dirs,
+            created_files,
+        )
+
+    ensure_file_contents(
+        user_code_root / "board_app_user.h",
+        '#pragma once\n\nvoid board_manager_user_app_start(void);\n',
+        created_dirs,
+        created_files,
+    )
+    ensure_file_contents(
+        user_code_root / "board_app_user.c",
+        '#include "board_app_user.h"\n\nvoid board_manager_user_app_start(void)\n{\n}\n',
+        created_dirs,
+        created_files,
+    )
+    return created_files, created_dirs
+
+
+def write_project_files(project_id, definition):
+    paths = project_paths(project_id)
+    previous_project = paths["project"].read_text(encoding="utf-8") if paths["project"].exists() else None
+    created_dirs = []
+    created_files = []
+    try:
+        ensure_directory(paths["project"].parent, created_dirs)
+        paths["project"].write_text(json.dumps(definition, indent=2) + "\n", encoding="utf-8")
+        created_files, created_dirs = scaffold_project_support_files(definition)
+        regenerate_stage4_tree_model()
+    except Exception:
+        if previous_project is None:
+            if paths["project"].exists():
+                paths["project"].unlink()
+        else:
+            paths["project"].write_text(previous_project, encoding="utf-8")
+        remove_created_paths(created_files, created_dirs)
+        regenerate_stage4_tree_model()
+        raise
+
+
+
+def assert_user_owned_project(project_id):
+    loaded = load_project_definition(project_id)
+    definition = loaded["definition"]
+    if definition.get("origin") != "user":
+        raise PermissionError(f"project '{project_id}' is catalog-owned and cannot be edited through the Stage 4 write API")
+    return loaded
+
+
+
+def build_project_definition(normalized):
+    return {
+        "projectId": normalized["projectId"],
+        "displayName": normalized["displayName"],
+        "boardId": normalized["boardId"],
+        "origin": normalized["origin"],
+        "app": normalized["app"],
+        "firmwareTarget": normalized["firmwareTarget"],
+        "deployment": normalized["deployment"],
+        "codeRoots": normalized["codeRoots"],
+        "partOverrides": normalized["partOverrides"],
+        "signalOverrides": normalized["signalOverrides"],
+    }
+
+
+
+def build_project_write_result(project_id, action):
+    refreshed_model = load_tree_model()
+    paths = project_paths(project_id)
+    return {
+        action: {
+            "projectId": project_id,
+            "projectPath": str(paths["project"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        },
+        "projectCatalog": build_project_catalog_payload(refreshed_model),
+        "projectDetail": build_project_detail_payload(refreshed_model, project_id),
+        "treeSummary": refreshed_model.get("summary", {}),
+    }
+
+
+
+def create_project(payload):
+    validation = validate_project_payload(payload)
+    if not validation["valid"]:
+        raise ValueError("; ".join(validation["errors"]))
+    normalized = validation["normalized"]
+    paths = project_paths(normalized["projectId"])
+    if paths["project"].exists():
+        raise FileExistsError(f"project '{normalized['projectId']}' already exists on disk")
+    definition = build_project_definition(normalized)
+    write_project_files(normalized["projectId"], definition)
+    return build_project_write_result(normalized["projectId"], "created")
+
+
+
+def update_project(project_id, payload):
+    assert_user_owned_project(project_id)
+    validation = validate_project_payload(payload, existing_project_id=project_id)
+    if not validation["valid"]:
+        raise ValueError("; ".join(validation["errors"]))
+    normalized = validation["normalized"]
+    definition = build_project_definition(normalized)
+    write_project_files(project_id, definition)
+    return build_project_write_result(project_id, "updated")
+
 
 
 def build_project_catalog_payload(model):
@@ -1671,6 +2124,7 @@ def build_project_catalog_payload(model):
             secure_count += 1
         if ((project.get("deployment") or {}).get("ota") or {}).get("supported"):
             ota_count += 1
+        code_roots = project.get("codeRoots") or {}
         projects.append({
             "projectId": metadata.get("projectId"),
             "title": node.get("title"),
@@ -1689,6 +2143,10 @@ def build_project_catalog_payload(model):
             "securityClassification": ((project.get("deployment") or {}).get("security") or {}).get("classification"),
             "partOverrideCount": len(project.get("partOverrides") or {}),
             "signalOverrideCount": len(project.get("signalOverrides") or {}),
+            "sdkRootCount": len(code_roots.get("sdk") or []),
+            "componentRootCount": len(code_roots.get("thirdPartyComponents") or []),
+            "moduleCodeRootCount": len(code_roots.get("moduleCode") or []),
+            "origin": project.get("origin") or "catalog",
             "sourcePath": node.get("sourcePath"),
         })
 
@@ -1703,6 +2161,32 @@ def build_project_catalog_payload(model):
         },
         "projects": projects,
     }
+
+
+
+def build_project_edit_payload(model, project_id):
+    loaded = load_project_definition(project_id)
+    definition = loaded["definition"]
+    node = find_node_by_id(find_root(model, "projects-root") or {"children": []}, normalize_id("project:", project_id))
+    return {
+        "generatedAt": model.get("generatedAt"),
+        "project": {
+            "projectId": definition.get("projectId") or project_id,
+            "displayName": definition.get("displayName") or (node or {}).get("title"),
+            "boardId": definition.get("boardId"),
+            "origin": definition.get("origin") or "catalog",
+            "editable": definition.get("origin") == "user",
+            "app": definition.get("app") or {},
+            "firmwareTarget": definition.get("firmwareTarget") or {},
+            "deployment": definition.get("deployment") or {},
+            "codeRoots": definition.get("codeRoots") or {"sdk": [], "thirdPartyComponents": [], "moduleCode": []},
+            "partOverrides": definition.get("partOverrides") or {},
+            "signalOverrides": definition.get("signalOverrides") or {},
+            "sourcePath": str(loaded["path"].relative_to(REPO_ROOT)).replace("\\", "/"),
+        },
+        "options": build_project_edit_options(model),
+    }
+
 
 
 def build_project_detail_payload(model, project_id):
@@ -1725,16 +2209,20 @@ def build_project_detail_payload(model, project_id):
             "displayName": project.get("displayName") or node.get("title"),
             "boardId": project.get("boardId"),
             "boardTitle": board_title,
+            "origin": project.get("origin") or "catalog",
+            "editable": project.get("origin") == "user",
             "app": project.get("app") or {},
             "firmwareTarget": project.get("firmwareTarget") or {},
             "deployment": deployment,
             "ota": ota,
             "security": security,
+            "codeRoots": project.get("codeRoots") or {"sdk": [], "thirdPartyComponents": [], "moduleCode": []},
             "partOverrides": project.get("partOverrides") or {},
             "signalOverrides": project.get("signalOverrides") or {},
             "sourcePath": str(loaded["path"].relative_to(REPO_ROOT)).replace("\\", "/"),
         }
     }
+
 
 
 def build_inventory_dashboard_payload():
@@ -1904,6 +2392,14 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 payload = self._read_json_body()
                 self._send_json(200, run_board_validation(payload))
                 return
+            if parsed.path == "/api/stage4/project-validate":
+                payload = self._read_json_body()
+                self._send_json(200, validate_project_payload(payload))
+                return
+            if parsed.path == "/api/stage4/project-create":
+                payload = self._read_json_body()
+                self._send_json(201, create_project(payload))
+                return
             if parsed.path == "/api/stage4/module-create":
                 payload = self._read_json_body()
                 self._send_json(201, create_leaf_module(payload))
@@ -1939,6 +2435,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 board_id = parsed.path.rsplit("/", 1)[-1]
                 payload = self._read_json_body()
                 self._send_json(200, update_board(board_id, payload))
+                return
+            if parsed.path.startswith("/api/stage4/projects/"):
+                project_id = parsed.path.rsplit("/", 1)[-1]
+                payload = self._read_json_body()
+                self._send_json(200, update_project(project_id, payload))
                 return
             self._send_json(404, {"error": "not_found"})
         except ValueError as error:
@@ -1999,6 +2500,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 self._send_json(200, build_manual_board_create_options(model))
                 return
 
+            if parsed.path == "/api/stage4/project-edit-options":
+                self._send_json(200, build_project_edit_options(model))
+                return
+
             if parsed.path == "/api/stage4/tree":
                 self._send_json(200, model)
                 return
@@ -2035,6 +2540,11 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
             if parsed.path.startswith("/api/stage4/project-detail/"):
                 project_id = parsed.path.rsplit("/", 1)[-1]
                 self._send_json(200, build_project_detail_payload(model, project_id))
+                return
+
+            if parsed.path.startswith("/api/stage4/project-edit/"):
+                project_id = parsed.path.rsplit("/", 1)[-1]
+                self._send_json(200, build_project_edit_payload(model, project_id))
                 return
 
             if parsed.path == "/api/stage4/boards":
@@ -2077,6 +2587,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/dashboard/projects",
                         "/api/stage4/board-create-candidates",
                         "/api/stage4/board-create-manual-options",
+                        "/api/stage4/project-edit-options",
                         "/api/stage4/tree",
                         "/api/stage4/modules",
                         "/api/stage4/modules/<moduleId>",
@@ -2092,8 +2603,12 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                         "/api/stage4/boards",
                         "/api/stage4/boards/<boardId>",
                         "/api/stage4/project-detail/<projectId>",
+                        "/api/stage4/project-edit/<projectId>",
+                        "POST /api/stage4/project-validate",
+                        "POST /api/stage4/project-create",
                         "/api/stage4/projects",
                         "/api/stage4/projects/<projectId>",
+                        "PUT /api/stage4/projects/<projectId>",
                         "/api/stage4/help?path=project/help/parts/bm8563.md",
                         "POST /api/stage4/module-create",
                         "POST /api/stage4/module-compose",
