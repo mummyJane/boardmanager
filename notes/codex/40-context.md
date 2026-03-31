@@ -268,3 +268,5 @@ un, and debug records.
 - Stage 4 Python server startup now self-checks runtime paths and regenerates the Stage 4 tree model if it is missing; direct launch from repo root with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791` works.
 
 - Stage 4 Python server now supports `--debug-trace` and `/api/stage4/debug/trace`; `/api/stage4/dashboard/projects` is now routed correctly.
+
+- Fixed a Stage 4 shell regression where the module help preview accidentally included board-validation markup; Jobs detail now renders clearer report summaries, and board-validation status banners now include failing check ids.

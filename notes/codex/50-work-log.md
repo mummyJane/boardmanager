@@ -1950,3 +1950,5 @@ Validation:
 2026-03-31: Fixed Stage 4 Python server startup diagnostics. Added runtime-path self-checks and automatic tree-model regeneration so direct launch with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791` no longer fails late on missing Stage 4 data files. Revalidated with py_compile, direct health check, and validate.ps1.
 
 2026-03-31: Added Stage 4 Python server debug trace mode and fixed missing `/api/stage4/dashboard/projects` route. Verified with an in-process debug run on port 8798: `/health` returned `debugTrace=true`, `/api/stage4/dashboard/projects` returned HTTP 200, and `/api/stage4/debug/trace` captured startup/request/response events.
+
+2026-03-31: Fixed Stage 4 shell regressions found in live use. Removed a misplaced board-validation section from the module help preview, improved Jobs log/report detail rendering, and changed board-validation failure banners to name the failing checks instead of only reporting a count. Revalidated with `node --check project/web-ui/app/stage4-shell.js`.

@@ -296,3 +296,5 @@
 - 2026-03-31: Keep Stage 4 Python server startup self-contained by validating runtime paths and regenerating the Stage 4 tree model when missing, instead of assuming all generated files already exist.
 
 - 2026-03-31: Add a lightweight in-memory/file-backed debug trace mode to the Stage 4 Python server so web-UI routing and startup issues can be diagnosed from the service itself without attaching an external debugger.
+
+- 2026-03-31: Keep Stage 4 failure banners and job-detail panels task-oriented: module help stays module-only, Jobs shows a readable report summary before raw JSON, and validation failures should name failing checks when available.

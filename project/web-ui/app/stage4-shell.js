@@ -619,37 +619,19 @@ function renderModuleHelpPanel() {
       </div>
       <div>
         <strong>Default config</strong>
-        ${configEntries.length ? `<div class="meta-row">${configEntries.map(([key, value]) => `<span class="meta-chip">${key} ${value}</span>`).join('')}</div>` : '<div class="empty-inline">No default config declared.</div>'}
+        ${configEntries.length ? `<div class="meta-row">${configEntries.map(([key, value]) => `<span class="meta-chip">${key} ${escapeHtml(String(value))}</span>`).join('')}</div>` : '<div class="empty-inline">No default config declared.</div>'}
       </div>
       <div>
         <strong>Child modules</strong>
-        ${compositionChildren.length ? `<ul class="inline-list">${compositionChildren.map((child) => `<li><code>${escapeHtml(child.partId || child.moduleId || 'unknown')}</code>${child.role ? `: ${escapeHtml(child.role)}` : ''}</li>`).join('')}</ul>` : '<div class="empty-inline">No child modules declared.</div>'}
+        ${compositionChildren.length ? `<ul class="inline-list">${compositionChildren.map((child) => `<li><code>${escapeHtml(child.displayName || child.partId || child.moduleId || 'unknown')}</code>${child.role ? `: ${escapeHtml(child.role)}` : ''}</li>`).join('')}</ul>` : '<div class="empty-inline">No child modules declared.</div>'}
       </div>
       <div>
         <strong>High-level API</strong>
         ${api.length ? `<ul class="inline-list">${api.map((entry) => `<li><code>${escapeHtml(entry.name)}</code>: ${escapeHtml(entry.description ?? '')}</li>`).join('')}</ul>` : '<div class="empty-inline">No high-level API entries declared.</div>'}
       </div>
       <div>
-        <strong>Board validation</strong>
-        <form id="board-validation-form" class="form-stack">
-          <div class="form-grid">
-            <label class="field-label">Attached unit
-              <select class="text-input" name="unitId" required>
-                <option value="">Select unit</option>
-                ${candidateOptions}
-              </select>
-            </label>
-            <label class="field-label">Capture seconds
-              <input class="text-input" name="seconds" value="4" type="number" min="1" max="30" required>
-            </label>
-          </div>
-          <div class="action-row">
-            <button class="action-button primary" type="submit">Run validation</button>
-            <span class="empty-inline">Compares the current board config against the selected attached unit using the Stage 3 validation runner.</span>
-          </div>
-        </form>
-        ${validationCandidates.length ? `<ul class="inline-list">${validationCandidates.map((entry) => `<li><code>${escapeHtml(entry.unitId)}</code>${entry.port ? ` on ${escapeHtml(entry.port)}` : ''}${entry.latestValidation ? ` · ${entry.latestValidation.overallPass ? 'pass' : `fail (${entry.latestValidation.failingCheckCount ?? 0})`}` : ' · no report yet'}</li>`).join('')}</ul>` : '<div class="empty-inline">No attached units currently match this board.</div>'}
-        <div class="detail-stack">${latestValidationSummary}</div>
+        <strong>Source</strong>
+        ${detail.module.sourcePath ? `<code>${escapeHtml(detail.module.sourcePath)}</code>` : '<div class="empty-inline">No source path recorded.</div>'}
       </div>
       <div>
         <strong>References</strong>
@@ -657,7 +639,7 @@ function renderModuleHelpPanel() {
       </div>
       <div>
         <strong>Help content</strong>
-        ${docs.length ? docs.map((doc) => `<article class="help-doc"><div class="eyebrow">${escapeHtml(doc.title ?? doc.kind ?? 'document')}</div>${markdownToHtml(doc.markdown)}</article>`).join('') : '<div class="empty-inline">No local help document linked for this module.</div>'}
+        ${docs.length ? docs.map((doc) => `<article class="help-doc"><div class="eyebrow">${escapeHtml(doc.title ?? doc.kind ?? 'document')}</div>${doc.path ? `<div class="meta-row"><span class="meta-chip">${escapeHtml(doc.path)}</span></div>` : ''}${markdownToHtml(doc.markdown)}</article>`).join('') : '<div class="empty-inline">No local help document linked for this module.</div>'}
       </div>
     </div>`;
 }
@@ -918,11 +900,13 @@ async function handleBoardValidationSubmit(form) {
   const result = await postJson('/api/stage4/board-validate', payload);
   const latest = result.latest ?? {};
   const overallPass = latest.summary?.overallPass;
+  const failingChecks = latest.failingChecks ?? [];
+  const failingSummary = failingChecks.slice(0, 3).map((entry) => entry.checkId || entry.title || 'check').join(', ');
   state.boardValidationStatus = {
     kind: overallPass ? 'success' : 'error',
     message: overallPass
       ? `Validation passed for ${payload.unitId}`
-      : `Validation reported ${latest.summary?.failingCheckCount ?? 0} failing checks for ${payload.unitId}`,
+      : `Validation failed for ${payload.unitId}: ${failingSummary || `${latest.summary?.failingCheckCount ?? 0} checks`}`,
   };
   await loadShell(state.selectedModuleId, state.selectedBoardId);
   renderPreview('boards');
@@ -1651,9 +1635,12 @@ function renderJobsDetailPanel() {
   if (!selected) {
     return `<div class="empty-note">Select a recent job to inspect its logs, report, and artifacts.</div>`;
   }
-  const report = state.jobDetail?.report ?? null;
+  const reportPayload = state.jobDetail?.report ?? null;
+  const reportData = reportPayload?.report ?? null;
   const log = state.jobDetail?.log ?? null;
   const artifacts = state.jobDetail?.artifacts ?? null;
+  const reportSummary = reportData?.summary ?? null;
+  const reportIdentity = reportData?.identity ?? null;
   return `
     <div class="detail-stack">
       ${renderList([
@@ -1665,9 +1652,30 @@ function renderJobsDetailPanel() {
         <strong>Log tail</strong>
         ${renderLogBlock(log)}
       </div>
-      <div>
-        <strong>Parsed report</strong>
-        ${report?.available ? renderJsonBlock(report.report) : '<div class="empty-inline">No parsed report available.</div>'}
+      <div class="detail-stack">
+        <div>
+          <strong>Report summary</strong>
+          ${reportSummary ? renderList([
+            {
+              title: reportData.reportType ?? 'report',
+              description: reportPayload?.path ?? 'no report path',
+              meta: [
+                reportSummary.overallPass === true ? 'pass' : reportSummary.overallPass === false ? 'fail' : 'unknown',
+                `failing ${reportSummary.failingCheckCount ?? 0}`,
+                `warnings ${reportSummary.warningCount ?? 0}`,
+              ],
+            },
+            {
+              title: 'Identity',
+              description: reportIdentity?.boardDisplayName ?? reportIdentity?.boardId ?? selected.boardId ?? 'unknown board',
+              meta: [reportIdentity?.stableUnitId ?? selected.unitId ?? 'no unit', reportIdentity?.port ?? selected.transportPort ?? 'no port'],
+            },
+          ]) : '<div class="empty-inline">No parsed report available.</div>'}
+        </div>
+        <div>
+          <strong>Raw report</strong>
+          ${reportPayload?.available ? renderJsonBlock(reportData) : '<div class="empty-inline">No parsed report available.</div>'}
+        </div>
       </div>
       <div>
         <strong>Artifacts</strong>
