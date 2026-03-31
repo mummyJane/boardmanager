@@ -214,3 +214,9 @@ Startup notes:
 - direct launch from the repo root is supported with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791`
 - the Python service now verifies its runtime paths at startup and will regenerate `project/web-ui/data/stage4-tree-model.json` automatically if that file is missing
 - if startup still fails, the error now lists the missing absolute runtime paths instead of failing later on first request
+
+Debug trace:
+
+- launch with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791 --debug-trace --trace-file project/job-manager/logs/stage4-read-api-trace.jsonl`
+- inspect live trace state at `/api/stage4/debug/trace`
+- trace events include startup, request, response, and basic HTTP log entries

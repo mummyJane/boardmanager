@@ -294,3 +294,5 @@
 - 2026-03-31: Keep Stage 4 job-detail views in the Python service layer with explicit `/api/stage4/job-detail`, `/job-log`, `/job-report`, and `/job-artifacts` endpoints rather than exposing raw repo file paths to the browser.
 
 - 2026-03-31: Keep Stage 4 Python server startup self-contained by validating runtime paths and regenerating the Stage 4 tree model when missing, instead of assuming all generated files already exist.
+
+- 2026-03-31: Add a lightweight in-memory/file-backed debug trace mode to the Stage 4 Python server so web-UI routing and startup issues can be diagnosed from the service itself without attaching an external debugger.

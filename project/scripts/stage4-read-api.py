@@ -3,6 +3,7 @@ import json
 import re
 import shutil
 import subprocess
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -32,6 +33,55 @@ ALLOWED_SECURITY_CLASSIFICATIONS = {"standard", "secure"}
 ALLOWED_OTA_SIGNING = {"none", "per-unit"}
 ALLOWED_OTA_SIGNERS = {"none", "root"}
 ALLOWED_OTA_ENCRYPTION = {"none", "per-unit-aes"}
+
+TRACE_STATE = {
+    "enabled": False,
+    "events": [],
+    "maxEvents": 200,
+    "traceFile": None,
+}
+
+
+def utc_now_iso():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def set_debug_trace(enabled=False, trace_file=None, max_events=200):
+    TRACE_STATE["enabled"] = bool(enabled)
+    TRACE_STATE["traceFile"] = None if not trace_file else str(Path(trace_file).resolve())
+    TRACE_STATE["maxEvents"] = max(20, int(max_events or 200))
+
+
+def trace_event(kind, **fields):
+    if not TRACE_STATE["enabled"]:
+        return
+    event = {"at": utc_now_iso(), "kind": kind}
+    event.update(fields)
+    TRACE_STATE["events"].append(event)
+    if len(TRACE_STATE["events"]) > TRACE_STATE["maxEvents"]:
+        TRACE_STATE["events"] = TRACE_STATE["events"][-TRACE_STATE["maxEvents"]:]
+    trace_file = TRACE_STATE.get("traceFile")
+    if trace_file:
+        try:
+            Path(trace_file).parent.mkdir(parents=True, exist_ok=True)
+            with Path(trace_file).open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(event) + "\n")
+        except Exception:
+            pass
+
+
+def build_debug_trace_payload():
+    return {
+        "enabled": TRACE_STATE["enabled"],
+        "traceFile": TRACE_STATE["traceFile"],
+        "eventCount": len(TRACE_STATE["events"]),
+        "events": list(TRACE_STATE["events"]),
+        "runtime": {
+            "repoRoot": str(REPO_ROOT),
+            "treeModelPath": str(TREE_MODEL_PATH),
+            "treeAvailable": TREE_MODEL_PATH.exists(),
+        },
+    }
 
 
 def read_json(file_path, fallback):
@@ -2667,6 +2717,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
     server_version = "BoardManagerStage4Python/1.0"
 
     def _send_json(self, status_code, payload):
+        trace_event("response", method=self.command, path=self.path, status=status_code, contentType="application/json")
         body = json.dumps(payload, indent=2) + "\n"
         encoded = body.encode("utf-8")
         self.send_response(status_code)
@@ -2676,6 +2727,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
         self.wfile.write(encoded)
 
     def _send_text(self, status_code, body, content_type="text/plain; charset=utf-8"):
+        trace_event("response", method=self.command, path=self.path, status=status_code, contentType=content_type)
         encoded = body.encode("utf-8")
         self.send_response(status_code)
         self.send_header("Content-Type", content_type)
@@ -2697,6 +2749,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
         self._send_text(200, asset_path.read_text(encoding="utf-8"), content_type)
 
     def log_message(self, format, *args):
+        trace_event("http", method=getattr(self, "command", None), path=getattr(self, "path", None), message=(format % args if args else format))
         return
 
     def _read_json_body(self):
@@ -2712,6 +2765,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             parsed = urlparse(self.path)
+            trace_event("request", method="POST", path=parsed.path, query=parsed.query)
             if parsed.path == "/api/stage4/module-validate":
                 payload = self._read_json_body()
                 self._send_json(200, validate_module_payload(payload))
@@ -2763,6 +2817,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         try:
             parsed = urlparse(self.path)
+            trace_event("request", method="PUT", path=parsed.path, query=parsed.query)
             if parsed.path.startswith("/api/stage4/modules/"):
                 module_id = parsed.path.rsplit("/", 1)[-1]
                 payload = self._read_json_body()
@@ -2794,6 +2849,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             parsed = urlparse(self.path)
+            trace_event("request", method="GET", path=parsed.path, query=parsed.query)
             query = parse_qs(parsed.query)
             model = load_tree_model()
 
@@ -2806,7 +2862,16 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                 return
 
             if parsed.path == "/health":
-                self._send_json(200, {"status": "ok", "runtime": "python"})
+                self._send_json(200, {
+                    "status": "ok",
+                    "runtime": "python",
+                    "treeAvailable": TREE_MODEL_PATH.exists(),
+                    "debugTrace": TRACE_STATE["enabled"],
+                })
+                return
+
+            if parsed.path == "/api/stage4/debug/trace":
+                self._send_json(200, build_debug_trace_payload())
                 return
 
             if parsed.path == "/api/stage4/dashboard/inventory":
@@ -2823,6 +2888,10 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
 
             if parsed.path == "/api/stage4/dashboard/jobs":
                 self._send_json(200, build_jobs_dashboard_payload(model))
+                return
+
+            if parsed.path == "/api/stage4/dashboard/projects":
+                self._send_json(200, build_project_catalog_payload(model))
                 return
 
             if parsed.path.startswith("/api/stage4/job-detail/"):
@@ -2947,6 +3016,7 @@ class Stage4ReadApiHandler(BaseHTTPRequestHandler):
                     "endpoints": [
                         "/",
                         "/health",
+                        "/api/stage4/debug/trace",
                         "/api/stage4/dashboard/inventory",
                         "/api/stage4/dashboard/modules",
                         "/api/stage4/dashboard/boards",
@@ -3077,14 +3147,22 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Board Manager Stage 4 read-only API")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8791)
+    parser.add_argument("--debug-trace", action="store_true")
+    parser.add_argument("--trace-file", default=None)
+    parser.add_argument("--trace-max-events", type=int, default=200)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    set_debug_trace(enabled=args.debug_trace, trace_file=args.trace_file, max_events=args.trace_max_events)
     ensure_runtime_ready()
+    trace_event("startup", host=args.host, port=args.port, repoRoot=str(REPO_ROOT), treeModelPath=str(TREE_MODEL_PATH), treeAvailable=TREE_MODEL_PATH.exists())
     print(f"Board Manager repo root: {REPO_ROOT}")
     print(f"Stage 4 tree model: {TREE_MODEL_PATH}")
+    print(f"Debug trace: {'enabled' if TRACE_STATE['enabled'] else 'disabled'}")
+    if TRACE_STATE["traceFile"]:
+        print(f"Trace file: {TRACE_STATE['traceFile']}")
     server = ThreadingHTTPServer((args.host, args.port), Stage4ReadApiHandler)
     print(f"Board Manager Stage 4 read API listening on http://{args.host}:{args.port}")
     server.serve_forever()

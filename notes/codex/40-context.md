@@ -266,3 +266,5 @@ un, and debug records.
 - Stage 4 Jobs tab now has job-detail drilldown via the Python API, including log tail, parsed report, and artifact list payloads.
 
 - Stage 4 Python server startup now self-checks runtime paths and regenerates the Stage 4 tree model if it is missing; direct launch from repo root with `python project/scripts/stage4-read-api.py --host 127.0.0.1 --port 8791` works.
+
+- Stage 4 Python server now supports `--debug-trace` and `/api/stage4/debug/trace`; `/api/stage4/dashboard/projects` is now routed correctly.
